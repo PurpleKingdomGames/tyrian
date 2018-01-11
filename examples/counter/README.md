@@ -1,6 +1,6 @@
 # scalm counter example
 
-This is the minimal project setup to run the counter example.
+This is a minimal project setup to run the counter example.
 
 To compile the program run
 
