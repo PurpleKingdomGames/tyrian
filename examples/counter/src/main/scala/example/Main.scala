@@ -17,7 +17,7 @@ object Main {
 
   def update(msg: Msg, model: Model): Model =
     msg match {
-      case Increment => model + 2
+      case Increment => model + 1
       case Decrement => model - 1
     }
 
