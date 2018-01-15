@@ -1,6 +1,8 @@
 scalm
 =====
 
+[![Join the chat at https://gitter.im/julienrf/scalm](https://badges.gitter.im/julienrf/scalm.svg)](https://gitter.im/julienrf/scalm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Elm-inspired Scala library for writing web user interfaces.
 
 ## Overview
