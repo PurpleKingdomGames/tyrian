@@ -58,16 +58,17 @@ object Main extends App {
       }
 
   def getRandomGif(topic: String): Cmd[Msg] =
-    Task.RunObservable[HttpError, String] { observer =>
+    httpGet(s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic", x => NewGif(decodeGifUrl(x.responseText)))
+
+  def httpGet(url: String, toMsg: XMLHttpRequest => Msg): Cmd[Msg] =
+    Task.RunObservable[XMLHttpRequest, XMLHttpRequest] { observer =>
       val xhr = new XMLHttpRequest
-      xhr.open("GET", s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic")
-      xhr.onload = _ =>
-        decodeGifUrl(xhr.responseText) match {
-          case Right(s)  => observer.onNext(s)
-          case Left(err) => observer.onError(err)
-        }
-      xhr.onerror = _ => observer.onError("an error occurred")
+      xhr.open("GET", url)
+      xhr.onload = _ => observer.onNext(xhr)
+      xhr.onerror = _ => observer.onError(xhr)
       xhr.send(null)
       () => xhr.abort()
-    }.attempt(NewGif)
+    }
+      .attempt(_.merge)
+      .map(toMsg)
 }
