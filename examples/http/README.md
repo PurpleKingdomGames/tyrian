@@ -1,6 +1,6 @@
-# scalm counter example
+# scalm http example
 
-This is a minimal working project setup to run the counter example.
+This is an example of how to do HTTP requests with scalm. The example is a port from the [elm HTTP example](http://elm-lang.org/examples/http).
 
 To compile the program run
 
