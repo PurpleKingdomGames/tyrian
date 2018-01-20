@@ -5,6 +5,24 @@ scalm
 
 Elm-inspired Scala library for writing web user interfaces.
 
+## Installation
+
+scalm supports Scala 2.12 and Scala.js 0.6.
+
+Since scalm uses a JavaScript library ([snabbdom](https://github.com/snabbdom/snabbdom))
+under the hood, you will have to use [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/):
+
+~~~ scala
+// project/plugins.sbt
+addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.9.0")
+~~~
+
+~~~ scala
+// build.sbt
+enablePlugins(ScalaJSBundlerPlugin)
+libraryDependencies += "org.julienrf" %%% "scalm" % "1.0.0-RC1"
+~~~
+
 ## Overview
 
 ### Elm Architecture
