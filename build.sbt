@@ -25,6 +25,8 @@ scalacOptions ++= Seq(
   "-Ywarn-value-discard"
 )
 
+publishTo := sonatypePublishTo.value
+
 inThisBuild(List(
   licenses := Seq("BSD-3-Clause" -> url("http://opensource.org/licenses/BSD-3-Clause")),
   homepage := Some(url("https://github.com/julienrf/scalm")),
@@ -38,6 +40,5 @@ inThisBuild(List(
       username <- sys.env.get("SONATYPE_USER")
       password <- sys.env.get("SONATYPE_PASSWORD")
     } yield Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", username, password)
-    ).toList,
-  releaseEarlyWith := SonatypePublisher
+    ).toList
 ))

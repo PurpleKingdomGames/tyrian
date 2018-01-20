@@ -20,7 +20,7 @@ before_install:
 script:
 - sbt test
 after_success:
-- if [ $TRAVIS_PULL_REQUEST = 'false' ] && [ -n "$TRAVIS_TAG" ]; then sbt releaseEarly;
+- if [ $TRAVIS_PULL_REQUEST = 'false' ] && [ -n "$TRAVIS_TAG" ]; then sbt publishSigned;
   fi
 cache:
   yarn: true
