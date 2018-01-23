@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mario!</title>
+    <style>
+      @font-face {
+          font-family: "press_start_k";
+          src: url("resources/font/prstartk.eot");
+          src: url("resources/font/prstartk.eot?#iefix") format("embedded-opentype"),
+               url("resources/font/prstartk.woff2") format("woff2"),
+               url("resources/font/prstartk.woff") format("woff"),
+               url("resources/font/prstartk.ttf") format("truetype"),
+               url("resources/font/prstartk.svg#press_start_kregular") format("svg");
+          font-weight: normal;
+          font-style: normal;
+
+      }
+      html, body {
+        padding: 0;
+        margin: 0;
+      }
+      body {
+        overflow: hidden;
+        zoom: 300%;
+        image-rendering: -moz-pixelated; /* Firefox */
+        image-rendering: pixelated;
+        background: url("resources/bg-day.png") center/cover repeat-x fixed #B0E9F8;
+      }
+      #ground {
+        position: absolute;
+        background:
+          url("resources/grass.png") top repeat-x,
+          url("resources/ground.png") top repeat #589C2A;
+        width: 100%;
+        min-width: 50px;
+        height: 40px;
+        bottom: 0;
+      }
+      .character {
+        position: absolute;
+      }
+      #mario {
+        width: 27px;
+        height: 27px;
+        background: url("resources/mario/stand/right.gif");
+      }
+      #mario.stand.left {
+        background: url("resources/mario/stand/left.gif");
+      }
+      #mario.stand.right {
+        background: url("resources/mario/stand/right.gif");
+      }
+      #mario.walk.left {
+        background: url("resources/mario/walk/left.gif");
+      }
+      #mario.walk.right {
+        background: url("resources/mario/walk/right.gif");
+      }
+      #mario.jump.left {
+        background: url("resources/mario/jump/left.gif");
+      }
+      #mario.jump.right {
+        background: url("resources/mario/jump/right.gif");
+      }
+      #hud {
+        position: relative;
+        font-family: "press_start_k";
+        font-size: 8px;
+        color: #FFF; /* #DFD16E */
+        text-shadow: 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000, 0 0 1px #000;
+        text-transform: uppercase;
+        margin: 10px;
+        z-index: 100;
+      }
+      #item-container {
+        height: 28px;
+        width: 28px;
+        background: url("resources/item-container.png");
+        margin: 0 auto;
+      }
+      #player-name {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        color: #FB401B;
+      }
+      #player-lives {
+        position: absolute;
+        left: 4px;
+        top: 15px;
+        white-space: pre;
+      }
+      #player-lives::before {
+        content: "X";
+      }
+      #player-score {
+        position: absolute;
+        white-space: pre;
+        line-height: 130%;
+        right: 0;
+        top: 6px;
+        background: url("resources/hud-score-coin.png") no-repeat;
+        padding-left: 10px;
+      }
+      #player-score::before {
+        content: "X ";
+      }
+    </style>
+</head>
+<body>
+<div id="ground"></div>
+<div id="mario"></div>
+<div id="hud">
+    <span id="player-name">Mario</span>
+    <span id="player-lives"> 5</span>
+    <div id="item-container"></div>
+    <span id="player-score">  0</span>
+    <script type="text/javascript" src="./target/scala-2.12/scalajs-bundler/main/mario-fastopt-bundle.js"></script>
+</div>
+</body>
+</html>
+
+
