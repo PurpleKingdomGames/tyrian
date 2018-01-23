@@ -2,8 +2,10 @@ package scalm
 
 import cats.{ApplicativeError, MonoidK}
 import org.scalajs.dom
+import org.scalajs.dom.EventTarget
 import scalm.Task.Observable
 import util.Functions
+import util.Functions.fun
 
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
@@ -96,6 +98,19 @@ object Sub {
         dom.window.setInterval(Functions.fun0(() => observer.onNext(new js.Date())), interval.toMillis.toDouble)
       () => dom.window.clearInterval(handle)
     })
+
+  def fromEvent[A,B](name: String, target: EventTarget)(extract: A => Option[B]):Sub[B] =
+    Sub.ofTotalObservable[B](name + target.hashCode, { observer =>
+      val listener = fun { (a: A) =>
+        extract(a) match {
+          case Some(b) => observer.onNext(b)
+          case None => ()
+        }
+      }
+      target.addEventListener(name, listener)
+      () => target.removeEventListener(name, listener)
+    })
+
 }
 
 /**
