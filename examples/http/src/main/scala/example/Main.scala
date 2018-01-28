@@ -3,9 +3,9 @@ package example
 import cats.syntax.either._
 import io.circe.parser._
 import org.scalajs.dom.document
-import org.scalajs.dom.raw.XMLHttpRequest
 import scalm.Html._
 import scalm._
+import scalm.http.Http
 
 object Main extends App {
 
@@ -14,13 +14,13 @@ object Main extends App {
   // MODEL
 
   final case class Model(topic: String, gifUrl: String)
-  type HttpError = String
 
-  def init: (Model, Cmd[Msg]) = (Model("cats", "waiting.gif"), getRandomGif("cats"))
+  def init: (Model, Cmd[Msg]) =
+    (Model("cats", "waiting.gif"), getRandomGif("cats"))
 
   sealed trait Msg
   case object MorePlease extends Msg
-  final case class NewGif(result: Either[HttpError, String]) extends Msg
+  final case class NewGif(result: Either[http.Error, String]) extends Msg
 
   // UPDATE
 
@@ -47,28 +47,20 @@ object Main extends App {
 
   // HTTP
 
-  def decodeGifUrl(json: String): Either[HttpError, String] =
+  def decodeGifUrl(json: String): Either[String, String] =
     parse(json)
       .leftMap(_.message)
       .flatMap { json =>
         json.hcursor
           .downField("data")
           .get[String]("image_url")
-          .toOption.toRight("wrong json format")
+          .toOption
+          .toRight("wrong json format")
       }
 
-  def getRandomGif(topic: String): Cmd[Msg] =
-    httpGet(s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic", x => NewGif(decodeGifUrl(x.responseText)))
-
-  def httpGet(url: String, toMsg: XMLHttpRequest => Msg): Cmd[Msg] =
-    Task.RunObservable[XMLHttpRequest, XMLHttpRequest] { observer =>
-      val xhr = new XMLHttpRequest
-      xhr.open("GET", url)
-      xhr.onload = _ => observer.onNext(xhr)
-      xhr.onerror = _ => observer.onError(xhr)
-      xhr.send(null)
-      () => xhr.abort()
-    }
-      .attempt(_.merge)
-      .map(toMsg)
+  def getRandomGif(topic: String): Cmd[Msg] = {
+    val url =
+      s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic"
+    Http.send(NewGif, Http.get(url, decodeGifUrl))
+  }
 }
