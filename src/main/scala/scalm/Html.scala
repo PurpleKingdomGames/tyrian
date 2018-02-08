@@ -3,6 +3,7 @@ package scalm
 import cats.kernel.Monoid
 import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
+import org.scalajs.dom.raw.HTMLInputElement
 import snabbdom.VNode
 
 /** An HTML element can be a tag or a text node */
@@ -111,6 +112,8 @@ object Html {
   def onMouseUp[M](msg: M): Attr[M] = onEvent("mouseup", (_: dom.Event) => msg)
   def onKeyDown[M](msg: KeyboardEvent => M): Attr[M] = onEvent("keydown", msg)
   def onKeyUp[M](msg: KeyboardEvent => M): Attr[M] = onEvent("keyup", msg)
+  def onInput[M](msg: String => M): Attr[M] =
+    onEvent("input", (e: dom.Event) => msg(e.target.asInstanceOf[HTMLInputElement].value))
   def onEvent[E <: org.scalajs.dom.Event, M](name: String, msg: E => M): Attr[M] = Event(name, msg)
 
   def style(s: String): Attr[⊥] = Attribute("style", s) // TODO Use CssStyle
@@ -119,6 +122,7 @@ object Html {
   def optional[A, M](maybeA: Option[A])(f: A => Attr[M]): Attr[M] = maybeA.fold[Attr[M]](Attr.Empty)(f)
   def cond[M](b: Boolean)(attr: => Attr[M]): Attr[M] = if (b) attr else Attr.Empty
 
+  def placeholder(text: String): Attr[⊥] = attr("placeholder", text)
 }
 
 case class Style private (value: String)
