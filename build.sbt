@@ -6,7 +6,7 @@ addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.3" cross CrossVersi
 name := "scalm"
 organization := "org.julienrf"
 
-npmDependencies in Compile += "snabbdom" -> "0.6.7"
+Compile / npmDependencies += "snabbdom" -> "0.6.7"
 libraryDependencies ++= Seq(
   "org.scala-js" %%% "scalajs-dom" % "1.1.0",
   "org.typelevel" %%% "cats-core" % "2.3.0"
