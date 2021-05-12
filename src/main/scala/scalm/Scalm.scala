@@ -4,6 +4,7 @@ import org.scalajs.dom
 import org.scalajs.dom.Element
 import scalm.Task.{Cancelable, Observer}
 import snabbdom.{SnabbdomSyntax, VNode, VNodeParam}
+import snabbdom.VNodeParam._
 import util.Functions.fun
 
 import scala.scalajs.js
@@ -99,7 +100,7 @@ trait Scalm extends SnabbdomSyntax {
     }
 
   private def execTaskMapped[Err, Success, Success2](mapped: Task.Mapped[Err, Success, Success2], notify: Either[Err, Success2] => Unit): Unit =
-    execTask[Err, Success](mapped.task, msg => notify(msg.right.map(mapped.f)))
+    execTask[Err, Success](mapped.task, msg => notify(msg.map(mapped.f)))
 
   private def execTaskRecovered[Err, Success](recovered: Task.Recovered[Err, Success], notify: Either[Err, Success] => Unit): Unit =
     execTask[Err, Success](recovered.task, {
@@ -135,7 +136,7 @@ trait Scalm extends SnabbdomSyntax {
 
   private def execTaskFlatMapped[Err, Success, Success2](flatMapped: Task.FlatMapped[Err, Success, Success2], notify: Either[Err, Success2] => Unit): Unit =
     execTask[Err, Success](flatMapped.task, result => {
-      val _ = result.right.foreach(success => execTask(flatMapped.f(success), notify))
+      val _ = result.foreach(success => execTask(flatMapped.f(success), notify))
     })
 
   private lazy val patch =
@@ -159,8 +160,8 @@ trait Scalm extends SnabbdomSyntax {
           js.Dictionary(attrs.collect { case Prop(n, v) => (n, v) }: _*)
         val events =
           js.Dictionary(attrs.collect { case Event(n, msg) => (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => app.Msg](e)))) }: _*)
-        val childrenElem =
-          children.map[VNodeParam, Seq[VNodeParam]] {
+        val childrenElem: Seq[VNodeParam] =
+          children.map {
             case Text(s)                 => s
             case subHtml: Html[app.Msg] => toVNode(subHtml)
             case Elem.Empty              => Nil

@@ -7,9 +7,12 @@ import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.annotation.JSImport.Default
 import scala.scalajs.js.|
 
+import scala.annotation.nowarn
+
 @JSImport("snabbdom", Default)
 @js.native
 object snabbdom extends js.Object {
+  @nowarn
   def init(modules: js.Array[js.Object]): js.Function2[VNode | Element, VNode, VNode] = js.native
 }
 

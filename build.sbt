@@ -1,29 +1,18 @@
 import sbt.Credentials
 
 enablePlugins(ScalaJSBundlerPlugin)
-addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
+addCompilerPlugin("org.typelevel" % "kind-projector" % "0.11.3" cross CrossVersion.full)
 
 name := "scalm"
 organization := "org.julienrf"
 
 npmDependencies in Compile += "snabbdom" -> "0.6.7"
 libraryDependencies ++= Seq(
-  "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-  "org.typelevel" %%% "cats" % "0.9.0"
+  "org.scala-js" %%% "scalajs-dom" % "1.1.0",
+  "org.typelevel" %%% "cats-core" % "2.3.0"
 )
 
-scalaVersion := "2.12.4"
-scalacOptions ++= Seq(
-  "-feature",
-  "-deprecation",
-  "-encoding", "UTF-8",
-  "-unchecked",
-  "-Xlint",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard"
-)
+scalaVersion := "2.13.5"
 
 publishTo := sonatypePublishTo.value
 
