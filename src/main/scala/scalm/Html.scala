@@ -5,6 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
 import org.scalajs.dom.raw.HTMLInputElement
 import snabbdom.VNode
+import scala.annotation.targetName
 
 /** An HTML element can be a tag or a text node */
 sealed trait Elem[+M] {
@@ -118,6 +119,8 @@ object Html {
 
   def style(s: String): Attr[⊥] = Attribute("style", s) // TODO Use CssStyle
   def style(styles: Style*): Attr[⊥] = Attribute("style", Monoid.combineAll(styles).value)
+  @targetName("style_tuples")
+  def style(styles: (String, String)*): Attr[⊥] = Attribute("style", Monoid.combineAll(styles.map(Style.apply)).value)
 
   def optional[A, M](maybeA: Option[A])(f: A => Attr[M]): Attr[M] = maybeA.fold[Attr[M]](Attr.Empty)(f)
   def cond[M](b: Boolean)(attr: => Attr[M]): Attr[M] = if (b) attr else Attr.Empty
