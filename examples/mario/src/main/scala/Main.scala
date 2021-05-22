@@ -8,13 +8,13 @@ import scalm._
 import scala.math._
 import cats.syntax.all._
 
-object Main extends App {
+object Main extends ScalmApp {
 
   def main(args: Array[String]): Unit =
     Scalm.start(this, document.querySelector("#mario"))
 
   sealed trait Direction
-  case object Left extends Direction
+  case object Left  extends Direction
   case object Right extends Direction
 
   case class Mario(x: Double, y: Double, vx: Double, vy: Double, dir: Direction)
@@ -24,16 +24,15 @@ object Main extends App {
   def init: (Model, Cmd[Msg]) = (Mario(0, 0, 0, 0, Right), Cmd.Empty)
 
   sealed trait Msg
-  case object PassageOfTime extends Msg
-  case object ArrowLeftPressed extends Msg
-  case object ArrowRightPressed extends Msg
-  case object ArrowLeftReleased extends Msg
+  case object PassageOfTime      extends Msg
+  case object ArrowLeftPressed   extends Msg
+  case object ArrowRightPressed  extends Msg
+  case object ArrowLeftReleased  extends Msg
   case object ArrowRightReleased extends Msg
-  case object ArrowUpPressed extends Msg
+  case object ArrowUpPressed     extends Msg
 
-  val gravity = 0.25
-  val applyGravity: Mario => Mario = (mario) =>
-    mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
+  val gravity                      = 0.25
+  val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
 
   val applyMotion: Mario => Mario = (mario: Model) =>
     mario.copy(x = mario.x + mario.vx, y = max(0.0, mario.y + 3 * mario.vy))
@@ -96,14 +95,10 @@ object Main extends App {
     val dir = model.dir.toString.toLowerCase
     val css = Style("top", s"${posY}px") |+| Style("left", s"${posX}px")
 
-    div(style(css),
-        attr("id", "mario"),
-        attr("class", "character " + verb + " " + dir))()
+    div(style(css), attr("id", "mario"), attr("class", "character " + verb + " " + dir))()
   }
 
-  def modelPositionScreen(screenX: Double,
-                          screenY: Double,
-                          model: Model): (Double, Double) = {
+  def modelPositionScreen(screenX: Double, screenY: Double, model: Model): (Double, Double) = {
     val posX = ((screenX / 2) * 100) / 300 + model.x
     val posY = ((screenY - 200) * 100) / 300 - model.y
     (posX, posY)

@@ -7,9 +7,10 @@ import scalm.Html._
 import scalm._
 import scalm.http.Http
 
-object Main extends App {
+object Main extends ScalmApp {
 
-  def main(args: Array[String]): Unit = Scalm.start(this, document.body)
+  def main(args: Array[String]): Unit =
+    Scalm.start(this, document.body)
 
   // MODEL
 
@@ -20,9 +21,10 @@ object Main extends App {
 
   sealed trait Msg
   case object MorePlease extends Msg
-  final case class NewGif(result: Either[http.Error, String]) extends Msg
+  final case class NewGif(result: Either[http.Error, String])
+      extends Msg
 
-  // UPDATE
+      // UPDATE
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match {
@@ -61,6 +63,6 @@ object Main extends App {
   def getRandomGif(topic: String): Cmd[Msg] = {
     val url =
       s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic"
-    Http.send(NewGif, Http.get(url, decodeGifUrl))
+    Http.send(NewGif.apply, Http.get(url, decodeGifUrl))
   }
 }

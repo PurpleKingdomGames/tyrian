@@ -10,3 +10,8 @@ metals.sbt
 .metals
 .bloop
 .bsp
+*.semanticdb
+node_modules
+semanticdb.sbt
+.cache
+dist

@@ -1,9 +1,10 @@
 lazy val root = (project in file("."))
   .dependsOn(scalm)
-  .enablePlugins(ScalaJSBundlerPlugin)
+  .enablePlugins(ScalaJSPlugin)
   .settings(
-    scalaVersion := "2.13.6",
+    scalaVersion := "3.0.0",
     name := "mario",
-    scalaJSUseMainModuleInitializer := true
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
 lazy val scalm = ProjectRef(file("../.."), "scalm")

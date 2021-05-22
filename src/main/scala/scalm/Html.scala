@@ -102,7 +102,7 @@ object Html {
 
   def text(s: String): Text = Text(s)
 
-  def attrs(as: (String, String)*): Seq[Attr[⊥]] = as.map(Attribute.tupled)
+  def attrs(as: (String, String)*): Seq[Attr[⊥]] = as.map(p => Attribute(p._1, p._2))
   def attr(name: String, value: String): Attr[⊥] = Attribute(name, value)
 
   def onClick[M](msg: M): Attr[M] = onEvent("click", (_: dom.Event) => msg)

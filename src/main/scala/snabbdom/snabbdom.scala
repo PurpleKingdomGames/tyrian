@@ -57,13 +57,17 @@ sealed trait VNodeParam {
 }
 
 object VNodeParam {
+
+  def liftString(s: String): VNodeParam =
+    new Text(s)
+
   implicit class Text(s: String) extends VNodeParam {
-    def asVnodes = Seq(s)
+    def asVnodes: Seq[String | VNode] = Seq(s)
   }
   implicit class Node(vnode: VNode) extends VNodeParam {
-    def asVnodes = Seq(vnode)
+    def asVnodes: Seq[String | VNode] = Seq(vnode)
   }
   implicit class Nodes(ps: Seq[VNode]) extends VNodeParam {
-    def asVnodes = ps.flatMap(_.asVnodes)
+    def asVnodes: Seq[String | VNode] = ps.flatMap(_.asVnodes)
   }
 }

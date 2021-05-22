@@ -22,7 +22,7 @@ object Main {
 
   def view(model: Model): Html[Msg] =
     div()(
-      input(placeholder("Text to reverse"), onInput(NewContent), myStyle),
+      input(placeholder("Text to reverse"), onInput(NewContent.apply), myStyle),
       div(myStyle)(text(model.reverse))
     )
 
