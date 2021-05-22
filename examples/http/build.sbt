@@ -2,7 +2,7 @@ lazy val root = (project in file("."))
   .dependsOn(scalm)
   .enablePlugins(ScalaJSBundlerPlugin)
   .settings(
-    scalaVersion := "2.13.5",
+    scalaVersion := "2.13.6",
     name := "scalm-http-example",
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
