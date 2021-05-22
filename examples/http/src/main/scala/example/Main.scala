@@ -7,48 +7,38 @@ import scalm.Html._
 import scalm._
 import scalm.http.Http
 
-object Main extends ScalmApp {
+object Main {
 
   def main(args: Array[String]): Unit =
-    Scalm.start(this, document.body)
-
-  // MODEL
-
-  final case class Model(topic: String, gifUrl: String)
+    Scalm.start(document.body, init, update, view, subscriptions)
 
   def init: (Model, Cmd[Msg]) =
-    (Model("cats", "waiting.gif"), getRandomGif("cats"))
-
-  sealed trait Msg
-  case object MorePlease extends Msg
-  final case class NewGif(result: Either[http.Error, String])
-      extends Msg
-
-      // UPDATE
+    (Model("cats", "waiting.gif"), HttpHelper.getRandomGif("cats"))
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    msg match {
-      case MorePlease            => (model, getRandomGif(model.topic))
-      case NewGif(Right(newUrl)) => (model.copy(gifUrl = newUrl), Cmd.Empty)
-      case NewGif(Left(_))       => (model, Cmd.Empty)
-    }
-
-  // VIEW
+    msg match
+      case Msg.MorePlease            => (model, HttpHelper.getRandomGif(model.topic))
+      case Msg.NewGif(Right(newUrl)) => (model.copy(gifUrl = newUrl), Cmd.Empty)
+      case Msg.NewGif(Left(_))       => (model, Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
     div()(
       h2()(text(model.topic)),
-      button(onClick(MorePlease))(text("more please")),
+      button(onClick(Msg.MorePlease))(text("more please")),
       tag("br")()(),
       tag("img")(attr("src", model.gifUrl))()
     )
 
-  // SUBSCRIPTION
-
   def subscriptions(model: Model): Sub[Msg] = Sub.Empty
+}
 
-  // HTTP
+enum Msg:
+  case MorePlease extends Msg
+  case NewGif(result: Either[http.Error, String]) extends Msg
 
+final case class Model(topic: String, gifUrl: String)
+
+object HttpHelper:
   def decodeGifUrl(json: String): Either[String, String] =
     parse(json)
       .leftMap(_.message)
@@ -60,9 +50,7 @@ object Main extends ScalmApp {
           .toRight("wrong json format")
       }
 
-  def getRandomGif(topic: String): Cmd[Msg] = {
+  def getRandomGif(topic: String): Cmd[Msg] =
     val url =
       s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic"
-    Http.send(NewGif.apply, Http.get(url, decodeGifUrl))
-  }
-}
+    Http.send(Msg.NewGif.apply, Http.get(url, decodeGifUrl))

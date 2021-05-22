@@ -4,27 +4,25 @@ import scalm.{Html, Scalm}
 import scalm.Html._
 import org.scalajs.dom.document
 
-object Main {
-  def main(args: Array[String]): Unit = Scalm.start(document.body)(init, update, view)
+object Main:
+  opaque type Model = Int
 
-  type Model = Int
+  def main(args: Array[String]): Unit =
+    Scalm.start(document.body, init, update, view)
 
   def init: Model = 0
 
-  sealed trait Msg
-  case object Increment extends Msg
-  case object Decrement extends Msg
-
   def update(msg: Msg, model: Model): Model =
-    msg match {
-      case Increment => model + 1
-      case Decrement => model - 1
-    }
+    msg match
+      case Msg.Increment => model + 1
+      case Msg.Decrement => model - 1
 
   def view(model: Model): Html[Msg] =
     div()(
-      button(onClick(Decrement))(text("-")),
+      button(onClick(Msg.Decrement))(text("-")),
       div()(text(model.toString)),
-      button(onClick(Increment))(text("+"))
+      button(onClick(Msg.Increment))(text("+"))
     )
-}
+
+enum Msg:
+  case Increment, Decrement

@@ -232,7 +232,8 @@ object Scalm {
     * @return
     *   The scalm runtime
     */
-  def start[_Model, _Msg](node: Element)(
+  def start[_Model, _Msg](
+      node: Element,
       _init: _Model,
       _update: (_Msg, _Model) => _Model,
       _view: _Model => Html[_Msg]
@@ -241,24 +242,25 @@ object Scalm {
       type Msg   = _Msg
       type Model = _Model
       def init: (Model, Cmd[Msg])                               = pure(_init)
-      def view(model: _Model): Html[_Msg]                       = _view(model)
       def update(msg: _Msg, model: _Model): (_Model, Cmd[_Msg]) = pure(_update(msg, model))
+      def view(model: _Model): Html[_Msg]                       = _view(model)
       def subscriptions(model: _Model): Sub[_Msg]               = Sub.Empty
     }
     new Scalm(app, node)
 
-  def start[_Model, _Msg](node: Element)(
-      _init: _Model,
-      _update: (_Msg, _Model) => _Model,
+  def start[_Model, _Msg](
+      node: Element,
+      _init: (_Model, Cmd[_Msg]),
+      _update: (_Msg, _Model) => (_Model, Cmd[_Msg]),
       _view: _Model => Html[_Msg],
       _subscriptions: _Model => Sub[_Msg]
   ): Scalm =
     val app: ScalmApp = new ScalmApp {
       type Msg   = _Msg
       type Model = _Model
-      def init: (Model, Cmd[Msg])                               = pure(_init)
+      def init: (Model, Cmd[Msg])                               = _init
+      def update(msg: _Msg, model: _Model): (_Model, Cmd[_Msg]) = _update(msg, model)
       def view(model: _Model): Html[_Msg]                       = _view(model)
-      def update(msg: _Msg, model: _Model): (_Model, Cmd[_Msg]) = pure(_update(msg, model))
       def subscriptions(model: _Model): Sub[_Msg]               = _subscriptions(model)
     }
     new Scalm(app, node)
