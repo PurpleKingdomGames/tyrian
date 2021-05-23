@@ -5,6 +5,8 @@ scalm (Dave's version!)
 
 Elm-inspired Scala library for writing web user interfaces **in Scala 3**.
 
+> **This is a fork of [Scalm](https://github.com/julienrf/scalm)**, dusted off, cleaned up, and brought up to date.
+
 ## Installation
 
 > THIS VERSION OF SCALM ISN'T PUBLISHED YET (Only Julian's original exists in the wild.)
@@ -122,23 +124,3 @@ object Clock:
 
 final case class Msg(newTime: js.Date)
 ~~~
-
-## Discussion
-
-To my experience, correctly implementing a user interface is hard.
-
-The very disciplined Elm programming model helps me
-a lot to reason about the user interface implementation.
-
-More specifically, in this programming model the mapping between the
-state of the application and the rendered HTML is easy to follow.
-Furthermore, commands and subscriptions simplify resource management
-a lot (you don’t have to worry about cancelling some event handler
-anymore, this is taken care of by the runtime).
-
-On the other hand, the architecture is, by design, not extremely efficient:
-on each event the entire application state is recomputed. We use a
-virtual-dom technique to patch the DOM as efficiently as possible, but still,
-that’s a lot of work that’s not needed with approaches like
-[monadic-html](https://github.com/OlivierBlanvillain/monadic-html) or
-[Binding.scala](https://github.com/ThoughtWorksInc/Binding.scala).
