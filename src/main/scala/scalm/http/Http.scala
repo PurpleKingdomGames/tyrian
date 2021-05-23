@@ -21,10 +21,10 @@ object Http {
     * @tparam Msg a scalm Msg
     * @return A Cmd that describes the HTTP request
     */
-  def send[A, Msg](resultToMessage: Either[http.Error, A] => Msg,
+  def send[A, Msg](resultToMessage: Either[http.HttpError, A] => Msg,
                    request: Request[A]): Cmd[Msg] =
     Task
-      .RunObservable[http.Error, XMLHttpRequest] { observer =>
+      .RunObservable[http.HttpError, XMLHttpRequest] { observer =>
         val xhr = new XMLHttpRequest
         try {
           request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
@@ -32,17 +32,17 @@ object Http {
           xhr.withCredentials = request.withCredentials
           xhr.open(request.method.toString.toUpperCase, request.url)
           xhr.onload = _ => observer.onNext(xhr)
-          xhr.onerror = _ => observer.onError(NetworkError)
-          xhr.ontimeout = _ => observer.onError(Timeout)
+          xhr.onerror = _ => observer.onError(HttpError.NetworkError)
+          xhr.ontimeout = _ => observer.onError(HttpError.Timeout)
           request.body match {
-            case EmptyBody =>
+            case Body.Empty =>
               xhr.send(null)
-            case StringBody(contentType, body) =>
+            case Body.PlainText(contentType, body) =>
               xhr.setRequestHeader("Content-Type", contentType)
               xhr.send(body)
           }
         } catch {
-          case ex: Throwable => observer.onError(BadUrl(ex.getMessage))
+          case ex: Throwable => observer.onError(HttpError.BadUrl(ex.getMessage))
         }
         () =>
           xhr.abort()
@@ -55,11 +55,11 @@ object Http {
           body = xhr.responseText
         )
         if (xhr.status < 200 || 300 <= xhr.status) {
-          Left(BadStatus(response))
+          Left(HttpError.BadStatus(response))
         } else {
           request
             .expect(response)
-            .leftMap(BadPayload(_, response))
+            .leftMap(HttpError.BadPayload(_, response))
         }
       })
       .map(resultToMessage)
@@ -71,10 +71,10 @@ object Http {
     */
   def getString(url: String): Request[String] =
     Request(
-      method = Get,
+      method = Method.Get,
       headers = Nil,
       url = url,
-      body = EmptyBody,
+      body = Body.Empty,
       expect = r => Right(r.body),
       timeout = None,
       withCredentials = false
@@ -89,10 +89,10 @@ object Http {
     */
   def get[A](url: String, decoder: Decoder[A]): Request[A] =
     Request(
-      method = Get,
+      method = Method.Get,
       headers = Nil,
       url = url,
-      body = EmptyBody,
+      body = Body.Empty,
       expect = r => decoder(r.body),
       timeout = None,
       withCredentials = false
@@ -108,7 +108,7 @@ object Http {
     */
   def post[A](url: String, body: Body, decoder: Decoder[A]): Request[A] =
     Request(
-      method = Post,
+      method = Method.Post,
       headers = Nil,
       url = url,
       body = body,
@@ -122,7 +122,7 @@ object Http {
     * @param body the JSON value as String
     * @return a request body
     */
-  def jsonBody(body: String): Body = StringBody("application/json", body)
+  def jsonBody(body: String): Body = Body.PlainText("application/json", body)
 
   private def parseHeaders(headers: String): Map[String, String] = {
     headers

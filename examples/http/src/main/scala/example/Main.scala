@@ -34,7 +34,7 @@ object Main {
 
 enum Msg:
   case MorePlease extends Msg
-  case NewGif(result: Either[http.Error, String]) extends Msg
+  case NewGif(result: Either[http.HttpError, String]) extends Msg
 
 final case class Model(topic: String, gifUrl: String)
 
