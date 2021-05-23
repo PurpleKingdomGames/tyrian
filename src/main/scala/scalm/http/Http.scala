@@ -7,22 +7,25 @@ import scala.util.Try
 
 object Http {
 
-  /**
-    * Tries to transforms a response body of type String to a value of type A.
-    * @tparam A type of the successfully decoded response
+  /** Tries to transforms a response body of type String to a value of type A.
+    * @tparam A
+    *   type of the successfully decoded response
     */
   type Decoder[A] = String => Either[String, A]
 
-  /**
-    * Send an HTTP request.
-    * @param resultToMessage transforms a successful or failed response into a Msg
-    * @param request the request
-    * @tparam A type of the successfully decoded response
-    * @tparam Msg a scalm Msg
-    * @return A Cmd that describes the HTTP request
+  /** Send an HTTP request.
+    * @param resultToMessage
+    *   transforms a successful or failed response into a Msg
+    * @param request
+    *   the request
+    * @tparam A
+    *   type of the successfully decoded response
+    * @tparam Msg
+    *   a scalm Msg
+    * @return
+    *   A Cmd that describes the HTTP request
     */
-  def send[A, Msg](resultToMessage: Either[http.HttpError, A] => Msg,
-                   request: Request[A]): Cmd[Msg] =
+  def send[A, Msg](resultToMessage: Either[http.HttpError, A] => Msg, request: Request[A]): Cmd[Msg] =
     Task
       .RunObservable[http.HttpError, XMLHttpRequest] { observer =>
         val xhr = new XMLHttpRequest
@@ -44,8 +47,7 @@ object Http {
         } catch {
           case ex: Throwable => observer.onError(HttpError.BadUrl(ex.getMessage))
         }
-        () =>
-          xhr.abort()
+        () => xhr.abort()
       }
       .attempt(_.flatMap { xhr =>
         val response = Response(
@@ -64,10 +66,11 @@ object Http {
       })
       .map(resultToMessage)
 
-  /**
-    * Create a GET request and interpret the response body as String.
-    * @param url the url
-    * @return a GET request
+  /** Create a GET request and interpret the response body as String.
+    * @param url
+    *   the url
+    * @return
+    *   a GET request
     */
   def getString(url: String): Request[String] =
     Request(
@@ -80,12 +83,15 @@ object Http {
       withCredentials = false
     )
 
-  /**
-    * Create a GET request and try to decode the response body from String to A.
-    * @param url the url
-    * @param decoder tries to transform the body into some value of type A
-    * @tparam A the type of the successfully decoded response
-    * @return a GET request
+  /** Create a GET request and try to decode the response body from String to A.
+    * @param url
+    *   the url
+    * @param decoder
+    *   tries to transform the body into some value of type A
+    * @tparam A
+    *   the type of the successfully decoded response
+    * @return
+    *   a GET request
     */
   def get[A](url: String, decoder: Decoder[A]): Request[A] =
     Request(
@@ -98,13 +104,17 @@ object Http {
       withCredentials = false
     )
 
-  /**
-    * Create a POST request and try to decode the response body from String to A.
-    * @param url the url
-    * @param body the body of the POST request
-    * @param decoder tries to transform the body into some value of type A
-    * @tparam A the type of the successfully decoded response
-    * @return a POST request
+  /** Create a POST request and try to decode the response body from String to A.
+    * @param url
+    *   the url
+    * @param body
+    *   the body of the POST request
+    * @param decoder
+    *   tries to transform the body into some value of type A
+    * @tparam A
+    *   the type of the successfully decoded response
+    * @return
+    *   a POST request
     */
   def post[A](url: String, body: Body, decoder: Decoder[A]): Request[A] =
     Request(
@@ -117,21 +127,22 @@ object Http {
       withCredentials = false
     )
 
-  /**
-    * Create a JSON body. This will automatically add the `Content-Type: application/json` header.
-    * @param body the JSON value as String
-    * @return a request body
+  /** Create a JSON body. This will automatically add the `Content-Type: application/json` header.
+    * @param body
+    *   the JSON value as String
+    * @return
+    *   a request body
     */
   def jsonBody(body: String): Body = Body.PlainText("application/json", body)
 
-  private def parseHeaders(headers: String): Map[String, String] = {
+  private def parseHeaders(headers: String): Map[String, String] =
     headers
       .split("[\\u000d\\u000a]+")
       .flatMap(h =>
         Try {
           val Array(fst, scd) = h.split(":").map(_.trim()).slice(0, 2)
           (fst, scd)
-        }.toOption)
+        }.toOption
+      )
       .toMap
-  }
 }

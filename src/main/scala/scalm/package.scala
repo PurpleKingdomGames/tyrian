@@ -1,5 +1,4 @@
-/**
-  * Scalm is a user interface library inspired by Elm.
+/** Scalm is a user interface library inspired by Elm.
   */
 package object scalm {
 

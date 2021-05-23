@@ -10,22 +10,21 @@ import scalm.Sub.ofTotalObservable
 object Effects {
 
   val requestAnimationFrameSub: Sub[Double] = ofTotalObservable[Double](
-    "requestAnimation", { observer =>
+    "requestAnimation",
+    { observer =>
       var handle = 0
       def loop: Double => Unit = time => {
         observer.onNext(time)
         handle = dom.window.requestAnimationFrame(loop)
       }
       handle = dom.window.requestAnimationFrame(loop)
-      () =>
-        dom.window.cancelAnimationFrame(handle)
+      () => dom.window.cancelAnimationFrame(handle)
     }
   )
 
   def keyPressSub(keyCode: Int): Sub[KeyboardEvent] =
-    Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keydown", dom.window) {
-      event =>
-        if (event.keyCode == keyCode) Some(event) else None
+    Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keydown", dom.window) { event =>
+      if (event.keyCode == keyCode) Some(event) else None
     }
 
   def keyReleaseSub(keyCode: Int): Sub[KeyboardEvent] =
@@ -33,7 +32,7 @@ object Effects {
       if (event.keyCode == keyCode) Some(event) else None
     }
 
-  val UNDER_FRONT_MARIO = (true, true)
+  val UNDER_FRONT_MARIO  = (true, true)
   val UNDER_BEHIND_MARIO = (false, true)
 
   def touchPressedSub(model: Model): Sub[Msg] =
@@ -66,14 +65,11 @@ object Effects {
     def playSound(url: String): Cmd[Nothing] =
       Task
         .RunObservable[Nothing, Nothing] { _ =>
-          {
-            val audio =
-              document.createElement("audio").asInstanceOf[HTMLAudioElement]
-            audio.src = url
-            audio.onloadeddata = (_: Event) => audio.play()
-            () =>
-              ()
-          }
+          val audio =
+            document.createElement("audio").asInstanceOf[HTMLAudioElement]
+          audio.src = url
+          audio.onloadeddata = (_: Event) => audio.play()
+          () => ()
         }
         .attempt(_.merge)
   }

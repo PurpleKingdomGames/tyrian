@@ -25,8 +25,10 @@ case class Tag[+M](name: String, attrs: Seq[Attr[M]], children: Seq[Elem[M]]) ex
 
 /** Unmanaged HTML tag
   *
-  * @param model current state to render
-  * @param renderer function that renders the given model
+  * @param model
+  *   current state to render
+  * @param renderer
+  *   function that renders the given model
   */
 case class Hook[Model](model: Model, renderer: HookRenderer[Model]) extends Html[Nothing] {
   def map[N](f: Nothing => N): Hook[Model] = this
@@ -65,8 +67,10 @@ case class Attribute(name: String, value: String) extends Attr[Nothing] {
 
 /** Event handler
   *
-  * @param name Event name (e.g. `"click"`)
-  * @param msg Message to produce when the event is triggered
+  * @param name
+  *   Event name (e.g. `"click"`)
+  * @param msg
+  *   Message to produce when the event is triggered
   */
 case class Event[E <: dom.Event, M](name: String, msg: E => M) extends Attr[M] {
   def map[N](f: M => N): Attr[N] = Event(name, msg andThen f)
@@ -83,13 +87,13 @@ object Html {
   type ⊥ = Nothing
 
   def tag[M](name: String)(attrs: Attr[M]*)(children: Elem[M]*): Html[M] = Tag(name, attrs, children)
-  def button[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("button")(attrs: _*)(children: _*)
-  def div[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("div")(attrs: _*)(children: _*)
-  def span[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("span")(attrs: _*)(children: _*)
-  def h1[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h1")(attrs: _*)(children: _*)
-  def h2[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h2")(attrs: _*)(children: _*)
-  def h3[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h3")(attrs: _*)(children: _*)
-  def input[M](attrs: Attr[M]*): Html[M] = tag("input")(attrs: _*)()
+  def button[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]            = tag("button")(attrs: _*)(children: _*)
+  def div[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]               = tag("div")(attrs: _*)(children: _*)
+  def span[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]              = tag("span")(attrs: _*)(children: _*)
+  def h1[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]                = tag("h1")(attrs: _*)(children: _*)
+  def h2[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]                = tag("h2")(attrs: _*)(children: _*)
+  def h3[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]                = tag("h3")(attrs: _*)(children: _*)
+  def input[M](attrs: Attr[M]*): Html[M]                                 = tag("input")(attrs: _*)()
   def radio[M](name: String, checked: Boolean, attrs: Attr[M]*): Html[M] =
     input(
       Prop("type", "radio") +:
@@ -98,32 +102,32 @@ object Html {
         attrs: _*
     )
   def label[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("label")(attrs: _*)(children: _*)
-  def ul[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("ul")(attrs: _*)(children: _*)
-  def li[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M] = tag("li")(attrs: _*)(children: _*)
+  def ul[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]    = tag("ul")(attrs: _*)(children: _*)
+  def li[M](attrs: Attr[M]*)(children: Elem[M]*): Html[M]    = tag("li")(attrs: _*)(children: _*)
 
   def text(s: String): Text = Text(s)
 
   def attrs(as: (String, String)*): Seq[Attr[⊥]] = as.map(p => Attribute(p._1, p._2))
   def attr(name: String, value: String): Attr[⊥] = Attribute(name, value)
 
-  def onClick[M](msg: M): Attr[M] = onEvent("click", (_: dom.Event) => msg)
-  def onMouseEnter[M](msg: M): Attr[M] = onEvent("mouseenter", (_: dom.Event) => msg)
-  def onMouseLeave[M](msg: M): Attr[M] = onEvent("mouseleave", (_: dom.Event) => msg)
-  def onMouseDown[M](msg: M): Attr[M] = onEvent("mousedown", (_: dom.Event) => msg)
-  def onMouseUp[M](msg: M): Attr[M] = onEvent("mouseup", (_: dom.Event) => msg)
+  def onClick[M](msg: M): Attr[M]                    = onEvent("click", (_: dom.Event) => msg)
+  def onMouseEnter[M](msg: M): Attr[M]               = onEvent("mouseenter", (_: dom.Event) => msg)
+  def onMouseLeave[M](msg: M): Attr[M]               = onEvent("mouseleave", (_: dom.Event) => msg)
+  def onMouseDown[M](msg: M): Attr[M]                = onEvent("mousedown", (_: dom.Event) => msg)
+  def onMouseUp[M](msg: M): Attr[M]                  = onEvent("mouseup", (_: dom.Event) => msg)
   def onKeyDown[M](msg: KeyboardEvent => M): Attr[M] = onEvent("keydown", msg)
-  def onKeyUp[M](msg: KeyboardEvent => M): Attr[M] = onEvent("keyup", msg)
+  def onKeyUp[M](msg: KeyboardEvent => M): Attr[M]   = onEvent("keyup", msg)
   def onInput[M](msg: String => M): Attr[M] =
     onEvent("input", (e: dom.Event) => msg(e.target.asInstanceOf[HTMLInputElement].value))
   def onEvent[E <: org.scalajs.dom.Event, M](name: String, msg: E => M): Attr[M] = Event(name, msg)
 
-  def style(s: String): Attr[⊥] = Attribute("style", s) // TODO Use CssStyle
+  def style(s: String): Attr[⊥]      = Attribute("style", s) // TODO Use CssStyle
   def style(styles: Style*): Attr[⊥] = Attribute("style", Monoid.combineAll(styles).value)
   @targetName("style_tuples")
   def style(styles: (String, String)*): Attr[⊥] = Attribute("style", Monoid.combineAll(styles.map(Style.apply)).value)
 
   def optional[A, M](maybeA: Option[A])(f: A => Attr[M]): Attr[M] = maybeA.fold[Attr[M]](Attr.Empty)(f)
-  def cond[M](b: Boolean)(attr: => Attr[M]): Attr[M] = if (b) attr else Attr.Empty
+  def cond[M](b: Boolean)(attr: => Attr[M]): Attr[M]              = if (b) attr else Attr.Empty
 
   def placeholder(text: String): Attr[⊥] = attr("placeholder", text)
 }
@@ -138,7 +142,7 @@ object Style {
 
   implicit val monoid: Monoid[Style] =
     new Monoid[Style] {
-      def empty: Style = Style.empty
+      def empty: Style                       = Style.empty
       def combine(x: Style, y: Style): Style = Style(x.value ++ y.value)
     }
 

@@ -27,10 +27,10 @@ object Main {
 
   private val myStyle =
     style(
-      "width" -> "100%",
-      "height" -> "40px",
-      "padding" -> "10px 0",
-      "font-size" -> "2em",
+      "width"      -> "100%",
+      "height"     -> "40px",
+      "padding"    -> "10px 0",
+      "font-size"  -> "2em",
       "text-align" -> "center"
     )
 }

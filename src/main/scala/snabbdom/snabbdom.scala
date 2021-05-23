@@ -8,7 +8,6 @@ import scala.scalajs.js.|
 
 import scala.annotation.nowarn
 
-
 @JSImport("snabbdom", JSImport.Default)
 @js.native
 object snabbdom extends js.Object {
@@ -19,7 +18,8 @@ object snabbdom extends js.Object {
 @JSImport("snabbdom", "h")
 @js.native
 object h extends js.Function3[String, js.UndefOr[js.Any], js.UndefOr[js.Any], VNode] {
-  def apply(selector: String, b: js.UndefOr[js.Any] = js.undefined, c: js.UndefOr[js.Any] = js.undefined): VNode = js.native
+  def apply(selector: String, b: js.UndefOr[js.Any] = js.undefined, c: js.UndefOr[js.Any] = js.undefined): VNode =
+    js.native
 }
 
 @js.native
@@ -33,7 +33,8 @@ trait VNode extends js.Object {
 }
 
 @js.native
-trait VNodeData extends js.Object
+trait VNodeData
+    extends js.Object
 
 // --- Convenient syntax
 
