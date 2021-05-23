@@ -12,7 +12,7 @@ object Effects {
   val requestAnimationFrameSub: Sub[Double] = ofTotalObservable[Double](
     "requestAnimation", { observer =>
       var handle = 0
-      def loop(time: Double): Unit = {
+      def loop: Double => Unit = time => {
         observer.onNext(time)
         handle = dom.window.requestAnimationFrame(loop)
       }
