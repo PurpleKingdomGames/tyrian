@@ -2,24 +2,23 @@ package snabbdom.modules
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
-import scala.scalajs.js.annotation.JSImport.Default
 
-@JSImport("snabbdom/modules/class", Default)
+@JSImport("snabbdom", "classModule")
 @js.native
 object `class` extends js.Object
 
-@JSImport("snabbdom/modules/attributes", Default)
+@JSImport("snabbdom", "attributesModule")
 @js.native
 object attributes extends js.Object
 
-@JSImport("snabbdom/modules/props", Default)
+@JSImport("snabbdom", "propsModule")
 @js.native
 object props extends js.Object
 
-@JSImport("snabbdom/modules/style", Default)
+@JSImport("snabbdom", "styleModule")
 @js.native
 object style extends js.Object
 
-@JSImport("snabbdom/modules/eventlisteners", Default)
+@JSImport("snabbdom", "eventListenersModule")
 @js.native
 object eventlisteners extends js.Object
