@@ -1,6 +1,6 @@
-# scalm http example
+# scalm clock example
 
-This is an example of how to do HTTP requests with scalm. The example is a port from the [elm HTTP example](http://elm-lang.org/examples/http).
+This is a minimal working project setup to run the clock example.
 
 To compile and run the program you will need to have yarn (or npm) installed.
 

@@ -2,10 +2,18 @@
 
 This example shows the compositional capabilities of the elm-like architecture with the minimal working project setup.
 
-Compile the program with
+To compile and run the program you will need to have yarn (or npm) installed.
 
-To compile the program run
+On first run:
 
-    sbt fastOptJS::webpack
+```sh
+yarn install
+```
 
-Then start a local web server and open the index.html in the browser.
+and from then on
+
+```sh
+yarn start
+```
+
+Then navigate to [http://localhost:1234/](http://localhost:1234/)

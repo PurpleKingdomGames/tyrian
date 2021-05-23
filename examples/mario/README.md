@@ -5,8 +5,19 @@
 [Mario Elm original version](http://debug.elm-lang.org/edit/Mario.elm)
 
 ## Build
-```shell
-sbt fastOptJS::webpack
+
+To compile and run the program you will need to have yarn (or npm) installed.
+
+On first run:
+
+```sh
+yarn install
 ```
 
-[Demo Online](https://salc2.github.io/mario-scalm)
+and from then on
+
+```sh
+yarn start
+```
+
+Then navigate to [http://localhost:1234/](http://localhost:1234/)

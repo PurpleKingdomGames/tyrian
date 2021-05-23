@@ -1,26 +1,27 @@
-scalm
+scalm (Dave's version!)
 =====
 
 [![Join the chat at https://gitter.im/julienrf/scalm](https://badges.gitter.im/julienrf/scalm.svg)](https://gitter.im/julienrf/scalm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Elm-inspired Scala library for writing web user interfaces.
+Elm-inspired Scala library for writing web user interfaces **in Scala 3**.
 
 ## Installation
 
-scalm supports Scala 2.12 and Scala.js 0.6.
+> THIS VERSION OF SCALM ISN'T PUBLISHED YET (Only Julian's original exists in the wild.)
+> You can do a local publish.
 
-Since scalm uses a JavaScript library ([snabbdom](https://github.com/snabbdom/snabbdom))
-under the hood, you will have to use [scalajs-bundler](https://scalacenter.github.io/scalajs-bundler/):
+scalm supports Scala 3 and Scala.js 1.5.1.
 
 ~~~ scala
 // project/plugins.sbt
-addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.9.0")
+addSbtPlugin("org.scala-js"              % "sbt-scalajs"  % "1.5.1")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.17")
 ~~~
 
 ~~~ scala
 // build.sbt
-enablePlugins(ScalaJSBundlerPlugin)
-libraryDependencies += "org.julienrf" %%% "scalm" % "1.0.0-RC1"
+enablePlugins(ScalaJSPlugin)
+libraryDependencies += "davesmith00000" %%% "scalm" % "0.0.1-SNAPSHOT"
 ~~~
 
 ## Overview
@@ -47,32 +48,29 @@ import scalm.{Html, Scalm}
 import scalm.Html._
 import org.scalajs.dom.document
 
-object Counter {
+object Main:
+  opaque type Model = Int
 
-  def main(): Unit = Scalm.start(document.body)(init, update, view)
-
-  type Model = Int
+  def main(args: Array[String]): Unit =
+    Scalm.start(document.body, init, update, view)
 
   def init: Model = 0
 
-  sealed trait Msg
-  case object Increment extends Msg
-  case object Decrement extends Msg
-
   def update(msg: Msg, model: Model): Model =
-    msg match {
-      case Increment => model + 1
-      case Decrement => model - 1
-    }
+    msg match
+      case Msg.Increment => model + 1
+      case Msg.Decrement => model - 1
 
   def view(model: Model): Html[Msg] =
     div()(
-      button(onClick(Decrement))(text("-")),
+      button(onClick(Msg.Decrement))(text("-")),
       div()(text(model.toString)),
-      button(onClick(Increment))(text("+"))
+      button(onClick(Msg.Increment))(text("+"))
     )
 
-}
+enum Msg:
+  case Increment, Decrement
+
 ~~~
 
 ### Dealing With Effects
@@ -87,34 +85,28 @@ You can find more information on effects
 
 Here is how the
 [clock example](https://guide.elm-lang.org/architecture/effects/time.html)
-looks like in scalm:
+looks like in scalm (using seconds so we can see movement...):
 
 ~~~ scala
-import scalm.{App, Cmd, Html, Scalm, Sub}
+import scalm.{Cmd, Html, Scalm, Sub}
 import scalm.Html._
 import org.scalajs.dom.document
 
 import scalajs.js
 import concurrent.duration.DurationInt
 
-object Clock extends App {
+object Clock:
 
-  def main(): Unit = Scalm.start(this, document.body)
+  opaque type Model = js.Date
 
-  type Model = js.Date
-
-  def init: (Model, Cmd[Msg]) = (new js.Date(), Cmd.Empty)
-
-  case class Msg(newTime: js.Date)
+  def init: (Model, Cmd[Msg]) =
+    (new js.Date(), Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     (msg.newTime, Cmd.Empty)
 
-  def subscriptions(model: Model): Sub[Msg] =
-    Sub.every(1.second, "clock-ticks").map(Msg)
-
   def view(model: Model): Html[Msg] = {
-    val angle = model.getMinutes() * 2 * math.Pi / 60 - math.Pi / 2
+    val angle = model.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
     val handX = 50 + 40 * math.cos(angle)
     val handY = 50 + 40 * math.sin(angle)
     tag("svg")(attr("viewBox", "0, 0, 100, 100"), attr("width", "300px"))(
@@ -123,7 +115,13 @@ object Clock extends App {
     )
   }
 
-}
+  def subscriptions(model: Model): Sub[Msg] =
+    Sub.every(1.second, "clock-ticks").map(Msg.apply)
+
+  def main(args: Array[String]): Unit =
+    Scalm.start(document.body, init, update, view, subscriptions)
+
+final case class Msg(newTime: js.Date)
 ~~~
 
 ## Discussion
