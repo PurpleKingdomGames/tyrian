@@ -165,7 +165,7 @@ There is a point in that post where Nikita says the following:
 > 
 > Virtual DOM and FRP solve the exact same problem – efficiently keeping the rendered DOM in sync with application state – but they approach it from entirely opposite directions (..)
 
-..and he's entirely correct. It's an important fork in the road. One direction takes you to FRP, the other to VirtualDom. Libraries like Laminar are the former and Scalm and Elm are the latter. Both are equally valid choices with quite subtle trade-offs.
+...and that is entirely correct in my opinion. It's an important fork in the road. One direction takes you to FRP, the other to VirtualDom. Libraries like Laminar are the former and Scalm and Elm are the latter. Both are equally valid choices with quite subtle trade-offs.
 
 Broadly, the argument for FRP is speed, as updates are minimal and precise. The argument for VirtualDom is that it's easier to test and reason about.
 
