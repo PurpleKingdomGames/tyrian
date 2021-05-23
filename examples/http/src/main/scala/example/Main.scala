@@ -10,7 +10,7 @@ import scalm.http.Http
 object Main {
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.body, init, update, view, subscriptions)
+    Scalm.start(document.getElementById("myapp"), init, update, view, subscriptions)
 
   def init: (Model, Cmd[Msg]) =
     (Model("cats", "waiting.gif"), HttpHelper.getRandomGif("cats"))

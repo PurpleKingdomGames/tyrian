@@ -23,7 +23,13 @@ object Clock:
     val handY = 50 + 40 * math.sin(angle)
     tag("svg")(attr("viewBox", "0, 0, 100, 100"), attr("width", "300px"))(
       tag("circle")(attr("cx", "50"), attr("cy", "50"), attr("r", "45"), attr("fill", "#0B79CE"))(),
-      tag("line")(attr("x1", "50"), attr("y1", "50"), attr("x2", handX.toString), attr("y2", handY.toString), attr("stroke", "#023963"))()
+      tag("line")(
+        attr("x1", "50"),
+        attr("y1", "50"),
+        attr("x2", handX.toString),
+        attr("y2", handY.toString),
+        attr("stroke", "#023963")
+      )()
     )
   }
 
@@ -31,6 +37,6 @@ object Clock:
     Sub.every(1.second, "clock-ticks").map(Msg.apply)
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.body, init, update, view, subscriptions)
+    Scalm.start(document.getElementById("myapp"), init, update, view, subscriptions)
 
 final case class Msg(newTime: js.Date)

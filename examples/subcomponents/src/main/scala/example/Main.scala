@@ -51,7 +51,7 @@ object Main {
     div()(elems: _*)
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.body, init, update, view)
+    Scalm.start(document.getElementById("myapp"), init, update, view)
 }
 
 object Counter:

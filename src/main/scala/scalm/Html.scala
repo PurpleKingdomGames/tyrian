@@ -90,8 +90,9 @@ object Html:
 
   def text(str: String): Text = Text(str)
 
+  def attrs(as: (String, String)*): Seq[Attr[Nothing]] = as.map(p => Attribute(p._1, p._2))
   def attributes(as: (String, String)*): Seq[Attr[Nothing]] = as.map(p => Attribute(p._1, p._2))
-  def attr(name: String, value: String): Attr[Nothing] = Attribute(name, value)
+  def attr(name: String, value: String): Attr[Nothing]      = Attribute(name, value)
 
   def onClick[M](msg: M): Attr[M]                    = onEvent("click", (_: dom.Event) => msg)
   def onMouseEnter[M](msg: M): Attr[M]               = onEvent("mouseenter", (_: dom.Event) => msg)
@@ -107,7 +108,11 @@ object Html:
   def style(s: String): Attr[Nothing]      = Attribute("style", s) // TODO Use CssStyle
   def style(styles: Style*): Attr[Nothing] = Attribute("style", Monoid.combineAll(styles).toString)
   @targetName("style_tuples")
-  def style(styles: (String, String)*): Attr[Nothing] = Attribute("style", Monoid.combineAll(styles.map(p => Style(p._1, p._2))).toString)
+  def style(styles: (String, String)*): Attr[Nothing] =
+    Attribute("style", Monoid.combineAll(styles.map(p => Style(p._1, p._2))).toString)
+
+  def id(value: String): Attr[Nothing]     = Attribute("id", value)
+  def `class`(name: String): Attr[Nothing] = Attribute("class", name)
 
   def optional[A, M](maybeA: Option[A])(f: A => Attr[M]): Attr[M] = maybeA.fold[Attr[M]](Attr.Empty)(f)
   def cond[M](b: Boolean)(attr: => Attr[M]): Attr[M]              = if (b) attr else Attr.Empty
@@ -118,13 +123,12 @@ end Html
 opaque type Style = String
 object Style:
 
-  def apply(style: String): Style = style
+  def apply(style: String): Style               = style
   def apply(name: String, value: String): Style = s"$name: $value;"
 
   val empty: Style = Style("")
 
-  extension (style: Style)
-    def toString: String = style
+  extension (style: Style) def toString: String = style
 
   implicit val monoid: Monoid[Style] =
     new Monoid[Style]:

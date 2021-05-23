@@ -38,6 +38,36 @@ events that change the state of the application are modeled by an immutable
 function, and finally, a `Model => Html[Msg]` function defines how to render
 the state of the application in HTML.
 
+### Examples
+
+There are several examples in the examples folder to help get you started.
+
+**Running the examples**
+To run them you will need to have yarn (or npm) installed.
+
+On first run:
+
+```sh
+yarn install
+```
+
+...and from then on:
+
+```sh
+yarn start
+```
+
+Then navigate to [http://localhost:1234/](http://localhost:1234/)
+
+**Things to know about the examples**
+The examples are useful but before you wholesale copy one to use as a starting point.
+
+1. They refer to the underlying Scalm sbt project, so you'll need to add a proper library dependency.
+
+2. They are built weirdly, because they're designed to be built and run as a one-liner alongside the main project.
+    - The examples use parcel to do the heavy lifting involved with pulling the project together, which is fine, you could also use webpack or whatever you prefer. However, if you look at the "start" script, you'll see it invokes `sbt fastOptJS && (..)`, which you should not do. If you run parcel and leave it running (yarn start, minus the sbt bit), and re-run `fastOptJS` as you would during normal development, parcel will see the file change (as it would any other resource) and reload the site for you immediately - MUCH FASTER!
+    - If you'd like to keep the current build arrangement you see in the "start" scripts, it might be nicer to switch from sbt to Mill or sbt's thin client. They may be better suited to this build arrangement with lots of cold starts.
+
 ### Reacting to User Input
 
 Here is how the usual
