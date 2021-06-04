@@ -184,7 +184,7 @@ final case class Scalm(
       case Tag(name, attrs, children) =>
         val as = js.Dictionary(attrs.collect { case Attribute(n, v) => (n, v) }: _*)
         val props =
-          js.Dictionary(attrs.collect { case Prop(n, v) => (n, v) }: _*)
+          js.Dictionary(attrs.collect { case Property(n, v) => (n, v) }: _*)
         val events =
           js.Dictionary(attrs.collect { case Event(n, msg) =>
             (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => app.Msg](e))))
@@ -193,10 +193,11 @@ final case class Scalm(
           children.map {
             case t: Text                => VNodeParam.liftString(t.value)
             case subHtml: Html[app.Msg] => toVNode(subHtml)
-            case Elem.Empty             => Nil
           }
         h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
-      case Hook(model, renderer) => renderer.render(model)
+
+      case Hook(model, renderer) =>
+        renderer.render(model)
     }
 
 }
