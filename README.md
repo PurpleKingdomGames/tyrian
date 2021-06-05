@@ -28,6 +28,8 @@ So it's a purple dye that smells of where it came from and gets richer over time
 
 ## Installation
 
+> Not yet published!
+
 Tyrian supports Scala 3 and Scala.js 1.5.1.
 
 ~~~ scala
