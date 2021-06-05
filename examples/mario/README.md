@@ -1,6 +1,6 @@
-# The Canonical Mario Scalm.
+# The Canonical Mario.
 
-## Example of Mario made with Scalm
+## Example of Mario made with Tyrian
 
 [Mario Elm original version](http://debug.elm-lang.org/edit/Mario.elm)
 

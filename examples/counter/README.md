@@ -1,4 +1,4 @@
-# scalm counter example
+# Tyrian counter example
 
 This is a minimal working project setup to run the counter example.
 

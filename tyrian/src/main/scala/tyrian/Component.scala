@@ -1,4 +1,4 @@
-package scalm
+package tyrian
 
 /** A component is a typical structure that emerges from your code when you start modularizing it. You don’t *have to*
   * break down your code into components, but sometimes you do and this class is useful to abstract over them.

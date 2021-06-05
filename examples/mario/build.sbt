@@ -1,5 +1,5 @@
 lazy val root = (project in file("."))
-  .dependsOn(scalm)
+  .dependsOn(tyrian)
   .enablePlugins(ScalaJSPlugin)
   .settings(
     scalaVersion := "3.0.0",
@@ -7,4 +7,4 @@ lazy val root = (project in file("."))
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
   )
-lazy val scalm = ProjectRef(file("../.."), "scalm")
+lazy val tyrian = ProjectRef(file("../.."), "tyrian")

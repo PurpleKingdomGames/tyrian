@@ -1,4 +1,4 @@
-package scalm
+package tyrian
 
 /** An application is a component with an initialization operation
   */

@@ -1,9 +1,9 @@
-package scalm
+package tyrian
 
 import cats.{ApplicativeError, MonoidK}
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
-import scalm.Task.Observable
+import tyrian.Task.Observable
 import util.Functions
 import util.Functions.fun
 

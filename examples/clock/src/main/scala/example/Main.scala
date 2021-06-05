@@ -1,7 +1,7 @@
 package example
 
-import scalm.{Cmd, Html, Scalm, Sub}
-import scalm.Html._
+import tyrian.{Cmd, Html, Tyrian, Sub}
+import tyrian.Html._
 import org.scalajs.dom.document
 
 import scalajs.js
@@ -21,14 +21,16 @@ object Clock:
     val angle = model.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
     val handX = 50 + 40 * math.cos(angle)
     val handY = 50 + 40 * math.sin(angle)
-    tag("svg")(attr("viewBox", "0, 0, 100, 100"), attr("width", "300px"))(
-      tag("circle")(attr("cx", "50"), attr("cy", "50"), attr("r", "45"), attr("fill", "#0B79CE"))(),
+    tag("svg")(attributes("viewBox" -> "0, 0, 100, 100", "width" -> "300px"))(
+      tag("circle")(attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE"))(),
       tag("line")(
-        attr("x1", "50"),
-        attr("y1", "50"),
-        attr("x2", handX.toString),
-        attr("y2", handY.toString),
-        attr("stroke", "#023963")
+        attributes(
+          "x1"     -> "50",
+          "y1"     -> "50",
+          "x2"     -> handX.toString,
+          "y2"     -> handY.toString,
+          "stroke" -> "#023963"
+        )
       )()
     )
   }
@@ -37,6 +39,6 @@ object Clock:
     Sub.every(1.second, "clock-ticks").map(Msg.apply)
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.getElementById("myapp"), init, update, view, subscriptions)
+    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
 
 final case class Msg(newTime: js.Date)

@@ -1,4 +1,4 @@
-package scalm.http
+package tyrian.http
 
 import scala.concurrent.duration.FiniteDuration
 

@@ -1,14 +1,14 @@
 package example
 
-import scalm.{Html, Scalm}
-import scalm.Html._
+import tyrian.{Html, Tyrian}
+import tyrian.Html._
 import org.scalajs.dom.document
 
 object Main:
   opaque type Model = Int
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.getElementById("myapp"), init, update, view)
+    Tyrian.start(document.getElementById("myapp"), init, update, view)
 
   def init: Model = 0
 
@@ -19,14 +19,14 @@ object Main:
 
   def view(model: Model): Html[Msg] =
     // body()(
-      div(`class`("container"))(
-        div(`class`("row"))(
-          div(`class`("col bodyText"), style("text-align" -> "right"))(button(onClick(Msg.Decrement))(text("-"))),
-          div(`class`("col bodyText"), style("text-align" -> "center"))(text(model.toString)),
-          div(`class`("col bodyText"), style("text-align" -> "left"))(button(onClick(Msg.Increment))(text("+")))
-        )
+    div(`class`("container"))(
+      div(`class`("row"))(
+        div(`class`("col bodyText"), styles("text-align" -> "right"))(button(onClick(Msg.Decrement))(text("-"))),
+        div(`class`("col bodyText"), styles("text-align" -> "center"))(text(model.toString)),
+        div(`class`("col bodyText"), styles("text-align" -> "left"))(button(onClick(Msg.Increment))(text("+")))
       )
-    // )
+    )
+// )
 
 enum Msg:
   case Increment, Decrement

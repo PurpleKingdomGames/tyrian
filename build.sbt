@@ -1,15 +1,16 @@
 import scala.sys.process._
 import scala.language.postfixOps
-import sbt.Credentials
 
-lazy val scalm =
-  (project in file("scalm"))
+ThisBuild / versionScheme := Some("early-semver")
+
+lazy val tyrian =
+  (project in file("tyrian"))
     .enablePlugins(ScalaJSPlugin)
     .settings(
       scalaVersion := "3.0.0",
-      version := "0.0.1-SNAPSHOT",
-      name := "scalm",
-      organization := "davesmith00000",
+      version := "0.1.0-SNAPSHOT",
+      name := "tyrian",
+      organization := "io.indigoengine",
       libraryDependencies ++= Seq(
         ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
         "org.typelevel" %%% "cats-core"   % "2.6.1",
@@ -20,13 +21,32 @@ lazy val scalm =
       publishTo := sonatypePublishTo.value
     )
 
-lazy val scalmProject =
+lazy val tyrianProject =
   (project in file("."))
     .settings(
       code := { "code ." ! }
     )
     .enablePlugins(ScalaJSPlugin)
-    .aggregate(scalm)
+    .aggregate(tyrian)
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
+
+lazy val publishSettings = {
+  import xerial.sbt.Sonatype._
+  Seq(
+    publishTo := sonatypePublishToBundle.value,
+    publishMavenStyle := true,
+    sonatypeProfileName := "io.indigoengine",
+    licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
+    sonatypeProjectHosting := Some(GitHubHosting("PurpleKingdomGames", "tyrian", "indigo@purplekingdomgames.com")),
+    developers := List(
+      Developer(
+        id = "davesmith00000",
+        name = "David Smith",
+        email = "indigo@purplekingdomgames.com",
+        url = url("https://github.com/davesmith00000")
+      )
+    )
+  )
+}

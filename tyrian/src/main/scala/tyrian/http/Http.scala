@@ -1,4 +1,4 @@
-package scalm
+package tyrian
 package http
 
 import org.scalajs.dom.raw.XMLHttpRequest
@@ -21,7 +21,7 @@ object Http {
     * @tparam A
     *   type of the successfully decoded response
     * @tparam Msg
-    *   a scalm Msg
+    *   a tyrian Msg
     * @return
     *   A Cmd that describes the HTTP request
     */

@@ -1,12 +1,12 @@
 package example
 
 import org.scalajs.dom.document
-import scalm.Html._
-import scalm.{Html, Scalm, Style}
+import tyrian.Html._
+import tyrian.{Html, Tyrian, Style}
 
 object Main {
   def main(args: Array[String]): Unit =
-    Scalm.start(document.getElementById("myapp"), init, update, view)
+    Tyrian.start(document.getElementById("myapp"), init, update, view)
 
   type Model = String
 
@@ -26,7 +26,7 @@ object Main {
     )
 
   private val myStyle =
-    style(
+    styles(
       "width"      -> "100%",
       "height"     -> "40px",
       "padding"    -> "10px 0",

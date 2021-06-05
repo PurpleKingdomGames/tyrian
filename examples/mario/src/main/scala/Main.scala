@@ -1,9 +1,9 @@
 package mario
 
 import org.scalajs.dom.{document, window}
-import scalm.Html._
-import scalm.Sub._
-import scalm._
+import tyrian.Html._
+import tyrian.Sub._
+import tyrian._
 
 import scala.math._
 import cats.syntax.all._
@@ -11,7 +11,7 @@ import cats.syntax.all._
 object Main extends ScalmApp {
 
   def main(args: Array[String]): Unit =
-    Scalm.start(this, document.querySelector("#mario"))
+    Tyrian.start(this, document.querySelector("#mario"))
 
   sealed trait Direction
   case object Left  extends Direction
@@ -95,7 +95,7 @@ object Main extends ScalmApp {
     val dir = model.dir.toString.toLowerCase
     val css = Style("top", s"${posY}px") |+| Style("left", s"${posX}px")
 
-    div(style(css), attr("id", "mario"), attr("class", "character " + verb + " " + dir))()
+    div(Seq(style(css)) ++ attributes("id" -> "mario", "class" -> s"character $verb $dir"))()
   }
 
   def modelPositionScreen(screenX: Double, screenY: Double, model: Model): (Double, Double) = {

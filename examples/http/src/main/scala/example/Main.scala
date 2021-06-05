@@ -3,14 +3,14 @@ package example
 import cats.syntax.either._
 import io.circe.parser._
 import org.scalajs.dom.document
-import scalm.Html._
-import scalm._
-import scalm.http.Http
+import tyrian.Html._
+import tyrian._
+import tyrian.http.Http
 
 object Main {
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.getElementById("myapp"), init, update, view, subscriptions)
+    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
 
   def init: (Model, Cmd[Msg]) =
     (Model("cats", "waiting.gif"), HttpHelper.getRandomGif("cats"))
@@ -25,8 +25,8 @@ object Main {
     div()(
       h2()(text(model.topic)),
       button(onClick(Msg.MorePlease))(text("more please")),
-      tag("br")()(),
-      tag("img")(attr("src", model.gifUrl))()
+      br,
+      img(src(model.gifUrl))
     )
 
   def subscriptions(model: Model): Sub[Msg] = Sub.Empty

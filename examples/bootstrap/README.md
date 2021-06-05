@@ -1,4 +1,4 @@
-# Scalm Bootstrap CSS Example
+# Tyrian Bootstrap CSS Example
 
 This is the counter example again, but this time will Bootstrap CSS is use to show how that can be done.
 

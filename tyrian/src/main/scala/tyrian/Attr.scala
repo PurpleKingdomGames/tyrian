@@ -1,4 +1,4 @@
-package scalm
+package tyrian
 
 import org.scalajs.dom
 

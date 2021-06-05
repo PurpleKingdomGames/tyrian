@@ -1,7 +1,7 @@
-package scalm
+package tyrian
 
 class StyleTests extends munit.FunSuite {
-  
+
   test("style construction") {
 
     assertEquals(Style("align", "left").toString, "align:left;")

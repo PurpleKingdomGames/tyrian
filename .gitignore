@@ -16,3 +16,4 @@ semanticdb.sbt
 .cache
 dist
 .DS_Store
+credentials.sh

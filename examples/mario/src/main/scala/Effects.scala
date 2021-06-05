@@ -4,8 +4,8 @@ import mario.Main._
 import org.scalajs.dom
 import org.scalajs.dom.{KeyboardEvent, document, window}
 import org.scalajs.dom.raw.{Event, HTMLAudioElement, TouchEvent}
-import scalm.{Cmd, Sub, Task}
-import scalm.Sub.ofTotalObservable
+import tyrian.{Cmd, Sub, Task}
+import tyrian.Sub.ofTotalObservable
 
 object Effects {
 

@@ -1,7 +1,7 @@
 package example
 
-import scalm.{Html, Scalm}
-import scalm.Html._
+import tyrian.{Html, Tyrian}
+import tyrian.Html._
 import org.scalajs.dom.document
 
 object Main {
@@ -51,7 +51,7 @@ object Main {
     div()(elems: _*)
 
   def main(args: Array[String]): Unit =
-    Scalm.start(document.getElementById("myapp"), init, update, view)
+    Tyrian.start(document.getElementById("myapp"), init, update, view)
 }
 
 object Counter:

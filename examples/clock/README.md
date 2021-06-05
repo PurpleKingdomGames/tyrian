@@ -1,4 +1,4 @@
-# scalm clock example
+# Tyrian clock example
 
 This is a minimal working project setup to run the clock example.
 

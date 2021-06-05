@@ -1,8 +1,8 @@
-package scalm
+package tyrian
 
 import org.scalajs.dom
 import org.scalajs.dom.Element
-import scalm.Task.{Cancelable, Observer}
+import tyrian.Task.{Cancelable, Observer}
 import snabbdom.{SnabbdomSyntax, VNode, VNodeParam}
 import util.Functions.fun
 
@@ -10,14 +10,14 @@ import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
 import scala.scalajs.js.|
 
-/** Scalm runtime implementation
+/** Tyrian runtime implementation
   *
   * @param app
   *   Application to run
   * @param node
   *   DOM element to mount the application to
   */
-final case class Scalm(
+final case class Tyrian(
     app: ScalmApp,
     node: Element
 ) extends SnabbdomSyntax {
@@ -202,7 +202,7 @@ final case class Scalm(
 
 }
 
-object Scalm {
+object Tyrian {
 
   /** Computes the initial state of the given application, renders it on the given DOM element, and listen to user
     * actions
@@ -211,10 +211,10 @@ object Scalm {
     * @param _node
     *   the DOM element to mount the app to
     * @return
-    *   The scalm runtime
+    *   The tyrian runtime
     */
-  def start(_app: ScalmApp, _node: Element): Scalm =
-    new Scalm(_app, _node)
+  def start(_app: ScalmApp, _node: Element): Tyrian =
+    new Tyrian(_app, _node)
 
   /** Computes the initial state of the given application, renders it on the given DOM element, and listens to user
     * actions
@@ -231,14 +231,14 @@ object Scalm {
     * @tparam _Msg
     *   Type of messages
     * @return
-    *   The scalm runtime
+    *   The tyrian runtime
     */
   def start[_Model, _Msg](
       node: Element,
       _init: _Model,
       _update: (_Msg, _Model) => _Model,
       _view: _Model => Html[_Msg]
-  ): Scalm =
+  ): Tyrian =
     val app: ScalmApp = new ScalmApp {
       type Msg   = _Msg
       type Model = _Model
@@ -247,7 +247,7 @@ object Scalm {
       def view(model: _Model): Html[_Msg]                       = _view(model)
       def subscriptions(model: _Model): Sub[_Msg]               = Sub.Empty
     }
-    new Scalm(app, node)
+    new Tyrian(app, node)
 
   def start[_Model, _Msg](
       node: Element,
@@ -255,7 +255,7 @@ object Scalm {
       _update: (_Msg, _Model) => (_Model, Cmd[_Msg]),
       _view: _Model => Html[_Msg],
       _subscriptions: _Model => Sub[_Msg]
-  ): Scalm =
+  ): Tyrian =
     val app: ScalmApp = new ScalmApp {
       type Msg   = _Msg
       type Model = _Model
@@ -264,6 +264,6 @@ object Scalm {
       def view(model: _Model): Html[_Msg]                       = _view(model)
       def subscriptions(model: _Model): Sub[_Msg]               = _subscriptions(model)
     }
-    new Scalm(app, node)
+    new Tyrian(app, node)
 
 }
