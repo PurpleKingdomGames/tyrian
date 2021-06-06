@@ -130,7 +130,7 @@ timer. We call this kind of actions “effects”. We classify them into two
 groups: commands and subscriptions. Commands let you *do* stuff, whereas
 subscriptions let you register that you are interested in something.
 You can find more information on effects
-[here](https://guide.elm-lang.org/architecture/effects/).
+[here](https://guide.elm-lang.org/effects/).
 
 Here is how the
 [clock example](https://guide.elm-lang.org/architecture/effects/time.html)
