@@ -101,7 +101,7 @@ object Main:
   opaque type Model = Int
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.body, init, update, view)
+    Tyrian.start(document.getElementById("myapp"), init, update, view)
 
   def init: Model = 0
 
@@ -119,7 +119,6 @@ object Main:
 
 enum Msg:
   case Increment, Decrement
-
 ~~~
 
 ### Dealing With Effects
@@ -158,9 +157,17 @@ object Clock:
     val angle = model.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
     val handX = 50 + 40 * math.cos(angle)
     val handY = 50 + 40 * math.sin(angle)
-    tag("svg")(attribute("viewBox", "0, 0, 100, 100"), attribute("width", "300px"))(
-      tag("circle")(attribute("cx", "50"), attribute("cy", "50"), attribute("r", "45"), attribute("fill", "#0B79CE"))(),
-      tag("line")(attribute("x1", "50"), attribute("y1", "50"), attribute("x2", handX.toString), attribute("y2", handY.toString), attribute("stroke", "#023963"))()
+    tag("svg")(attributes("viewBox" -> "0, 0, 100, 100", "width" -> "300px"))(
+      tag("circle")(attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE"))(),
+      tag("line")(
+        attributes(
+          "x1"     -> "50",
+          "y1"     -> "50",
+          "x2"     -> handX.toString,
+          "y2"     -> handY.toString,
+          "stroke" -> "#023963"
+        )
+      )()
     )
   }
 
@@ -168,7 +175,7 @@ object Clock:
     Sub.every(1.second, "clock-ticks").map(Msg.apply)
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.body, init, update, view, subscriptions)
+    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
 
 final case class Msg(newTime: js.Date)
 ~~~
