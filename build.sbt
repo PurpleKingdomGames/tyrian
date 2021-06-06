@@ -3,34 +3,23 @@ import scala.language.postfixOps
 
 ThisBuild / versionScheme := Some("early-semver")
 
-lazy val tyrian =
-  (project in file("tyrian"))
-    .enablePlugins(ScalaJSPlugin)
-    .settings(
-      scalaVersion := "3.0.0",
-      version := "0.1.0-SNAPSHOT",
-      name := "tyrian",
-      organization := "io.indigoengine",
-      libraryDependencies ++= Seq(
-        ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
-        "org.typelevel" %%% "cats-core"   % "2.6.1",
-        "org.scalameta" %%% "munit"       % "0.7.26" % Test
-      ),
-      testFrameworks += new TestFramework("munit.Framework"),
-      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-      publishTo := sonatypePublishTo.value
-    )
+lazy val tyrianVersion = "0.1.0"
 
-lazy val tyrianProject =
-  (project in file("."))
-    .settings(
-      code := { "code ." ! }
-    )
-    .enablePlugins(ScalaJSPlugin)
-    .aggregate(tyrian)
+val scala3Version = "3.0.0"
 
-lazy val code =
-  taskKey[Unit]("Launch VSCode in the current directory")
+lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  version := tyrianVersion,
+  scalaVersion := scala3Version,
+  crossScalaVersions := Seq(scala3Version),
+  organization := "io.indigoengine",
+  libraryDependencies ++= Seq(
+    "org.scalameta" %%% "munit" % "0.7.26" % Test
+  ),
+  testFrameworks += new TestFramework("munit.Framework"),
+  Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+  // scalacOptions ++= Seq("-language:strictEquality"),
+  crossScalaVersions := Seq(scala3Version)
+)
 
 lazy val publishSettings = {
   import xerial.sbt.Sonatype._
@@ -50,3 +39,29 @@ lazy val publishSettings = {
     )
   )
 }
+
+lazy val tyrian =
+  (project in file("tyrian"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(publishSettings: _*)
+    .settings(
+      name := "tyrian",
+      libraryDependencies ++= Seq(
+        ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
+        "org.typelevel" %%% "cats-core"   % "2.6.1"
+      )
+    )
+
+lazy val tyrianProject =
+  (project in file("."))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      code := { "code ." ! },
+    )
+    .enablePlugins(ScalaJSPlugin)
+    .aggregate(tyrian)
+
+lazy val code =
+  taskKey[Unit]("Launch VSCode in the current directory")

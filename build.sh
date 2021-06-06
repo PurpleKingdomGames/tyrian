@@ -2,4 +2,4 @@
 
 # Run from root.
 
-sbt clean test tyrian/publishLocal
+sbt clean update compile test +tyrian/publishLocal
