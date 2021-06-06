@@ -89,8 +89,8 @@ The examples are useful but before you wholesale copy one to use as a starting p
 
 ### Reacting to User Input
 
-Here is how the usual
-[counter example](https://guide.elm-lang.org/architecture/user_input/buttons.html)
+Here is how the usual Elm
+[counter example](https://elm-lang.org/examples/buttons)
 looks like with tyrian:
 
 ~~~ scala
@@ -132,8 +132,8 @@ subscriptions let you register that you are interested in something.
 You can find more information on effects
 [here](https://guide.elm-lang.org/effects/).
 
-Here is how the
-[clock example](https://guide.elm-lang.org/architecture/effects/time.html)
+Here is how the Elm
+[clock example](https://elm-lang.org/examples/clock)
 looks like in tyrian (using seconds so we can see movement...):
 
 ~~~ scala
