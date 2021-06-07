@@ -17,10 +17,7 @@ import scala.scalajs.js.|
   * @param node
   *   DOM element to mount the application to
   */
-final case class Tyrian(
-    app: ScalmApp,
-    node: Element
-) extends SnabbdomSyntax {
+final case class Tyrian(app: TyrianApp, node: Element) extends SnabbdomSyntax:
 
   // Initialize the app
   private val (initState, initCmd)                             = app.init
@@ -199,22 +196,9 @@ final case class Tyrian(
       case Hook(model, renderer) =>
         renderer.render(model)
     }
+end Tyrian
 
-}
-
-object Tyrian {
-
-  /** Computes the initial state of the given application, renders it on the given DOM element, and listen to user
-    * actions
-    * @param _app
-    *   the application to start
-    * @param _node
-    *   the DOM element to mount the app to
-    * @return
-    *   The tyrian runtime
-    */
-  def start(_app: ScalmApp, _node: Element): Tyrian =
-    new Tyrian(_app, _node)
+object Tyrian:
 
   /** Computes the initial state of the given application, renders it on the given DOM element, and listens to user
     * actions
@@ -239,7 +223,7 @@ object Tyrian {
       _update: (_Msg, _Model) => _Model,
       _view: _Model => Html[_Msg]
   ): Tyrian =
-    val app: ScalmApp = new ScalmApp {
+    val app: TyrianApp = new TyrianApp {
       type Msg   = _Msg
       type Model = _Model
       def init: (Model, Cmd[Msg])                               = pure(_init)
@@ -256,7 +240,7 @@ object Tyrian {
       _view: _Model => Html[_Msg],
       _subscriptions: _Model => Sub[_Msg]
   ): Tyrian =
-    val app: ScalmApp = new ScalmApp {
+    val app: TyrianApp = new TyrianApp {
       type Msg   = _Msg
       type Model = _Model
       def init: (Model, Cmd[Msg])                               = _init
@@ -266,4 +250,4 @@ object Tyrian {
     }
     new Tyrian(app, node)
 
-}
+end Tyrian
