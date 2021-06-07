@@ -6,8 +6,6 @@ import org.scalajs.dom.document
 
 object Main {
 
-  // MODEL
-
   opaque type Model = List[Counter.Model]
 
   enum Msg:
@@ -24,18 +22,13 @@ object Main {
         Counter.init :: model
 
       case Msg.Remove =>
-        model match {
+        model match
           case Nil    => Nil
           case _ :: t => t
-        }
 
       case Msg.Modify(id, m) =>
         model.zipWithIndex.map { case (c, i) =>
-          if (i == id) {
-            Counter.update(m, c)
-          } else {
-            c
-          }
+          if i == id then Counter.update(m, c) else c
         }
 
   def view(model: Model): Html[Msg] =

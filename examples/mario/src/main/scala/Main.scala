@@ -8,81 +8,53 @@ import tyrian._
 import scala.math._
 import cats.syntax.all._
 
-object Main extends ScalmApp {
-
-  def main(args: Array[String]): Unit =
-    Tyrian.start(this, document.querySelector("#mario"))
-
-  sealed trait Direction
-  case object Left  extends Direction
-  case object Right extends Direction
-
-  case class Mario(x: Double, y: Double, vx: Double, vy: Double, dir: Direction)
+object Main:
 
   type Model = Mario
 
-  def init: (Model, Cmd[Msg]) = (Mario(0, 0, 0, 0, Right), Cmd.Empty)
-
-  sealed trait Msg
-  case object PassageOfTime      extends Msg
-  case object ArrowLeftPressed   extends Msg
-  case object ArrowRightPressed  extends Msg
-  case object ArrowLeftReleased  extends Msg
-  case object ArrowRightReleased extends Msg
-  case object ArrowUpPressed     extends Msg
-
-  val gravity                      = 0.25
-  val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
-
-  val applyMotion: Mario => Mario = (mario: Model) =>
-    mario.copy(x = mario.x + mario.vx, y = max(0.0, mario.y + 3 * mario.vy))
-
-  val walkLeft: Model => Model = _.copy(vx = -1.5, dir = Left)
-
-  val walkRight: Model => Model = _.copy(vx = 1.5, dir = Right)
-
-  val jump: Model => Model = _.copy(vy = 4.0)
-
-  val applyPhysics: Model => Model = applyGravity compose applyMotion
+  def init: (Model, Cmd[Msg]) =
+    (Mario(0, 0, 0, 0, Direction.Right), Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    msg match {
-      case ArrowUpPressed if model.y == 0.0 =>
+    import Mario._
+    msg match
+      case Msg.ArrowUpPressed if model.y == 0.0 =>
         val newModel = (jump andThen applyPhysics)(model)
         (newModel, Effects.Cmd.playSound("resources/jump-c-07.mp3"))
 
-      case ArrowLeftPressed =>
+      case Msg.ArrowLeftPressed =>
         val newModel = (walkLeft andThen applyPhysics)(model)
         (newModel, Cmd.Empty)
 
-      case ArrowRightPressed =>
+      case Msg.ArrowRightPressed =>
         val newModel = (walkRight andThen applyPhysics)(model)
         (newModel, Cmd.Empty)
 
-      case ArrowLeftReleased if model.dir == Left =>
+      case Msg.ArrowLeftReleased if model.dir == Direction.Left =>
         val newModel = model.copy(vx = 0.0)
         (newModel, Cmd.Empty)
 
-      case ArrowRightReleased if model.dir == Right =>
+      case Msg.ArrowRightReleased if model.dir == Direction.Right =>
         val newModel = model.copy(vx = 0.0)
         (newModel, Cmd.Empty)
 
-      case PassageOfTime => (applyPhysics(model), Cmd.Empty)
-      case _             => (model, Cmd.Empty)
-    }
+      case Msg.PassageOfTime =>
+        (applyPhysics(model), Cmd.Empty)
+
+      case _ =>
+        (model, Cmd.Empty)
 
   def subscriptions(model: Model): Sub[Msg] =
-    Effects.keyPressSub(37).map[Msg](_ => ArrowLeftPressed) <+>
-      Effects.keyPressSub(39).map(_ => ArrowRightPressed) <+>
-      Effects.keyReleaseSub(37).map(_ => ArrowLeftReleased) <+>
-      Effects.keyReleaseSub(39).map(_ => ArrowRightReleased) <+>
-      Effects.keyPressSub(38).map(_ => ArrowUpPressed) <+>
-      Effects.requestAnimationFrameSub.map(_ => PassageOfTime) <+>
+    Effects.keyPressSub(37).map[Msg](_ => Msg.ArrowLeftPressed) <+>
+      Effects.keyPressSub(39).map(_ => Msg.ArrowRightPressed) <+>
+      Effects.keyReleaseSub(37).map(_ => Msg.ArrowLeftReleased) <+>
+      Effects.keyReleaseSub(39).map(_ => Msg.ArrowRightReleased) <+>
+      Effects.keyPressSub(38).map(_ => Msg.ArrowUpPressed) <+>
+      Effects.requestAnimationFrameSub.map(_ => Msg.PassageOfTime) <+>
       Effects.touchPressedSub(model) <+>
       Effects.touchReleasedSub(model)
 
-  def view(model: Model): Html[Msg] = {
-
+  def view(model: Model): Html[Msg] =
     val (posX, posY) =
       modelPositionScreen(window.innerWidth, window.innerHeight, model)
 
@@ -96,11 +68,29 @@ object Main extends ScalmApp {
     val css = Style("top", s"${posY}px") |+| Style("left", s"${posX}px")
 
     div(Seq(style(css)) ++ attributes("id" -> "mario", "class" -> s"character $verb $dir"))()
-  }
 
-  def modelPositionScreen(screenX: Double, screenY: Double, model: Model): (Double, Double) = {
+  def modelPositionScreen(screenX: Double, screenY: Double, model: Model): (Double, Double) =
     val posX = ((screenX / 2) * 100) / 300 + model.x
     val posY = ((screenY - 200) * 100) / 300 - model.y
     (posX, posY)
-  }
-}
+
+  def main(args: Array[String]): Unit =
+    Tyrian.start(document.querySelector("#mario"), init, update, view, subscriptions)
+
+end Main
+
+enum Msg:
+  case PassageOfTime, ArrowLeftPressed, ArrowRightPressed, ArrowLeftReleased, ArrowRightReleased, ArrowUpPressed
+
+enum Direction:
+  case Left, Right
+
+final case class Mario(x: Double, y: Double, vx: Double, vy: Double, dir: Direction)
+object Mario:
+  val gravity                      = 0.25
+  val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
+  val applyMotion: Mario => Mario  = mario => mario.copy(x = mario.x + mario.vx, y = max(0.0, mario.y + 3 * mario.vy))
+  val walkLeft: Mario => Mario     = _.copy(vx = -1.5, dir = Direction.Left)
+  val walkRight: Mario => Mario    = _.copy(vx = 1.5, dir = Direction.Right)
+  val jump: Mario => Mario         = _.copy(vy = 4.0)
+  val applyPhysics: Mario => Mario = applyMotion andThen applyGravity

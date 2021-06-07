@@ -24,12 +24,12 @@ object Effects {
 
   def keyPressSub(keyCode: Int): Sub[KeyboardEvent] =
     Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keydown", dom.window) { event =>
-      if (event.keyCode == keyCode) Some(event) else None
+      if event.keyCode == keyCode then Some(event) else None
     }
 
   def keyReleaseSub(keyCode: Int): Sub[KeyboardEvent] =
     Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keyup", dom.window) { event =>
-      if (event.keyCode == keyCode) Some(event) else None
+      if event.keyCode == keyCode then Some(event) else None
     }
 
   val UNDER_FRONT_MARIO  = (true, true)
@@ -41,11 +41,10 @@ object Effects {
         modelPositionScreen(window.innerWidth, window.innerHeight, model)
 
       val first = event.touches.item(0)
-      (posX < first.clientX / 3, posY < first.clientY / 3) match {
-        case UNDER_FRONT_MARIO  => Some(ArrowRightPressed)
-        case UNDER_BEHIND_MARIO => Some(ArrowLeftPressed)
-        case _                  => Some(ArrowUpPressed)
-      }
+      (posX < first.clientX / 3, posY < first.clientY / 3) match
+        case UNDER_FRONT_MARIO  => Some(Msg.ArrowRightPressed)
+        case UNDER_BEHIND_MARIO => Some(Msg.ArrowLeftPressed)
+        case _                  => Some(Msg.ArrowUpPressed)
     }
 
   def touchReleasedSub(model: Model): Sub[Msg] =
@@ -54,11 +53,10 @@ object Effects {
         modelPositionScreen(window.innerWidth, window.innerHeight, model)
 
       val first = event.changedTouches.item(0)
-      (posX < first.clientX / 3, posY < first.clientY / 3) match {
-        case UNDER_FRONT_MARIO  => Some(ArrowRightReleased)
-        case UNDER_BEHIND_MARIO => Some(ArrowLeftReleased)
+      (posX < first.clientX / 3, posY < first.clientY / 3) match
+        case UNDER_FRONT_MARIO  => Some(Msg.ArrowRightReleased)
+        case UNDER_BEHIND_MARIO => Some(Msg.ArrowLeftReleased)
         case _                  => None
-      }
     }
 
   object Cmd {
