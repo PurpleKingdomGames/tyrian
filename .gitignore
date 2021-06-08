@@ -17,3 +17,4 @@ semanticdb.sbt
 dist
 .DS_Store
 credentials.sh
+.DS_Store
