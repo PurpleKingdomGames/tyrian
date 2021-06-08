@@ -17,23 +17,27 @@ import scala.scalajs.js.|
   * @param node
   *   DOM element to mount the application to
   */
-final case class Tyrian(app: TyrianApp, node: Element) extends SnabbdomSyntax:
+final case class Tyrian[Model, Msg](
+    init: (Model, Cmd[Msg]),
+    update: (Msg, Model) => (Model, Cmd[Msg]),
+    view: Model => Html[Msg],
+    subscriptions: Model => Sub[Msg],
+    node: Element
+) extends SnabbdomSyntax:
 
   // Initialize the app
-  private val (initState, initCmd)                             = app.init
-  private var currentState                                     = initState
+  private val (initState, initCmd)                             = init
+  private var currentState: Model                              = initState
   private var currentSubscriptions: List[(String, Cancelable)] = Nil
   private var aboutToRunSubscriptions: Set[String]             = Set.empty
   private var vnode                                            = render(node, currentState)
 
-  performSideEffects(initCmd, app.subscriptions(currentState), onMsg)
-
   // TODO Check that there is no space leak
-  private def onMsg(msg: app.Msg): Unit = {
-    val (updatedState, cmd) = app.update(msg, currentState)
+  private def onMsg(msg: Msg): Unit = {
+    val (updatedState: Model, cmd: Cmd[Msg]) = update(msg, currentState)
     currentState = updatedState
     vnode = render(vnode, currentState)
-    performSideEffects(cmd, app.subscriptions(currentState), onMsg)
+    performSideEffects(cmd, subscriptions(currentState), onMsg)
   }
 
   private def performSideEffects[Msg, Model](cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit = {
@@ -165,6 +169,29 @@ final case class Tyrian(app: TyrianApp, node: Element) extends SnabbdomSyntax:
       js.Array(snabbdom.modules.props, snabbdom.modules.attributes, snabbdom.modules.eventlisteners)
     )
 
+  private def toVNode(html: Html[Msg]): VNode =
+    html match {
+      case Tag(name, attrs, children) =>
+        val as = js.Dictionary(attrs.collect { case Attribute(n, v) => (n, v) }: _*)
+        val props =
+          js.Dictionary(attrs.collect { case Property(n, v) => (n, v) }: _*)
+        val events =
+          js.Dictionary(attrs.collect { case Event(n, msg) =>
+            (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
+          }: _*)
+        val childrenElem: Seq[VNodeParam] =
+          children.map {
+            case t: Text            => VNodeParam.liftString(t.value)
+            case subHtml: Html[Msg] => toVNode(subHtml)
+          }
+        h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
+
+      case Hook(model, renderer) =>
+        renderer.render(model)
+    }
+
+  performSideEffects(initCmd, subscriptions(currentState), onMsg)
+
   /** Patches the DOM to render the current application state
     * @param oldNode
     *   DOM node to render to, or previous VDOM node
@@ -173,81 +200,74 @@ final case class Tyrian(app: TyrianApp, node: Element) extends SnabbdomSyntax:
     * @return
     *   The computed VDOM
     */
-  def render(oldNode: Element | VNode, model: app.Model): VNode =
-    patch(oldNode, toVNode(app.view(model)))
+  def render(oldNode: Element | VNode, model: Model): VNode =
+    patch(oldNode, toVNode(view(model)))
 
-  private def toVNode(html: Html[app.Msg]): VNode =
-    html match {
-      case Tag(name, attrs, children) =>
-        val as = js.Dictionary(attrs.collect { case Attribute(n, v) => (n, v) }: _*)
-        val props =
-          js.Dictionary(attrs.collect { case Property(n, v) => (n, v) }: _*)
-        val events =
-          js.Dictionary(attrs.collect { case Event(n, msg) =>
-            (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => app.Msg](e))))
-          }: _*)
-        val childrenElem: Seq[VNodeParam] =
-          children.map {
-            case t: Text                => VNodeParam.liftString(t.value)
-            case subHtml: Html[app.Msg] => toVNode(subHtml)
-          }
-        h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
-
-      case Hook(model, renderer) =>
-        renderer.render(model)
-    }
 end Tyrian
 
 object Tyrian:
 
   /** Computes the initial state of the given application, renders it on the given DOM element, and listens to user
     * actions
-    * @param _node
+    * @param node
     *   the DOM element to mount the app to
-    * @param _init
+    * @param init
     *   initial state
-    * @param _update
+    * @param update
     *   state transition function
-    * @param _view
+    * @param view
     *   view function
-    * @tparam _Model
+    * @tparam Model
     *   Type of model
-    * @tparam _Msg
+    * @tparam Msg
     *   Type of messages
     * @return
     *   The tyrian runtime
     */
-  def start[_Model, _Msg](
+  def start[Model, Msg](
       node: Element,
-      _init: _Model,
-      _update: (_Msg, _Model) => _Model,
-      _view: _Model => Html[_Msg]
-  ): Tyrian =
-    val app: TyrianApp = new TyrianApp {
-      type Msg   = _Msg
-      type Model = _Model
-      def init: (Model, Cmd[Msg])                               = pure(_init)
-      def update(msg: _Msg, model: _Model): (_Model, Cmd[_Msg]) = pure(_update(msg, model))
-      def view(model: _Model): Html[_Msg]                       = _view(model)
-      def subscriptions(model: _Model): Sub[_Msg]               = Sub.Empty
-    }
-    new Tyrian(app, node)
+      init: Model,
+      update: (Msg, Model) => Model,
+      view: Model => Html[Msg]
+  ): Tyrian[Model, Msg] =
+    Tyrian(
+      (init, Cmd.Empty),
+      (msg: Msg, m: Model) => (update(msg, m), Cmd.Empty),
+      view,
+      _ => Sub.Empty,
+      node
+    )
 
-  def start[_Model, _Msg](
+  /** Computes the initial state of the given application, renders it on the given DOM element, and listens to user
+    * actions
+    * @param node
+    *   the DOM element to mount the app to
+    * @param init
+    *   initial state
+    * @param update
+    *   state transition function
+    * @param view
+    *   view function
+    * @param subscriptions
+    *   subscriptions function
+    * @tparam Model
+    *   Type of model
+    * @tparam Msg
+    *   Type of messages
+    * @return
+    *   The tyrian runtime
+    */
+  def start[Model, Msg](
       node: Element,
-      _init: (_Model, Cmd[_Msg]),
-      _update: (_Msg, _Model) => (_Model, Cmd[_Msg]),
-      _view: _Model => Html[_Msg],
-      _subscriptions: _Model => Sub[_Msg]
-  ): Tyrian =
-    val app: TyrianApp = new TyrianApp {
-      type Msg   = _Msg
-      type Model = _Model
-      def init: (Model, Cmd[Msg])                               = _init
-      def update(msg: _Msg, model: _Model): (_Model, Cmd[_Msg]) = _update(msg, model)
-      def view(model: _Model): Html[_Msg]                       = _view(model)
-      def subscriptions(model: _Model): Sub[_Msg]               = _subscriptions(model)
-    }
-    new Tyrian(app, node)
-
-end Tyrian
+      init: (Model, Cmd[Msg]),
+      update: (Msg, Model) => (Model, Cmd[Msg]),
+      view: Model => Html[Msg],
+      subscriptions: Model => Sub[Msg]
+  ): Tyrian[Model, Msg] =
+    Tyrian(
+      init,
+      update,
+      view,
+      subscriptions,
+      node
+    )

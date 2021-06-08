@@ -1,14 +1,12 @@
 package tyrian
 
-import cats.{ApplicativeError, MonoidK}
-import org.scalajs.dom
-import org.scalajs.dom.EventTarget
 import tyrian.Task.Observable
-import util.Functions
-import util.Functions.fun
-
+import cats.MonoidK
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
+import org.scalajs.dom
+import org.scalajs.dom.EventTarget
+import util.Functions
 
 import scala.annotation.nowarn
 
@@ -41,7 +39,7 @@ sealed trait Sub[+Msg] { sub1 =>
 object Sub:
 
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
-  given CanEqual[Sub[_], Sub[_]] = CanEqual.derived
+  given CanEqual[Sub[_], Sub[_]]       = CanEqual.derived
 
   /** The empty subscription represents the absence of subscriptions */
   case object Empty extends Sub[Nothing] {
@@ -127,7 +125,7 @@ object Sub:
     Sub.ofTotalObservable[B](
       name + target.hashCode,
       { observer =>
-        val listener = fun { (a: A) =>
+        val listener = Functions.fun { (a: A) =>
           extract(a) match {
             case Some(b) => observer.onNext(b)
             case None    => ()
@@ -139,109 +137,3 @@ object Sub:
     )
 
 end Sub
-
-/** A task describes some side-effect to perform.
-  *
-  * Examples:
-  *
-  *   - An XHR
-  *
-  * @tparam Err
-  *   Type of error produced the task
-  * @tparam Success
-  *   Type of successful value produced by the task
-  */
-// TODO Cancellation support
-sealed trait Task[+Err, +Success] {
-
-  /** Transforms successful values */
-  def map[Success2](f: Success => Success2): Task[Err, Success2] = Task.Mapped(this, f)
-
-  /** Combines to tasks in parallel */
-  def product[Success2, Err2 >: Err](that: Task[Err2, Success2]): Task[Err2, (Success, Success2)] =
-    Task.Multiplied(this, that)
-
-  /** Sequentially applies this task and then another task given by the function `f` */
-  def flatMap[Success2, Err2 >: Err](f: Success => Task[Err2, Success2]): Task[Err2, Success2] =
-    Task.FlatMapped(this, f)
-
-  /** Turns this task into a command by transforming errors and successful values according to the `f` function
-    */
-  def attempt[Msg](f: Either[Err, Success] => Msg): Cmd[Msg] = Cmd.RunTask(this, f)
-
-  /** Turns this task (that never fails) into a command
-    */
-  @nowarn // Supposedly can never fail, but is doing an unsafe projection.
-  def perform[Err2 >: Err](implicit ev: Err2 =:= Nothing): Cmd[Success] =
-    Cmd.RunTask[Err, Success, Success](this, _.toOption.get)
-
-}
-
-object Task {
-
-  /** Something that produces successful values of type `Value` and error values of type `Err`
-    */
-  trait Observable[Err, Value] {
-
-    /** Run this observable and attaches the given `observer` to its notifications.
-      * @return
-      *   a cancelable for this observable
-      */
-    def run(observer: Observer[Err, Value]): Cancelable
-  }
-
-  /** An observer of successful values of type `Value` and errors of type `Err`
-    */
-  trait Observer[Err, Value] {
-    def onNext(value: Value): Unit
-    def onError(error: Err): Unit
-  }
-
-  trait Cancelable {
-    def cancel(): Unit
-  }
-
-  /** A task that succeeded with the given `value` */
-  case class Succeeded[A](value: A)
-      extends Task[Nothing, A]
-
-      /** A task that failed with the given `error` */
-  case class Failed[A](error: A)
-      extends Task[A, Nothing]
-
-      /** A task that runs the given `observable` */
-  case class RunObservable[Err, Success](observable: Observable[Err, Success])               extends Task[Err, Success]
-  case class Recovered[Err, Success](task: Task[Err, Success], f: Err => Task[Err, Success]) extends Task[Err, Success]
-  case class Mapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Success2)
-      extends Task[Err, Success2]
-  case class Multiplied[Err, Success, Success2](task1: Task[Err, Success], task2: Task[Err, Success2])
-      extends Task[Err, (Success, Success2)]
-  case class FlatMapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Task[Err, Success2])
-      extends Task[Err, Success2]
-
-  implicit def applicativeTask[Err]: ApplicativeError[Task[Err, *], Err] =
-    new ApplicativeError[Task[Err, *], Err] {
-      def pure[A](x: A)                                                              = Succeeded(x)
-      def raiseError[A](e: Err): Task[Err, A]                                        = Failed(e)
-      def ap[A, B](ff: Task[Err, A => B])(fa: Task[Err, A]): Task[Err, B]            = ff.product(fa).map { case (f, a) => f(a) }
-      def handleErrorWith[A](fa: Task[Err, A])(f: Err => Task[Err, A]): Task[Err, A] = Recovered(fa, f)
-    }
-
-}
-
-/** A command describes some side-effect to perform.
-  *
-  * The difference with a `Task` is that a command never produces error values.
-  */
-// FIXME Unify Cmd and Task (Cmd is just a Task[Nothing, ?])
-sealed trait Cmd[+Msg]:
-  def map[OtherMsg](f: Msg => OtherMsg): Cmd[OtherMsg]
-
-object Cmd:
-  given CanEqual[Cmd[_], Cmd[_]] = CanEqual.derived
-
-  final case class RunTask[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg) extends Cmd[Msg]:
-    def map[OtherMsg](g: Msg => OtherMsg): Cmd[OtherMsg] = RunTask(task, f andThen g)
-  
-  case object Empty extends Cmd[Nothing]:
-    def map[OtherMsg](f: Nothing => OtherMsg): Cmd[OtherMsg] = this
