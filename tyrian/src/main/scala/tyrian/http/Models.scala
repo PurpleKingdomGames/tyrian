@@ -35,7 +35,7 @@ enum Method:
   case Get, Post, Put, Patch, Delete
 
 /** The body of a request */
-enum Body:
+enum Body derives CanEqual:
   /** Represents an empty body e.g. for GET requests or POST request without any data.
     */
   case Empty extends Body

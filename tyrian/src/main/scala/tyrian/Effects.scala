@@ -38,7 +38,10 @@ sealed trait Sub[+Msg] { sub1 =>
 
 }
 
-object Sub {
+object Sub:
+
+  given CanEqual[Option[_], Option[_]] = CanEqual.derived
+  given CanEqual[Sub[_], Sub[_]] = CanEqual.derived
 
   /** The empty subscription represents the absence of subscriptions */
   case object Empty extends Sub[Nothing] {
@@ -135,7 +138,7 @@ object Sub {
       }
     )
 
-}
+end Sub
 
 /** A task describes some side-effect to perform.
   *
@@ -231,15 +234,14 @@ object Task {
   * The difference with a `Task` is that a command never produces error values.
   */
 // FIXME Unify Cmd and Task (Cmd is just a Task[Nothing, ?])
-sealed trait Cmd[+Msg] {
+sealed trait Cmd[+Msg]:
   def map[OtherMsg](f: Msg => OtherMsg): Cmd[OtherMsg]
-}
 
-object Cmd {
-  case class RunTask[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg) extends Cmd[Msg] {
+object Cmd:
+  given CanEqual[Cmd[_], Cmd[_]] = CanEqual.derived
+
+  final case class RunTask[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg) extends Cmd[Msg]:
     def map[OtherMsg](g: Msg => OtherMsg): Cmd[OtherMsg] = RunTask(task, f andThen g)
-  }
-  case object Empty extends Cmd[Nothing] {
+  
+  case object Empty extends Cmd[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Cmd[OtherMsg] = this
-  }
-}

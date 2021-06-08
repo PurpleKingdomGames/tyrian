@@ -44,7 +44,8 @@ trait Component { parent =>
     */
   def subscriptions(model: Model): Sub[Msg]
 
-  trait Child {
+  trait Child:
+
     val child: Component
     def msgCtor: child.Msg => parent.Msg
     def extractor: PartialFunction[(parent.Model, parent.Msg), (child.Model, child.Msg)]
@@ -61,6 +62,7 @@ trait Component { parent =>
         msg: parent.Msg,
         modelCtor: child.Model => parent.Model
     ): (parent.Model, Cmd[parent.Msg]) =
+      given CanEqual[Option[(child.Model, child.Msg)], Option[(child.Model, child.Msg)]] = CanEqual.derived
       extractor.lift((model, msg)) match {
         case Some((childModel, childMsg)) => modelAndCmd(child.update(childMsg, childModel), modelCtor)
         case None                         => pure(model)
@@ -77,9 +79,9 @@ trait Component { parent =>
       (modelCtor(model), cmd.map(msgCtor))
     }
 
-  }
+  end Child
 
-  object Child {
+  object Child:
     def apply(
         _child: Component
     )(
@@ -91,6 +93,5 @@ trait Component { parent =>
         def extractor          = _extractor
         def msgCtor            = _msgCtor
       }
-  }
 
 }
