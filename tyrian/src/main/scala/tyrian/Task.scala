@@ -15,8 +15,7 @@ import scala.annotation.nowarn
   * @tparam Success
   *   Type of successful value produced by the task
   */
-// TODO Cancellation support
-sealed trait Task[+Err, +Success] {
+sealed trait Task[+Err, +Success]:
 
   /** Transforms successful values */
   def map[Success2](f: Success => Success2): Task[Err, Success2] = Task.Mapped(this, f)
@@ -35,13 +34,11 @@ sealed trait Task[+Err, +Success] {
 
   /** Turns this task (that never fails) into a command
     */
-  @nowarn // Supposedly can never fail, but is doing an unsafe projection.
+  @nowarn // Can never fail, but is doing an unsafe projection.
   def perform[Err2 >: Err](implicit ev: Err2 =:= Nothing): Cmd[Success] =
     Cmd.RunTask[Err, Success, Success](this, _.toOption.get)
 
-}
-
-object Task {
+object Task:
 
   /** Something that produces successful values of type `Value` and error values of type `Err`
     */
@@ -66,19 +63,20 @@ object Task {
   }
 
   /** A task that succeeded with the given `value` */
-  case class Succeeded[A](value: A) extends Task[Nothing, A]
+  final case class Succeeded[A](value: A) extends Task[Nothing, A]
 
   /** A task that failed with the given `error` */
-  case class Failed[A](error: A) extends Task[A, Nothing]
+  final case class Failed[A](error: A) extends Task[A, Nothing]
 
   /** A task that runs the given `observable` */
-  case class RunObservable[Err, Success](observable: Observable[Err, Success])               extends Task[Err, Success]
-  case class Recovered[Err, Success](task: Task[Err, Success], f: Err => Task[Err, Success]) extends Task[Err, Success]
-  case class Mapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Success2)
+  final case class RunObservable[Err, Success](observable: Observable[Err, Success]) extends Task[Err, Success]
+  final case class Recovered[Err, Success](task: Task[Err, Success], f: Err => Task[Err, Success])
+      extends Task[Err, Success]
+  final case class Mapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Success2)
       extends Task[Err, Success2]
-  case class Multiplied[Err, Success, Success2](task1: Task[Err, Success], task2: Task[Err, Success2])
+  final case class Multiplied[Err, Success, Success2](task1: Task[Err, Success], task2: Task[Err, Success2])
       extends Task[Err, (Success, Success2)]
-  case class FlatMapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Task[Err, Success2])
+  final case class FlatMapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Task[Err, Success2])
       extends Task[Err, Success2]
 
   implicit def applicativeTask[Err]: ApplicativeError[Task[Err, *], Err] =
@@ -88,5 +86,3 @@ object Task {
       def ap[A, B](ff: Task[Err, A => B])(fa: Task[Err, A]): Task[Err, B] = ff.product(fa).map { case (f, a) => f(a) }
       def handleErrorWith[A](fa: Task[Err, A])(f: Err => Task[Err, A]): Task[Err, A] = Recovered(fa, f)
     }
-
-}
