@@ -117,6 +117,7 @@ object Html:
   def property(name: String, value: String): Attr[Nothing]  = Property(name, value)
   def properties(ps: (String, String)*): Seq[Attr[Nothing]] = ps.map(p => Property(p._1, p._2))
 
+  def onChange[M](msg: M): Attr[M]                   = onEvent("change", (_: dom.Event) => msg)
   def onClick[M](msg: M): Attr[M]                    = onEvent("click", (_: dom.Event) => msg)
   def onMouseEnter[M](msg: M): Attr[M]               = onEvent("mouseenter", (_: dom.Event) => msg)
   def onMouseLeave[M](msg: M): Attr[M]               = onEvent("mouseleave", (_: dom.Event) => msg)
