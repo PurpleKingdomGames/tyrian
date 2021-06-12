@@ -4,7 +4,7 @@ import tyrian.{Html, Tyrian}
 import tyrian.Html._
 import org.scalajs.dom.document
 
-object Main {
+object Main:
 
   opaque type Model = List[Counter.Model]
 
@@ -45,7 +45,6 @@ object Main {
 
   def main(args: Array[String]): Unit =
     Tyrian.start(document.getElementById("myapp"), init, update, view)
-}
 
 object Counter:
 

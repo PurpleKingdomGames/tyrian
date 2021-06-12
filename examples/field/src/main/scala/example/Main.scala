@@ -4,7 +4,7 @@ import org.scalajs.dom.document
 import tyrian.Html._
 import tyrian.{Html, Tyrian, Style}
 
-object Main {
+object Main:
   def main(args: Array[String]): Unit =
     Tyrian.start(document.getElementById("myapp"), init, update, view)
 
@@ -33,4 +33,3 @@ object Main {
       "font-size"  -> "2em",
       "text-align" -> "center"
     )
-}
