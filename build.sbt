@@ -80,7 +80,7 @@ lazy val code =
 addCommandAlias(
   "sandboxBuild",
   List(
-    "sandbox/clean",
+    "sandbox/compile",
     "sandbox/test",
     "sandbox/fastOptJS"
   ).mkString("", ";", ";")
