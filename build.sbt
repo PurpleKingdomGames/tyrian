@@ -41,7 +41,7 @@ lazy val publishSettings = {
 }
 
 lazy val tyrian =
-  (project in file("tyrian"))
+  project
     .enablePlugins(ScalaJSPlugin)
     .settings(commonSettings: _*)
     .settings(publishSettings: _*)
@@ -53,6 +53,17 @@ lazy val tyrian =
       )
     )
 
+lazy val sandbox = 
+  project
+    .dependsOn(tyrian)
+    .enablePlugins(ScalaJSPlugin)
+    .settings(
+      scalaVersion := "3.0.0",
+      name := "sandbox",
+      scalaJSUseMainModuleInitializer := true,
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+    )
+
 lazy val tyrianProject =
   (project in file("."))
     .enablePlugins(ScalaJSPlugin)
@@ -61,7 +72,16 @@ lazy val tyrianProject =
       code := { "code ." ! },
     )
     .enablePlugins(ScalaJSPlugin)
-    .aggregate(tyrian)
+    .aggregate(tyrian, sandbox)
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
+
+addCommandAlias(
+  "sandboxBuild",
+  List(
+    "sandbox/clean",
+    "sandbox/test",
+    "sandbox/fastOptJS"
+  ).mkString("", ";", ";")
+)

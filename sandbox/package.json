@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "start": "parcel index.html --no-cache --out-dir dist --log-level 4 --no-source-maps",
+    "build": "parcel build index.html --out-dir dist --log-level 4 --no-source-maps"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  },
+  "dependencies": {
+    "snabbdom": "^3.0.1"
+  }
+}
