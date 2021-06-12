@@ -75,7 +75,7 @@ final class TyrianRuntime[Model, Msg](
     html match {
       case Tag(name, attrs, children) =>
         val as = js.Dictionary(attrs.collect { case Attribute(n, v) => (n, v) }: _*)
-        
+
         val props =
           js.Dictionary(attrs.collect { case Property(n, v) => (n, v) }: _*)
 
@@ -86,8 +86,8 @@ final class TyrianRuntime[Model, Msg](
 
         val childrenElem: Seq[VNodeParam] =
           children.map {
-            case t: Text            => VNodeParam.liftString(t.value)
-            case subHtml: Html[Msg] => toVNode(subHtml)
+            case t: Text            => VNodeParam.Text(t.value)
+            case subHtml: Html[Msg] => VNodeParam.Node(toVNode(subHtml))
           }
 
         h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
