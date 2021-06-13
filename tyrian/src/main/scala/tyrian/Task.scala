@@ -18,7 +18,8 @@ import scala.annotation.nowarn
 sealed trait Task[+Err, +Success]:
 
   /** Transforms successful values */
-  def map[Success2](f: Success => Success2): Task[Err, Success2] = Task.Mapped(this, f)
+  def map[Success2](f: Success => Success2): Task[Err, Success2] = 
+    Task.Mapped(this, f)
 
   /** Combines to tasks in parallel */
   def product[Success2, Err2 >: Err](that: Task[Err2, Success2]): Task[Err2, (Success, Success2)] =
@@ -30,7 +31,8 @@ sealed trait Task[+Err, +Success]:
 
   /** Turns this task into a command by transforming errors and successful values according to the `f` function
     */
-  def attempt[Msg](f: Either[Err, Success] => Msg): Cmd[Msg] = Cmd.RunTask(this, f)
+  def attempt[Msg](f: Either[Err, Success] => Msg): Cmd[Msg] =
+    Cmd.RunTask(this, f)
 
   /** Turns this task (that never fails) into a command
     */
