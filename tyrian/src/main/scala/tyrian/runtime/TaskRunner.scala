@@ -11,15 +11,14 @@ object TaskRunner:
     }
 
   def execTask[Err, Success](task: Task[Err, Success], notifier: Either[Err, Success] => Unit): Unit =
-    task match {
+    task match
       case Task.Succeeded(value)          => notifier(Right(value))
       case Task.Failed(error)             => notifier(Left(error))
-      case Task.RunObservable(observable) => val _ = observable.run(asObserver(notifier)) // FIXME cancellation
+      case Task.RunObservable(observable) => observable.run(asObserver(notifier))
       case t @ Task.Mapped(_, _)          => execTaskMapped(t, notifier)
       case t @ Task.Recovered(_, _)       => execTaskRecovered(t, notifier)
       case t @ Task.Multiplied(_, _)      => execTaskMultiplied(t, notifier)
       case t @ Task.FlatMapped(_, _)      => execTaskFlatMapped(t, notifier)
-    }
 
   def execTaskMapped[Err, Success, Success2](
       mapped: Task.Mapped[Err, Success, Success2],
@@ -78,7 +77,5 @@ object TaskRunner:
   ): Unit =
     execTask[Err, Success](
       flatMapped.task,
-      result => {
-        val _ = result.foreach(success => execTask(flatMapped.f(success), notify))
-      }
+      _.foreach(success => execTask(flatMapped.f(success), notify))
     )

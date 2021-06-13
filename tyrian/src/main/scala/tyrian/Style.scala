@@ -30,7 +30,7 @@ object Style:
 
   extension (style: Style) def toString: String = style
 
-  implicit val monoid: Monoid[Style] =
+  given Monoid[Style] =
     new Monoid[Style]:
       def empty: Style = Style.empty
       def combine(x: Style, y: Style): Style =

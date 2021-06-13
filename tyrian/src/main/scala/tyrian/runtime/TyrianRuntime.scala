@@ -34,19 +34,16 @@ final class TyrianRuntime[Model, Msg](
   }
 
   def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit = {
-    cmd match {
-      case Cmd.Empty            => ()
-      case Cmd.RunTask(task, f) => async(TaskRunner.execTask(task, f andThen callback))
-    }
+    CmdRunner.runCmd(cmd, callback, async)
 
     val allSubs = {
       def loop(sub: Sub[Msg]): List[Sub.OfObservable[_, _, Msg]] =
-        sub match {
+        sub match
           case Sub.Empty               => Nil
           case Sub.Combine(sub1, sub2) => loop(sub1) ++ loop(sub2)
           case s: Sub.OfObservable[_, _, _] =>
             List(s.asInstanceOf[Sub.OfObservable[_, _, Msg]])
-        }
+
       loop(sub)
     }
 

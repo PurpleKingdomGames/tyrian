@@ -35,7 +35,7 @@ sealed trait Task[+Err, +Success]:
   /** Turns this task (that never fails) into a command
     */
   @nowarn // Can never fail, but is doing an unsafe projection.
-  def perform[Err2 >: Err](implicit ev: Err2 =:= Nothing): Cmd[Success] =
+  def perform[Err2 >: Err](using Err2 =:= Nothing): Cmd[Success] =
     Cmd.RunTask[Err, Success, Success](this, _.toOption.get)
 
 object Task:
@@ -79,7 +79,7 @@ object Task:
   final case class FlatMapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Task[Err, Success2])
       extends Task[Err, Success2]
 
-  implicit def applicativeTask[Err]: ApplicativeError[Task[Err, *], Err] =
+  given [Err]: ApplicativeError[Task[Err, *], Err] =
     new ApplicativeError[Task[Err, *], Err] {
       def pure[A](x: A)                                                   = Succeeded(x)
       def raiseError[A](e: Err): Task[Err, A]                             = Failed(e)

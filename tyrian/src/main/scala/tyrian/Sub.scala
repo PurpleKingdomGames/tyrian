@@ -20,21 +20,19 @@ import scala.annotation.nowarn
   * @tparam Msg
   *   Type of message produced by the resource
   */
-sealed trait Sub[+Msg] { sub1 =>
+sealed trait Sub[+Msg]:
 
   /** Transforms the type of messages produced by the subscription */
   def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg]
 
   /** Merges the notifications of this subscription and `sub2` */
   final def combine[LubMsg >: Msg](sub2: Sub[LubMsg]): Sub[LubMsg] =
-    (sub1, sub2) match {
+    (this, sub2) match {
       case (Sub.Empty, Sub.Empty) => Sub.Empty
       case (Sub.Empty, s2)        => s2
       case (s1, Sub.Empty)        => s1
       case (s1, s2)               => Sub.Combine(s1, s2)
     }
-
-}
 
 object Sub:
 
@@ -42,9 +40,8 @@ object Sub:
   given CanEqual[Sub[_], Sub[_]]       = CanEqual.derived
 
   /** The empty subscription represents the absence of subscriptions */
-  case object Empty extends Sub[Nothing] {
+  case object Empty extends Sub[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Sub[OtherMsg] = this
-  }
 
   /** A subscription that forwards the notifications produced by the given `observable`
     * @param id
@@ -62,14 +59,12 @@ object Sub:
     */
   // FIXME Use Task instead of Observable, at this level
   case class OfObservable[Err, Value, Msg](id: String, observable: Observable[Err, Value], f: Either[Err, Value] => Msg)
-      extends Sub[Msg] {
+      extends Sub[Msg]:
     def map[OtherMsg](g: Msg => OtherMsg): Sub[OtherMsg] = OfObservable(id, observable, f andThen g)
-  }
 
   /** Merge two subscriptions into a single one */
-  case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg] {
+  case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg] = Combine(sub1.map(f), sub2.map(f))
-  }
 
   /** Same as `OfObservable` but when the observable never fails
     *
@@ -84,11 +79,10 @@ object Sub:
   def ofTotalObservable[Msg](id: String, observable: Observable[Nothing, Msg]): Sub[Msg] =
     OfObservable[Nothing, Msg, Msg](id, observable, _.toOption.get)
 
-  implicit val monoidKSub: MonoidK[Sub] =
-    new MonoidK[Sub] {
+  given MonoidK[Sub] =
+    new MonoidK[Sub]:
       def empty[A]: Sub[A]                                = Sub.Empty
       def combineK[A](sub1: Sub[A], sub2: Sub[A]): Sub[A] = sub1.combine(sub2)
-    }
 
   /** @return
     *   A subscription that notifies its subscribers with `msg` after `duration`.
