@@ -23,8 +23,8 @@ object Cmd:
   def run[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg): RunTask[Err, Success, Msg] =
     RunTask[Err, Success, Msg](task, f)
 
-  def batch[Msg](cmds: List[Cmd[Msg]]): Batch[Msg] =
-    Batch[Msg](cmds)
+  def batch[Msg](cmds: Cmd[Msg]*): Batch[Msg] =
+    Batch[Msg](cmds.toList)
 
   case object Empty extends Cmd[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this

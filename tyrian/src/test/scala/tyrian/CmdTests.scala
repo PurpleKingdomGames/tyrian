@@ -2,25 +2,83 @@ package tyrian
 
 class CmdTests extends munit.FunSuite {
 
-  test("mapping commands - Empty") {
+  test("map - Empty") {
     assertEquals(Cmd.Empty.map(_ => Int), Cmd.Empty)
   }
 
-  test("mapping commands - RunTask") {
+  test("map - RunTask") {
     val mapped =
       Cmd
         .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
         .map(_ * 100)
 
     val actual: Int =
-      mapped.task match
-        case Task.Succeeded(value) => mapped.f(Right(value))
-        case _                     => throw new Exception("failed")
+      runCmd(mapped)
 
     val expected: Int =
       1000
 
     assertEquals(actual, expected)
   }
+
+  test("map - Combine") {
+    val mapped =
+      Cmd.Combine(
+        Cmd
+          .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+          .map(_ * 100),
+        Cmd
+          .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+          .map(_ * 10)
+      )
+
+    val actual: (Int, Int) =
+      (runCmd(mapped.cmd1), runCmd(mapped.cmd2))
+
+    val expected: (Int, Int) =
+      (1000, 100)
+
+    assertEquals(actual, expected)
+  }
+
+  test("map - Batch") {
+    val mapped =
+      Cmd.batch(
+        Cmd
+          .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+          .map(_ * 2),
+        Cmd.Combine(
+          Cmd
+            .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+            .map(_ * 100),
+          Cmd
+            .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+            .map(_ * 10)
+        )
+      )
+
+    val actual: (Int, Int, Int) =
+      mapped.cmds match
+        case c1 :: (cs: Cmd.Combine[_]) :: Nil =>
+          (runCmd(c1), runCmd(cs.cmd1), runCmd(cs.cmd2))
+
+        case _ =>
+          throw new Exception("wrong pattern")
+
+    val expected: (Int, Int, Int) =
+      (20, 1000, 100)
+
+    assertEquals(actual, expected)
+  }
+
+  def runCmd[Msg](cmd: Cmd[Msg]): Msg =
+    cmd match
+      case c: Cmd.RunTask[_, _, _] =>
+        c.task match
+          case Task.Succeeded(value) => c.f(Right(value))
+          case _                     => throw new Exception("failed on run task")
+
+      case _ =>
+        throw new Exception("failed, was not a run task")
 
 }
