@@ -11,7 +11,9 @@ object Http {
     * @tparam A
     *   type of the successfully decoded response
     */
-  type Decoder[A] = String => Either[String, A]
+  opaque type Decoder[A] = String => Either[String, A]
+  object Decoder:
+    def apply[A](decoder: String => Either[String, A]): Decoder[A] = decoder
 
   /** Send an HTTP request.
     * @param resultToMessage
@@ -66,23 +68,6 @@ object Http {
       })
       .map(resultToMessage)
 
-  /** Create a GET request and interpret the response body as String.
-    * @param url
-    *   the url
-    * @return
-    *   a GET request
-    */
-  def getString(url: String): Request[String] =
-    Request(
-      method = Method.Get,
-      headers = Nil,
-      url = url,
-      body = Body.Empty,
-      expect = r => Right(r.body),
-      timeout = None,
-      withCredentials = false
-    )
-
   /** Create a GET request and try to decode the response body from String to A.
     * @param url
     *   the url
@@ -103,6 +88,15 @@ object Http {
       timeout = None,
       withCredentials = false
     )
+
+  /** Create a GET request and interpret the response body as String.
+    * @param url
+    *   the url
+    * @return
+    *   a GET request
+    */
+  def get(url: String): Request[String] =
+    get(url, Decoder(str => Right(str)))
 
   /** Create a POST request and try to decode the response body from String to A.
     * @param url
@@ -126,6 +120,21 @@ object Http {
       timeout = None,
       withCredentials = false
     )
+
+  /** Create a POST request and interpret the response body as String.
+    * @param url
+    *   the url
+    * @param body
+    *   the body of the POST request
+    * @param decoder
+    *   tries to transform the body into some value of type A
+    * @tparam A
+    *   the type of the successfully decoded response
+    * @return
+    *   a POST request
+    */
+  def post(url: String, body: Body): Request[String] =
+    post(url, body, Decoder(str => Right(str)))
 
   /** Create a JSON body. This will automatically add the `Content-Type: application/json` header.
     * @param body

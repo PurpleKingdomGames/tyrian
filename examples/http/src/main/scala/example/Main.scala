@@ -35,8 +35,8 @@ object Main:
 end Main
 
 enum Msg:
-  case MorePlease                      extends Msg
-  case NewGif(result: String)          extends Msg
+  case MorePlease extends Msg
+  case NewGif(result: String) extends Msg
   case GifError(error: http.HttpError) extends Msg
 object Msg:
   def fromHttpResponse: Either[HttpError, String] => Msg =
@@ -46,16 +46,18 @@ object Msg:
 final case class Model(topic: String, gifUrl: String)
 
 object HttpHelper:
-  private def decodeGifUrl(json: String): Either[String, String] =
-    parse(json)
-      .leftMap(_.message)
-      .flatMap { json =>
-        json.hcursor
-          .downField("data")
-          .get[String]("image_url")
-          .toOption
-          .toRight("wrong json format")
-      }
+  private def decodeGifUrl: Http.Decoder[String] =
+    Http.Decoder { json =>
+      parse(json)
+        .leftMap(_.message)
+        .flatMap { json =>
+          json.hcursor
+            .downField("data")
+            .get[String]("image_url")
+            .toOption
+            .toRight("wrong json format")
+        }
+    }
 
   def getRandomGif(topic: String): Cmd[Msg] =
     val url =
