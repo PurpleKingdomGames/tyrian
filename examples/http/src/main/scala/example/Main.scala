@@ -5,7 +5,7 @@ import io.circe.parser._
 import org.scalajs.dom.document
 import tyrian.Html._
 import tyrian._
-import tyrian.http.{Http, HttpError}
+import tyrian.http._
 
 object Main:
 
@@ -47,7 +47,8 @@ final case class Model(topic: String, gifUrl: String)
 
 object HttpHelper:
   private def decodeGifUrl: Http.Decoder[String] =
-    Http.Decoder { json =>
+    Http.Decoder { response =>
+      val json = response.body
       parse(json)
         .leftMap(_.message)
         .flatMap { json =>
@@ -62,4 +63,4 @@ object HttpHelper:
   def getRandomGif(topic: String): Cmd[Msg] =
     val url =
       s"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=$topic"
-    Http.send(Msg.fromHttpResponse, Http.get(url, decodeGifUrl))
+    Http.send(Request.get(url, decodeGifUrl), Msg.fromHttpResponse)
