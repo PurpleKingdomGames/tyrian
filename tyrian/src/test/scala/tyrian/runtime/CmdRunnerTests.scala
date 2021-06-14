@@ -22,5 +22,20 @@ class CmdRunnerTests extends munit.FunSuite  {
 
     assertEquals(output, 10)
   }
+  
+  test("run a cmd side effect") {
+
+    var output: Int = -1
+
+    val cmd: Cmd[Int] =
+      Task.SideEffect(() => output = 2).toCmd
+    
+    val async: (=> Unit) => Unit = thing => thing
+
+    val actual = 
+      CmdRunner.runCmd(cmd, _ => (), async)
+
+    assertEquals(output, 2)
+  }
 
 }

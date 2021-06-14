@@ -18,7 +18,7 @@ import scala.annotation.nowarn
 sealed trait Task[+Err, +Success]:
 
   /** Transforms successful values */
-  def map[Success2](f: Success => Success2): Task[Err, Success2] = 
+  def map[Success2](f: Success => Success2): Task[Err, Success2] =
     Task.Mapped(this, f)
 
   /** Combines to tasks in parallel */
@@ -63,6 +63,10 @@ object Task:
   trait Cancelable {
     def cancel(): Unit
   }
+
+  /** A task that is a fire and forget side effect */
+  final case class SideEffect(thunk: () => Unit) extends Task[Nothing, Unit]:
+    def toCmd: Cmd.SideEffect = Cmd.SideEffect(this)
 
   /** A task that succeeded with the given `value` */
   final case class Succeeded[A](value: A) extends Task[Nothing, A]

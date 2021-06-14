@@ -12,6 +12,7 @@ object TaskRunner:
 
   def execTask[Err, Success](task: Task[Err, Success], notifier: Either[Err, Success] => Unit): Unit =
     task match
+      case Task.SideEffect(thunk)         => thunk()
       case Task.Succeeded(value)          => notifier(Right(value))
       case Task.Failed(error)             => notifier(Left(error))
       case Task.RunObservable(observable) => observable.run(asObserver(notifier))

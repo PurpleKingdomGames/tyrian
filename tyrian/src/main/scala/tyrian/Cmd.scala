@@ -29,6 +29,9 @@ object Cmd:
   case object Empty extends Cmd[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
 
+  final case class SideEffect(task: Task[Nothing, Unit]) extends Cmd[Nothing]:
+    def map[OtherMsg](f: Nothing => OtherMsg): SideEffect = this
+
   final case class RunTask[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg)
       extends Cmd[Msg]:
     def map[OtherMsg](g: Msg => OtherMsg): RunTask[Err, Success, OtherMsg] = RunTask(task, f andThen g)
