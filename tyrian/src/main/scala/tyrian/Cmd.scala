@@ -20,8 +20,8 @@ sealed trait Cmd[+Msg]:
 object Cmd:
   given CanEqual[Cmd[_], Cmd[_]] = CanEqual.derived
 
-  def run[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg): RunTask[Err, Success, Msg] =
-    RunTask[Err, Success, Msg](task, f)
+  def run[Err, Success, Msg](task: Task[Err, Success], toMessage: Either[Err, Success] => Msg): RunTask[Err, Success, Msg] =
+    RunTask[Err, Success, Msg](task, toMessage)
 
   def batch[Msg](cmds: Cmd[Msg]*): Batch[Msg] =
     Batch[Msg](cmds.toList)
@@ -35,9 +35,9 @@ object Cmd:
   final case class Emit[Msg](msg: Msg) extends Cmd[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg))
 
-  final case class RunTask[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg)
+  final case class RunTask[Err, Success, Msg](task: Task[Err, Success], toMessage: Either[Err, Success] => Msg)
       extends Cmd[Msg]:
-    def map[OtherMsg](g: Msg => OtherMsg): RunTask[Err, Success, OtherMsg] = RunTask(task, f andThen g)
+    def map[OtherMsg](f: Msg => OtherMsg): RunTask[Err, Success, OtherMsg] = RunTask(task, toMessage andThen f)
 
   case class Combine[Msg](cmd1: Cmd[Msg], cmd2: Cmd[Msg]) extends Cmd[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Combine[OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))

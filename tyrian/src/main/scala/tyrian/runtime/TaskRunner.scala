@@ -34,7 +34,7 @@ object TaskRunner:
     execTask[Err, Success](
       recovered.task,
       {
-        case Left(err)      => execTask[Err, Success](recovered.f(err), notify)
+        case Left(err)      => execTask[Err, Success](recovered.recoverWith(err), notify)
         case Right(success) => notify(Right(success))
       }
     )

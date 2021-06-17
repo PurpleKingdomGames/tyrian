@@ -31,8 +31,8 @@ sealed trait Task[+Err, +Success]:
 
   /** Turns this task into a command by transforming errors and successful values according to the `f` function
     */
-  def attempt[Msg](f: Either[Err, Success] => Msg): Cmd[Msg] =
-    Cmd.RunTask(this, f)
+  def attempt[Msg](toMessage: Either[Err, Success] => Msg): Cmd[Msg] =
+    Cmd.RunTask(this, toMessage)
 
   /** Turns this task (that never fails) into a command
     */
@@ -69,21 +69,32 @@ object Task:
     def toCmd: Cmd.SideEffect = Cmd.SideEffect(this)
 
   /** A task that succeeded with the given `value` */
-  final case class Succeeded[A](value: A) extends Task[Nothing, A]
+  final case class Succeeded[A](value: A) extends Task[Nothing, A]:
+    def toCmd[Msg](toMessage: Either[Nothing, A] => Msg): Cmd.Emit[Msg] = Cmd.Emit(toMessage(Right(value)))
 
   /** A task that failed with the given `error` */
-  final case class Failed[A](error: A) extends Task[A, Nothing]
+  final case class Failed[A](error: A) extends Task[A, Nothing]:
+    def toCmd[Msg](toMessage: Either[A, Nothing] => Msg): Cmd.Emit[Msg] = Cmd.Emit(toMessage(Left(error)))
 
   /** A task that runs the given `observable` */
-  final case class RunObservable[Err, Success](observable: Observable[Err, Success]) extends Task[Err, Success]
-  final case class Recovered[Err, Success](task: Task[Err, Success], f: Err => Task[Err, Success])
-      extends Task[Err, Success]
+  final case class RunObservable[Err, Success](observable: Observable[Err, Success]) extends Task[Err, Success]:
+    def toCmd[Msg](toMessage: Either[Err, Success] => Msg): Cmd.RunTask[Err, Success, Msg] = Cmd.RunTask(this, toMessage)
+
+  final case class Recovered[Err, Success](task: Task[Err, Success], recoverWith: Err => Task[Err, Success])
+      extends Task[Err, Success]:
+    def toCmd[Msg](toMessage: Either[Err, Success] => Msg): Cmd.RunTask[Err, Success, Msg] = Cmd.RunTask(this, toMessage)
+
   final case class Mapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Success2)
-      extends Task[Err, Success2]
+      extends Task[Err, Success2]:
+    def toCmd[Msg](toMessage: Either[Err, Success2] => Msg): Cmd.RunTask[Err, Success2, Msg] = Cmd.RunTask(this, toMessage)
+
   final case class Multiplied[Err, Success, Success2](task1: Task[Err, Success], task2: Task[Err, Success2])
-      extends Task[Err, (Success, Success2)]
+      extends Task[Err, (Success, Success2)]:
+    def toCmd[Msg](toMessage: Either[Err, (Success, Success2)] => Msg): Cmd.RunTask[Err, (Success, Success2), Msg] = Cmd.RunTask(this, toMessage)
+
   final case class FlatMapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Task[Err, Success2])
-      extends Task[Err, Success2]
+      extends Task[Err, Success2]:
+    def toCmd[Msg](toMessage: Either[Err, Success2] => Msg): Cmd.RunTask[Err, Success2, Msg] = Cmd.RunTask(this, toMessage)
 
   given [Err]: ApplicativeError[Task[Err, *], Err] =
     new ApplicativeError[Task[Err, *], Err] {

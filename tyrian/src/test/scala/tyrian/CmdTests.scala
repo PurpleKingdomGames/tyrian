@@ -42,17 +42,17 @@ class CmdTests extends munit.FunSuite {
   }
 
   test("map - Batch") {
+    val toMessage = (res: Either[String, Int]) => res.toOption.getOrElse(0)
+
     val mapped =
       Cmd.batch(
-        Cmd
-          .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
-          .map(_ * 2),
+        Task.Succeeded(10).toCmd(toMessage).map(_ * 2), // alternate construction
         Cmd.Combine(
           Cmd
-            .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+            .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)
             .map(_ * 100),
           Cmd
-            .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+            .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)
             .map(_ * 10)
         )
       )
@@ -75,8 +75,11 @@ class CmdTests extends munit.FunSuite {
     cmd match
       case c: Cmd.RunTask[_, _, _] =>
         c.task match
-          case Task.Succeeded(value) => c.f(Right(value))
+          case Task.Succeeded(value) => c.toMessage(Right(value))
           case _                     => throw new Exception("failed on run task")
+
+      case Cmd.Emit(msg) =>
+        msg
 
       case _ =>
         throw new Exception("failed, was not a run task")
