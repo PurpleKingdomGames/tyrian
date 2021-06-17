@@ -18,14 +18,14 @@ object Style:
     fromTuple((name, value))
 
   def apply(styles: (String, String)*): Style =
-    combineAll(styles.map(fromTuple))
+    combineAll(styles.toList.map(fromTuple))
 
   val empty: Style = Style("", "")
 
   def combine(a: Style, b: Style)(using m: Monoid[Style]): Style =
     m.combine(a, b)
 
-  def combineAll(styles: Seq[Style])(using m: Monoid[Style]): Style =
+  def combineAll(styles: List[Style])(using m: Monoid[Style]): Style =
     styles.foldLeft(Style.empty)(m.combine)
 
   extension (style: Style) def toString: String = style

@@ -33,8 +33,7 @@ trait VNode extends js.Object {
 }
 
 @js.native
-trait VNodeData
-    extends js.Object
+trait VNodeData extends js.Object
 
 // --- Convenient syntax
 
@@ -54,15 +53,15 @@ trait SnabbdomSyntax extends Any {
 }
 
 sealed trait VNodeParam {
-  def asVnodes: Seq[String | VNode]
+  def asVnodes: List[String | VNode]
 }
 
 object VNodeParam {
 
   final case class Text(s: String) extends VNodeParam {
-    def asVnodes: Seq[String | VNode] = Seq(s)
+    def asVnodes: List[String | VNode] = List(s)
   }
   final case class Node(vnode: VNode) extends VNodeParam {
-    def asVnodes: Seq[String | VNode] = Seq(vnode)
+    def asVnodes: List[String | VNode] = List(vnode)
   }
 }

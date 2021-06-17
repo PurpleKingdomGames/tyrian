@@ -67,7 +67,7 @@ object Main:
     val dir = model.dir.toString.toLowerCase
     val css = Style("top", s"${posY}px") |+| Style("left", s"${posX}px")
 
-    div(Seq(style(css)) ++ attributes("id" -> "mario", "class" -> s"character $verb $dir"))()
+    div(List(style(css)) ++ attributes("id" -> "mario", "class" -> s"character $verb $dir"))()
 
   def modelPositionScreen(screenX: Double, screenY: Double, model: Model): (Double, Double) =
     val posX = ((screenX / 2) * 100) / 300 + model.x

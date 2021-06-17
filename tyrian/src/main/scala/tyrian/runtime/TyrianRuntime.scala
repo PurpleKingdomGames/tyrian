@@ -81,7 +81,7 @@ final class TyrianRuntime[Model, Msg](
             (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
           }: _*)
 
-        val childrenElem: Seq[VNodeParam] =
+        val childrenElem: List[VNodeParam] =
           children.map {
             case t: Text            => VNodeParam.Text(t.value)
             case subHtml: Html[Msg] => VNodeParam.Node(toVNode(subHtml))

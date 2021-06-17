@@ -23,102 +23,128 @@ object Html:
 
   // Tag syntax
 
-  def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] = Tag(name, attributes, children)
-  @targetName("tag-seq")
-  def tag[M](name: String)(attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = Tag(name, attributes, children)
+  def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] =
+    Tag(name, attributes.toList, children.toList)
+  @targetName("tag-list")
+  def tag[M](name: String)(attributes: List[Attr[M]])(children: Elem[M]*): Html[M] =
+    Tag(name, attributes, children.toList)
 
   def button[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("button")(attributes: _*)(children: _*)
-  @targetName("button-seq")
-  def button[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("button")(attributes: _*)(children: _*)
+  @targetName("button-list")
+  def button[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("button")(attributes: _*)(children: _*)
+
   def canvas[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("canvas")(attributes: _*)(children: _*)
-  @targetName("canvas-seq")
-  def canvas[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("canvas")(attributes: _*)(children: _*)
-  def div[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]        = tag("div")(attributes: _*)(children: _*)
-  @targetName("div-seq")
-  def div[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("div")(attributes: _*)(children: _*)
-  def span[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]    = tag("span")(attributes: _*)(children: _*)
-  @targetName("span-seq")
-  def span[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("span")(attributes: _*)(children: _*)
-  def h1[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]       = tag("h1")(attributes: _*)(children: _*)
-  @targetName("h1-seq")
-  def h1[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("h1")(attributes: _*)(children: _*)
-  def h2[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("h2")(attributes: _*)(children: _*)
-  @targetName("h2-seq")
-  def h2[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("h2")(attributes: _*)(children: _*)
-  def h3[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("h3")(attributes: _*)(children: _*)
-  @targetName("h3-seq")
-  def h3[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("h3")(attributes: _*)(children: _*)
-  def h4[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("h4")(attributes: _*)(children: _*)
-  @targetName("h4-seq")
-  def h4[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("h4")(attributes: _*)(children: _*)
-  def h5[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("h5")(attributes: _*)(children: _*)
-  @targetName("h5-seq")
-  def h5[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("h5")(attributes: _*)(children: _*)
-  def h6[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("h6")(attributes: _*)(children: _*)
-  @targetName("h6-seq")
-  def h6[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("h6")(attributes: _*)(children: _*)
-  def input[M](attributes: Attr[M]*): Html[M]                      = tag("input")(attributes: _*)()
-  @targetName("input-seq")
-  def input[M](attributes: Seq[Attr[M]]): Html[M] = tag("input")(attributes: _*)()
+  @targetName("canvas-list")
+  def canvas[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("canvas")(attributes: _*)(children: _*)
+
+  def div[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("div")(attributes: _*)(children: _*)
+  @targetName("div-list")
+  def div[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("div")(attributes: _*)(children: _*)
+
+  def span[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("span")(attributes: _*)(children: _*)
+  @targetName("span-list")
+  def span[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("span")(attributes: _*)(children: _*)
+
+  def h1[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h1")(attributes: _*)(children: _*)
+  @targetName("h1-list")
+  def h1[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h1")(attributes: _*)(children: _*)
+
+  def h2[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h2")(attributes: _*)(children: _*)
+  @targetName("h2-list")
+  def h2[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h2")(attributes: _*)(children: _*)
+
+  def h3[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h3")(attributes: _*)(children: _*)
+  @targetName("h3-list")
+  def h3[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h3")(attributes: _*)(children: _*)
+
+  def h4[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h4")(attributes: _*)(children: _*)
+  @targetName("h4-list")
+  def h4[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h4")(attributes: _*)(children: _*)
+
+  def h5[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h5")(attributes: _*)(children: _*)
+  @targetName("h5-list")
+  def h5[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h5")(attributes: _*)(children: _*)
+
+  def h6[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h6")(attributes: _*)(children: _*)
+  @targetName("h6-list")
+  def h6[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h6")(attributes: _*)(children: _*)
+
+  def input[M](attributes: Attr[M]*): Html[M] = tag("input")(attributes: _*)()
+  @targetName("input-list")
+  def input[M](attributes: List[Attr[M]]): Html[M] = tag("input")(attributes: _*)()
+
   def radio[M](name: String, checked: Boolean, attributes: Attr[M]*): Html[M] =
-    radio(name, checked, attributes.toSeq)
-  @targetName("radio-seq")
-  def radio[M](name: String, checked: Boolean, attributes: Seq[Attr[M]]): Html[M] =
+    radio(name, checked, attributes.toList)
+  @targetName("radio-list")
+  def radio[M](name: String, checked: Boolean, attributes: List[Attr[M]]): Html[M] =
     input(
-      Seq(
+      List(
         Property("type", "radio"),
         Property("name", name),
         if checked then Property("checked", "checked") else Property.empty
       ) ++ attributes: _*
     )
+
   def label[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("label")(attributes: _*)(children: _*)
-  @targetName("label-seq")
-  def label[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("label")(attributes: _*)(children: _*)
-  def ol[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]        = tag("ol")(attributes: _*)(children: _*)
-  @targetName("ol-seq")
-  def ol[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("ol")(attributes: _*)(children: _*)
-  def ul[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("ul")(attributes: _*)(children: _*)
-  @targetName("ul-seq")
-  def ul[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("ul")(attributes: _*)(children: _*)
-  def li[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("li")(attributes: _*)(children: _*)
-  @targetName("li-seq")
-  def li[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("li")(attributes: _*)(children: _*)
-  def img[M](attributes: Attr[M]*): Html[M]                        = tag("img")(attributes: _*)()
-  @targetName("img-seq")
-  def img[M](attributes: Seq[Attr[M]]): Html[M]               = tag("img")(attributes: _*)()
+  @targetName("label-list")
+  def label[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("label")(attributes: _*)(children: _*)
+
+  def ol[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("ol")(attributes: _*)(children: _*)
+  @targetName("ol-list")
+  def ol[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("ol")(attributes: _*)(children: _*)
+
+  def ul[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("ul")(attributes: _*)(children: _*)
+  @targetName("ul-list")
+  def ul[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("ul")(attributes: _*)(children: _*)
+
+  def li[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("li")(attributes: _*)(children: _*)
+  @targetName("li-list")
+  def li[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("li")(attributes: _*)(children: _*)
+
+  def img[M](attributes: Attr[M]*): Html[M] = tag("img")(attributes: _*)()
+  @targetName("img-list")
+  def img[M](attributes: List[Attr[M]]): Html[M] = tag("img")(attributes: _*)()
+
   def a[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("a")(attributes: _*)(children: _*)
-  @targetName("a-seq")
-  def a[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("a")(attributes: _*)(children: _*)
-  def br: Html[Nothing]                                           = tag("br")()()
-  def hr: Html[Nothing]                                           = tag("hr")()()
+  @targetName("a-list")
+  def a[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("a")(attributes: _*)(children: _*)
+
+  def br: Html[Nothing] = tag("br")()()
+  def hr: Html[Nothing] = tag("hr")()()
+
   def title[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("title")(attributes: _*)(children: _*)
-  @targetName("title-seq")
-  def title[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("title")(attributes: _*)(children: _*)
-  def style[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("style")(attributes: _*)(children: _*)
-  @targetName("style-seq")
-  def style[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("style")(attributes: _*)(children: _*)
-  def p[M](children: Elem[M]*): Html[M]                               = tag("p")()(children: _*)
-  def i[M](children: Elem[M]*): Html[M]                               = tag("i")()(children: _*)
-  def b[M](children: Elem[M]*): Html[M]                               = tag("b")()(children: _*)
-  def em[M](children: Elem[M]*): Html[M]                              = tag("em")()(children: _*)
-  def cite[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]      = tag("cite")(attributes: _*)(children: _*)
-  @targetName("cite-seq")
-  def cite[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("cite")(attributes: _*)(children: _*)
-  def head[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("head")(attributes: _*)(children: _*)
-  @targetName("head-seq")
-  def head[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("head")(attributes: _*)(children: _*)
-  def body[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M]     = tag("body")(attributes: _*)(children: _*)
-  @targetName("body-seq")
-  def body[M](attributes: Seq[Attr[M]])(children: Elem[M]*): Html[M] = tag("body")(attributes: _*)(children: _*)
+  @targetName("title-list")
+  def title[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("title")(attributes: _*)(children: _*)
+
+  def style[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("style")(attributes: _*)(children: _*)
+  @targetName("style-list")
+  def style[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("style")(attributes: _*)(children: _*)
+
+  def p[M](children: Elem[M]*): Html[M]  = tag("p")()(children: _*)
+  def i[M](children: Elem[M]*): Html[M]  = tag("i")()(children: _*)
+  def b[M](children: Elem[M]*): Html[M]  = tag("b")()(children: _*)
+  def em[M](children: Elem[M]*): Html[M] = tag("em")()(children: _*)
+
+  def cite[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("cite")(attributes: _*)(children: _*)
+  @targetName("cite-list")
+  def cite[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("cite")(attributes: _*)(children: _*)
+
+  def head[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("head")(attributes: _*)(children: _*)
+  @targetName("head-list")
+  def head[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("head")(attributes: _*)(children: _*)
+
+  def body[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("body")(attributes: _*)(children: _*)
+  @targetName("body-list")
+  def body[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("body")(attributes: _*)(children: _*)
 
   def text(str: String): Text = Text(str)
 
   // Attribute syntax
 
-  def attribute(name: String, value: String): Attr[Nothing] = Attribute(name, value)
-  def attributes(as: (String, String)*): Seq[Attr[Nothing]] = as.map(p => Attribute(p._1, p._2))
-  def property(name: String, value: String): Attr[Nothing]  = Property(name, value)
-  def properties(ps: (String, String)*): Seq[Attr[Nothing]] = ps.map(p => Property(p._1, p._2))
+  def attribute(name: String, value: String): Attr[Nothing]  = Attribute(name, value)
+  def attributes(as: (String, String)*): List[Attr[Nothing]] = as.toList.map(p => Attribute(p._1, p._2))
+  def property(name: String, value: String): Attr[Nothing]   = Property(name, value)
+  def properties(ps: (String, String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
 
   def onChange[M](msg: M): Attr[M]                   = onEvent("change", (_: dom.Event) => msg)
   def onClick[M](msg: M): Attr[M]                    = onEvent("click", (_: dom.Event) => msg)
@@ -180,6 +206,6 @@ trait HookRenderer[Model]:
 // -- HTML Tags --
 
 /** An HTML tag */
-final case class Tag[+M](name: String, attributes: Seq[Attr[M]], children: Seq[Elem[M]]) extends Html[M]:
+final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
   def map[N](f: M => N): Tag[N] =
     Tag(name, attributes.map(_.map(f)), children.map(_.map(f)))
