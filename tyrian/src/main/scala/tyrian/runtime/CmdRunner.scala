@@ -15,6 +15,9 @@ object CmdRunner:
           case Cmd.Empty =>
             ()
 
+          case Cmd.Emit(msg) =>
+            callback(msg)
+
           case Cmd.SideEffect(task) =>
             async(TaskRunner.execTask(task, _ => ()))
 

@@ -32,6 +32,9 @@ object Cmd:
   final case class SideEffect(task: Task[Nothing, Unit]) extends Cmd[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): SideEffect = this
 
+  final case class Emit[Msg](msg: Msg) extends Cmd[Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg))
+
   final case class RunTask[Err, Success, Msg](task: Task[Err, Success], f: Either[Err, Success] => Msg)
       extends Cmd[Msg]:
     def map[OtherMsg](g: Msg => OtherMsg): RunTask[Err, Success, OtherMsg] = RunTask(task, f andThen g)
