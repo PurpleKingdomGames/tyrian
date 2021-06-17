@@ -45,8 +45,10 @@ class CmdTests extends munit.FunSuite {
     val toMessage = (res: Either[String, Int]) => res.toOption.getOrElse(0)
 
     val mapped =
-      Cmd.batch(
-        Task.Succeeded(10).toCmd(toMessage).map(_ * 2), // alternate construction
+      Cmd.Batch(
+        Cmd
+          .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)
+          .map(_ * 2),
         Cmd.Combine(
           Cmd
             .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)

@@ -5,10 +5,10 @@ import tyrian.Task
 
 object CmdRunner:
   def runCmd[Msg](
-    cmd: Cmd[Msg],
-    callback: Msg => Unit,
-    async: (=> Unit) => Unit
-    ): Unit =
+      cmd: Cmd[Msg],
+      callback: Msg => Unit,
+      async: (=> Unit) => Unit
+  ): Unit =
     val allCmds = {
       def loop(cmd: Cmd[Msg]): Unit =
         cmd match
@@ -20,6 +20,9 @@ object CmdRunner:
 
           case Cmd.SideEffect(task) =>
             async(TaskRunner.execTask(task, _ => ()))
+
+          case Cmd.Run(obs, f) =>
+            async(TaskRunner.execTask(Task.RunObservable(obs), f andThen callback))
 
           case Cmd.RunTask(task, f) =>
             async(TaskRunner.execTask(task, f andThen callback))

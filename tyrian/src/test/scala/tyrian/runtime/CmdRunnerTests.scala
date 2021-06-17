@@ -5,7 +5,7 @@ import tyrian.Task
 
 class CmdRunnerTests extends munit.FunSuite {
 
-  test("run a cmd") {
+  test("run a cmd with a task") {
 
     var output: Int = -1
 
@@ -24,12 +24,36 @@ class CmdRunnerTests extends munit.FunSuite {
     assertEquals(output, 10)
   }
 
+  test("run a cmd with an observable") {
+
+    val toMessage = (res: Either[String, Int]) => res.toOption.getOrElse(throw new Exception(res.toString))
+
+    var output: Int = -1
+
+    val cmd: Cmd[Int] =
+      Cmd.Run[String, Int] { observable =>
+        observable.onNext(20)
+        () => ()
+      }.attempt(toMessage)
+
+    val callback: Int => Unit = (i: Int) => {
+      output = i
+      ()
+    }
+    val async: (=> Unit) => Unit = thing => thing
+
+    val actual =
+      CmdRunner.runCmd(cmd, callback, async)
+
+    assertEquals(output, 20)
+  }
+
   test("run a cmd side effect") {
 
     var output: Int = -1
 
     val cmd: Cmd[Int] =
-      Task.SideEffect(() => output = 2).toCmd
+      Cmd.SideEffect(() => output = 2)
 
     val async: (=> Unit) => Unit = thing => thing
 
