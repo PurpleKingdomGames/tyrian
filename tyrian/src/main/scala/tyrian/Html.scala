@@ -19,59 +19,9 @@ final case class Text(value: String) extends Elem[Nothing]:
 sealed trait Html[+M] extends Elem[M]:
   def map[N](f: M => N): Html[N]
 
-object Html:
+object Html extends HtmlTags:
 
-  // Tag syntax
-
-  def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] =
-    Tag(name, attributes.toList, children.toList)
-  @targetName("tag-list")
-  def tag[M](name: String)(attributes: List[Attr[M]])(children: Elem[M]*): Html[M] =
-    Tag(name, attributes, children.toList)
-
-  def button[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("button")(attributes: _*)(children: _*)
-  @targetName("button-list")
-  def button[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("button")(attributes: _*)(children: _*)
-
-  def canvas[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("canvas")(attributes: _*)(children: _*)
-  @targetName("canvas-list")
-  def canvas[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("canvas")(attributes: _*)(children: _*)
-
-  def div[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("div")(attributes: _*)(children: _*)
-  @targetName("div-list")
-  def div[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("div")(attributes: _*)(children: _*)
-
-  def span[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("span")(attributes: _*)(children: _*)
-  @targetName("span-list")
-  def span[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("span")(attributes: _*)(children: _*)
-
-  def h1[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h1")(attributes: _*)(children: _*)
-  @targetName("h1-list")
-  def h1[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h1")(attributes: _*)(children: _*)
-
-  def h2[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h2")(attributes: _*)(children: _*)
-  @targetName("h2-list")
-  def h2[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h2")(attributes: _*)(children: _*)
-
-  def h3[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h3")(attributes: _*)(children: _*)
-  @targetName("h3-list")
-  def h3[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h3")(attributes: _*)(children: _*)
-
-  def h4[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h4")(attributes: _*)(children: _*)
-  @targetName("h4-list")
-  def h4[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h4")(attributes: _*)(children: _*)
-
-  def h5[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h5")(attributes: _*)(children: _*)
-  @targetName("h5-list")
-  def h5[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h5")(attributes: _*)(children: _*)
-
-  def h6[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("h6")(attributes: _*)(children: _*)
-  @targetName("h6-list")
-  def h6[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("h6")(attributes: _*)(children: _*)
-
-  def input[M](attributes: Attr[M]*): Html[M] = tag("input")(attributes: _*)()
-  @targetName("input-list")
-  def input[M](attributes: List[Attr[M]]): Html[M] = tag("input")(attributes: _*)()
+  // Tag syntax - hand written tags
 
   def radio[M](name: String, checked: Boolean, attributes: Attr[M]*): Html[M] =
     radio(name, checked, attributes.toList)
@@ -85,57 +35,8 @@ object Html:
       ) ++ attributes: _*
     )
 
-  def label[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("label")(attributes: _*)(children: _*)
-  @targetName("label-list")
-  def label[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("label")(attributes: _*)(children: _*)
-
-  def ol[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("ol")(attributes: _*)(children: _*)
-  @targetName("ol-list")
-  def ol[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("ol")(attributes: _*)(children: _*)
-
-  def ul[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("ul")(attributes: _*)(children: _*)
-  @targetName("ul-list")
-  def ul[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("ul")(attributes: _*)(children: _*)
-
-  def li[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("li")(attributes: _*)(children: _*)
-  @targetName("li-list")
-  def li[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("li")(attributes: _*)(children: _*)
-
-  def img[M](attributes: Attr[M]*): Html[M] = tag("img")(attributes: _*)()
-  @targetName("img-list")
-  def img[M](attributes: List[Attr[M]]): Html[M] = tag("img")(attributes: _*)()
-
-  def a[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("a")(attributes: _*)(children: _*)
-  @targetName("a-list")
-  def a[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("a")(attributes: _*)(children: _*)
-
   def br: Html[Nothing] = tag("br")()()
   def hr: Html[Nothing] = tag("hr")()()
-
-  def title[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("title")(attributes: _*)(children: _*)
-  @targetName("title-list")
-  def title[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("title")(attributes: _*)(children: _*)
-
-  def style[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("style")(attributes: _*)(children: _*)
-  @targetName("style-list")
-  def style[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("style")(attributes: _*)(children: _*)
-
-  def p[M](children: Elem[M]*): Html[M]  = tag("p")()(children: _*)
-  def i[M](children: Elem[M]*): Html[M]  = tag("i")()(children: _*)
-  def b[M](children: Elem[M]*): Html[M]  = tag("b")()(children: _*)
-  def em[M](children: Elem[M]*): Html[M] = tag("em")()(children: _*)
-
-  def cite[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("cite")(attributes: _*)(children: _*)
-  @targetName("cite-list")
-  def cite[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("cite")(attributes: _*)(children: _*)
-
-  def head[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("head")(attributes: _*)(children: _*)
-  @targetName("head-list")
-  def head[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("head")(attributes: _*)(children: _*)
-
-  def body[M](attributes: Attr[M]*)(children: Elem[M]*): Html[M] = tag("body")(attributes: _*)(children: _*)
-  @targetName("body-list")
-  def body[M](attributes: List[Attr[M]])(children: Elem[M]*): Html[M] = tag("body")(attributes: _*)(children: _*)
 
   def text(str: String): Text = Text(str)
 

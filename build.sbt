@@ -52,8 +52,14 @@ lazy val tyrian =
         "org.typelevel" %%% "cats-core"   % "2.6.1"
       )
     )
+    .settings(
+      Compile / sourceGenerators += Def.task {
+        TagGen
+          .gen("HtmlTags", "tyrian", (Compile / sourceManaged).value)
+      }.taskValue
+    )
 
-lazy val sandbox = 
+lazy val sandbox =
   project
     .dependsOn(tyrian)
     .enablePlugins(ScalaJSPlugin)
@@ -69,7 +75,7 @@ lazy val tyrianProject =
     .enablePlugins(ScalaJSPlugin)
     .settings(commonSettings: _*)
     .settings(
-      code := { "code ." ! },
+      code := { "code ." ! }
     )
     .enablePlugins(ScalaJSPlugin)
     .aggregate(tyrian, sandbox)
