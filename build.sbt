@@ -56,6 +56,10 @@ lazy val tyrian =
       Compile / sourceGenerators += Def.task {
         TagGen
           .gen("HtmlTags", "tyrian", (Compile / sourceManaged).value)
+      }.taskValue,
+      Compile / sourceGenerators += Def.task {
+        AttributeGen
+          .gen("HtmlAttributes", "tyrian", (Compile / sourceManaged).value)
       }.taskValue
     )
 
