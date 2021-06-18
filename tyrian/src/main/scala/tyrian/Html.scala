@@ -73,8 +73,11 @@ object Html extends HtmlTags:
   def charset(value: String): Attr[Nothing]    = Attribute("charset", value)
   def checked: Attr[Nothing]                   = Attribute("checked", "checked")
   def `class`(name: String): Attr[Nothing]     = Attribute("class", name)
+  def cls(name: String): Attr[Nothing]         = Attribute("class", name)
+  def className(name: String): Attr[Nothing]   = Attribute("class", name)
   def _class(name: String): Attr[Nothing]      = Attribute("class", name)
   def disabled: Attr[Nothing]                  = Attribute("disabled", "disabled")
+  def height(value: Int): Attr[Nothing]        = Attribute("height", value.toString)
   def height(value: String): Attr[Nothing]     = Attribute("height", value)
   def href(uri: String): Attr[Nothing]         = Attribute("href", uri)
   def id(value: String): Attr[Nothing]         = Attribute("id", value)
@@ -86,7 +89,10 @@ object Html extends HtmlTags:
   def target(value: String): Attr[Nothing]     = Attribute("target", value)
   def `type`(value: String): Attr[Nothing]     = Attribute("type", value)
   def _type(value: String): Attr[Nothing]      = Attribute("type", value)
+  def typ(value: String): Attr[Nothing]        = Attribute("type", value)
+  def tpe(value: String): Attr[Nothing]        = Attribute("type", value)
   def value(value: String): Attr[Nothing]      = Attribute("value", value)
+  def width(value: Int): Attr[Nothing]         = Attribute("width", value.toString)
   def width(value: String): Attr[Nothing]      = Attribute("width", value)
 
 end Html
