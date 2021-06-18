@@ -21,7 +21,7 @@ sealed trait Html[+M] extends Elem[M]:
 
 object Html extends HtmlTags:
 
-  // Tag syntax - hand written tags
+  // Custom tag syntax
 
   def radio[M](name: String, checked: Boolean, attributes: Attr[M]*): Html[M] =
     radio(name, checked, attributes.toList)
@@ -34,9 +34,6 @@ object Html extends HtmlTags:
         if checked then Property("checked", "checked") else Property.empty
       ) ++ attributes: _*
     )
-
-  def br: Html[Nothing] = tag("br")()()
-  def hr: Html[Nothing] = tag("hr")()()
 
   def text(str: String): Text = Text(str)
 

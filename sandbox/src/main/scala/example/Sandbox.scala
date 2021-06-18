@@ -47,12 +47,12 @@ object Sandbox:
       button(onClick(Msg.Insert))(text("insert"))
     ) ++ counters
 
-    div()(
-      div()(
+    div(
+      div(
         input(placeholder("Text to reverse"), onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
       ),
-      div()(elems: _*)
+      div(elems)
     )
 
   private val myStyle =
@@ -77,9 +77,9 @@ object Counter:
     case Increment, Decrement
 
   def view(model: Model): Html[Msg] =
-    div()(
+    div(
       button(onClick(Msg.Decrement))(text("-")),
-      div()(text(model.toString)),
+      div(text(model.toString)),
       button(onClick(Msg.Increment))(text("+"))
     )
 
