@@ -49,7 +49,8 @@ lazy val tyrian =
       name := "tyrian",
       libraryDependencies ++= Seq(
         ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
-        "org.typelevel" %%% "cats-core"   % "2.6.1"
+        "org.typelevel" %%% "cats-core"   % "2.6.1",
+        "org.typelevel" %%% "cats-effect" % "3.1.1"
       )
     )
     .settings(
