@@ -108,7 +108,7 @@ object TagGen {
       HasChildren("bdo"),
       HasChildren("blockquote"),
       HasChildren("body"),
-      HasChildren("br"),
+      NoChildren("br"),
       HasChildren("button"),
       HasChildren("canvas"),
       HasChildren("caption"),
