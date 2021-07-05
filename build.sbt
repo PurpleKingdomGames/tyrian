@@ -27,7 +27,7 @@ lazy val publishSettings = {
     publishTo := sonatypePublishToBundle.value,
     publishMavenStyle := true,
     sonatypeProfileName := "io.indigoengine",
-    licenses := Seq("BSD-3-Clause" -> url("http://opensource.org/licenses/BSD-3-Clause")),
+    licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
     sonatypeProjectHosting := Some(GitHubHosting("PurpleKingdomGames", "tyrian", "indigo@purplekingdomgames.com")),
     developers := List(
       Developer(
