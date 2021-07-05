@@ -7,17 +7,19 @@ Elm-inspired Scala UI library.
 
 ## Installation
 
-Tyrian supports Scala 3 and Scala.js 1.5.1.
+Tyrian supports Scala 3 and Scala.js 1.6.0.
+
+> You could also use Tyrian with Scala 2 thanks to cross versions and the magic of TASTy.
 
 ~~~ scala
 // project/plugins.sbt
-addSbtPlugin("org.scala-js" % "sbt-scalajs"  % "1.5.1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs"  % "1.6.0")
 ~~~
 
 ~~~ scala
 // build.sbt
 enablePlugins(ScalaJSPlugin)
-libraryDependencies += "io.indigoengine" %%% "tyrian" % "0.1.0"
+libraryDependencies += "io.indigoengine" %%% "tyrian" % "0.2.0"
 ~~~
 
 ## Overview
