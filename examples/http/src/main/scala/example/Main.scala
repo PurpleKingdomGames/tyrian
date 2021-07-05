@@ -37,7 +37,7 @@ end Main
 enum Msg:
   case MorePlease extends Msg
   case NewGif(result: String) extends Msg
-  case GifError(error: http.HttpError) extends Msg
+  case GifError(error: HttpError) extends Msg
 object Msg:
   def fromHttpResponse: Either[HttpError, String] => Msg =
     case Left(e)  => Msg.GifError(e)

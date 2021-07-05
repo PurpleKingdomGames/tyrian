@@ -5,7 +5,6 @@ import tyrian.Html._
 import tyrian.Sub._
 import tyrian._
 
-import scala.math._
 import cats.syntax.all._
 
 object Main:
@@ -89,7 +88,7 @@ final case class Mario(x: Double, y: Double, vx: Double, vy: Double, dir: Direct
 object Mario:
   val gravity                      = 0.25
   val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
-  val applyMotion: Mario => Mario  = mario => mario.copy(x = mario.x + mario.vx, y = max(0.0, mario.y + 3 * mario.vy))
+  val applyMotion: Mario => Mario  = mario => mario.copy(x = mario.x + mario.vx, y = Math.max(0.0, mario.y + 3 * mario.vy))
   val walkLeft: Mario => Mario     = _.copy(vx = -1.5, dir = Direction.Left)
   val walkRight: Mario => Mario    = _.copy(vx = 1.5, dir = Direction.Right)
   val jump: Mario => Mario         = _.copy(vy = 4.0)
