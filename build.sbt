@@ -3,7 +3,7 @@ import scala.language.postfixOps
 
 ThisBuild / versionScheme := Some("early-semver")
 
-lazy val tyrianVersion = "0.2.0-SNAPSHOT"
+lazy val tyrianVersion = "0.2.0"
 
 val scala3Version = "3.0.0"
 
