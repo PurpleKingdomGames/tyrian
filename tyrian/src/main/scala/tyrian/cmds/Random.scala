@@ -2,6 +2,8 @@ package tyrian.cmds
 
 import tyrian.Cmd
 
+/** A Cmd to generate random values.
+ */
 object Random:
 
   private val r: scala.util.Random =
