@@ -1,8 +1,10 @@
 package example
 
 import org.scalajs.dom.document
+import tyrian.Html
 import tyrian.Html._
-import tyrian.{Html, Tyrian, Style}
+import tyrian.Style
+import tyrian.Tyrian
 
 object Main:
   def main(args: Array[String]): Unit =

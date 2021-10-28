@@ -1,3 +1,5 @@
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+
 lazy val root = (project in file("."))
   .dependsOn(tyrian)
   .enablePlugins(ScalaJSPlugin)
@@ -5,7 +7,10 @@ lazy val root = (project in file("."))
     scalaVersion                    := "3.1.0",
     name                            := "tyrian-field-example",
     scalaJSUseMainModuleInitializer := true,
-    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    scalafixOnCompile                       := true,
+    semanticdbEnabled                       := true,
+    semanticdbVersion                       := scalafixSemanticdb.revision
   )
 
 lazy val tyrian = ProjectRef(file("../.."), "tyrian")

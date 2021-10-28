@@ -1,11 +1,11 @@
 package mario
 
-import org.scalajs.dom.{document, window}
+import cats.syntax.all._
+import org.scalajs.dom.document
+import org.scalajs.dom.window
 import tyrian.Html._
 import tyrian.Sub._
 import tyrian._
-
-import cats.syntax.all._
 
 object Main:
 

@@ -1,3 +1,5 @@
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+
 lazy val root = (project in file("."))
   .dependsOn(tyrian)
   .enablePlugins(ScalaJSPlugin)
@@ -9,7 +11,10 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "io.circe" %%% "circe-core",
       "io.circe" %%% "circe-parser"
-    ).map(_ % "0.14.0-M7")
+    ).map(_ % "0.14.0-M7"),
+    scalafixOnCompile                       := true,
+    semanticdbEnabled                       := true,
+    semanticdbVersion                       := scalafixSemanticdb.revision
   )
 
 lazy val tyrian = ProjectRef(file("../.."), "tyrian")

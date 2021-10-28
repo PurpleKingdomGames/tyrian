@@ -1,8 +1,9 @@
 package example
 
-import tyrian.{Html, Tyrian}
-import tyrian.Html._
 import org.scalajs.dom.document
+import tyrian.Html
+import tyrian.Html._
+import tyrian.Tyrian
 
 object Main:
   opaque type Model = Int

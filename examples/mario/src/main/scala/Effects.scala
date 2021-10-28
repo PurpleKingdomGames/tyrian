@@ -2,13 +2,20 @@ package mario
 
 import mario.Main._
 import org.scalajs.dom
-import org.scalajs.dom.{KeyboardEvent, document, window}
-import org.scalajs.dom.raw.{Event, HTMLAudioElement, TouchEvent}
-import tyrian.{Cmd, Sub, Task}
+import org.scalajs.dom.KeyboardEvent
+import org.scalajs.dom.document
+import org.scalajs.dom.raw.Event
+import org.scalajs.dom.raw.HTMLAudioElement
+import org.scalajs.dom.raw.TouchEvent
+import org.scalajs.dom.window
+import tyrian.Cmd
+import tyrian.Sub
 import tyrian.Sub.ofTotalObservable
+import tyrian.Task
 
 object Effects {
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   val requestAnimationFrameSub: Sub[Double] = ofTotalObservable[Double](
     "requestAnimation",
     { observer =>

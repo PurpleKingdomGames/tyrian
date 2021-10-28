@@ -4,6 +4,10 @@ cd bootstrap
 sbt clean test fastOptJS
 cd ..
 
+cd bundler
+sbt clean test fastOptJS
+cd ..
+
 cd clock
 sbt clean test fastOptJS
 cd ..

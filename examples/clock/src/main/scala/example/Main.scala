@@ -1,8 +1,11 @@
 package example
 
-import tyrian.{Cmd, Html, Tyrian, Sub}
-import tyrian.Html._
 import org.scalajs.dom.document
+import tyrian.Cmd
+import tyrian.Html
+import tyrian.Html._
+import tyrian.Sub
+import tyrian.Tyrian
 
 import scalajs.js
 import concurrent.duration.DurationInt
