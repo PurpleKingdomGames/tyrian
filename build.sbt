@@ -12,10 +12,10 @@ lazy val tyrianVersion = "0.2.1-SNAPSHOT"
 val scala3Version = "3.1.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
-  version := tyrianVersion,
-  scalaVersion := scala3Version,
+  version            := tyrianVersion,
+  scalaVersion       := scala3Version,
   crossScalaVersions := Seq(scala3Version),
-  organization := "io.indigoengine",
+  organization       := "io.indigoengine",
   libraryDependencies ++= Seq(
     "org.scalameta" %%% "munit" % "0.7.29" % Test
   ),
@@ -32,10 +32,10 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
 lazy val publishSettings = {
   import xerial.sbt.Sonatype._
   Seq(
-    publishTo := sonatypePublishToBundle.value,
-    publishMavenStyle := true,
-    sonatypeProfileName := "io.indigoengine",
-    licenses := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
+    publishTo              := sonatypePublishToBundle.value,
+    publishMavenStyle      := true,
+    sonatypeProfileName    := "io.indigoengine",
+    licenses               := Seq("MIT" -> url("https://opensource.org/licenses/MIT")),
     sonatypeProjectHosting := Some(GitHubHosting("PurpleKingdomGames", "tyrian", "indigo@purplekingdomgames.com")),
     developers := List(
       Developer(
@@ -56,7 +56,7 @@ lazy val tyrian =
     .settings(
       name := "tyrian",
       libraryDependencies ++= Seq(
-        ("org.scala-js" %%% "scalajs-dom" % "1.1.0").cross(CrossVersion.for3Use2_13),
+        "org.scala-js"  %%% "scalajs-dom" % "2.0.0",
         "org.typelevel" %%% "cats-core"   % "2.6.1"
       )
     )
@@ -76,8 +76,8 @@ lazy val sandbox =
     .dependsOn(tyrian)
     .enablePlugins(ScalaJSPlugin)
     .settings(
-      scalaVersion := scala3Version,
-      name := "sandbox",
+      scalaVersion                    := scala3Version,
+      name                            := "sandbox",
       scalaJSUseMainModuleInitializer := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
     )

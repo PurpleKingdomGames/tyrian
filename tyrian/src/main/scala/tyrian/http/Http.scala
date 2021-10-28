@@ -2,7 +2,7 @@ package tyrian
 package http
 
 import cats.implicits._
-import org.scalajs.dom.raw.XMLHttpRequest
+import org.scalajs.dom.XMLHttpRequest
 
 import scala.util.Try
 
