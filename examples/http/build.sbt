@@ -2,8 +2,8 @@ lazy val root = (project in file("."))
   .dependsOn(tyrian)
   .enablePlugins(ScalaJSPlugin)
   .settings(
-    scalaVersion := "3.0.0",
-    name := "tyrian-http-example",
+    scalaVersion                    := "3.1.0",
+    name                            := "tyrian-http-example",
     scalaJSUseMainModuleInitializer := true,
     scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
     libraryDependencies ++= Seq(
