@@ -1,8 +1,9 @@
 package tyrian
 package http
 
-import org.scalajs.dom.raw.XMLHttpRequest
 import cats.implicits._
+import org.scalajs.dom.raw.XMLHttpRequest
+
 import scala.util.Try
 
 object Http:
@@ -31,6 +32,7 @@ object Http:
     * @return
     *   A Cmd that describes the HTTP request
     */
+  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
   def send[A, Msg](request: Request[A], resultToMessage: Either[http.HttpError, A] => Msg): Cmd[Msg] =
     Task
       .RunObservable[http.HttpError, XMLHttpRequest] { observer =>
@@ -73,6 +75,7 @@ object Http:
       })
       .map(resultToMessage)
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.noValPatterns"))
   private def parseHeaders(headers: String): Map[String, String] =
     headers
       .split("[\\u000d\\u000a]+")

@@ -1,10 +1,9 @@
 package tyrian.cmds
 
-import tyrian.Cmd
-
-import org.scalajs.dom.html
 import org.scalajs.dom.document
+import org.scalajs.dom.html
 import org.scalajs.dom.raw.Event
+import tyrian.Cmd
 
 /** Given a path, this cmd will load an image and return an `HTMLImageElement` for you to make use of.
   */

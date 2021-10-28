@@ -5,6 +5,7 @@ import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
 import org.scalajs.dom.raw.HTMLInputElement
 import snabbdom.VNode
+
 import scala.annotation.targetName
 
 /** An HTML element can be a tag or a text node */

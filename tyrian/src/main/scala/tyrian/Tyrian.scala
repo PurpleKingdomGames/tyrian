@@ -1,7 +1,7 @@
 package tyrian
 
-import tyrian.runtime.TyrianRuntime
 import org.scalajs.dom.Element
+import tyrian.runtime.TyrianRuntime
 
 object Tyrian:
 

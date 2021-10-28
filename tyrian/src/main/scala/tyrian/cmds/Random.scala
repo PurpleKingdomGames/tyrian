@@ -28,6 +28,7 @@ object Random:
   def alphaNumeric(length: Int): Cmd[RandomValue] =
     makeCmd(RandomValue.NextAlphaNumeric(r.alphanumeric.take(length).mkString))
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   private def resultToMessage[A]: Either[_, A] => RandomValue = {
     case Right(v: Int)    => RandomValue.NextInt(v)
     case Right(v: Long)   => RandomValue.NextLong(v)

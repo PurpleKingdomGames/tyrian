@@ -1,12 +1,11 @@
 package tyrian.cmds
 
-import tyrian.Cmd
-
 import org.scalajs.dom
-import org.scalajs.dom.raw
-import org.scalajs.dom.html
 import org.scalajs.dom.document
+import org.scalajs.dom.html
+import org.scalajs.dom.raw
 import org.scalajs.dom.raw.Event
+import tyrian.Cmd
 
 import scala.scalajs.js
 

@@ -1,14 +1,14 @@
 package tyrian
 
-import tyrian.Task.Observable
 import cats.MonoidK
-import scala.concurrent.duration.FiniteDuration
-import scala.scalajs.js
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
+import tyrian.Task.Observable
 import util.Functions
 
 import scala.annotation.nowarn
+import scala.concurrent.duration.FiniteDuration
+import scala.scalajs.js
 
 /** A subscription describes a resource that an application is interested in.
   *

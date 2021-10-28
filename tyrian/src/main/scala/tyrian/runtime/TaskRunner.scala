@@ -39,6 +39,7 @@ object TaskRunner:
       }
     )
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   def execTaskMultiplied[Err, Success1, Success2](
       multiplied: Task.Multiplied[Err, Success1, Success2],
       notify: Either[Err, (Success1, Success2)] => Unit

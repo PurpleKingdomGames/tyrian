@@ -2,12 +2,26 @@ package tyrian.runtime
 
 import org.scalajs.dom
 import org.scalajs.dom.Element
+import snabbdom.SnabbdomSyntax
+import snabbdom.VNode
+import snabbdom.VNodeParam
+import tyrian.Attr
+import tyrian.Attribute
+import tyrian.Cmd
+import tyrian.Event
+import tyrian.Hook
+import tyrian.Html
+import tyrian.Property
+import tyrian.Sub
+import tyrian.Tag
+import tyrian.Task
+import tyrian.Task.Cancelable
+import tyrian.Task.Observer
+import tyrian.Text
+import util.Functions.fun
+
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
-import snabbdom.{SnabbdomSyntax, VNode, VNodeParam}
-import tyrian.{Html, Hook, Tag, Attribute, Property, Attr, Event, Text, Cmd, Sub, Task}
-import tyrian.Task.{Cancelable, Observer}
-import util.Functions.fun
 
 final class TyrianRuntime[Model, Msg](
     init: (Model, Cmd[Msg]),
@@ -17,11 +31,15 @@ final class TyrianRuntime[Model, Msg](
     node: Element
 ) extends SnabbdomSyntax:
 
-  private val (initState, initCmd)                             = init
-  private var currentState: Model                              = initState
+  private val (initState, initCmd) = init
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+  private var currentState: Model = initState
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var currentSubscriptions: List[(String, Cancelable)] = Nil
-  private var aboutToRunSubscriptions: Set[String]             = Set.empty
-  private var vnode                                            = render(node, currentState)
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+  private var aboutToRunSubscriptions: Set[String] = Set.empty
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+  private var vnode = render(node, currentState)
 
   def async(thunk: => Unit): Unit =
     js.timers.setTimeout(0)(thunk)

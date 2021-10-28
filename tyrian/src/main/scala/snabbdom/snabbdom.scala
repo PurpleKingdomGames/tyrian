@@ -1,12 +1,12 @@
 package snabbdom
 
-import org.scalajs.dom.{Element, Text}
+import org.scalajs.dom.Element
+import org.scalajs.dom.Text
 
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.|
-
-import scala.annotation.nowarn
 
 @JSImport("snabbdom", JSImport.Default)
 @js.native
@@ -15,6 +15,7 @@ object snabbdom extends js.Object {
   def init(modules: js.Array[js.Object]): js.Function2[VNode | Element, VNode, VNode] = js.native
 }
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.defaultArgs"))
 @JSImport("snabbdom", "h")
 @js.native
 object h extends js.Function3[String, js.UndefOr[js.Any], js.UndefOr[js.Any], VNode] {
@@ -37,6 +38,7 @@ trait VNodeData extends js.Object
 
 // --- Convenient syntax
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.defaultArgs"))
 trait SnabbdomSyntax extends Any {
   final def e(selector: String, opts: js.UndefOr[js.Object] = js.undefined): VNode =
     _root_.snabbdom.h(selector, opts)
