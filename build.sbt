@@ -1,11 +1,13 @@
 import scala.sys.process._
 import scala.language.postfixOps
 
+Global / onChangedBuildSource := IgnoreSourceChanges
+
 ThisBuild / versionScheme := Some("early-semver")
 
 lazy val tyrianVersion = "0.2.1-SNAPSHOT"
 
-val scala3Version = "3.0.0"
+val scala3Version = "3.1.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version := tyrianVersion,
@@ -13,7 +15,7 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   crossScalaVersions := Seq(scala3Version),
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % "0.7.26" % Test
+    "org.scalameta" %%% "munit" % "0.7.29" % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
@@ -68,7 +70,7 @@ lazy val sandbox =
     .dependsOn(tyrian)
     .enablePlugins(ScalaJSPlugin)
     .settings(
-      scalaVersion := "3.0.0",
+      scalaVersion := scala3Version,
       name := "sandbox",
       scalaJSUseMainModuleInitializer := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
