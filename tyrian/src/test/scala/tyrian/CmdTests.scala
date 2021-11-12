@@ -1,5 +1,6 @@
 package tyrian
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
 class CmdTests extends munit.FunSuite {
 
   test("map - Empty") {

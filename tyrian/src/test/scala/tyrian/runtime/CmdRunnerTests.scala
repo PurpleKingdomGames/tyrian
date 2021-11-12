@@ -3,6 +3,7 @@ package tyrian.runtime
 import tyrian.Cmd
 import tyrian.Task
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.var", "scalafix:DisableSyntax.throw"))
 class CmdRunnerTests extends munit.FunSuite {
 
   test("run a cmd with a task") {
