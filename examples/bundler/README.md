@@ -1,19 +1,19 @@
-# Tyrian counter example
+# Tyrian counter example (via Bundler)
 
 This is a minimal working project setup to run the counter example.
 
-To compile and run the program you will need to have yarn (or npm) installed.
-
-On first run:
+To compile:
 
 ```sh
-yarn install
+sbt fastOptJS::webpack
 ```
 
-and from then on
+To serve the site, you will need a static web server. A simple one is `http-server` (install: `npm -g http-server`) which you can launch in the same directory as your `index.html` page as follows
 
 ```sh
-yarn start
+http-server -c-1
 ```
 
-Then navigate to [http://localhost:1234/](http://localhost:1234/)
+The arguments disable the servers cache.
+
+Then navigate to [http://localhost:8080/](http://localhost:8080/)
