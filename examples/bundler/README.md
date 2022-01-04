@@ -8,7 +8,7 @@ To compile:
 sbt fastOptJS::webpack
 ```
 
-To serve the site, you will need a static web server. A simple one is `http-server` (install: `npm -g http-server`) which you can launch in the same directory as your `index.html` page as follows
+To serve the site, you will need a static web server. A simple one is `http-server` (install: `npm install -g http-server`) which you can launch in the same directory as your `index.html` page as follows
 
 ```sh
 http-server -c-1
