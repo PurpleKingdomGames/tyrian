@@ -107,7 +107,7 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(field: String, components: List[Counter.Model], indigoStarted: Boolean)
+final case class Model(field: String, components: List[Counter.Model])
 object Model:
   val init: Model =
-    Model("", Nil, false)
+    Model("", Nil)
