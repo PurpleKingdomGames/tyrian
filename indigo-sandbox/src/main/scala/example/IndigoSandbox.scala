@@ -3,9 +3,13 @@ package example
 import tyrian._
 import tyrian.Html._
 import org.scalajs.dom.document
-import example.game.HelloIndigo
+import example.game.MyAwesomeGame
+import tyrian.cmds.Logger
 
 object IndigoSandbox:
+
+  val bridge: PurpleBridge[String] =
+    PurpleBridge.create
 
   enum Msg:
     case NewContent(content: String)      extends Msg
@@ -13,6 +17,7 @@ object IndigoSandbox:
     case Remove                           extends Msg
     case Modify(i: Int, msg: Counter.Msg) extends Msg
     case StartIndigo                      extends Msg
+    case IndigoReceive(msg: String)       extends Msg
 
   def init: (Model, Cmd[Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
@@ -20,7 +25,7 @@ object IndigoSandbox:
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.NewContent(content) =>
-        (model.copy(field = content), Cmd.Empty)
+        (model.copy(field = content), PurpleBridge.send(bridge, content))
 
       case Msg.Insert =>
         (model.copy(components = Counter.init :: model.components), Cmd.Empty)
@@ -43,7 +48,7 @@ object IndigoSandbox:
         (
           model,
           Cmd.SideEffect { () =>
-            HelloIndigo.launch(
+            MyAwesomeGame(bridge).launch(
               scala.scalajs.js.Dictionary[String](
                 "width"  -> "550",
                 "height" -> "400"
@@ -51,6 +56,9 @@ object IndigoSandbox:
             )
           }
         )
+
+      case Msg.IndigoReceive(msg) =>
+        (model, Logger.consoleLog("(Tyrian) from indigo: " + msg))
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -72,7 +80,13 @@ object IndigoSandbox:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    Sub.Empty
+    PurpleBridge.sub(bridge) {
+      case e: PurpleEvent[String] @unchecked =>
+        Some(Msg.IndigoReceive(e.value.toString.reverse))
+
+      case null =>
+        None
+    }
 
   private val myStyle =
     styles(

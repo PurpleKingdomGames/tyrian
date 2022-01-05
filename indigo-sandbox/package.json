@@ -1,17 +1,17 @@
 {
   "scripts": {
-    "start": "parcel index.html --no-cache --out-dir dist --log-level 4 --no-source-maps",
-    "build": "parcel build index.html --out-dir dist --log-level 4 --no-source-maps"
+    "start": "parcel index.html --no-cache --dist-dir dist --log-level info",
+    "build": "parcel build index.html --dist-dir dist --log-level info"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.5",
+    "parcel": "^2.1.0",
     "parcel-plugin-static-files-copy": "^2.6.0"
   },
   "dependencies": {
     "snabbdom": "^3.0.1"
   },
   "staticFiles": {
-      "staticPath": "static",
-      "watcherGlob": "**"
+    "staticPath": "static",
+    "watcherGlob": "**"
   }
 }
