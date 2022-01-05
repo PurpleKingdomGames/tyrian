@@ -56,8 +56,9 @@ lazy val tyrian =
     .settings(
       name := "tyrian",
       libraryDependencies ++= Seq(
-        "org.scala-js"  %%% "scalajs-dom" % "2.0.0",
-        "org.typelevel" %%% "cats-core"   % "2.6.1"
+        "org.scala-js"    %%% "scalajs-dom" % "2.0.0",
+        "org.typelevel"   %%% "cats-core"   % "2.6.1",
+        "io.indigoengine" %%% "indigo"      % "0.11.1-SNAPSHOT"
       )
     )
     .settings(
@@ -82,6 +83,25 @@ lazy val sandbox =
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
     )
 
+lazy val indigoSandbox =
+  project
+    .in(file("indigo-sandbox"))
+    .dependsOn(tyrian)
+    .enablePlugins(ScalaJSPlugin)
+    .settings(
+      scalaVersion                    := scala3Version,
+      name                            := "Indigo Sandbox",
+      scalaJSUseMainModuleInitializer := true,
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+    )
+    .settings(
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "indigo"            % "0.11.1-SNAPSHOT",
+        "io.indigoengine" %%% "indigo-extras"     % "0.11.1-SNAPSHOT",
+        "io.indigoengine" %%% "indigo-json-circe" % "0.11.1-SNAPSHOT"
+      )
+    )
+
 lazy val tyrianProject =
   (project in file("."))
     .enablePlugins(ScalaJSPlugin)
@@ -90,7 +110,7 @@ lazy val tyrianProject =
       code := { "code ." ! }
     )
     .enablePlugins(ScalaJSPlugin)
-    .aggregate(tyrian, sandbox)
+    .aggregate(tyrian, sandbox, indigoSandbox)
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
