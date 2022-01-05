@@ -83,9 +83,6 @@ object IndigoSandbox:
     PurpleBridge.sub(bridge) {
       case e: PurpleEvent[String] @unchecked =>
         Some(Msg.IndigoReceive(e.value.toString.reverse))
-
-      case null =>
-        None
     }
 
   private val myStyle =
