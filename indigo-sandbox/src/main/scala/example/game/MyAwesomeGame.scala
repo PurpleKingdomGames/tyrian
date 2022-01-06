@@ -18,11 +18,20 @@ final case class MyAwesomeGame(bridge: PurpleBridge[String]) extends IndigoGame[
     EventFilters.Permissive
 
   def boot(flags: Map[String, String]): Outcome[BootResult[Unit]] =
+    val gameViewport =
+      (flags.get("width"), flags.get("height")) match {
+        case (Some(w), Some(h)) =>
+          GameViewport(w.toInt, h.toInt)
+
+        case _ =>
+          GameViewport(300, 300)
+      }
+
     Outcome(
       BootResult
         .noData(
           GameConfig.default
-            .withViewport(550, 400)
+            .withViewport(gameViewport)
         )
         .withSubSystems(tyrianSubSystem)
     )
