@@ -8,6 +8,8 @@ import tyrian.cmds.Logger
 
 object IndigoSandbox:
 
+  val gameDivID: String = "my-game"
+
   val bridge: PurpleBridge[String] =
     PurpleBridge.create
 
@@ -49,10 +51,9 @@ object IndigoSandbox:
           model,
           Cmd.SideEffect { () =>
             MyAwesomeGame(bridge).launch(
-              scala.scalajs.js.Dictionary[String](
-                "width"  -> "550",
-                "height" -> "400"
-              )
+              gameDivID,
+              "width"  -> "300",
+              "height" -> "300"
             )
           }
         )
@@ -71,7 +72,7 @@ object IndigoSandbox:
     ) ++ counters
 
     div(
-      div(id("indigo-container"))(),
+      div(id(gameDivID))(),
       div(
         input(placeholder("Text to reverse"), onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
@@ -80,9 +81,8 @@ object IndigoSandbox:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    PurpleBridge.sub(bridge) {
-      case e: PurpleEvent[String] @unchecked =>
-        Some(Msg.IndigoReceive(e.value.toString.reverse))
+    PurpleBridge.sub(bridge) { case e: PurpleEvent[String] @unchecked =>
+      Some(Msg.IndigoReceive(e.value.toString.reverse))
     }
 
   private val myStyle =
