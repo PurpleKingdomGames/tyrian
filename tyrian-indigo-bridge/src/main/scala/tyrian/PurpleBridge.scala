@@ -1,10 +1,10 @@
-package example
+package tyrian
 
-import org.scalajs.dom.EventTarget
 import org.scalajs.dom.Event
+import org.scalajs.dom.EventTarget
+import tyrian.Cmd
 import tyrian.Sub
 import util.Functions
-import tyrian.Cmd
 
 final class PurpleBridge[A]() extends EventTarget:
 
@@ -20,7 +20,7 @@ object PurpleBridge:
     new PurpleBridge()
 
   // Essentially a copy of Sub.fromEvent where the values have been fixed.
-  def sub[A, B](bridge: PurpleBridge[_])(extract: A => Option[B]): Sub[B] =
+  def sub[A, B](bridge: PurpleBridge[_])(extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
     Sub.ofTotalObservable[B](
       PurpleEvent.SendToTyrian + bridge.hashCode,
       { observer =>
