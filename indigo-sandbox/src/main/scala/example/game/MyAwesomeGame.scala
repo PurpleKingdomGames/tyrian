@@ -2,7 +2,8 @@ package example.game
 
 import indigo._
 import indigo.scenes._
-import example.PurpleBridge
+import tyrian.PurpleBridge
+import tyrian.TyrianSubSystem
 
 final case class MyAwesomeGame(bridge: PurpleBridge[String]) extends IndigoGame[Unit, Unit, Unit, Unit]:
 

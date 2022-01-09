@@ -1,8 +1,11 @@
-package example.game
+package tyrian
 
-import indigo._
-import example.PurpleBridge
-import example.PurpleEvent
+import indigo.shared.Outcome
+import indigo.shared.events.FrameTick
+import indigo.shared.events.GlobalEvent
+import indigo.shared.scenegraph.SceneUpdateFragment
+import indigo.shared.subsystems.SubSystem
+import indigo.shared.subsystems.SubSystemFrameContext
 
 import scala.collection.mutable
 

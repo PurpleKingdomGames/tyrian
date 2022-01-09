@@ -56,9 +56,8 @@ lazy val tyrian =
     .settings(
       name := "tyrian",
       libraryDependencies ++= Seq(
-        "org.scala-js"    %%% "scalajs-dom" % "2.0.0",
-        "org.typelevel"   %%% "cats-core"   % "2.6.1",
-        "io.indigoengine" %%% "indigo"      % "0.11.1-SNAPSHOT"
+        "org.scala-js"  %%% "scalajs-dom" % "2.0.0",
+        "org.typelevel" %%% "cats-core"   % "2.6.1"
       )
     )
     .settings(
@@ -70,6 +69,22 @@ lazy val tyrian =
         AttributeGen
           .gen("HtmlAttributes", "tyrian", (Compile / sourceManaged).value)
       }.taskValue
+    )
+
+lazy val tyrianIndigoBridge =
+  project
+    .in(file("tyrian-indigo-bridge"))
+    .dependsOn(tyrian)
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(publishSettings: _*)
+    .settings(
+      name := "tyrian-indigo-bridge"
+    )
+    .settings(
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "indigo" % "0.11.1-SNAPSHOT"
+      )
     )
 
 lazy val sandbox =
@@ -87,6 +102,7 @@ lazy val indigoSandbox =
   project
     .in(file("indigo-sandbox"))
     .dependsOn(tyrian)
+    .dependsOn(tyrianIndigoBridge)
     .enablePlugins(ScalaJSPlugin)
     .settings(
       scalaVersion                    := scala3Version,
@@ -110,7 +126,7 @@ lazy val tyrianProject =
       code := { "code ." ! }
     )
     .enablePlugins(ScalaJSPlugin)
-    .aggregate(tyrian, sandbox, indigoSandbox)
+    .aggregate(tyrian, tyrianIndigoBridge, sandbox, indigoSandbox)
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
