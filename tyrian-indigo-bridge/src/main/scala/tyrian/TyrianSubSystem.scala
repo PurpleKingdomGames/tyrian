@@ -9,17 +9,17 @@ import indigo.shared.subsystems.SubSystemFrameContext
 
 import scala.collection.mutable
 
-final case class TyrianSubSystem[A](bridge: PurpleBridge[A]) extends SubSystem:
+final case class TyrianSubSystem[A](bridge: TyrianIndigoBridger[A]) extends SubSystem:
   type EventType      = GlobalEvent
   type SubSystemModel = Unit
 
   private val eventQueue: mutable.Queue[TyrianEvent.Receive] =
     new mutable.Queue[TyrianEvent.Receive]()
 
-  bridge.addEventListener[PurpleEvent[A]](
-    PurpleEvent.SendToIndigo,
+  bridge.addEventListener[BridgeToIndigo[A]](
+    BridgeToIndigo.EventName,
     {
-      case PurpleEvent(_, value) =>
+      case BridgeToIndigo(value) =>
         eventQueue.enqueue(TyrianEvent.Receive(value))
 
       case _ =>
@@ -37,7 +37,7 @@ final case class TyrianSubSystem[A](bridge: PurpleBridge[A]) extends SubSystem:
 
   def update(context: SubSystemFrameContext, model: Unit): GlobalEvent => Outcome[Unit] =
     case TyrianEvent.Send(value) =>
-      bridge.sendToTyrian(value)
+      bridge.dispatchEvent(BridgeToTyrian(value))
       Outcome(model)
 
     case TyrianSubSystemEnqueue =>

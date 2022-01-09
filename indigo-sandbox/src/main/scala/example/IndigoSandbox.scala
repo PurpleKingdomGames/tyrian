@@ -6,12 +6,9 @@ import org.scalajs.dom.document
 import example.game.MyAwesomeGame
 import tyrian.cmds.Logger
 
-object IndigoSandbox:
+object IndigoSandbox extends TyrianIndigoBridge:
 
   val gameDivID: String = "my-game"
-
-  val bridge: PurpleBridge[String] =
-    PurpleBridge.create
 
   enum Msg:
     case NewContent(content: String)      extends Msg
@@ -27,7 +24,7 @@ object IndigoSandbox:
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.NewContent(content) =>
-        (model.copy(field = content), PurpleBridge.send(bridge, content))
+        (model.copy(field = content), bridge.send(content))
 
       case Msg.Insert =>
         (model.copy(components = Counter.init :: model.components), Cmd.Empty)
@@ -50,7 +47,7 @@ object IndigoSandbox:
         (
           model,
           Cmd.SideEffect { () =>
-            MyAwesomeGame(bridge).launch(
+            MyAwesomeGame(bridge.subSystem).launch(
               gameDivID,
               "width"  -> "300",
               "height" -> "300"
@@ -81,8 +78,8 @@ object IndigoSandbox:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    PurpleBridge.sub(bridge) { case e: PurpleEvent[String] @unchecked =>
-      Some(Msg.IndigoReceive(e.value.toString.reverse))
+    bridge.subscribe { case msg =>
+      Some(Msg.IndigoReceive(msg.reverse))
     }
 
   private val myStyle =
