@@ -2,12 +2,9 @@ package example.game
 
 import indigo._
 import indigo.scenes._
-import tyrian.PurpleBridge
 import tyrian.TyrianSubSystem
 
-final case class MyAwesomeGame(bridge: PurpleBridge[String]) extends IndigoGame[Unit, Unit, Unit, Unit]:
-
-  private val tyrianSubSystem: TyrianSubSystem[String] = TyrianSubSystem(bridge)
+final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String]) extends IndigoGame[Unit, Unit, Unit, Unit]:
 
   def initialScene(bootData: Unit): Option[SceneName] =
     None
