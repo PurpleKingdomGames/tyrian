@@ -9,9 +9,13 @@ import indigo.shared.subsystems.SubSystemFrameContext
 
 import scala.collection.mutable
 
-final case class TyrianSubSystem[A](bridge: TyrianIndigoBridger[A]) extends SubSystem:
+final case class TyrianSubSystem[A](indigoGameId: Option[IndigoGameId], bridge: TyrianIndigoBridger[A])
+    extends SubSystem:
   type EventType      = GlobalEvent
   type SubSystemModel = Unit
+
+  def send(value: A): TyrianEvent.Send =
+    TyrianEvent.Send(value)
 
   private val eventQueue: mutable.Queue[TyrianEvent.Receive] =
     new mutable.Queue[TyrianEvent.Receive]()
@@ -19,7 +23,7 @@ final case class TyrianSubSystem[A](bridge: TyrianIndigoBridger[A]) extends SubS
   bridge.addEventListener[BridgeToIndigo[A]](
     BridgeToIndigo.EventName,
     {
-      case BridgeToIndigo(value) =>
+      case BridgeToIndigo(id, value) if id == indigoGameId =>
         eventQueue.enqueue(TyrianEvent.Receive(value))
 
       case _ =>
@@ -37,7 +41,7 @@ final case class TyrianSubSystem[A](bridge: TyrianIndigoBridger[A]) extends SubS
 
   def update(context: SubSystemFrameContext, model: Unit): GlobalEvent => Outcome[Unit] =
     case TyrianEvent.Send(value) =>
-      bridge.dispatchEvent(BridgeToTyrian(value))
+      bridge.dispatchEvent(BridgeToTyrian(indigoGameId, value))
       Outcome(model)
 
     case TyrianSubSystemEnqueue =>
@@ -53,4 +57,8 @@ final case class TyrianSubSystem[A](bridge: TyrianIndigoBridger[A]) extends SubS
     case Send(value: A)    extends TyrianEvent
     case Receive(value: A) extends TyrianEvent
 
-case object TyrianSubSystemEnqueue extends GlobalEvent
+  case object TyrianSubSystemEnqueue extends GlobalEvent
+
+object TyrianSubSystem:
+  def apply[A](bridge: TyrianIndigoBridger[A]): TyrianSubSystem[A] =
+    TyrianSubSystem(None, bridge)
