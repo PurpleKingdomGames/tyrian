@@ -59,6 +59,7 @@ final class TyrianRuntime[Model, Msg](
         sub match
           case Sub.Empty               => Nil
           case Sub.Combine(sub1, sub2) => loop(sub1) ++ loop(sub2)
+          case Sub.Batch(subs)         => subs.flatMap(loop)
           case s: Sub.OfObservable[_, _, _] =>
             List(s.asInstanceOf[Sub.OfObservable[_, _, Msg]])
 

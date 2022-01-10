@@ -68,6 +68,13 @@ object Sub:
   case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg] = Combine(sub1.map(f), sub2.map(f))
 
+  /** Treat many subscriptions as one */
+  case class Batch[Msg](subs: List[Sub[Msg]]) extends Sub[Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Batch[OtherMsg] = this.copy(subs = subs.map(_.map(f)))
+  object Batch:
+    def apply[Msg](subs: Sub[Msg]*): Batch[Msg] =
+      Batch(subs.toList)
+
   /** Same as `OfObservable` but when the observable never fails
     *
     * @param id
