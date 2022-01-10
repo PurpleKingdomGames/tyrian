@@ -2,6 +2,10 @@ baseURL = 'http://example.org/'
 languageCode = 'en-gb'
 title = 'Tyrian'
 
+contentDir = '../tyrian-docs/target/mdoc/'
+
+staticDir = ['static', '../target/scala-3.1.0/unidoc']
+
 # Change the default theme to be use when building the site with Hugo
 theme = "hugo-theme-learn"
 
