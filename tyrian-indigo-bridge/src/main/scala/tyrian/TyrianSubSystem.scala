@@ -20,7 +20,7 @@ final case class TyrianSubSystem[A](indigoGameId: Option[IndigoGameId], bridge: 
   private val eventQueue: mutable.Queue[TyrianEvent.Receive] =
     new mutable.Queue[TyrianEvent.Receive]()
 
-  bridge.addEventListener[BridgeToIndigo[A]](
+  bridge.eventTarget.addEventListener[BridgeToIndigo[A]](
     BridgeToIndigo.EventName,
     {
       case BridgeToIndigo(id, value) if id == indigoGameId =>
@@ -41,7 +41,7 @@ final case class TyrianSubSystem[A](indigoGameId: Option[IndigoGameId], bridge: 
 
   def update(context: SubSystemFrameContext, model: Unit): GlobalEvent => Outcome[Unit] =
     case TyrianEvent.Send(value) =>
-      bridge.dispatchEvent(BridgeToTyrian(indigoGameId, value))
+      bridge.eventTarget.dispatchEvent(BridgeToTyrian(indigoGameId, value))
       Outcome(model)
 
     case TyrianSubSystemEnqueue =>

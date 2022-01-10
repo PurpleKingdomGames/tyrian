@@ -10,7 +10,9 @@ trait TyrianIndigoBridge[A]:
   lazy val bridge: TyrianIndigoBridger[A] =
     TyrianIndigoBridge.build
 
-final class TyrianIndigoBridger[A] extends EventTarget:
+final class TyrianIndigoBridger[A]:
+
+  val eventTarget: EventTarget = new EventTarget()
 
   def send(value: A): Cmd[Nothing] =
     TyrianIndigoBridge.send(this, None, value)
@@ -30,7 +32,7 @@ final class TyrianIndigoBridger[A] extends EventTarget:
 object TyrianIndigoBridge:
 
   def build[A]: TyrianIndigoBridger[A] =
-    new TyrianIndigoBridger
+    new TyrianIndigoBridger[A]()
 
   // Essentially a copy of Sub.fromEvent where the values have been fixed.
   def subscribe[A, B](bridge: TyrianIndigoBridger[_], indigoGameId: Option[IndigoGameId], extract: A => Option[B])(using
@@ -52,14 +54,14 @@ object TyrianIndigoBridge:
             case None    => ()
           }
         }
-        bridge.addEventListener(BridgeToTyrian.EventName, listener)
-        () => bridge.removeEventListener(BridgeToTyrian.EventName, listener)
+        bridge.eventTarget.addEventListener(BridgeToTyrian.EventName, listener)
+        () => bridge.eventTarget.removeEventListener(BridgeToTyrian.EventName, listener)
       }
     )
 
   def send[A](bridge: TyrianIndigoBridger[A], indigoGameId: Option[IndigoGameId], value: A): Cmd[Nothing] =
     Cmd.SideEffect { () =>
-      bridge.dispatchEvent(BridgeToIndigo(indigoGameId, value))
+      bridge.eventTarget.dispatchEvent(BridgeToIndigo(indigoGameId, value))
       ()
     }
 
