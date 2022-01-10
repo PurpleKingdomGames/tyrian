@@ -6,8 +6,8 @@ import tyrian.Cmd
 import tyrian.Sub
 import util.Functions
 
-trait TyrianIndigoBridge:
-  lazy val bridge: TyrianIndigoBridger[String] =
+trait TyrianIndigoBridge[A]:
+  lazy val bridge: TyrianIndigoBridger[A] =
     TyrianIndigoBridge.build
 
 final class TyrianIndigoBridger[A] extends EventTarget:

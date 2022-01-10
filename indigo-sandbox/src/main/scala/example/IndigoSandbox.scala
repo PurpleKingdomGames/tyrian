@@ -6,7 +6,7 @@ import org.scalajs.dom.document
 import example.game.MyAwesomeGame
 import tyrian.cmds.Logger
 
-object IndigoSandbox extends TyrianIndigoBridge:
+object IndigoSandbox extends TyrianIndigoBridge[String]:
 
   val gameDivId1: String = "my-game-1"
   val gameDivId2: String = "my-game-2"
