@@ -33,6 +33,8 @@ sealed trait Sub[+Msg]:
       case (s1, Sub.Empty)        => s1
       case (s1, s2)               => Sub.Combine(s1, s2)
     }
+  final def |+|[LubMsg >: Msg](sub2: Sub[LubMsg]): Sub[LubMsg] =
+    combine(sub2)
 
 object Sub:
 

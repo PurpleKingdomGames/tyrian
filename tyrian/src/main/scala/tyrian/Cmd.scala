@@ -16,6 +16,8 @@ sealed trait Cmd[+Msg]:
       case (c1, Cmd.Empty)        => c1
       case (c1, c2)               => Cmd.Combine(c1, c2)
     }
+  final def |+|[LubMsg >: Msg](other: Cmd[LubMsg]): Cmd[LubMsg] =
+    combine(other)
 
 object Cmd:
   given CanEqual[Cmd[_], Cmd[_]] = CanEqual.derived
