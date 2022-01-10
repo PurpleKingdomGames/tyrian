@@ -8,7 +8,8 @@ import tyrian.cmds.Logger
 
 object IndigoSandbox extends TyrianIndigoBridge:
 
-  val gameDivID: String = "my-game"
+  val gameDivId1: String = "my-game-1"
+  val gameDivId2: String = "my-game-2"
 
   enum Msg:
     case NewContent(content: String)      extends Msg
@@ -24,7 +25,12 @@ object IndigoSandbox extends TyrianIndigoBridge:
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.NewContent(content) =>
-        (model.copy(field = content), bridge.send(content))
+        val cmds =
+          Cmd.Batch(
+            bridge.sendTo(IndigoGameId(gameDivId1), content),
+            bridge.sendTo(IndigoGameId(gameDivId2), content)
+          )
+        (model.copy(field = content), cmds)
 
       case Msg.Insert =>
         (model.copy(components = Counter.init :: model.components), Cmd.Empty)
@@ -46,13 +52,24 @@ object IndigoSandbox extends TyrianIndigoBridge:
       case Msg.StartIndigo =>
         (
           model,
-          Cmd.SideEffect { () =>
-            MyAwesomeGame(bridge.subSystem).launch(
-              gameDivID,
-              "width"  -> "300",
-              "height" -> "300"
-            )
-          }
+          Cmd.Batch(
+            Cmd.SideEffect { () =>
+              MyAwesomeGame(bridge.subSystemFor(IndigoGameId(gameDivId1)), true)
+                .launch(
+                  gameDivId1,
+                  "width"  -> "200",
+                  "height" -> "200"
+                )
+            },
+            Cmd.SideEffect { () =>
+              MyAwesomeGame(bridge.subSystemFor(IndigoGameId(gameDivId2)), false)
+                .launch(
+                  gameDivId2,
+                  "width"  -> "200",
+                  "height" -> "200"
+                )
+            }
+          )
         )
 
       case Msg.IndigoReceive(msg) =>
@@ -69,7 +86,8 @@ object IndigoSandbox extends TyrianIndigoBridge:
     ) ++ counters
 
     div(
-      div(id(gameDivID))(),
+      div(id(gameDivId1))(),
+      div(id(gameDivId2))(),
       div(
         input(placeholder("Text to reverse"), onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
@@ -78,9 +96,17 @@ object IndigoSandbox extends TyrianIndigoBridge:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    bridge.subscribe { case msg =>
-      Some(Msg.IndigoReceive(msg.reverse))
-    }
+    Sub.Batch(
+      bridge.subscribe { case msg =>
+        Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
+      },
+      bridge.subscribeTo(IndigoGameId(gameDivId1)) { case msg =>
+        Some(Msg.IndigoReceive(s"[$gameDivId1] ${msg}"))
+      },
+      bridge.subscribeTo(IndigoGameId(gameDivId2)) { case msg =>
+        Some(Msg.IndigoReceive(s"[$gameDivId2] ${msg}"))
+      }
+    )
 
   private val myStyle =
     styles(

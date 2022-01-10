@@ -3,7 +3,7 @@ package example.game
 import indigo._
 import indigo.scenes._
 
-object GameScene extends Scene[Unit, Unit, Unit]:
+final case class GameScene(clockwise: Boolean) extends Scene[Unit, Unit, Unit]:
 
   type SceneModel     = Unit
   type SceneViewModel = Unit
@@ -41,6 +41,12 @@ object GameScene extends Scene[Unit, Unit, Unit]:
       model: Unit,
       viewModel: Unit
   ): Outcome[SceneUpdateFragment] =
+    val rotateAmount =
+      if clockwise then
+        Radians.fromSeconds(context.running * 0.25)
+      else
+        Radians(-Radians.fromSeconds(context.running * 0.25).toDouble)
+
     Outcome(
       SceneUpdateFragment(
         Shape
@@ -50,6 +56,6 @@ object GameScene extends Scene[Unit, Unit, Unit]:
           )
           .withRef(30, 30)
           .moveTo(100, 100)
-          .rotateTo(Radians.fromSeconds(context.running * 0.25))
+          .rotateTo(rotateAmount)
       )
     )

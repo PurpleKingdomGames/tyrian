@@ -4,13 +4,14 @@ import indigo._
 import indigo.scenes._
 import tyrian.TyrianSubSystem
 
-final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String]) extends IndigoGame[Unit, Unit, Unit, Unit]:
+final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String], clockwise: Boolean)
+    extends IndigoGame[Unit, Unit, Unit, Unit]:
 
   def initialScene(bootData: Unit): Option[SceneName] =
     None
 
   def scenes(bootData: Unit): NonEmptyList[Scene[Unit, Unit, Unit]] =
-    NonEmptyList(GameScene)
+    NonEmptyList(GameScene(clockwise))
 
   val eventFilters: EventFilters =
     EventFilters.Permissive
@@ -52,9 +53,13 @@ final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String]) extends
       model: Unit
   ): GlobalEvent => Outcome[Unit] =
     case tyrianSubSystem.TyrianEvent.Receive(msg) =>
-      IndigoLogger.consoleLog("(Indigo) from tyrian: " + msg)
+      IndigoLogger.consoleLog(s"(Indigo) from tyrian: [${tyrianSubSystem.indigoGameId.getOrElse(" ")}] " + msg)
+      val e =
+        if clockwise then tyrianSubSystem.send(msg.reverse)
+        else tyrianSubSystem.send(msg + "_" + msg)
+
       Outcome(model)
-        .addGlobalEvents(tyrianSubSystem.TyrianEvent.Send(msg))
+        .addGlobalEvents(e)
 
     case _ =>
       Outcome(model)
