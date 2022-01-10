@@ -97,6 +97,10 @@ lazy val sandbox =
       scalaJSUseMainModuleInitializer := true,
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
     )
+    .settings(
+      publish := {},
+      publishLocal := {},
+    )
 
 lazy val indigoSandbox =
   project
@@ -117,6 +121,10 @@ lazy val indigoSandbox =
         "io.indigoengine" %%% "indigo-json-circe" % "0.11.1-SNAPSHOT"
       )
     )
+    .settings(
+      publish := {},
+      publishLocal := {},
+    )
 
 lazy val tyrianProject =
   (project in file("."))
@@ -124,6 +132,10 @@ lazy val tyrianProject =
     .settings(commonSettings: _*)
     .settings(
       code := { "code ." ! }
+    )
+    .settings(
+      publish := {},
+      publishLocal := {},
     )
     .enablePlugins(ScalaJSPlugin)
     .aggregate(tyrian, tyrianIndigoBridge, sandbox, indigoSandbox)
