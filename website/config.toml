@@ -4,7 +4,7 @@ title = 'Tyrian'
 
 contentDir = '../tyrian-docs/target/mdoc/'
 
-staticDir = ['static', '../target/scala-3.1.0/unidoc']
+staticDir = ['static', '../target/scala-3.1.0/site-docs']
 
 # Change the default theme to be use when building the site with Hugo
 theme = "hugo-theme-learn"

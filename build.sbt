@@ -195,7 +195,15 @@ lazy val tyrianProject =
         run.!
       },
       name                                       := "Tyrian",
-      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(indigoSandbox, sandbox, docs)
+      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(indigoSandbox, sandbox, docs),
+      copyApiDocs := {
+        println("Copy docs from 'target/scala-3.1.0/unidoc' to 'target/scala-3.1.0/site-docs/api'")
+
+        val src = (Compile / target).value / "scala-3.1.0" / "unidoc"
+        val dst = (Compile / target).value / "scala-3.1.0" / "site-docs" / "api"
+
+        IO.copyDirectory(src, dst)
+      }
     )
     .settings(
       publish      := {},
@@ -220,6 +228,10 @@ lazy val tyrianProject =
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
 
+// Define task to  copy html files
+val copyApiDocs =
+  taskKey[Unit]("Copy html files from src/main/html to cross-version target directory")
+
 addCommandAlias(
   "sandboxBuild",
   List(
@@ -237,7 +249,8 @@ addCommandAlias(
   "gendocs",
   List(
     "clean",
-    "unidoc",   // Docs in ./target/scala-3.1.0/unidoc/
+    "unidoc", // Docs in ./target/scala-3.1.0/unidoc/
+    "copyApiDocs",
     "docs/mdoc" // Docs in ./indigo/tyrian-docs/target/mdoc
   ).mkString(";", ";", "")
 )
