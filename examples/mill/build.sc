@@ -23,7 +23,8 @@ object counter extends ScalaJSModule {
 
   def scalacOptions = super.scalacOptions() ++ ScalacOptions.compile
 
-  override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
+  override def moduleKind        = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
+  override def useECMAScript2015 = T(true)
 
   object test extends Tests {
     def ivyDeps = Agg(
