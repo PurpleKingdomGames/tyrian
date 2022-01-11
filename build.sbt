@@ -249,6 +249,7 @@ addCommandAlias(
   "gendocs",
   List(
     "clean",
+    "docs/clean",
     "unidoc", // Docs in ./target/scala-3.1.0/unidoc/
     "copyApiDocs",
     "docs/mdoc" // Docs in ./indigo/tyrian-docs/target/mdoc
