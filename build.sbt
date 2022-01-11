@@ -3,7 +3,7 @@ import scala.language.postfixOps
 
 import sbtwelcome._
 
-Global / onChangedBuildSource := IgnoreSourceChanges
+Global / onChangedBuildSource := ReloadOnSourceChanges
 
 ThisBuild / versionScheme := Some("early-semver")
 
