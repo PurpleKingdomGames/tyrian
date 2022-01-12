@@ -5,6 +5,13 @@
 
 An Elm-inspired Scala UI library for Scala 3.
 
+There is a work in progress documentation site available here:
+[https://purplekingdomgames.github.io/tyrian](https://purplekingdomgames.github.io/tyrian)
+
+## Installation instructions
+
+Can be found [here!](https://purplekingdomgames.github.io/tyrian/installation/)
+
 ## Local build instructions
 
 Tyrian requires no special software to build locally, simply run:
