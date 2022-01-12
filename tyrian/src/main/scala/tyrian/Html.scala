@@ -1,6 +1,5 @@
 package tyrian
 
-import cats.kernel.Monoid
 import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
 import org.scalajs.dom.raw.HTMLInputElement
@@ -50,10 +49,10 @@ object Html extends HtmlTags with HtmlAttributes:
   def style(name: String, value: String): Attr[Nothing] = Attribute("style", Style(name, value).toString)
   @targetName("style_Style")
   def style(style: Style): Attr[Nothing]    = Attribute("style", style.toString)
-  def styles(styles: Style*): Attr[Nothing] = Attribute("style", Monoid.combineAll(styles).toString)
+  def styles(styles: Style*): Attr[Nothing] = Attribute("style", Style.combineAll(styles.toList).toString)
   @targetName("style_tuples")
   def styles(styles: (String, String)*): Attr[Nothing] =
-    Attribute("style", Monoid.combineAll(styles.map(p => Style(p._1, p._2))).toString)
+    Attribute("style", Style.combineAll(styles.map(p => Style(p._1, p._2)).toList).toString)
 
 end Html
 

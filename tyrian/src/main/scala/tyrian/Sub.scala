@@ -1,6 +1,5 @@
 package tyrian
 
-import cats.MonoidK
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import tyrian.Task.Observable
@@ -87,11 +86,6 @@ object Sub:
   @nowarn // Supposedly can never fail, but is doing an unsafe projection.
   def ofTotalObservable[Msg](id: String, observable: Observable[Nothing, Msg]): Sub[Msg] =
     OfObservable[Nothing, Msg, Msg](id, observable, _.toOption.get)
-
-  given MonoidK[Sub] =
-    new MonoidK[Sub]:
-      def empty[A]: Sub[A]                                = Sub.Empty
-      def combineK[A](sub1: Sub[A], sub2: Sub[A]): Sub[A] = sub1.combine(sub2)
 
   /** @return
     *   A subscription that notifies its subscribers with `msg` after `duration`.

@@ -1,7 +1,6 @@
 package tyrian
 package http
 
-import cats.implicits._
 import org.scalajs.dom.XMLHttpRequest
 
 import scala.util.Try
@@ -70,8 +69,12 @@ object Http:
         )
 
         request
-          .expect(response)
-          .leftMap(HttpError.DecodingFailure(_, response))
+          .expect(response) match
+          case Right(r) =>
+            Right(r)
+
+          case Left(e) =>
+            Left(HttpError.DecodingFailure(e, response))
       })
       .map(resultToMessage)
 

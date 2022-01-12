@@ -1,7 +1,5 @@
 package tyrian
 
-import cats.kernel.Monoid
-
 opaque type Style = String
 object Style:
 
@@ -22,16 +20,13 @@ object Style:
 
   val empty: Style = Style("", "")
 
-  def combine(a: Style, b: Style)(using m: Monoid[Style]): Style =
-    m.combine(a, b)
+  def combine(a: Style, b: Style): Style =
+    a.toString + b.toString
 
-  def combineAll(styles: List[Style])(using m: Monoid[Style]): Style =
-    styles.foldLeft(Style.empty)(m.combine)
+  def combineAll(styles: List[Style]): Style =
+    styles.foldLeft(Style.empty)(combine)
 
-  extension (style: Style) def toString: String = style
-
-  given Monoid[Style] =
-    new Monoid[Style]:
-      def empty: Style = Style.empty
-      def combine(x: Style, y: Style): Style =
-        x.toString + y.toString
+  extension (style: Style)
+    def toString: String = style
+    def |+|(other: Style) =
+      combine(style, other)

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 cd bootstrap
 sbt clean test fastOptJS
 cd ..
@@ -26,6 +28,12 @@ cd ..
 
 cd mario
 sbt clean test fastOptJS
+cd ..
+
+cd mill
+mill clean counter
+mill counter.test
+mill counter.fastOpt
 cd ..
 
 cd subcomponents

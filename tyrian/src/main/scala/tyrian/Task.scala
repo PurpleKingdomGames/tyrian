@@ -1,7 +1,5 @@
 package tyrian
 
-import cats.ApplicativeError
-
 import scala.annotation.nowarn
 
 /** A task describes some side-effect to perform.
@@ -87,11 +85,3 @@ object Task:
 
   final case class FlatMapped[Err, Success, Success2](task: Task[Err, Success], f: Success => Task[Err, Success2])
       extends Task[Err, Success2]
-
-  given [Err]: ApplicativeError[Task[Err, *], Err] =
-    new ApplicativeError[Task[Err, *], Err] {
-      def pure[A](x: A)                                                   = Succeeded(x)
-      def raiseError[A](e: Err): Task[Err, A]                             = Failed(e)
-      def ap[A, B](ff: Task[Err, A => B])(fa: Task[Err, A]): Task[Err, B] = ff.product(fa).map { case (f, a) => f(a) }
-      def handleErrorWith[A](fa: Task[Err, A])(f: Err => Task[Err, A]): Task[Err, A] = Recovered(fa, f)
-    }

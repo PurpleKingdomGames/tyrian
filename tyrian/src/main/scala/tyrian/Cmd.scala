@@ -1,7 +1,5 @@
 package tyrian
 
-import cats.MonoidK
-
 /** A command describes some side-effect to perform.
   *
   * The difference with a `Task` is that a command never produces error values.
@@ -67,9 +65,3 @@ object Cmd:
   object Batch:
     def apply[Msg](cmds: Cmd[Msg]*): Batch[Msg] =
       Batch(cmds.toList)
-
-  given MonoidK[Cmd] =
-    new MonoidK[Cmd] {
-      def empty[A]: Cmd[A]                                = Cmd.Empty
-      def combineK[A](cmd1: Cmd[A], cmd2: Cmd[A]): Cmd[A] = cmd1.combine(cmd2)
-    }

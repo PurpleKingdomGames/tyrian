@@ -1,6 +1,5 @@
 package mario
 
-import cats.syntax.all._
 import org.scalajs.dom.document
 import org.scalajs.dom.window
 import tyrian.Html._
@@ -44,14 +43,16 @@ object Main:
         (model, Cmd.Empty)
 
   def subscriptions(model: Model): Sub[Msg] =
-    Effects.keyPressSub(37).map[Msg](_ => Msg.ArrowLeftPressed) <+>
-      Effects.keyPressSub(39).map(_ => Msg.ArrowRightPressed) <+>
-      Effects.keyReleaseSub(37).map(_ => Msg.ArrowLeftReleased) <+>
-      Effects.keyReleaseSub(39).map(_ => Msg.ArrowRightReleased) <+>
-      Effects.keyPressSub(38).map(_ => Msg.ArrowUpPressed) <+>
-      Effects.requestAnimationFrameSub.map(_ => Msg.PassageOfTime) <+>
-      Effects.touchPressedSub(model) <+>
+    Sub.Batch(
+      Effects.keyPressSub(37).map[Msg](_ => Msg.ArrowLeftPressed),
+      Effects.keyPressSub(39).map(_ => Msg.ArrowRightPressed),
+      Effects.keyReleaseSub(37).map(_ => Msg.ArrowLeftReleased),
+      Effects.keyReleaseSub(39).map(_ => Msg.ArrowRightReleased),
+      Effects.keyPressSub(38).map(_ => Msg.ArrowUpPressed),
+      Effects.requestAnimationFrameSub.map(_ => Msg.PassageOfTime),
+      Effects.touchPressedSub(model),
       Effects.touchReleasedSub(model)
+    )
 
   def view(model: Model): Html[Msg] =
     val (posX, posY) =
@@ -88,7 +89,8 @@ final case class Mario(x: Double, y: Double, vx: Double, vy: Double, dir: Direct
 object Mario:
   val gravity                      = 0.25
   val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
-  val applyMotion: Mario => Mario  = mario => mario.copy(x = mario.x + mario.vx, y = Math.max(0.0, mario.y + 3 * mario.vy))
+  val applyMotion: Mario => Mario = mario =>
+    mario.copy(x = mario.x + mario.vx, y = Math.max(0.0, mario.y + 3 * mario.vy))
   val walkLeft: Mario => Mario     = _.copy(vx = -1.5, dir = Direction.Left)
   val walkRight: Mario => Mario    = _.copy(vx = 1.5, dir = Direction.Right)
   val jump: Mario => Mario         = _.copy(vy = 4.0)

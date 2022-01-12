@@ -62,8 +62,7 @@ lazy val tyrian =
     .settings(
       name := "tyrian",
       libraryDependencies ++= Seq(
-        "org.scala-js"  %%% "scalajs-dom" % Dependancies.scalajsDomVersion,
-        "org.typelevel" %%% "cats-core"   % Dependancies.catsCore
+        "org.scala-js"  %%% "scalajs-dom" % Dependancies.scalajsDomVersion
       )
     )
     .settings(
