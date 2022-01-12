@@ -1,4 +1,4 @@
-baseURL = 'http://example.org/'
+baseURL = 'https://purplekingdomgames.github.io/tyrian'
 languageCode = 'en-gb'
 title = 'Tyrian'
 
@@ -63,5 +63,5 @@ weight = 10
 [[menu.shortcuts]]
 name = "<i class='fas fa-bookmark'></i> Tyrian API Docs"
 identifier = "apidocs"
-url = "./api/"
+url = "/api/"
 weight = 20
