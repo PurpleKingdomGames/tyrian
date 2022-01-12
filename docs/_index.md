@@ -7,7 +7,7 @@ menuTitle = "Tyrian"
 
 Tyrian is an Elm-inspired, purely functional UI library for Scala 3.
 
-It's purpose is to make building interactive websites in Scala 3 fun! Tyrian allows you to describe web pages and complex interactions in a way that is elegant, easy to read and easy to reason about.
+Its purpose is to make building interactive websites in Scala 3 fun! Tyrian allows you to describe web pages and complex interactions in a way that is elegant, easy to read and easy to reason about.
 
 Tyrian is not designed to work alone, the intention is that you will use it alongside a web bundler to look after things like your media assets and stylesheets. (All our examples use [Parcel](https://parceljs.org/).)
 
