@@ -57,6 +57,11 @@ home = [ "HTML", "RSS", "JSON"]
 
 [[menu.shortcuts]] 
 name = "<i class='fab fa-github'></i> Github"
-identifier = "ds"
+identifier = "github"
 url = "https://github.com/PurpleKingdomGames/tyrian"
 weight = 10
+[[menu.shortcuts]]
+name = "<i class='fas fa-bookmark'></i> Tyrian API Docs"
+identifier = "apidocs"
+url = "./api/"
+weight = 20

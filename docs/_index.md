@@ -3,8 +3,4 @@ title = "Tyrian"
 menuTitle = "Tyrian"
 +++
 
-### Elm Inspired Scala Web Framework
-
-# Tyrian
-
-Lorem Ipsum.
+An Elm-inspired Scala UI library for Scala 3.
