@@ -2,9 +2,9 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>General Information on Tyrian</title>
-    <link>http://example.org/information/</link>
+    <link>https://purplekingdomgames.github.io/tyrian/information/</link>
     <description>Recent content in General Information on Tyrian</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-gb</language><atom:link href="http://example.org/information/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-gb</language><atom:link href="https://purplekingdomgames.github.io/tyrian/information/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

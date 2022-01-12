@@ -2,18 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://example.org/installation/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/installation/</loc>
   </url><url>
-    <loc>http://example.org/architecture/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/architecture/</loc>
   </url><url>
-    <loc>http://example.org/examples/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/examples/</loc>
   </url><url>
-    <loc>http://example.org/information/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/information/</loc>
   </url><url>
-    <loc>http://example.org/categories/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/categories/</loc>
   </url><url>
-    <loc>http://example.org/tags/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/tags/</loc>
   </url><url>
-    <loc>http://example.org/</loc>
+    <loc>https://purplekingdomgames.github.io/tyrian/</loc>
   </url>
 </urlset>
