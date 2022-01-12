@@ -25,7 +25,9 @@ object Clock:
     val handX = 50 + 40 * math.cos(angle)
     val handY = 50 + 40 * math.sin(angle)
     tag("svg")(attributes("viewBox" -> "0, 0, 100, 100", "width" -> "300px"))(
-      tag("circle")(attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE"))(),
+      tag("circle")(
+        attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE")
+      )(),
       tag("line")(
         attributes(
           "x1"     -> "50",
@@ -42,6 +44,12 @@ object Clock:
     Sub.every(1.second, "clock-ticks").map(Msg.apply)
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
+    Tyrian.start(
+      document.getElementById("myapp"),
+      init,
+      update,
+      view,
+      subscriptions
+    )
 
 final case class Msg(newTime: js.Date)

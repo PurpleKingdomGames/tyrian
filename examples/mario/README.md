@@ -6,7 +6,7 @@
 
 ## Build
 
-To compile and run the program you will need to have yarn (or npm) installed.
+To run the program in a browser you will need to have yarn (or npm) installed.
 
 On first run:
 

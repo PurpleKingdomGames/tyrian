@@ -18,12 +18,12 @@ object counter extends ScalaJSModule {
 
   def ivyDeps =
     Agg(
-      ivy"io.indigoengine::tyrian::0.2.1"
+      ivy"io.indigoengine::tyrian::0.2.2-SNAPSHOT"
     )
 
   def scalacOptions = super.scalacOptions() ++ ScalacOptions.compile
 
-  override def moduleKind        = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
+  override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
   override def useECMAScript2015 = T(true)
 
   object test extends Tests {
@@ -33,8 +33,10 @@ object counter extends ScalaJSModule {
 
     def testFramework = "munit.Framework"
 
-    override def moduleKind        = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
-    override def jsEnvConfig       = T(JsEnvConfig.NodeJs(args = List("--dns-result-order=ipv4first")))
+    override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
+    override def jsEnvConfig = T(
+      JsEnvConfig.NodeJs(args = List("--dns-result-order=ipv4first"))
+    )
     override def useECMAScript2015 = T(true)
 
     def scalacOptions = super.scalacOptions() ++ ScalacOptions.test
@@ -48,14 +50,14 @@ object ScalacOptions {
     Seq(
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
       "-encoding",
-      "utf-8",                  // Specify character encoding used by source files.
-      "-feature",               // Emit warning and location for usages of features that should be imported explicitly.
+      "utf-8", // Specify character encoding used by source files.
+      "-feature", // Emit warning and location for usages of features that should be imported explicitly.
       "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
       "-language:experimental.macros", // Allow macro definition (besides implementation and application)
-      "-language:higherKinds",         // Allow higher-kinded types
+      "-language:higherKinds", // Allow higher-kinded types
       "-language:implicitConversions", // Allow definition of implicit functions called views
-      "-unchecked",                    // Enable additional warnings where generated code depends on assumptions.
-      "-Xfatal-warnings"               // Fail the compilation if there are any warnings.
+      "-unchecked", // Enable additional warnings where generated code depends on assumptions.
+      "-Xfatal-warnings" // Fail the compilation if there are any warnings.
       // "-language:strictEquality"       // Scala 3 - Multiversal Equality
     )
 
@@ -63,13 +65,13 @@ object ScalacOptions {
     Seq(
       "-deprecation", // Emit warning and location for usages of deprecated APIs.
       "-encoding",
-      "utf-8",                  // Specify character encoding used by source files.
-      "-feature",               // Emit warning and location for usages of features that should be imported explicitly.
+      "utf-8", // Specify character encoding used by source files.
+      "-feature", // Emit warning and location for usages of features that should be imported explicitly.
       "-language:existentials", // Existential types (besides wildcard types) can be written and inferred
       "-language:experimental.macros", // Allow macro definition (besides implementation and application)
-      "-language:higherKinds",         // Allow higher-kinded types
+      "-language:higherKinds", // Allow higher-kinded types
       "-language:implicitConversions", // Allow definition of implicit functions called views
-      "-unchecked"                     // Enable additional warnings where generated code depends on assumptions.
+      "-unchecked" // Enable additional warnings where generated code depends on assumptions.
     )
 
 }

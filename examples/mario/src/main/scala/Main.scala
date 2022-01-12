@@ -67,30 +67,56 @@ object Main:
     val dir = model.dir.toString.toLowerCase
     val css = Style("top", s"${posY}px") |+| Style("left", s"${posX}px")
 
-    div(List(style(css)) ++ attributes("id" -> "mario", "class" -> s"character $verb $dir"))()
+    div(
+      List(style(css)) ++ attributes(
+        "id"    -> "mario",
+        "class" -> s"character $verb $dir"
+      )
+    )()
 
-  def modelPositionScreen(screenX: Double, screenY: Double, model: Model): (Double, Double) =
+  def modelPositionScreen(
+      screenX: Double,
+      screenY: Double,
+      model: Model
+  ): (Double, Double) =
     val posX = ((screenX / 2) * 100) / 300 + model.x
     val posY = ((screenY - 200) * 100) / 300 - model.y
     (posX, posY)
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.querySelector("#mario"), init, update, view, subscriptions)
+    Tyrian.start(
+      document.querySelector("#mario"),
+      init,
+      update,
+      view,
+      subscriptions
+    )
 
 end Main
 
 enum Msg:
-  case PassageOfTime, ArrowLeftPressed, ArrowRightPressed, ArrowLeftReleased, ArrowRightReleased, ArrowUpPressed
+  case PassageOfTime, ArrowLeftPressed, ArrowRightPressed, ArrowLeftReleased,
+  ArrowRightReleased, ArrowUpPressed
 
 enum Direction:
   case Left, Right
 
-final case class Mario(x: Double, y: Double, vx: Double, vy: Double, dir: Direction)
+final case class Mario(
+    x: Double,
+    y: Double,
+    vx: Double,
+    vy: Double,
+    dir: Direction
+)
 object Mario:
-  val gravity                      = 0.25
-  val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
+  val gravity = 0.25
+  val applyGravity: Mario => Mario = mario =>
+    mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
   val applyMotion: Mario => Mario = mario =>
-    mario.copy(x = mario.x + mario.vx, y = Math.max(0.0, mario.y + 3 * mario.vy))
+    mario.copy(
+      x = mario.x + mario.vx,
+      y = Math.max(0.0, mario.y + 3 * mario.vy)
+    )
   val walkLeft: Mario => Mario     = _.copy(vx = -1.5, dir = Direction.Left)
   val walkRight: Mario => Mario    = _.copy(vx = 1.5, dir = Direction.Right)
   val jump: Mario => Mario         = _.copy(vy = 4.0)

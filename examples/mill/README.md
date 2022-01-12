@@ -2,7 +2,13 @@
 
 This is a minimal working project setup to run the counter example.
 
-To compile and run the program you will need to have yarn (or npm) installed.
+The instructions on running below will do a compile of the mill project, but you can do it manually with:
+
+```sh
+mill counter.buildSite
+```
+
+To run the program in a browser you will need to have yarn (or npm) installed.
 
 On first run:
 

@@ -23,7 +23,11 @@ object Main:
 
   def view(model: Model): Html[Msg] =
     div()(
-      input(placeholder("Text to reverse"), onInput(s => Msg.NewContent(s)), myStyle),
+      input(
+        placeholder("Text to reverse"),
+        onInput(s => Msg.NewContent(s)),
+        myStyle
+      ),
       div(myStyle)(text(model.reverse))
     )
 

@@ -19,15 +19,19 @@ object Main:
       case Msg.Decrement => model - 1
 
   def view(model: Model): Html[Msg] =
-    // body()(
     div(`class`("container"))(
       div(`class`("row"))(
-        div(`class`("col bodyText"), styles("text-align" -> "right"))(button(onClick(Msg.Decrement))(text("-"))),
-        div(`class`("col bodyText"), styles("text-align" -> "center"))(text(model.toString)),
-        div(`class`("col bodyText"), styles("text-align" -> "left"))(button(onClick(Msg.Increment))(text("+")))
+        div(`class`("col bodyText"), styles("text-align" -> "right"))(
+          button(onClick(Msg.Decrement))(text("-"))
+        ),
+        div(`class`("col bodyText"), styles("text-align" -> "center"))(
+          text(model.toString)
+        ),
+        div(`class`("col bodyText"), styles("text-align" -> "left"))(
+          button(onClick(Msg.Increment))(text("+"))
+        )
       )
     )
-// )
 
 enum Msg:
   case Increment, Decrement

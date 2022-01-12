@@ -1,6 +1,5 @@
 package example
 
-import cats.syntax.either._
 import io.circe.parser._
 import org.scalajs.dom.document
 import tyrian.Html._
@@ -30,13 +29,19 @@ object Main:
     Sub.Empty
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
+    Tyrian.start(
+      document.getElementById("myapp"),
+      init,
+      update,
+      view,
+      subscriptions
+    )
 
 end Main
 
 enum Msg:
-  case MorePlease extends Msg
-  case NewGif(result: String) extends Msg
+  case MorePlease                 extends Msg
+  case NewGif(result: String)     extends Msg
   case GifError(error: HttpError) extends Msg
 object Msg:
   def fromHttpResponse: Either[HttpError, String] => Msg =
@@ -49,15 +54,20 @@ object HttpHelper:
   private def decodeGifUrl: Http.Decoder[String] =
     Http.Decoder { response =>
       val json = response.body
-      parse(json)
-        .leftMap(_.message)
-        .flatMap { json =>
-          json.hcursor
-            .downField("data")
-            .get[String]("image_url")
-            .toOption
-            .toRight("wrong json format")
-        }
+
+      val parsed = parse(json) match
+        case Right(r) => Right(r)
+        case Left(l)  => Left(l.message)
+
+      parsed.flatMap { json =>
+        json.hcursor
+          .downField("data")
+          .downField("images")
+          .downField("downsized_medium")
+          .get[String]("url")
+          .toOption
+          .toRight("wrong json format")
+      }
     }
 
   def getRandomGif(topic: String): Cmd[Msg] =

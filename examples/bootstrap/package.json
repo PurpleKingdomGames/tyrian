@@ -1,10 +1,11 @@
 {
   "scripts": {
-    "start": "sbt fastOptJS && parcel index.html --no-cache --out-dir dist --log-level 4 --no-source-maps",
-    "build": "sbt clean fastOptJS && parcel build index.html --out-dir dist --log-level 4 --no-source-maps"
+    "start": "parcel index.html --no-cache --dist-dir dist --log-level info",
+    "build": "parcel build index.html --dist-dir dist --log-level info"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.12.5",
+    "@parcel/transformer-sass": "^2.2.0",
+    "parcel": "^2.1.0",
     "sass": "^1.34.0"
   },
   "dependencies": {

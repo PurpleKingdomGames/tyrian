@@ -2,7 +2,7 @@
 
 This is the counter example again, but this time will Bootstrap CSS is use to show how that can be done.
 
-To compile and run the program you will need to have yarn (or npm) installed.
+To run the program in a browser you will need to have yarn (or npm) installed.
 
 On first run:
 

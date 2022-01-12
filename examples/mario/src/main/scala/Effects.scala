@@ -30,8 +30,9 @@ object Effects {
   )
 
   def keyPressSub(keyCode: Int): Sub[KeyboardEvent] =
-    Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keydown", dom.window) { event =>
-      if event.keyCode == keyCode then Some(event) else None
+    Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keydown", dom.window) {
+      event =>
+        if event.keyCode == keyCode then Some(event) else None
     }
 
   def keyReleaseSub(keyCode: Int): Sub[KeyboardEvent] =
