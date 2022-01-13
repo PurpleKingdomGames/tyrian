@@ -4,7 +4,9 @@ Here are a number of examples.
 
 To build most of them, you can just run, for example `sbt counter/fastOptJS`.
 
-There are exceptions, the bundler example requires `sbt bundler/fastOptJS:webpack` to work. And the Mill example has it's own README to follow.
+There are exceptions, the bundler example requires `sbt bundler/fastOptJS:webpack` to work.
+
+The [Mill](https://com-lihaoyi.github.io/mill/mill/Intro_to_Mill.html) example has it's own README to follow.
 
 To run the programs in a browser you will need to have yarn (or npm) installed.
 

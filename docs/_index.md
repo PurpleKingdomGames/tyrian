@@ -1,6 +1,5 @@
 +++
 title = "Tyrian"
-menuTitle = "Tyrian"
 +++
 
 ## Tyrian
