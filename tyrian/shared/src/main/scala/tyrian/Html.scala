@@ -1,9 +1,9 @@
 package tyrian
 
-import org.scalajs.dom
-import org.scalajs.dom.KeyboardEvent
-import org.scalajs.dom.raw.HTMLInputElement
-import snabbdom.VNode
+// import org.scalajs.dom
+// import org.scalajs.dom.KeyboardEvent
+// import org.scalajs.dom.raw.HTMLInputElement
+// import snabbdom.VNode
 
 import scala.annotation.targetName
 
@@ -41,10 +41,10 @@ object Html extends HtmlTags with HtmlAttributes:
 
   def dataAttr(name: String, value: String): Attr[Nothing]        = Attribute("data-" + name, value)
 
-  def onKeyDown[M](msg: KeyboardEvent => M): Attr[M] = onEvent("keydown", msg)
-  def onKeyUp[M](msg: KeyboardEvent => M): Attr[M]   = onEvent("keyup", msg)
+  def onKeyDown[M](msg: Tyrian.KeyboardEvent => M): Attr[M] = onEvent("keydown", msg)
+  def onKeyUp[M](msg: Tyrian.KeyboardEvent => M): Attr[M]   = onEvent("keyup", msg)
   def onInput[M](msg: String => M): Attr[M] =
-    onEvent("input", (e: dom.Event) => msg(e.target.asInstanceOf[HTMLInputElement].value))
+    onEvent("input", (e: Tyrian.Event) => msg(e.target.asInstanceOf[Tyrian.HTMLInputElement].value))
 
   def style(name: String, value: String): Attr[Nothing] = Attribute("style", Style(name, value).toString)
   @targetName("style_Style")
@@ -56,18 +56,18 @@ object Html extends HtmlTags with HtmlAttributes:
 
 end Html
 
-/** Unmanaged HTML tag
-  *
-  * @param model
-  *   current state to render
-  * @param renderer
-  *   function that renders the given model
-  */
-final case class Hook[Model](model: Model, renderer: HookRenderer[Model]) extends Html[Nothing]:
-  def map[N](f: Nothing => N): Hook[Model] = this
+// /** Unmanaged HTML tag
+//   *
+//   * @param model
+//   *   current state to render
+//   * @param renderer
+//   *   function that renders the given model
+//   */
+// final case class Hook[Model](model: Model, renderer: HookRenderer[Model]) extends Html[Nothing]:
+//   def map[N](f: Nothing => N): Hook[Model] = this
 
-trait HookRenderer[Model]:
-  def render(model: Model): VNode
+// trait HookRenderer[Model]:
+//   def render(model: Model): VNode
 
 // -- HTML Tags --
 

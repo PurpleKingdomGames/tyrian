@@ -9,7 +9,6 @@ import tyrian.Attr
 import tyrian.Attribute
 import tyrian.Cmd
 import tyrian.Event
-import tyrian.Hook
 import tyrian.Html
 import tyrian.Property
 import tyrian.Sub
@@ -107,9 +106,6 @@ final class TyrianRuntime[Model, Msg](
           }
 
         h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
-
-      case Hook(model, renderer) =>
-        renderer.render(model)
     }
 
   private lazy val patch =
