@@ -58,7 +58,6 @@ lazy val publishSettings = {
 lazy val tyrian =
   crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
-    // .enablePlugins(ScalaJSPlugin)
     .settings(commonSettings: _*)
     .jsSettings(commonJsSettings: _*)
     .settings(publishSettings: _*)
@@ -85,7 +84,6 @@ lazy val tyrianIndigoBridge =
     .withoutSuffixFor(JSPlatform)
     .in(file("tyrian-indigo-bridge"))
     .dependsOn(tyrian)
-    // .enablePlugins(ScalaJSPlugin)
     .settings(commonSettings: _*)
     .jsSettings(commonJsSettings: _*)
     .settings(publishSettings: _*)
@@ -103,7 +101,6 @@ lazy val sandbox =
     .crossType(CrossType.Pure)
     .withoutSuffixFor(JSPlatform)
     .dependsOn(tyrian)
-    // .enablePlugins(ScalaJSPlugin)
     .settings(
       scalaVersion                    := scala3Version,
       name                            := "sandbox",
@@ -122,7 +119,6 @@ lazy val indigoSandbox =
     .in(file("indigo-sandbox"))
     .dependsOn(tyrian)
     .dependsOn(tyrianIndigoBridge)
-    // .enablePlugins(ScalaJSPlugin)
     .settings(
       scalaVersion                    := scala3Version,
       name                            := "Indigo Sandbox",
@@ -143,9 +139,6 @@ lazy val indigoSandbox =
 
 lazy val jsdocs =
   project
-    // crossProject(JSPlatform)
-    //   .crossType(CrossType.Pure)
-    //   .withoutSuffixFor(JSPlatform)
     .settings(
       scalaVersion := scala3Version,
       organization := "io.indigoengine"
@@ -161,9 +154,6 @@ lazy val jsdocs =
 
 lazy val docs =
   project
-    // crossProject(JSPlatform)
-    //   .crossType(CrossType.Pure)
-    //   .withoutSuffixFor(JSPlatform)
     .in(file("tyrian-docs"))
     .dependsOn(tyrian.js)
     .dependsOn(tyrianIndigoBridge.js)
@@ -200,7 +190,6 @@ lazy val rawLogo: String =
 lazy val tyrianProject =
   project
     .in(file("."))
-    // .enablePlugins(ScalaJSPlugin)
     .enablePlugins(ScalaUnidocPlugin)
     .settings(commonSettings: _*)
     .settings(
