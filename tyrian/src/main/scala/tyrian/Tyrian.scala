@@ -2,6 +2,7 @@ package tyrian
 
 import org.scalajs.dom.Element
 import tyrian.runtime.TyrianRuntime
+import tyrian.runtime.TyrianSSR
 
 object Tyrian:
 
@@ -69,3 +70,13 @@ object Tyrian:
       subscriptions,
       node
     ).start()
+
+  /** Takes a normal Tyrian Model and view function and renders the html to a string.
+    */
+  def render[Model, Msg](model: Model, view: Model => Html[Msg]): String =
+    TyrianSSR.render(model, view)
+
+  /** Takes a Tyrian HTML view, and renders it into to a string.
+    */
+  def render[Model, Msg](html: Html[Msg]): String =
+    TyrianSSR.render(html)
