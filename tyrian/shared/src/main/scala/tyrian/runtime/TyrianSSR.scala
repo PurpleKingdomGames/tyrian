@@ -30,9 +30,6 @@ object Render:
 
           s"""<${tag.name}$attributes>$children</${tag.name}>"""
 
-        case _ =>
-          ""
-
   extension (a: Attr[_])
     def render: String =
       a match

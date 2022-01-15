@@ -6,6 +6,10 @@ import tyrian.runtime.TyrianSSR
 
 object Tyrian:
 
+  type Event = org.scalajs.dom.Event
+  type KeyboardEvent = org.scalajs.dom.KeyboardEvent
+  type HTMLInputElement = org.scalajs.dom.raw.HTMLInputElement
+
   /** Computes the initial state of the given application, renders it on the given DOM element, and listens to user
     * actions
     * @param node

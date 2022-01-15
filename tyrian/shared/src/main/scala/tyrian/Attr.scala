@@ -1,7 +1,5 @@
 package tyrian
 
-import org.scalajs.dom
-
 /** HTML attribute */
 sealed trait Attr[+M]:
   def map[N](f: M => N): Attr[N]
@@ -42,5 +40,5 @@ object Property:
   * @param msg
   *   Message to produce when the event is triggered
   */
-final case class Event[E <: dom.Event, M](name: String, msg: E => M) extends Attr[M]:
+final case class Event[E <: Tyrian.Event, M](name: String, msg: E => M) extends Attr[M]:
   def map[N](f: M => N): Attr[N] = Event(name, msg andThen f)
