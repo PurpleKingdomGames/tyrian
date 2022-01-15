@@ -1,10 +1,5 @@
 package tyrian
 
-// import org.scalajs.dom
-// import org.scalajs.dom.KeyboardEvent
-// import org.scalajs.dom.raw.HTMLInputElement
-// import snabbdom.VNode
-
 import scala.annotation.targetName
 
 /** An HTML element can be a tag or a text node */
@@ -55,21 +50,6 @@ object Html extends HtmlTags with HtmlAttributes:
     Attribute("style", Style.combineAll(styles.map(p => Style(p._1, p._2)).toList).toString)
 
 end Html
-
-// /** Unmanaged HTML tag
-//   *
-//   * @param model
-//   *   current state to render
-//   * @param renderer
-//   *   function that renders the given model
-//   */
-// final case class Hook[Model](model: Model, renderer: HookRenderer[Model]) extends Html[Nothing]:
-//   def map[N](f: Nothing => N): Hook[Model] = this
-
-// trait HookRenderer[Model]:
-//   def render(model: Model): VNode
-
-// -- HTML Tags --
 
 /** An HTML tag */
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
