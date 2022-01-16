@@ -7,7 +7,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 
-lazy val tyrianVersion = "0.2.2-SNAPSHOT"
+lazy val tyrianVersion = TyrianVersion.getVersion
 lazy val scala3Version = "3.1.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
