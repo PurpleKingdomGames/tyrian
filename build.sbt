@@ -9,11 +9,10 @@ ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 
-lazy val tyrianVersion = "0.2.2-SNAPSHOT"
-
+lazy val tyrianVersion = TyrianVersion.getVersion
 lazy val scala3Version = "3.1.0"
 
-lazy val tyrianDocsVersion  = "0.2.2-SNAPSHOT"
+lazy val tyrianDocsVersion  = "0.2.1"
 lazy val scalaJsDocsVersion = "1.8.0"
 lazy val scalaDocsVersion   = "3.1.0"
 

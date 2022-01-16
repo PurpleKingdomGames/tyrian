@@ -3,9 +3,9 @@ val CirceVersion           = "0.14.1"
 val MunitVersion           = "0.7.29"
 val LogbackVersion         = "1.2.6"
 val MunitCatsEffectVersion = "1.0.6"
-val TyrianVersion          = "0.2.2-SNAPSHOT"
 
-val scala3Version = "3.1.0"
+lazy val tyrianVersion = TyrianVersion.getVersion
+lazy val scala3Version = "3.1.0"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -35,7 +35,7 @@ lazy val server =
         "io.circe"        %% "circe-generic"       % CirceVersion,
         "org.typelevel"   %% "munit-cats-effect-3" % MunitCatsEffectVersion % Test,
         "ch.qos.logback"   % "logback-classic"     % LogbackVersion,
-        "io.indigoengine" %% "tyrian"              % TyrianVersion
+        "io.indigoengine" %% "tyrian"              % tyrianVersion
       )
     )
 
