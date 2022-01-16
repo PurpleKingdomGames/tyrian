@@ -24,7 +24,6 @@ object counter extends ScalaJSModule {
   def scalacOptions = super.scalacOptions() ++ ScalacOptions.compile
 
   override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
-  override def useECMAScript2015 = T(true)
 
   object test extends Tests {
     def ivyDeps = Agg(
@@ -37,7 +36,6 @@ object counter extends ScalaJSModule {
     override def jsEnvConfig = T(
       JsEnvConfig.NodeJs(args = List("--dns-result-order=ipv4first"))
     )
-    override def useECMAScript2015 = T(true)
 
     def scalacOptions = super.scalacOptions() ++ ScalacOptions.test
   }
