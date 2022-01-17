@@ -4,17 +4,38 @@ import tyrian._
 
 object TyrianSSR:
 
+  private val docType: String = "<!DOCTYPE HTML>"
+
   import Render.*
 
+  def render[Model, Msg](includeDocType: Boolean, model: Model, view: Model => Html[Msg]): String =
+    if includeDocType then docType + view(model).render else view(model).render
   def render[Model, Msg](model: Model, view: Model => Html[Msg]): String =
-    view(model).render
+    render(false, model, view)
 
+  def render[Model, Msg](includeDocType: Boolean, html: Html[Msg]): String =
+    if includeDocType then docType + html.render else html.render
   def render[Model, Msg](html: Html[Msg]): String =
-    html.render
+    render(false, html)
+
+  def render[Model, Msg](includeDocType: Boolean, elems: List[Elem[Msg]]): String =
+    if includeDocType then docType + elems.map(_.render).mkString else elems.map(_.render).mkString
+  def render[Model, Msg](elems: List[Elem[Msg]]): String =
+    render(false, elems)
+  def render[Model, Msg](includeDocType: Boolean, elems: Elem[Msg]*): String =
+    render(includeDocType, elems.toList)
+  def render[Model, Msg](elems: Elem[Msg]*): String =
+    render(elems.toList)
 
 object Render:
 
   val spacer = (str: String) => if str.isEmpty then str else " " + str
+
+  extension [Msg](elem: Elem[Msg])
+    def render: String =
+      elem match
+        case t: Text    => t.value
+        case h: Html[_] => h.render
 
   extension [Msg](html: Html[Msg])
     def render: String =

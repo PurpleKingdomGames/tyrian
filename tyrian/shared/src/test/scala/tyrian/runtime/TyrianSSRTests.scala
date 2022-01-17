@@ -23,6 +23,19 @@ class TyrianSSRTests extends munit.FunSuite {
     assertEquals(actual, expected)
   }
 
+  test("Can include the doctype") {
+    val view: Model => Html[Msg] =
+      _ => p(text("Hello, world!"))
+
+    val actual =
+      TyrianSSR.render(true, model, view)
+
+    val expected =
+      "<!DOCTYPE HTML><p>Hello, world!</p>"
+
+    assertEquals(actual, expected)
+  }
+
   test("Can render a div with contents") {
     val html: Html[Msg] =
       div(id("my-div"))(
@@ -36,6 +49,43 @@ class TyrianSSRTests extends munit.FunSuite {
 
     val expected =
       """<div id="my-div"><p>Hello, world!</p><span class="my-span-class" style="width:10px;height:12pt;">test</span><a href="http://tyrian">my link</a></div>"""
+
+    assertEquals(actual, expected)
+  }
+
+  test("Can render an arbitrary list of elems") {
+    val elems: List[Elem[Msg]] =
+      List(
+        p(text("a")),
+        span(text("b")),
+        b(text("c"))
+      )
+
+    val actual =
+      TyrianSSR.render(elems)
+
+    val expected =
+      "<p>a</p><span>b</span><b>c</b>"
+
+    assertEquals(actual, expected)
+  }
+
+  test("Can render a simple page") {
+    val elems: Elem[Msg] =
+      html(
+        head(
+          title(text("My Page"))
+        ),
+        body(
+          p(text("Hello, world!"))
+        )
+      )
+
+    val actual =
+      TyrianSSR.render(true, elems)
+
+    val expected =
+      "<!DOCTYPE HTML><html><head><title>My Page</title></head><body><p>Hello, world!</p></body></html>"
 
     assertEquals(actual, expected)
   }
