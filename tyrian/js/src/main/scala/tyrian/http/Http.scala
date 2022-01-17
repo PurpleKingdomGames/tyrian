@@ -15,6 +15,9 @@ object Http:
   object Decoder:
     def apply[A](decoder: Response[String] => Either[String, A]): Decoder[A] = decoder
 
+    val asString: Decoder[String] =
+      Decoder[String](response => Right(response.body))
+
     extension [A](d: Decoder[A])
       def parse(response: Response[String]): Either[String, A] =
         d(response)

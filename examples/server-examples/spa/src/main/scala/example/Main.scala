@@ -59,15 +59,10 @@ enum Msg:
 final case class Model(text: String)
 
 object HttpHelper:
-  def decoder: Http.Decoder[String] =
-    Http.Decoder { response =>
-      Right(response.body)
-    }
-
   def callSSR(text: String): Cmd[Msg] =
     val toMsg: Either[HttpError, String] => Msg = {
       case Left(e)     => Msg.SSRResponse(e.toString)
       case Right(html) => Msg.SSRResponse(html)
     }
 
-    Http.send(Request.get(s"/ssr/$text", decoder), toMsg)
+    Http.send(Request.get(s"/ssr/$text", Http.Decoder.asString), toMsg)
