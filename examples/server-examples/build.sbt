@@ -42,10 +42,30 @@ lazy val server =
       )
     )
 
+lazy val spa =
+  project
+    .enablePlugins(ScalaJSPlugin)
+    .enablePlugins(ScalaJSBundlerPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      name := "SPA",
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "tyrian" % tyrianVersion
+      ),
+      scalaJSUseMainModuleInitializer := true,
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+    )
+    .settings(
+      Compile / npmDependencies += "snabbdom" -> "3.0.1",
+      // Source maps seem to be broken with bundler
+      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) }
+    )
+
 lazy val serverExamples =
   (project in file("."))
     .settings(commonSettings: _*)
-    .aggregate(server)
+    .aggregate(server, spa)
     .settings(
       code := {
         val command = Seq("code", ".")
@@ -59,3 +79,11 @@ lazy val serverExamples =
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
+
+addCommandAlias(
+  "start",
+  List(
+    "spa/fastOptJS::webpack",
+    "server/run"
+  ).mkString(";", ";", "")
+)
