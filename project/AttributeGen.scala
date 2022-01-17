@@ -62,7 +62,7 @@ object AttributeGen {
     """.stripMargin
 
   def gen(moduleName: String, fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
-    println("Generating Html Tags")
+    println("Generating Html Attributes")
 
     val contents: String =
       genAttributesAndProperties + attrList.map(genAttr).mkString
