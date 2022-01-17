@@ -110,11 +110,11 @@ object IndigoSandbox extends TyrianIndigoBridge[String]:
 
   private val myStyle =
     styles(
-      "width"      -> "100%",
-      "height"     -> "40px",
-      "padding"    -> "10px 0",
-      "font-size"  -> "2em",
-      "text-align" -> "center"
+      CSS.width("100%"),
+      CSS.height("40px"),
+      CSS.padding("10px 0"),
+      CSS.`font-size`("2em"),
+      CSS.`text-align`("center")
     )
 
   def main(args: Array[String]): Unit =
