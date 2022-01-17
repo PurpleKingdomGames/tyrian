@@ -7,9 +7,9 @@ import org.scalajs.dom.document
 object Sandbox:
 
   enum Msg:
-    case NewContent(content: String) extends Msg
-    case Insert extends Msg
-    case Remove extends Msg
+    case NewContent(content: String)      extends Msg
+    case Insert                           extends Msg
+    case Remove                           extends Msg
     case Modify(i: Int, msg: Counter.Msg) extends Msg
 
   def init: Model =
