@@ -1,3 +1,6 @@
+import scala.sys.process._
+import scala.language.postfixOps
+
 val Http4sVersion          = "0.23.6"
 val CirceVersion           = "0.14.1"
 val MunitVersion           = "0.7.29"
@@ -43,3 +46,16 @@ lazy val serverExamples =
   (project in file("."))
     .settings(commonSettings: _*)
     .aggregate(server)
+    .settings(
+      code := {
+        val command = Seq("code", ".")
+        val run = sys.props("os.name").toLowerCase match {
+          case x if x contains "windows" => Seq("cmd", "/C") ++ command
+          case _                         => command
+        }
+        run.!
+      }
+    )
+
+lazy val code =
+  taskKey[Unit]("Launch VSCode in the current directory")
