@@ -13,7 +13,7 @@ trait SSR[F[_]]:
 object SSR:
   implicit def apply[F[_]](using ev: SSR[F]): SSR[F] = ev
 
-  val styles  = style(Style("font-family" -> "Arial, Helvetica, sans-serif"))
+  val styles  = style(CSS.`font-family`("Arial, Helvetica, sans-serif"))
   val topLine = p(b(text("HTML fragment rendered by Tyrian on the server.")))
 
   def impl[F[_]: Applicative]: SSR[F] = new SSR[F]:
