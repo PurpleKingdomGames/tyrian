@@ -49,7 +49,7 @@ object Sandbox:
 
     div(
       div(
-        input(placeholder("Text to reverse"), onInput(s => Msg.NewContent(s)), myStyle),
+        input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
       ),
       div(elems)

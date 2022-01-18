@@ -38,10 +38,10 @@ class TyrianSSRTests extends munit.FunSuite {
 
   test("Can render a div with contents") {
     val html: Html[Msg] =
-      div(id("my-div"))(
-        p(text("Hello, world!")),
-        span(cls("my-span-class"), style(Style("width" -> "10px", "height" -> "12pt")))(text("test")),
-        a(href("http://tyrian"))(text("my link"))
+      div(id := "my-div")(
+        p("Hello, world!"),
+        span(cls := "my-span-class", style(Style("width" -> "10px", "height" -> "12pt")))(text("test")),
+        a(href := "http://tyrian")(text("my link"))
       )
 
     val actual =
@@ -74,7 +74,7 @@ class TyrianSSRTests extends munit.FunSuite {
     val elems: Elem[Msg] =
       html(
         head(
-          title(text("My Page"))
+          title("My Page")
         ),
         body(
           p(text("Hello, world!"))

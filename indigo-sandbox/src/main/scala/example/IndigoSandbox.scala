@@ -86,10 +86,10 @@ object IndigoSandbox extends TyrianIndigoBridge[String]:
     ) ++ counters
 
     div(
-      div(id(gameDivId1))(),
-      div(id(gameDivId2))(),
+      div(id := gameDivId1)(),
+      div(id := gameDivId2)(),
       div(
-        input(placeholder("Text to reverse"), onInput(s => Msg.NewContent(s)), myStyle),
+        input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
       ),
       div(elems)
