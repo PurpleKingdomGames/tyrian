@@ -30,7 +30,7 @@ object Html extends HtmlTags with HtmlAttributes:
       ) ++ attributes: _*
     )
 
-  def text(str: String): Text = Text(str)
+  def text(plainText: String): Text = Text(plainText)
 
   // Custom attribute syntax
 
