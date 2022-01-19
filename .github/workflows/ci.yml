@@ -1,0 +1,32 @@
+name: CI
+on: [workflow_dispatch, push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: olafurpg/setup-scala@v11
+        with:
+          java-version: adopt@1.11
+    - uses: jodersky/setup-mill@master
+        with:
+          mill-version: 0.10.0
+    - name: Tyrian Compile & Test
+      run: sbt compile test +tyrian/publishLocal
+    - name: Build SBT Examples
+      run: |
+        pwd
+        cd examples
+        sbt buildExamples
+    - name: Build Mill Examples
+      run: |
+        pwd
+        cd mill
+        mill counter.compile
+        mill counter.test
+    - name: Build Server Examples
+      run: |
+        pwd
+        cd ../server-examples
+        sbt compile test spa/fastOptJS::webpack
+
