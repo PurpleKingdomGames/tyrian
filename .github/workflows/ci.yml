@@ -6,11 +6,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: olafurpg/setup-scala@v11
-        with:
-          java-version: adopt@1.11
+      with:
+        java-version: adopt@1.11
     - uses: jodersky/setup-mill@master
-        with:
-          mill-version: 0.10.0
+      with:
+        mill-version: 0.10.0
     - name: Tyrian Compile & Test
       run: sbt compile test +tyrian/publishLocal
     - name: Build SBT Examples
