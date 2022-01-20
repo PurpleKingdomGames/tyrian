@@ -99,6 +99,29 @@ lazy val tyrianIndigoBridge =
       )
     )
 
+import org.openqa.selenium.chrome.ChromeOptions
+import org.scalajs.jsenv.selenium.SeleniumJSEnv
+
+lazy val browserTests =
+  project
+    .in(file("browser-tests"))
+    .enablePlugins(ScalaJSPlugin)
+    // .dependsOn(tyrian)
+    .settings(commonSettings: _*)
+    // .jsSettings(commonJsSettings: _*)
+    .settings(
+      name         := "browser-tests",
+      publish      := {},
+      publishLocal := {},
+      Test / jsEnv := {
+        System.setProperty("webdriver.chrome.silentOutput", "true")
+        val options = new ChromeOptions()
+        options.setHeadless(true)
+        options.addArguments("--allow-file-access-from-files")
+        new SeleniumJSEnv(options)
+      }
+    )
+
 lazy val sandbox =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
