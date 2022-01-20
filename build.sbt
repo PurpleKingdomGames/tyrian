@@ -1,7 +1,6 @@
-import scala.sys.process._
-import scala.language.postfixOps
+import Misc._
 
-import sbtwelcome._
+import scala.language.postfixOps
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -9,16 +8,16 @@ ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 
-lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.1.0"
+ThisBuild / scalaVersion := scala3Version
 
+lazy val tyrianVersion      = TyrianVersion.getVersion
+lazy val scala3Version      = "3.1.0"
 lazy val tyrianDocsVersion  = "0.2.1"
 lazy val scalaJsDocsVersion = "1.8.0"
 lazy val scalaDocsVersion   = "3.1.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
-  scalaVersion := scala3Version,
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
     "org.scalameta" %%% "munit" % "0.7.29" % Test
@@ -33,6 +32,11 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
 
 lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+)
+
+lazy val neverPublish = Seq(
+  publish / skip      := true,
+  publishLocal / skip := true
 )
 
 lazy val publishSettings = {
@@ -54,31 +58,42 @@ lazy val publishSettings = {
   )
 }
 
+lazy val tyrianProject =
+  project
+    .in(file("."))
+    .enablePlugins(ScalaUnidocPlugin)
+    .settings(
+      neverPublish,
+      commonSettings,
+      name        := "Tyrian",
+      code        := codeTaskDefinition,
+      copyApiDocs := copyApiDocsTaskDefinition((Compile / target).value),
+      usefulTasks := customTasksAliases,
+      logoSettings(version),
+      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
+        tyrian.jvm,
+        indigoSandbox.js,
+        sandbox.js,
+        docs
+      )
+    )
+    .aggregate(tyrian.js, tyrian.jvm, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js)
+
 lazy val tyrian =
   crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
-    .settings(commonSettings: _*)
-    .jsSettings(commonJsSettings: _*)
-    .settings(publishSettings: _*)
-    .settings(name := "tyrian")
+    .settings(
+      name := "tyrian",
+      commonSettings ++ publishSettings,
+      Compile / sourceGenerators += codeGen("HtmlTags", "tyrian", TagGen.gen).taskValue,
+      Compile / sourceGenerators += codeGen("HtmlAttributes", "tyrian", AttributeGen.gen).taskValue,
+      Compile / sourceGenerators += codeGen("CSS", "tyrian", CSSGen.gen).taskValue
+    )
     .jsSettings(
+      commonJsSettings,
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom" % Dependancies.scalajsDomVersion
       )
-    )
-    .settings(
-      Compile / sourceGenerators += Def.task {
-        TagGen
-          .gen("HtmlTags", "tyrian", (Compile / sourceManaged).value)
-      }.taskValue,
-      Compile / sourceGenerators += Def.task {
-        AttributeGen
-          .gen("HtmlAttributes", "tyrian", (Compile / sourceManaged).value)
-      }.taskValue,
-      Compile / sourceGenerators += Def.task {
-        CSSGen
-          .gen("CSS", "tyrian", (Compile / sourceManaged).value)
-      }.taskValue
     )
 
 lazy val tyrianIndigoBridge =
@@ -87,17 +102,14 @@ lazy val tyrianIndigoBridge =
     .withoutSuffixFor(JSPlatform)
     .in(file("tyrian-indigo-bridge"))
     .dependsOn(tyrian)
-    .settings(commonSettings: _*)
-    .jsSettings(commonJsSettings: _*)
-    .settings(publishSettings: _*)
     .settings(
-      name := "tyrian-indigo-bridge"
-    )
-    .settings(
+      name := "tyrian-indigo-bridge",
+      commonSettings ++ publishSettings,
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "indigo" % Dependancies.indigoVersion
       )
     )
+    .jsSettings(commonJsSettings: _*)
 
 lazy val sandbox =
   crossProject(JSPlatform)
@@ -105,14 +117,10 @@ lazy val sandbox =
     .withoutSuffixFor(JSPlatform)
     .dependsOn(tyrian)
     .settings(
-      scalaVersion                    := scala3Version,
       name                            := "sandbox",
       scalaJSUseMainModuleInitializer := true,
-      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
-    )
-    .settings(
-      publish      := {},
-      publishLocal := {}
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+      neverPublish
     )
 
 lazy val indigoSandbox =
@@ -120,135 +128,44 @@ lazy val indigoSandbox =
     .crossType(CrossType.Pure)
     .withoutSuffixFor(JSPlatform)
     .in(file("indigo-sandbox"))
-    .dependsOn(tyrian)
     .dependsOn(tyrianIndigoBridge)
     .settings(
-      scalaVersion                    := scala3Version,
+      neverPublish,
       name                            := "Indigo Sandbox",
       scalaJSUseMainModuleInitializer := true,
-      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
-    )
-    .settings(
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
         "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
         "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
       )
     )
-    .settings(
-      publish      := {},
-      publishLocal := {}
-    )
 
 lazy val jsdocs =
   project
     .settings(
-      scalaVersion := scala3Version,
-      organization := "io.indigoengine"
-    )
-    .settings(
+      neverPublish,
+      organization                           := "io.indigoengine",
       libraryDependencies += "org.scala-js" %%% "scalajs-dom" % Dependancies.scalajsDomVersion
-    )
-    .settings(
-      publish      := {},
-      publishLocal := {}
     )
     .enablePlugins(ScalaJSPlugin)
 
 lazy val docs =
   project
     .in(file("tyrian-docs"))
-    .dependsOn(tyrian.js)
     .dependsOn(tyrianIndigoBridge.js)
     .enablePlugins(MdocPlugin)
     .settings(
-      scalaVersion := scala3Version,
-      organization := "io.indigoengine"
-    )
-    .settings(
+      neverPublish,
+      organization       := "io.indigoengine",
+      mdocExtraArguments := List("--no-link-hygiene"),
+      mdocJS             := Some(jsdocs),
       mdocVariables := Map(
         "VERSION"         -> tyrianDocsVersion,
         "SCALAJS_VERSION" -> scalaJsDocsVersion,
         "SCALA_VERSION"   -> scalaDocsVersion
-      ),
-      mdocExtraArguments := List("--no-link-hygiene")
+      )
     )
-    .settings(
-      mdocJS := Some(jsdocs)
-    )
-    .settings(
-      publish      := {},
-      publishLocal := {}
-    )
-
-lazy val rawLogo: String =
-  """
-    |  _____         _           
-    | |_   _|  _ _ _(_)__ _ _ _  
-    |   | || || | '_| / _` | ' \ 
-    |   |_| \_, |_| |_\__,_|_||_|
-    |       |__/                 
-    |""".stripMargin
-
-lazy val tyrianProject =
-  project
-    .in(file("."))
-    .enablePlugins(ScalaUnidocPlugin)
-    .settings(commonSettings: _*)
-    .settings(
-      code := {
-        val command = Seq("code", ".")
-        val run = sys.props("os.name").toLowerCase match {
-          case x if x contains "windows" => Seq("cmd", "/C") ++ command
-          case _                         => command
-        }
-        run.!
-      },
-      name := "Tyrian",
-      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-        tyrian.jvm,
-        indigoSandbox.js,
-        sandbox.js,
-        docs
-      ),
-      copyApiDocs := {
-        println("Copy docs from 'target/scala-3.1.0/unidoc' to 'target/scala-3.1.0/site-docs/api'")
-
-        val src = (Compile / target).value / "scala-3.1.0" / "unidoc"
-        val dst = (Compile / target).value / "scala-3.1.0" / "site-docs" / "api"
-
-        IO.copyDirectory(src, dst)
-      }
-    )
-    .settings(
-      publish      := {},
-      publishLocal := {}
-    )
-    .settings(
-      logo := rawLogo + s"version ${version.value}",
-      usefulTasks := Seq(
-        UsefulTask("a", "cleanAll", "Clean all (JS + JVM)"),
-        UsefulTask("b", "compileAll", "Compile all (JS + JVM)"),
-        UsefulTask("c", "testAll", "Test all (JS + JVM)"),
-        UsefulTask("d", "localPublish", "Locally publish the core modules (JS + JVM)"),
-        UsefulTask("e", "sandboxBuild", "Build the sandbox project"),
-        UsefulTask("f", "indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
-        UsefulTask("g", "gendocs", "Rebuild the API and markdown docs"),
-        UsefulTask("h", "code", "Launch VSCode")
-      ),
-      logoColor        := scala.Console.MAGENTA,
-      aliasColor       := scala.Console.BLUE,
-      commandColor     := scala.Console.CYAN,
-      descriptionColor := scala.Console.WHITE
-    )
-    .aggregate(tyrian.js, tyrian.jvm, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js)
-
-lazy val code =
-  taskKey[Unit]("Launch VSCode in the current directory")
-
-// Define task to  copy html files
-val copyApiDocs =
-  taskKey[Unit]("Copy html files from src/main/html to cross-version target directory")
 
 addCommandAlias(
   "sandboxBuild",
@@ -309,9 +226,8 @@ addCommandAlias(
 
 addCommandAlias(
   "localPublish",
-  List(
-    "+tyrianJS/publishLocal",
-    "+tyrianJVM/publishLocal",
-    "+tyrianIndigoBridge/publishLocal"
-  ).mkString(";", ";", "")
+  "+publishLocal"
 )
+
+def codeGen(moduleName: String, path: String, makeFiles: (String, String, File) => Seq[File]) =
+  Def.task(makeFiles(moduleName, path, (Compile / sourceManaged).value))
