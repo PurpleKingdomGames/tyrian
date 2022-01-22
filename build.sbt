@@ -99,27 +99,17 @@ lazy val tyrianIndigoBridge =
       )
     )
 
-import org.openqa.selenium.chrome.ChromeOptions
-import org.scalajs.jsenv.selenium.SeleniumJSEnv
-
-lazy val browserTests =
+lazy val domTests =
   project
-    .in(file("browser-tests"))
+    .in(file("dom-tests"))
     .enablePlugins(ScalaJSPlugin)
-    // .dependsOn(tyrian)
+    .dependsOn(tyrian.js)
     .settings(commonSettings: _*)
-    // .jsSettings(commonJsSettings: _*)
     .settings(
-      name         := "browser-tests",
+      name         := "dom-tests",
       publish      := {},
       publishLocal := {},
-      Test / jsEnv := {
-        System.setProperty("webdriver.chrome.silentOutput", "true")
-        val options = new ChromeOptions()
-        options.setHeadless(true)
-        options.addArguments("--allow-file-access-from-files")
-        new SeleniumJSEnv(options)
-      }
+      Test / jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
     )
 
 lazy val sandbox =
@@ -264,7 +254,7 @@ lazy val tyrianProject =
       commandColor     := scala.Console.CYAN,
       descriptionColor := scala.Console.WHITE
     )
-    .aggregate(tyrian.js, tyrian.jvm, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js)
+    .aggregate(tyrian.js, tyrian.jvm, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js, domTests)
 
 lazy val code =
   taskKey[Unit]("Launch VSCode in the current directory")
@@ -326,7 +316,8 @@ addCommandAlias(
     "tyrianJVM/test",
     "tyrianIndigoBridge/test",
     "sandbox/test",
-    "indigoSandbox/test"
+    "indigoSandbox/test",
+    "domTests/test"
   ).mkString(";", ";", "")
 )
 
