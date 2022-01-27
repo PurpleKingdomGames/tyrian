@@ -5,7 +5,7 @@ import tyrian.Html._
 import org.scalajs.dom.document
 import org.scalajs.dom.Element
 
-object Sandbox extends TyrianApp[Msg, Model]:
+object Sandbox extends TyrianApp[Msg, Model] with WebSockets:
 
   def container: Element = document.getElementById("myapp")
 
@@ -34,6 +34,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
         (model.copy(components = cs), Cmd.Empty)
 
+      case Msg.FromSocket(message) =>
+        println("Got: " + message)
+        (model.copy(log = message :: model.log), Cmd.Empty)
+
+      case Msg.ToSocket(message) =>
+        println("Sent: " + message)
+        (model, send(WebSocketId("my connection"), message))
+
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
       Counter.view(c).map(msg => Msg.Modify(i, msg))
@@ -49,7 +57,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
         input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
       ),
-      div(elems)
+      div(elems),
+      div(
+        p(button(onClick(Msg.ToSocket("Hello!")))(text("send"))),
+        p("Log:"),
+        p(model.log.flatMap(msg => List(text(msg), br)))
+      )
     )
 
   private val myStyle =
@@ -61,14 +74,37 @@ object Sandbox extends TyrianApp[Msg, Model]:
       "text-align" -> "center"
     )
 
+  val process: Either[WebSocketEvent.Error, WebSocketEvent] => Msg = {
+    case Left(WebSocketEvent.Error(id, errorMesage)) =>
+      println("Got, Error: " + errorMesage)
+      Msg.FromSocket(errorMesage)
+
+    case Right(WebSocketEvent.Receive(id, message)) =>
+      println("Got, Receive: " + message)
+      Msg.FromSocket(message)
+
+    case e =>
+      println("Got, Other: " + e.toString)
+      Msg.FromSocket("unknown event: " + e.toString)
+  }
+
   def subscriptions(model: Model): Sub[Msg] =
-    Sub.Empty
+    webSocket(
+      WebSocketConfig(
+        WebSocketId("my connection"),
+        "ws://localhost:8080/wsecho"
+      ),
+      Option("Connect me!"),
+      process
+    )
 
 enum Msg:
   case NewContent(content: String)      extends Msg
   case Insert                           extends Msg
   case Remove                           extends Msg
   case Modify(i: Int, msg: Counter.Msg) extends Msg
+  case FromSocket(message: String)      extends Msg
+  case ToSocket(message: String)        extends Msg
 
 object Counter:
 
@@ -91,7 +127,7 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(field: String, components: List[Counter.Model])
+final case class Model(field: String, components: List[Counter.Model], log: List[String])
 object Model:
   val init: Model =
-    Model("", Nil)
+    Model("", Nil, Nil)
