@@ -1,6 +1,6 @@
 package example
 
-import tyrian.{Html, Tyrian}
+import tyrian._
 import tyrian.Html._
 import org.scalajs.dom.document
 
@@ -12,30 +12,30 @@ object Sandbox:
     case Remove                           extends Msg
     case Modify(i: Int, msg: Counter.Msg) extends Msg
 
-  def init: Model =
-    Model.init
+  def init: (Model, Cmd[Msg]) =
+    (Model.init, Cmd.Empty)
 
-  def update(msg: Msg, model: Model): Model =
+  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.NewContent(content) =>
-        model.copy(field = content)
+        (model.copy(field = content), Cmd.Empty)
 
       case Msg.Insert =>
-        model.copy(components = Counter.init :: model.components)
+        (model.copy(components = Counter.init :: model.components), Cmd.Empty)
 
       case Msg.Remove =>
         val cs = model.components match
           case Nil    => Nil
           case _ :: t => t
 
-        model.copy(components = cs)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.Modify(id, m) =>
         val cs = model.components.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
 
-        model.copy(components = cs)
+        (model.copy(components = cs), Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -64,8 +64,11 @@ object Sandbox:
       "text-align" -> "center"
     )
 
+  def subscriptions(model: Model): Sub[Msg] =
+    Sub.Empty
+
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view)
+    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
 
 object Counter:
 

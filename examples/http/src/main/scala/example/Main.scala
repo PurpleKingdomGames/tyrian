@@ -22,7 +22,7 @@ object Main:
       h2()(text(model.topic)),
       button(onClick(Msg.MorePlease))(text("more please")),
       br,
-      img(src(model.gifUrl))
+      img(src := model.gifUrl)
     )
 
   def subscriptions(model: Model): Sub[Msg] =

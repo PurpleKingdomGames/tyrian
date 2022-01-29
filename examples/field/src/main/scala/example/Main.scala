@@ -1,30 +1,26 @@
 package example
 
 import org.scalajs.dom.document
-import tyrian.Html
 import tyrian.Html._
-import tyrian.Style
-import tyrian.Tyrian
+import tyrian._
 
 object Main:
-  def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view)
 
   type Model = String
 
-  def init: Model = ""
+  def init: (Model, Cmd[Msg]) = ("", Cmd.Empty)
 
   enum Msg:
     case NewContent(content: String) extends Msg
 
-  def update(msg: Msg, model: Model): Model =
+  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
-      case Msg.NewContent(content) => content
+      case Msg.NewContent(content) => (content, Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
     div()(
       input(
-        placeholder("Text to reverse"),
+        placeholder := "Text to reverse",
         onInput(s => Msg.NewContent(s)),
         myStyle
       ),
@@ -38,4 +34,16 @@ object Main:
       "padding"    -> "10px 0",
       "font-size"  -> "2em",
       "text-align" -> "center"
+    )
+
+  def subscriptions(model: Model): Sub[Msg] =
+    Sub.Empty
+
+  def main(args: Array[String]): Unit =
+    Tyrian.start(
+      document.getElementById("myapp"),
+      init,
+      update,
+      view,
+      subscriptions
     )

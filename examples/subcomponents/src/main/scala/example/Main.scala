@@ -1,9 +1,8 @@
 package example
 
 import org.scalajs.dom.document
-import tyrian.Html
 import tyrian.Html._
-import tyrian.Tyrian
+import tyrian._
 
 object Main:
 
@@ -14,23 +13,25 @@ object Main:
     case Remove                           extends Msg
     case Modify(i: Int, msg: Counter.Msg) extends Msg
 
-  def init: Model =
-    Nil
+  def init: (Model, Cmd[Msg]) =
+    (Nil, Cmd.Empty)
 
-  def update(msg: Msg, model: Model): Model =
+  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.Insert =>
-        Counter.init :: model
+        (Counter.init :: model, Cmd.Empty)
 
       case Msg.Remove =>
         model match
-          case Nil    => Nil
-          case _ :: t => t
+          case Nil    => (Nil, Cmd.Empty)
+          case _ :: t => (t, Cmd.Empty)
 
       case Msg.Modify(id, m) =>
-        model.zipWithIndex.map { case (c, i) =>
+        val updated = model.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
+
+        (updated, Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
     val counters = model.zipWithIndex.map { case (c, i) =>
@@ -44,8 +45,17 @@ object Main:
 
     div()(elems: _*)
 
+  def subscriptions(model: Model): Sub[Msg] =
+    Sub.Empty
+
   def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view)
+    Tyrian.start(
+      document.getElementById("myapp"),
+      init,
+      update,
+      view,
+      subscriptions
+    )
 
 object Counter:
 
