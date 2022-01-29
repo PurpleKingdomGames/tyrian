@@ -1,13 +1,15 @@
 package example
 
+import org.scalajs.dom.Element
 import org.scalajs.dom.document
 import tyrian.Html._
 import tyrian._
 
-object Main:
-  opaque type Model = Int
+object Main extends TyrianApp[Msg, Model]:
 
-  def init: (Model, Cmd[Msg]) = (0, Cmd.Empty)
+  def container: Element = document.getElementById("myapp")
+
+  def init: (Model, Cmd[Msg]) = (Model.init, Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
@@ -24,14 +26,13 @@ object Main:
   def subscriptions(model: Model): Sub[Msg] =
     Sub.Empty
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.getElementById("myapp"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
+opaque type Model = Int
+object Model:
+  def init: Model = 0
+
+  extension (i: Model)
+    def +(other: Int): Model = i + other
+    def -(other: Int): Model = i - other
 
 enum Msg:
   case Increment, Decrement

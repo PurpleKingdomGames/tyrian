@@ -3,14 +3,11 @@ package example
 import tyrian._
 import tyrian.Html._
 import org.scalajs.dom.document
+import org.scalajs.dom.Element
 
-object Sandbox:
+object Sandbox extends TyrianApp[Msg, Model]:
 
-  enum Msg:
-    case NewContent(content: String)      extends Msg
-    case Insert                           extends Msg
-    case Remove                           extends Msg
-    case Modify(i: Int, msg: Counter.Msg) extends Msg
+  def container: Element = document.getElementById("myapp")
 
   def init: (Model, Cmd[Msg]) =
     (Model.init, Cmd.Empty)
@@ -67,8 +64,11 @@ object Sandbox:
   def subscriptions(model: Model): Sub[Msg] =
     Sub.Empty
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
+enum Msg:
+  case NewContent(content: String)      extends Msg
+  case Insert                           extends Msg
+  case Remove                           extends Msg
+  case Modify(i: Int, msg: Counter.Msg) extends Msg
 
 object Counter:
 
