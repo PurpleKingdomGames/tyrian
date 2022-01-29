@@ -121,11 +121,11 @@ lazy val tyrianExamplesProject =
     .settings(
       logo := s"Tyrian Examples (v${version.value})",
       usefulTasks := Seq(
-        UsefulTask("", "buildExamples", "Cleans and builds all examples"),
-        UsefulTask("", "cleanAll", "Cleans all examples"),
-        UsefulTask("", "compileAll", "Compiles all examples"),
-        UsefulTask("", "fastOptAll", "Compiles all examples to JS"),
-        UsefulTask("", "code", "Launch VSCode")
+        UsefulTask("a", "buildExamples", "Cleans and builds all examples"),
+        UsefulTask("b", "cleanAll", "Cleans all examples"),
+        UsefulTask("c", "compileAll", "Compiles all examples"),
+        UsefulTask("d", "fastOptAll", "Compiles all examples to JS"),
+        UsefulTask("e", "code", "Launch VSCode")
       ) ++ makeCmds(exampleProjects),
       logoColor        := scala.Console.MAGENTA,
       aliasColor       := scala.Console.BLUE,
