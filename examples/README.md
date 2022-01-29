@@ -1,3 +1,13 @@
+# Warning!!
+
+Normally these examples are bound to the last published version, but Tyrian is undergoing an overhaul, and these examples are being used for testing.
+
+As such, they are temporarily pointing at the in-development version of Tyrian.
+
+For the examples looking at the currently published versions, please refer to the release commit:
+
+[https://github.com/PurpleKingdomGames/tyrian/tree/5f4f65246e3d9db7cc490e4dc17d097c13c78fd8/examples](https://github.com/PurpleKingdomGames/tyrian/tree/5f4f65246e3d9db7cc490e4dc17d097c13c78fd8/examples)
+
 # Tyrian Examples
 
 Here are a number of examples.
