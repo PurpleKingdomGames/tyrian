@@ -60,8 +60,11 @@ object Sub:
     *   type of message produced by the subscription
     */
   // FIXME Use Task instead of Observable, at this level
-  final case class OfObservable[Err, Value, Msg](id: String, observable: Observable[Err, Value], f: Either[Err, Value] => Msg)
-      extends Sub[Msg]:
+  final case class OfObservable[Err, Value, Msg](
+      id: String,
+      observable: Observable[Err, Value],
+      f: Either[Err, Value] => Msg
+  ) extends Sub[Msg]:
     def map[OtherMsg](g: Msg => OtherMsg): Sub[OtherMsg] = OfObservable(id, observable, f andThen g)
 
   /** Merge two subscriptions into a single one */
@@ -89,13 +92,9 @@ object Sub:
     OfObservable[Nothing, Msg, Msg](id, observable, _.toOption.get)
 
   /** @return
-    *   A subscription that emits a msg once.
-    * @param duration
-    *   Duration of the timeout
+    *   A subscription that emits a msg once. Identical to timeout with a duration of 0.
     * @param msg
-    *   Message produced by the timeout
-    * @param id
-    *   Globally unique identifier for this subscription
+    *   Message immediately produced
     * @tparam Msg
     *   Type of message
     */
@@ -140,7 +139,7 @@ object Sub:
         val listener = Functions.fun { (a: A) =>
           extract(a) match {
             case Some(msg) => observer.onNext(msg)
-            case None    => ()
+            case None      => ()
           }
         }
         target.addEventListener(name, listener)
