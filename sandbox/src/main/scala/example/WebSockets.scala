@@ -12,50 +12,24 @@ import tyrian.Task.Cancelable
 
 trait WebSockets:
 
-  private val connections: mutable.HashMap[WebSocketId, dom.WebSocket] = mutable.HashMap()
-  private val configs: mutable.HashMap[WebSocketId, WebSocketConfig]   = mutable.HashMap()
+  private val connections: mutable.HashMap[WebSocketId, LiveSocket]  = mutable.HashMap()
+  private val configs: mutable.HashMap[WebSocketId, WebSocketConfig] = mutable.HashMap()
 
   // send cmd
-  def send(id: WebSocketId, message: String): Cmd[Nothing] =
+  def send[Msg](id: WebSocketId, message: String, onError: => Msg): Cmd[Msg] =
     connections.get(id) match
       case None =>
-        // TODO: Return an error?
-        Cmd.Empty
+        Cmd.Emit(onError)
 
       case Some(conn) =>
-        Cmd.SideEffect(() => conn.send(message))
+        Cmd.SideEffect(() => conn.socket.send(message))
 
-  // connection sub
-  // TODO: Error separate - not an event
-  // TODO: Events are actually... states?
-  // TODO: Subs only produce connection, error, and received type messages
-  def webSocket[Msg](
-      config: WebSocketConfig,
-      onOpenSendMessage: Option[String],
-      f: Either[WebSocketEvent.Error, WebSocketEvent] => Msg
-  ): Sub[Msg] =
+  // socket subscription
+  def webSocket[Msg](config: WebSocketConfig, onOpenSendMessage: Option[String])(f: WebSocketEvent => Msg): Sub[Msg] =
     insertUpdateConfig(config)
-    Sub.OfObservable(
-      config.id.toString,
-      socketObservable(config, onOpenSendMessage),
-      f
-    )
-
-  private def socketObservable[Msg](
-      config: WebSocketConfig,
-      onOpenSendMessage: Option[String]
-  ): Observable[WebSocketEvent.Error, Msg] =
-    Task
-      .RunObservable[WebSocketEvent.Error, Msg] { observer =>
-        reEstablishConnection(config, onOpenSendMessage) match
-          case Left(e) =>
-            observer.onError(WebSocketEvent.Error(config.id, e))
-            () => ()
-
-          case Right(socket) =>
-            () => socket.close(-1, "WebSocket closed automatically")
-      }
-      .observable
+    reEstablishConnection(config, onOpenSendMessage) match
+      case Right(wse) => wse.map(f)
+      case Left(e)    => Sub.emit(f(e))
 
   private def insertUpdateConfig(config: WebSocketConfig): WebSocketConfig = {
     val maybeConfig = configs.get(config.id)
@@ -74,45 +48,54 @@ trait WebSockets:
   private def reEstablishConnection(
       config: WebSocketConfig,
       onOpenSendMessage: Option[String]
-  ): Either[String, dom.WebSocket] =
+  ): Either[WebSocketEvent.Error, Sub[WebSocketEvent]] =
     connections.get(config.id) match
       case Some(conn) =>
-        WebSocketReadyState.fromInt(conn.readyState) match {
+        WebSocketReadyState.fromInt(conn.socket.readyState) match {
           case WebSocketReadyState.CLOSING | WebSocketReadyState.CLOSED =>
-            newConnection(config, onOpenSendMessage).flatMap { newConn =>
+            newConnection(config, onOpenSendMessage).flatMap { liveSocket =>
               connections.remove(config.id)
-              connections.put(config.id, newConn)
-              Right(newConn)
+              connections.put(config.id, liveSocket)
+              Right(liveSocket.subs)
             }
 
           case _ =>
-            Right(conn)
+            Right(conn.subs)
         }
 
       case None =>
-        newConnection(config, onOpenSendMessage).flatMap { newConn =>
+        newConnection(config, onOpenSendMessage).flatMap { liveSocket =>
           connections.remove(config.id)
-          connections.put(config.id, newConn)
-          Right(newConn)
+          connections.put(config.id, liveSocket)
+          Right(liveSocket.subs)
         }
 
-  private def newConnection(config: WebSocketConfig, onOpenSendMessage: Option[String]): Either[String, dom.WebSocket] =
+  private def newConnection(
+      config: WebSocketConfig,
+      onOpenSendMessage: Option[String]
+  ): Either[WebSocketEvent.Error, LiveSocket] =
     try {
       val socket = new dom.WebSocket(config.address)
 
-      // TODO: I'm missing this sort of this: observer.onNext(..)
-      // TODO: Events are being produced but going nowhere.
+      val subs =
+        Sub.Batch(
+          Sub.fromEvent("message", socket) { e =>
+            Some(WebSocketEvent.Receive(config.id, e.asInstanceOf[dom.MessageEvent].data.toString))
+          },
+          Sub.fromEvent("error", socket)(_ => Some(WebSocketEvent.Error(config.id, "Web socket connection error"))),
+          Sub.fromEvent("close", socket)(e => Some(WebSocketEvent.Close(config.id))),
+          Sub.fromEvent("open", socket) { e =>
+            onOpenSendMessage.foreach(msg => socket.send(msg))
+            Some(WebSocketEvent.Open(config.id))
+          }
+        )
 
-      socket.onmessage = (e: dom.MessageEvent) =>
-        println("ws recieve: " + e.data.toString)
-        WebSocketEvent.Receive(config.id, e.data.toString)
-
-      socket.onopen = (_: dom.Event) => onOpenSendMessage.foreach(msg => socket.send(msg))
-      socket.onerror = (_: dom.Event) => WebSocketEvent.Error(config.id, "Web socket connection error")
-      socket.onclose = (_: dom.CloseEvent) => WebSocketEvent.Close(config.id)
-
-      Right(socket)
+      Right(LiveSocket(socket, subs))
     } catch {
       case e: Throwable =>
-        Left("Error trying to set up a websocket: " + e.getMessage)
+        Left(
+          WebSocketEvent.Error(config.id, s"Error trying to set up websocket '${config.id.toString}': ${e.getMessage}")
+        )
     }
+
+  final case class LiveSocket(socket: dom.WebSocket, subs: Sub[WebSocketEvent])
