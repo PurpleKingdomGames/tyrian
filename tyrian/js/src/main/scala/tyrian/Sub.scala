@@ -5,6 +5,7 @@ import org.scalajs.dom.EventTarget
 import tyrian.Task.Observable
 import util.Functions
 
+import java.util.concurrent.TimeUnit
 import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
@@ -59,16 +60,16 @@ object Sub:
     *   type of message produced by the subscription
     */
   // FIXME Use Task instead of Observable, at this level
-  case class OfObservable[Err, Value, Msg](id: String, observable: Observable[Err, Value], f: Either[Err, Value] => Msg)
+  final case class OfObservable[Err, Value, Msg](id: String, observable: Observable[Err, Value], f: Either[Err, Value] => Msg)
       extends Sub[Msg]:
     def map[OtherMsg](g: Msg => OtherMsg): Sub[OtherMsg] = OfObservable(id, observable, f andThen g)
 
   /** Merge two subscriptions into a single one */
-  case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg]:
+  final case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg] = Combine(sub1.map(f), sub2.map(f))
 
   /** Treat many subscriptions as one */
-  case class Batch[Msg](subs: List[Sub[Msg]]) extends Sub[Msg]:
+  final case class Batch[Msg](subs: List[Sub[Msg]]) extends Sub[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Batch[OtherMsg] = this.copy(subs = subs.map(_.map(f)))
   object Batch:
     def apply[Msg](subs: Sub[Msg]*): Batch[Msg] =
@@ -86,6 +87,20 @@ object Sub:
   @nowarn // Supposedly can never fail, but is doing an unsafe projection.
   def ofTotalObservable[Msg](id: String, observable: Observable[Nothing, Msg]): Sub[Msg] =
     OfObservable[Nothing, Msg, Msg](id, observable, _.toOption.get)
+
+  /** @return
+    *   A subscription that emits a msg once.
+    * @param duration
+    *   Duration of the timeout
+    * @param msg
+    *   Message produced by the timeout
+    * @param id
+    *   Globally unique identifier for this subscription
+    * @tparam Msg
+    *   Type of message
+    */
+  def emit[Msg](msg: Msg): Sub[Msg] =
+    timeout(FiniteDuration(0, TimeUnit.MILLISECONDS), msg, msg.toString)
 
   /** @return
     *   A subscription that notifies its subscribers with `msg` after `duration`.
@@ -118,13 +133,13 @@ object Sub:
       }
     )
 
-  def fromEvent[A, B](name: String, target: EventTarget)(extract: A => Option[B]): Sub[B] =
-    Sub.ofTotalObservable[B](
+  def fromEvent[A, Msg](name: String, target: EventTarget)(extract: A => Option[Msg]): Sub[Msg] =
+    Sub.ofTotalObservable[Msg](
       name + target.hashCode,
       { observer =>
         val listener = Functions.fun { (a: A) =>
           extract(a) match {
-            case Some(b) => observer.onNext(b)
+            case Some(msg) => observer.onNext(msg)
             case None    => ()
           }
         }
