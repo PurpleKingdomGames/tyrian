@@ -40,7 +40,11 @@ object Sandbox extends TyrianApp[Msg, Model] with WebSockets:
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, send(WebSocketId("my connection"), message))
+        (model, send(WebSocketId("my connection"), message, Msg.SocketError))
+
+      case Msg.SocketError =>
+        println("Socket Error!")
+        (model, Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -74,29 +78,26 @@ object Sandbox extends TyrianApp[Msg, Model] with WebSockets:
       "text-align" -> "center"
     )
 
-  val process: Either[WebSocketEvent.Error, WebSocketEvent] => Msg = {
-    case Left(WebSocketEvent.Error(id, errorMesage)) =>
-      println("Got, Error: " + errorMesage)
-      Msg.FromSocket(errorMesage)
-
-    case Right(WebSocketEvent.Receive(id, message)) =>
-      println("Got, Receive: " + message)
-      Msg.FromSocket(message)
-
-    case e =>
-      println("Got, Other: " + e.toString)
-      Msg.FromSocket("unknown event: " + e.toString)
-  }
-
   def subscriptions(model: Model): Sub[Msg] =
     webSocket(
       WebSocketConfig(
         WebSocketId("my connection"),
         "ws://localhost:8080/wsecho"
       ),
-      Option("Connect me!"),
-      process
-    )
+      Option("Connect me!")
+    ) {
+      case WebSocketEvent.Error(id, errorMesage) =>
+        Msg.FromSocket(errorMesage)
+
+      case WebSocketEvent.Receive(id, message) =>
+        Msg.FromSocket(message)
+
+      case WebSocketEvent.Open(id) =>
+        Msg.FromSocket("<no message - socket opened>")
+
+      case WebSocketEvent.Close(id) =>
+        Msg.FromSocket("<no message - socket closed>")
+    }
 
 enum Msg:
   case NewContent(content: String)      extends Msg
@@ -105,6 +106,7 @@ enum Msg:
   case Modify(i: Int, msg: Counter.Msg) extends Msg
   case FromSocket(message: String)      extends Msg
   case ToSocket(message: String)        extends Msg
+  case SocketError                      extends Msg
 
 object Counter:
 
