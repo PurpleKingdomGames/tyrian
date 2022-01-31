@@ -2,6 +2,7 @@ package example
 
 import tyrian._
 import tyrian.Html._
+import tyrian.websocket._
 import org.scalajs.dom.document
 import org.scalajs.dom.Element
 

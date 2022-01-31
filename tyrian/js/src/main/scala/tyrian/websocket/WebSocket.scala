@@ -1,19 +1,21 @@
-package example
+package tyrian.websocket
 
 import org.scalajs.dom
+import tyrian.Cmd
+import tyrian.Sub
+import tyrian.Task
 
 import scala.collection.mutable
-import tyrian.Sub
-import tyrian.Cmd
-import tyrian.Task
 
 final class WebSocket(address: String, onOpenSendMessage: Option[String]):
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var", "scalafix:DisableSyntax.null"))
   private var liveSocket: LiveSocket = null
 
   def send[Msg](message: String): Cmd[Msg] =
     Cmd.SideEffect(() => liveSocket.socket.send(message))
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
   def subscribe[Msg](f: WebSocketEvent => Msg): Sub[Msg] =
     def newConnToSubs: Either[WebSocketEvent.Error, LiveSocket] => Sub[Msg] = {
       case Left(e) =>
@@ -56,6 +58,27 @@ final class WebSocket(address: String, onOpenSendMessage: Option[String]):
         )
     }
 
+  final class LiveSocket(val socket: dom.WebSocket, val subs: Sub[WebSocketEvent])
+
+  enum WebSocketReadyState derives CanEqual:
+    case CONNECTING, OPEN, CLOSING, CLOSED
+
+    def isOpen: Boolean =
+      this match
+        case CLOSED  => false
+        case CLOSING => false
+        case _       => true
+
+  object WebSocketReadyState:
+    def fromInt(i: Int): WebSocketReadyState =
+      i match {
+        case 0 => CONNECTING
+        case 1 => OPEN
+        case 2 => CLOSING
+        case 3 => CLOSED
+        case _ => CLOSED
+      }
+
 object WebSocket:
 
   def apply(address: String): WebSocket =
@@ -63,30 +86,3 @@ object WebSocket:
 
   def apply(address: String, onOpenMessage: String): WebSocket =
     new WebSocket(address, Option(onOpenMessage))
-
-final case class LiveSocket(socket: dom.WebSocket, subs: Sub[WebSocketEvent])
-
-enum WebSocketEvent derives CanEqual:
-  case Open                     extends WebSocketEvent
-  case Receive(message: String) extends WebSocketEvent
-  case Error(error: String)     extends WebSocketEvent
-  case Close                    extends WebSocketEvent
-
-enum WebSocketReadyState derives CanEqual:
-  case CONNECTING, OPEN, CLOSING, CLOSED
-
-  def isOpen: Boolean =
-    this match
-      case CLOSED  => false
-      case CLOSING => false
-      case _       => true
-
-object WebSocketReadyState:
-  def fromInt(i: Int): WebSocketReadyState =
-    i match {
-      case 0 => CONNECTING
-      case 1 => OPEN
-      case 2 => CLOSING
-      case 3 => CLOSED
-      case _ => CLOSED
-    }
