@@ -6,11 +6,8 @@ import scala.collection.mutable
 import tyrian.Sub
 import tyrian.Cmd
 import tyrian.Task
-import tyrian.Task.Observable
-import tyrian.Task.Observer
-import tyrian.Task.Cancelable
 
-final class WebSockets(address: String, onOpenSendMessage: Option[String]):
+final class WebSocket(address: String, onOpenSendMessage: Option[String]):
 
   private var liveSocket: LiveSocket = null
 
@@ -59,13 +56,13 @@ final class WebSockets(address: String, onOpenSendMessage: Option[String]):
         )
     }
 
-object WebSockets:
+object WebSocket:
 
-  def apply(address: String): WebSockets =
-    new WebSockets(address, None)
+  def apply(address: String): WebSocket =
+    new WebSocket(address, None)
 
-  def apply(address: String, onOpenMessage: String): WebSockets =
-    new WebSockets(address, Option(onOpenMessage))
+  def apply(address: String, onOpenMessage: String): WebSocket =
+    new WebSocket(address, Option(onOpenMessage))
 
 final case class LiveSocket(socket: dom.WebSocket, subs: Sub[WebSocketEvent])
 
