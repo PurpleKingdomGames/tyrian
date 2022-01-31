@@ -118,7 +118,7 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(echoSocket: WebSockets, field: String, components: List[Counter.Model], log: List[String])
+final case class Model(echoSocket: WebSocket, field: String, components: List[Counter.Model], log: List[String])
 object Model:
   val init: Model =
-    Model(WebSockets("ws://localhost:8080/wsecho", "Connect me!"), "", Nil, Nil)
+    Model(WebSocket("ws://localhost:8080/wsecho", "Connect me!"), "", Nil, Nil)
