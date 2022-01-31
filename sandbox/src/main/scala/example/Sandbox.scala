@@ -5,7 +5,7 @@ import tyrian.Html._
 import org.scalajs.dom.document
 import org.scalajs.dom.Element
 
-object Sandbox extends TyrianApp[Msg, Model] with WebSockets:
+object Sandbox extends TyrianApp[Msg, Model]:
 
   def container: Element = document.getElementById("myapp")
 
@@ -40,7 +40,7 @@ object Sandbox extends TyrianApp[Msg, Model] with WebSockets:
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, send(WebSocketId("my connection"), message, Msg.SocketError))
+        (model, model.sockets.send(WebSocketId("my connection"), message, Msg.SocketError))
 
       case Msg.SocketError =>
         println("Socket Error!")
@@ -79,7 +79,7 @@ object Sandbox extends TyrianApp[Msg, Model] with WebSockets:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    webSocket(
+    model.sockets.webSocket(
       WebSocketConfig(
         WebSocketId("my connection"),
         "ws://localhost:8080/wsecho"
@@ -129,7 +129,7 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(field: String, components: List[Counter.Model], log: List[String])
+final case class Model(sockets: WebSockets, field: String, components: List[Counter.Model], log: List[String])
 object Model:
   val init: Model =
-    Model("", Nil, Nil)
+    Model(WebSockets(), "", Nil, Nil)
