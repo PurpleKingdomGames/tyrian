@@ -12,12 +12,11 @@ import tyrian.Task.Cancelable
 
 trait WebSockets:
 
-  private val connections: mutable.HashMap[WebSocketId, LiveSocket]  = mutable.HashMap()
-  private val configs: mutable.HashMap[WebSocketId, WebSocketConfig] = mutable.HashMap()
+  private val sockets: mutable.HashMap[WebSocketId, LiveSocket] = mutable.HashMap()
 
   // send cmd
   def send[Msg](id: WebSocketId, message: String, onError: => Msg): Cmd[Msg] =
-    connections.get(id) match
+    sockets.get(id) match
       case None =>
         Cmd.Emit(onError)
 
@@ -26,36 +25,21 @@ trait WebSockets:
 
   // socket subscription
   def webSocket[Msg](config: WebSocketConfig, onOpenSendMessage: Option[String])(f: WebSocketEvent => Msg): Sub[Msg] =
-    insertUpdateConfig(config)
     reEstablishConnection(config, onOpenSendMessage) match
       case Right(wse) => wse.map(f)
       case Left(e)    => Sub.emit(f(e))
-
-  private def insertUpdateConfig(config: WebSocketConfig): WebSocketConfig = {
-    val maybeConfig = configs.get(config.id)
-
-    maybeConfig
-      .flatMap { c =>
-        if (c == config) Option(c)
-        else {
-          configs.remove(config.id)
-          configs.put(config.id, config)
-        }
-      }
-      .getOrElse(config)
-  }
 
   private def reEstablishConnection(
       config: WebSocketConfig,
       onOpenSendMessage: Option[String]
   ): Either[WebSocketEvent.Error, Sub[WebSocketEvent]] =
-    connections.get(config.id) match
+    sockets.get(config.id) match
       case Some(conn) =>
         WebSocketReadyState.fromInt(conn.socket.readyState) match {
           case WebSocketReadyState.CLOSING | WebSocketReadyState.CLOSED =>
             newConnection(config, onOpenSendMessage).flatMap { liveSocket =>
-              connections.remove(config.id)
-              connections.put(config.id, liveSocket)
+              sockets.remove(config.id)
+              sockets.put(config.id, liveSocket)
               Right(liveSocket.subs)
             }
 
@@ -65,8 +49,8 @@ trait WebSockets:
 
       case None =>
         newConnection(config, onOpenSendMessage).flatMap { liveSocket =>
-          connections.remove(config.id)
-          connections.put(config.id, liveSocket)
+          sockets.remove(config.id)
+          sockets.put(config.id, liveSocket)
           Right(liveSocket.subs)
         }
 
