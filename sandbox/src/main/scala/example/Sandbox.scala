@@ -40,11 +40,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, model.sockets.send(WebSocketId("my connection"), message, Msg.SocketError))
-
-      case Msg.SocketError =>
-        println("Socket Error!")
-        (model, Cmd.Empty)
+        (model, model.echoSocket.send(message))
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -79,23 +75,17 @@ object Sandbox extends TyrianApp[Msg, Model]:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    model.sockets.webSocket(
-      WebSocketConfig(
-        WebSocketId("my connection"),
-        "ws://localhost:8080/wsecho"
-      ),
-      Option("Connect me!")
-    ) {
-      case WebSocketEvent.Error(id, errorMesage) =>
+    model.echoSocket.subscribe {
+      case WebSocketEvent.Error(errorMesage) =>
         Msg.FromSocket(errorMesage)
 
-      case WebSocketEvent.Receive(id, message) =>
+      case WebSocketEvent.Receive(message) =>
         Msg.FromSocket(message)
 
-      case WebSocketEvent.Open(id) =>
+      case WebSocketEvent.Open =>
         Msg.FromSocket("<no message - socket opened>")
 
-      case WebSocketEvent.Close(id) =>
+      case WebSocketEvent.Close =>
         Msg.FromSocket("<no message - socket closed>")
     }
 
@@ -106,7 +96,6 @@ enum Msg:
   case Modify(i: Int, msg: Counter.Msg) extends Msg
   case FromSocket(message: String)      extends Msg
   case ToSocket(message: String)        extends Msg
-  case SocketError                      extends Msg
 
 object Counter:
 
@@ -129,7 +118,7 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(sockets: WebSockets, field: String, components: List[Counter.Model], log: List[String])
+final case class Model(echoSocket: WebSockets, field: String, components: List[Counter.Model], log: List[String])
 object Model:
   val init: Model =
-    Model(WebSockets(), "", Nil, Nil)
+    Model(WebSockets("ws://localhost:8080/wsecho", "Connect me!"), "", Nil, Nil)
