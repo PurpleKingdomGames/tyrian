@@ -10,10 +10,10 @@ final class TyrianIndigoBridge[A]:
 
   val eventTarget: EventTarget = new EventTarget()
 
-  def send(value: A): Cmd[Nothing] =
-    sendToBridge(None, value)
-  def sendTo(indigoGame: IndigoGameId, value: A): Cmd[Nothing] =
-    sendToBridge(Option(indigoGame), value)
+  def publish(value: A): Cmd[Nothing] =
+    publishToBridge(None, value)
+  def publishTo(indigoGame: IndigoGameId, value: A): Cmd[Nothing] =
+    publishToBridge(Option(indigoGame), value)
 
   def subscribe[B](extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
     subscribeToBridge(None, extract)
@@ -25,7 +25,7 @@ final class TyrianIndigoBridge[A]:
   def subSystemFor(indigoGame: IndigoGameId): TyrianSubSystem[A] =
     TyrianSubSystem(Option(indigoGame), this)
 
-  private def sendToBridge(indigoGameId: Option[IndigoGameId], value: A): Cmd[Nothing] =
+  private def publishToBridge(indigoGameId: Option[IndigoGameId], value: A): Cmd[Nothing] =
     Cmd.SideEffect { () =>
       eventTarget.dispatchEvent(TyrianIndigoBridge.BridgeToIndigo(indigoGameId, value))
       ()

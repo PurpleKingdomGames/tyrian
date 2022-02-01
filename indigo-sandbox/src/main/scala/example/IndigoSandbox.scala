@@ -27,8 +27,8 @@ object IndigoSandbox:
       case Msg.NewContent(content) =>
         val cmds =
           Cmd.Batch(
-            model.bridge.sendTo(IndigoGameId(gameDivId1), content),
-            model.bridge.sendTo(IndigoGameId(gameDivId2), content)
+            model.bridge.publishTo(IndigoGameId(gameDivId1), content),
+            model.bridge.publishTo(IndigoGameId(gameDivId2), content)
           )
         (model.copy(field = content), cmds)
 

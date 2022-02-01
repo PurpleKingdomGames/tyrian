@@ -41,7 +41,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, model.echoSocket.send(message))
+        (model, model.echoSocket.publish(message))
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
