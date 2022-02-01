@@ -28,5 +28,5 @@ jobs:
       run: |
         pwd
         cd ../server-examples
-        sbt compile test spa/fastOptJS::webpack
+        sbt buildAll
 

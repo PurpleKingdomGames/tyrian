@@ -29,12 +29,12 @@ object Main:
   def view(model: Model): Html[Msg] =
     div()(
       input(
-        placeholder("Text to send"),
+        placeholder := "Text to send",
         onInput(s => Msg.NewContent(s))
       ),
-      button(onClick(Msg.SendText))(text("Send it!")),
+      button(onClick(Msg.SendText))("Send it!"),
       br,
-      div(id("results"))()
+      div(id := "results")()
     )
 
   def subscriptions(model: Model): Sub[Msg] =

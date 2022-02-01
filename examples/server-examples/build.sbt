@@ -87,3 +87,11 @@ addCommandAlias(
     "server/run"
   ).mkString(";", ";", "")
 )
+
+addCommandAlias(
+  "buildAll",
+  List(
+    "spa/fastOptJS::webpack",
+    "server/test"
+  ).mkString(";", ";", "")
+)
