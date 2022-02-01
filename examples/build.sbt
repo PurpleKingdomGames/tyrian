@@ -79,6 +79,20 @@ lazy val http =
       ).map(_ % "0.14.0-M7")
     )
 
+lazy val indigo =
+  (project in file("indigo"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      name := "indigo-bridge",
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianVersion,
+        "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
+      )
+    )
+
 lazy val mario =
   (project in file("mario"))
     .enablePlugins(ScalaJSPlugin)
@@ -91,6 +105,12 @@ lazy val subcomponents =
     .settings(commonSettings: _*)
     .settings(name := "subcomponents")
 
+lazy val websocket =
+  (project in file("websocket"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "websocket")
+
 lazy val exampleProjects: List[String] =
   List(
     "bootstrap",
@@ -99,8 +119,10 @@ lazy val exampleProjects: List[String] =
     "counter",
     "field",
     "http",
+    "indigo",
     "mario",
-    "subcomponents"
+    "subcomponents",
+    "websocket"
   )
 
 lazy val tyrianExamplesProject =
