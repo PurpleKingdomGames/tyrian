@@ -12,7 +12,7 @@ final class WebSocket(address: String, onOpenSendMessage: Option[String]):
   @SuppressWarnings(Array("scalafix:DisableSyntax.var", "scalafix:DisableSyntax.null"))
   private var liveSocket: LiveSocket = null
 
-  def send[Msg](message: String): Cmd[Msg] =
+  def publish[Msg](message: String): Cmd[Msg] =
     Cmd.SideEffect(() => liveSocket.socket.send(message))
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
