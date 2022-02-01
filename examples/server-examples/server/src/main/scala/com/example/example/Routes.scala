@@ -23,7 +23,9 @@ object Routes:
         Ok(Tyrian.render(true, HomePage.page), `Content-Type`(MediaType.text.html))
 
       case request @ GET -> Root / "spa.js" =>
-        val spa = fs2.io.file.Path(".") / "spa" / "target" / "scala-3.1.0" / "scalajs-bundler" / "main" / "spa-fastopt-bundle.js"
+        val spa = fs2.io.file.Path(
+          "."
+        ) / "spa" / "target" / "scala-3.1.1" / "scalajs-bundler" / "main" / "spa-fastopt-bundle.js"
         StaticFile.fromPath(spa.absolute, Some(request)).getOrElseF(NotFound(spa.absolute.toString))
 
       case GET -> Root / "ssr" / in =>
