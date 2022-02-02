@@ -1,17 +1,17 @@
 package example
 
-import tyrian._
-import tyrian.Html._
-import tyrian.websocket._
-import org.scalajs.dom.document
-import org.scalajs.dom.Element
+import tyrian.Html.*
+import tyrian.*
+import tyrian.cmds.Logger
+import tyrian.websocket.*
 
+import scala.scalajs.js.annotation.*
+
+@JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianApp[Msg, Model]:
 
-  def container: Element = document.getElementById("myapp")
-
-  def init: (Model, Cmd[Msg]) =
-    (Model.init, Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+    (Model.init, Logger.info(flags.toString))
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match

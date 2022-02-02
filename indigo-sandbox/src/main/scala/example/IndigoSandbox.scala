@@ -1,25 +1,20 @@
 package example
 
-import tyrian._
-import tyrian.Html._
-import org.scalajs.dom.document
 import example.game.MyAwesomeGame
+import org.scalajs.dom.document
+import tyrian.Html.*
+import tyrian.*
 import tyrian.cmds.Logger
 
-object IndigoSandbox extends TyrianIndigoBridge[String]:
+import scala.scalajs.js.annotation.*
+
+@JSExportTopLevel("TyrianApp")
+object IndigoSandbox extends TyrianApp[Msg, Model] with TyrianIndigoBridge[String]:
 
   val gameDivId1: String = "my-game-1"
   val gameDivId2: String = "my-game-2"
 
-  enum Msg:
-    case NewContent(content: String)      extends Msg
-    case Insert                           extends Msg
-    case Remove                           extends Msg
-    case Modify(i: Int, msg: Counter.Msg) extends Msg
-    case StartIndigo                      extends Msg
-    case IndigoReceive(msg: String)       extends Msg
-
-  def init: (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
@@ -117,8 +112,13 @@ object IndigoSandbox extends TyrianIndigoBridge[String]:
       CSS.`text-align`("center")
     )
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view, subscriptions)
+enum Msg:
+  case NewContent(content: String)      extends Msg
+  case Insert                           extends Msg
+  case Remove                           extends Msg
+  case Modify(i: Int, msg: Counter.Msg) extends Msg
+  case StartIndigo                      extends Msg
+  case IndigoReceive(msg: String)       extends Msg
 
 object Counter:
 

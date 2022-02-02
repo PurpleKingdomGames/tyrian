@@ -117,10 +117,11 @@ lazy val sandbox =
     .withoutSuffixFor(JSPlatform)
     .dependsOn(tyrian)
     .settings(
-      name                            := "sandbox",
-      scalaJSUseMainModuleInitializer := true,
+      neverPublish,
+      commonSettings,
+      name := "sandbox",
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-      neverPublish
+      scalacOptions -= "-language:strictEquality"
     )
 
 lazy val indigoSandbox =
@@ -131,14 +132,15 @@ lazy val indigoSandbox =
     .dependsOn(tyrianIndigoBridge)
     .settings(
       neverPublish,
-      name                            := "Indigo Sandbox",
-      scalaJSUseMainModuleInitializer := true,
+      commonSettings,
+      name := "Indigo Sandbox",
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
         "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
         "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
-      )
+      ),
+      scalacOptions -= "-language:strictEquality"
     )
 
 lazy val jsdocs =
