@@ -20,3 +20,4 @@ credentials.sh
 .DS_Store
 .parcel-cache
 website/public/
+.scala-js-sources
