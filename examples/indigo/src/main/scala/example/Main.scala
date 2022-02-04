@@ -6,10 +6,12 @@ import tyrian.Html._
 import tyrian._
 import tyrian.cmds.Logger
 
-object Main extends TyrianIndigoBridge[String]:
+object Main:
 
-  val gameDivId1: String = "my-game-1"
-  val gameDivId2: String = "my-game-2"
+  val gameDivId1: String    = "my-game-1"
+  val gameDivId2: String    = "my-game-2"
+  val gameId1: IndigoGameId = IndigoGameId("reverse")
+  val gameId2: IndigoGameId = IndigoGameId("combine")
 
   enum Msg:
     case NewContent(content: String) extends Msg
@@ -24,8 +26,8 @@ object Main extends TyrianIndigoBridge[String]:
       case Msg.NewContent(content) =>
         val cmds =
           Cmd.Batch(
-            bridge.sendTo(IndigoGameId(gameDivId1), content),
-            bridge.sendTo(IndigoGameId(gameDivId2), content)
+            model.bridge.publish(gameId1, content),
+            model.bridge.publish(gameId2, content)
           )
         (model.copy(field = content), cmds)
 
@@ -34,7 +36,7 @@ object Main extends TyrianIndigoBridge[String]:
           model,
           Cmd.Batch(
             Cmd.SideEffect { () =>
-              MyAwesomeGame(bridge.subSystemFor(IndigoGameId(gameDivId1)), true)
+              MyAwesomeGame(model.bridge.subSystem(gameId1), true)
                 .launch(
                   gameDivId1,
                   "width"  -> "200",
@@ -43,7 +45,7 @@ object Main extends TyrianIndigoBridge[String]:
             },
             Cmd.SideEffect { () =>
               MyAwesomeGame(
-                bridge.subSystemFor(IndigoGameId(gameDivId2)),
+                model.bridge.subSystem(gameId2),
                 false
               )
                 .launch(
@@ -78,13 +80,13 @@ object Main extends TyrianIndigoBridge[String]:
 
   def subscriptions(model: Model): Sub[Msg] =
     Sub.Batch(
-      bridge.subscribe { case msg =>
+      model.bridge.subscribe { case msg =>
         Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
       },
-      bridge.subscribeTo(IndigoGameId(gameDivId1)) { case msg =>
+      model.bridge.subscribe(gameId1) { case msg =>
         Some(Msg.IndigoReceive(s"[$gameDivId1] ${msg}"))
       },
-      bridge.subscribeTo(IndigoGameId(gameDivId2)) { case msg =>
+      model.bridge.subscribe(gameId2) { case msg =>
         Some(Msg.IndigoReceive(s"[$gameDivId2] ${msg}"))
       }
     )
@@ -107,7 +109,7 @@ object Main extends TyrianIndigoBridge[String]:
       subscriptions
     )
 
-final case class Model(field: String)
+final case class Model(bridge: TyrianIndigoBridge[String], field: String)
 object Model:
   val init: Model =
-    Model("")
+    Model(TyrianIndigoBridge(), "")

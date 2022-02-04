@@ -10,6 +10,8 @@ object IndigoSandbox:
 
   val gameDivId1: String = "my-game-1"
   val gameDivId2: String = "my-game-2"
+  val gameId1: IndigoGameId = IndigoGameId("reverse")
+  val gameId2: IndigoGameId = IndigoGameId("combine")
 
   enum Msg:
     case NewContent(content: String)      extends Msg
@@ -27,8 +29,8 @@ object IndigoSandbox:
       case Msg.NewContent(content) =>
         val cmds =
           Cmd.Batch(
-            model.bridge.publishTo(IndigoGameId(gameDivId1), content),
-            model.bridge.publishTo(IndigoGameId(gameDivId2), content)
+            model.bridge.publish(gameId1, content),
+            model.bridge.publish(gameId2, content)
           )
         (model.copy(field = content), cmds)
 
@@ -54,7 +56,7 @@ object IndigoSandbox:
           model,
           Cmd.Batch(
             Cmd.SideEffect { () =>
-              MyAwesomeGame(model.bridge.subSystemFor(IndigoGameId(gameDivId1)), true)
+              MyAwesomeGame(model.bridge.subSystem(gameId1), true)
                 .launch(
                   gameDivId1,
                   "width"  -> "200",
@@ -62,7 +64,7 @@ object IndigoSandbox:
                 )
             },
             Cmd.SideEffect { () =>
-              MyAwesomeGame(model.bridge.subSystemFor(IndigoGameId(gameDivId2)), false)
+              MyAwesomeGame(model.bridge.subSystem(gameId2), false)
                 .launch(
                   gameDivId2,
                   "width"  -> "200",
@@ -100,11 +102,11 @@ object IndigoSandbox:
       model.bridge.subscribe { case msg =>
         Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
       },
-      model.bridge.subscribeTo(IndigoGameId(gameDivId1)) { case msg =>
-        Some(Msg.IndigoReceive(s"[$gameDivId1] ${msg}"))
+      model.bridge.subscribe(gameId1) { case msg =>
+        Some(Msg.IndigoReceive(s"[${gameId1.toString}] ${msg}"))
       },
-      model.bridge.subscribeTo(IndigoGameId(gameDivId2)) { case msg =>
-        Some(Msg.IndigoReceive(s"[$gameDivId2] ${msg}"))
+      model.bridge.subscribe(gameId2) { case msg =>
+        Some(Msg.IndigoReceive(s"[${gameId2.toString}] ${msg}"))
       }
     )
 
