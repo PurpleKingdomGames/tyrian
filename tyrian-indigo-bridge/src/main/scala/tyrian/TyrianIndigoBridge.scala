@@ -12,17 +12,17 @@ final class TyrianIndigoBridge[A]:
 
   def publish(value: A): Cmd[Nothing] =
     publishToBridge(None, value)
-  def publishTo(indigoGame: IndigoGameId, value: A): Cmd[Nothing] =
+  def publish(indigoGame: IndigoGameId, value: A): Cmd[Nothing] =
     publishToBridge(Option(indigoGame), value)
 
   def subscribe[B](extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
     subscribeToBridge(None, extract)
-  def subscribeTo[B](indigoGame: IndigoGameId)(extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
+  def subscribe[B](indigoGame: IndigoGameId)(extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
     subscribeToBridge(Option(indigoGame), extract)
 
   def subSystem: TyrianSubSystem[A] =
     TyrianSubSystem(this)
-  def subSystemFor(indigoGame: IndigoGameId): TyrianSubSystem[A] =
+  def subSystem(indigoGame: IndigoGameId): TyrianSubSystem[A] =
     TyrianSubSystem(Option(indigoGame), this)
 
   private def publishToBridge(indigoGameId: Option[IndigoGameId], value: A): Cmd[Nothing] =
