@@ -1,15 +1,15 @@
 package example
 
-import org.scalajs.dom.Element
-import org.scalajs.dom.document
-import tyrian.Html._
-import tyrian._
+import tyrian.Html.*
+import tyrian.*
 
+import scala.scalajs.js.annotation.*
+
+@JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def container: Element = document.getElementById("myapp")
-
-  def init: (Model, Cmd[Msg]) = (Model.init, Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+    (Model.init, Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match

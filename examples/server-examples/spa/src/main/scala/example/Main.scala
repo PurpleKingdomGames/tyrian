@@ -5,9 +5,12 @@ import tyrian.Html.*
 import tyrian.*
 import tyrian.http.*
 
-object Main:
+import scala.scalajs.js.annotation.*
 
-  def init: (Model, Cmd[Msg]) =
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Model]:
+
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (Model(""), Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
@@ -41,15 +44,7 @@ object Main:
     Sub.Empty
 
   def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.getElementById("myapp"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
-
-end Main
+    launch("myapp")
 
 enum Msg:
   case SendText                  extends Msg

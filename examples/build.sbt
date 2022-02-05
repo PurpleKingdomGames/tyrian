@@ -21,7 +21,6 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
     "io.indigoengine" %%% "tyrian" % tyrianVersion
   ),
   testFrameworks += new TestFramework("munit.Framework"),
-  scalaJSUseMainModuleInitializer := true,
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
   crossScalaVersions := Seq(scala3Version),
   scalafixOnCompile  := true,
@@ -46,7 +45,8 @@ lazy val bundler =
       Compile / npmDependencies += "snabbdom" -> "3.0.1",
       // Source maps seem to be broken with bundler
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) }
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      scalaJSUseMainModuleInitializer := true
     )
 
 lazy val clock =

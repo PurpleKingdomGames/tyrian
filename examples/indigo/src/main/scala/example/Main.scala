@@ -1,24 +1,21 @@
 package example
 
 import example.game.MyAwesomeGame
-import org.scalajs.dom.document
-import tyrian.Html._
-import tyrian._
+import tyrian.Html.*
+import tyrian.*
 import tyrian.cmds.Logger
 
-object Main:
+import scala.scalajs.js.annotation.*
+
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Model]:
 
   val gameDivId1: String    = "my-game-1"
   val gameDivId2: String    = "my-game-2"
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
-  enum Msg:
-    case NewContent(content: String) extends Msg
-    case StartIndigo                 extends Msg
-    case IndigoReceive(msg: String)  extends Msg
-
-  def init: (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
@@ -100,14 +97,10 @@ object Main:
       CSS.`text-align`("center")
     )
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.getElementById("myapp"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
+enum Msg:
+  case NewContent(content: String) extends Msg
+  case StartIndigo                 extends Msg
+  case IndigoReceive(msg: String)  extends Msg
 
 final case class Model(bridge: TyrianIndigoBridge[String], field: String)
 object Model:
