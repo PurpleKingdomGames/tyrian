@@ -3,10 +3,10 @@ package example
 import tyrian.Html.*
 import tyrian.*
 
+import scala.scalajs.js.annotation.*
+
 import scalajs.js
 import concurrent.duration.DurationInt
-
-import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
