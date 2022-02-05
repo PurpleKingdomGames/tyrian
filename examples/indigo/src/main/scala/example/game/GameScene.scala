@@ -1,7 +1,7 @@
 package example.game
 
-import indigo._
-import indigo.scenes._
+import indigo.*
+import indigo.scenes.*
 
 final case class GameScene(clockwise: Boolean) extends Scene[Unit, Unit, Unit]:
 
@@ -42,10 +42,8 @@ final case class GameScene(clockwise: Boolean) extends Scene[Unit, Unit, Unit]:
       viewModel: Unit
   ): Outcome[SceneUpdateFragment] =
     val rotateAmount =
-      if clockwise then
-        Radians.fromSeconds(context.running * 0.25)
-      else
-        Radians(-Radians.fromSeconds(context.running * 0.25).toDouble)
+      if clockwise then Radians.fromSeconds(context.running * 0.25)
+      else Radians(-Radians.fromSeconds(context.running * 0.25).toDouble)
 
     Outcome(
       SceneUpdateFragment(

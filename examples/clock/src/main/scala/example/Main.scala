@@ -1,20 +1,17 @@
 package example
 
-import org.scalajs.dom.document
-import tyrian.Cmd
-import tyrian.Html
-import tyrian.Html._
-import tyrian.Sub
-import tyrian.Tyrian
+import tyrian.Html.*
+import tyrian.*
 
 import scalajs.js
 import concurrent.duration.DurationInt
 
-object Clock:
+import scala.scalajs.js.annotation.*
 
-  opaque type Model = js.Date
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Model]:
 
-  def init: (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (new js.Date(), Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
@@ -43,13 +40,6 @@ object Clock:
   def subscriptions(model: Model): Sub[Msg] =
     Sub.every(1.second, "clock-ticks").map(Msg.apply)
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.getElementById("myapp"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
+type Model = js.Date
 
 final case class Msg(newTime: js.Date)

@@ -1,6 +1,6 @@
 package mario
 
-import mario.Main._
+import mario.Main.*
 import org.scalajs.dom
 import org.scalajs.dom.KeyboardEvent
 import org.scalajs.dom.document
@@ -43,7 +43,7 @@ object Effects {
   val UNDER_FRONT_MARIO  = (true, true)
   val UNDER_BEHIND_MARIO = (false, true)
 
-  def touchPressedSub(model: Model): Sub[Msg] =
+  def touchPressedSub(model: Mario): Sub[Msg] =
     Sub.fromEvent[TouchEvent, Msg]("touchstart", dom.window) { event =>
       val (posX, posY) =
         modelPositionScreen(window.innerWidth, window.innerHeight, model)
@@ -55,7 +55,7 @@ object Effects {
         case _                  => Some(Msg.ArrowUpPressed)
     }
 
-  def touchReleasedSub(model: Model): Sub[Msg] =
+  def touchReleasedSub(model: Mario): Sub[Msg] =
     Sub.fromEvent[TouchEvent, Msg]("touchend", dom.window) { event =>
       val (posX, posY) =
         modelPositionScreen(window.innerWidth, window.innerHeight, model)

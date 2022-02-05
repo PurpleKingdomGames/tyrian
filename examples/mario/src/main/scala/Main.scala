@@ -1,20 +1,20 @@
 package mario
 
-import org.scalajs.dom.document
 import org.scalajs.dom.window
-import tyrian.Html._
-import tyrian.Sub._
-import tyrian._
+import tyrian.Html.*
+import tyrian.Sub.*
+import tyrian.*
 
-object Main:
+import scala.scalajs.js.annotation.*
 
-  type Model = Mario
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Mario]:
 
-  def init: (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Mario, Cmd[Msg]) =
     (Mario(0, 0, 0, 0, Direction.Right), Cmd.Empty)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    import Mario._
+  def update(msg: Msg, model: Mario): (Mario, Cmd[Msg]) =
+    import Mario.*
     msg match
       case Msg.ArrowUpPressed if model.y == 0.0 =>
         val newModel = (jump andThen applyPhysics)(model)
@@ -42,7 +42,7 @@ object Main:
       case _ =>
         (model, Cmd.Empty)
 
-  def subscriptions(model: Model): Sub[Msg] =
+  def subscriptions(model: Mario): Sub[Msg] =
     Sub.Batch(
       Effects.keyPressSub(37).map[Msg](_ => Msg.ArrowLeftPressed),
       Effects.keyPressSub(39).map(_ => Msg.ArrowRightPressed),
@@ -54,7 +54,7 @@ object Main:
       Effects.touchReleasedSub(model)
     )
 
-  def view(model: Model): Html[Msg] =
+  def view(model: Mario): Html[Msg] =
     val (posX, posY) =
       modelPositionScreen(window.innerWidth, window.innerHeight, model)
 
@@ -77,20 +77,11 @@ object Main:
   def modelPositionScreen(
       screenX: Double,
       screenY: Double,
-      model: Model
+      model: Mario
   ): (Double, Double) =
     val posX = ((screenX / 2) * 100) / 300 + model.x
     val posY = ((screenY - 200) * 100) / 300 - model.y
     (posX, posY)
-
-  def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.querySelector("#mario"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
 
 end Main
 

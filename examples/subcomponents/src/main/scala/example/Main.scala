@@ -1,19 +1,14 @@
 package example
 
-import org.scalajs.dom.document
-import tyrian.Html._
-import tyrian._
+import tyrian.Html.*
+import tyrian.*
 
-object Main:
+import scala.scalajs.js.annotation.*
 
-  opaque type Model = List[Counter.Model]
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Model]:
 
-  enum Msg:
-    case Insert                           extends Msg
-    case Remove                           extends Msg
-    case Modify(i: Int, msg: Counter.Msg) extends Msg
-
-  def init: (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (Nil, Cmd.Empty)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
@@ -22,19 +17,19 @@ object Main:
         (Counter.init :: model, Cmd.Empty)
 
       case Msg.Remove =>
-        model match
+        model.toList match
           case Nil    => (Nil, Cmd.Empty)
           case _ :: t => (t, Cmd.Empty)
 
       case Msg.Modify(id, m) =>
-        val updated = model.zipWithIndex.map { case (c, i) =>
+        val updated = model.toList.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
 
         (updated, Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
-    val counters = model.zipWithIndex.map { case (c, i) =>
+    val counters = model.toList.zipWithIndex.map { case (c, i) =>
       Counter.view(c).map(msg => Msg.Modify(i, msg))
     }
 
@@ -48,14 +43,12 @@ object Main:
   def subscriptions(model: Model): Sub[Msg] =
     Sub.Empty
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.getElementById("myapp"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
+type Model = List[Counter.Model]
+
+enum Msg:
+  case Insert                           extends Msg
+  case Remove                           extends Msg
+  case Modify(i: Int, msg: Counter.Msg) extends Msg
 
 object Counter:
 

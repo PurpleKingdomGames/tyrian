@@ -1,22 +1,20 @@
 package example
 
-import org.scalajs.dom.document
-import tyrian.Html
-import tyrian.Html._
-import tyrian.Tyrian
+import tyrian.Html.*
+import tyrian._
 
-object Main:
-  opaque type Model = Int
+import scala.scalajs.js.annotation.*
 
-  def main(args: Array[String]): Unit =
-    Tyrian.start(document.getElementById("myapp"), init, update, view)
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Model]:
 
-  def init: Model = 0
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+    (0, Cmd.Empty)
 
-  def update(msg: Msg, model: Model): Model =
+  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
-      case Msg.Increment => model + 1
-      case Msg.Decrement => model - 1
+      case Msg.Increment => (model + 1, Cmd.Empty)
+      case Msg.Decrement => (model - 1, Cmd.Empty)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -24,6 +22,11 @@ object Main:
       div()(text(model.toString)),
       button(onClick(Msg.Increment))(text("+"))
     )
+
+  def subscriptions(model: Model): Sub[Msg] =
+    Sub.Empty
+
+type Model = Int
 
 enum Msg:
   case Increment, Decrement

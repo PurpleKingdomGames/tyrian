@@ -1,14 +1,16 @@
 package example
 
-import io.circe.parser._
-import org.scalajs.dom.document
-import tyrian.Html._
-import tyrian._
-import tyrian.http._
+import io.circe.parser.*
+import tyrian.Html.*
+import tyrian.*
+import tyrian.http.*
 
-object Main:
+import scala.scalajs.js.annotation.*
 
-  def init: (Model, Cmd[Msg]) =
+@JSExportTopLevel("TyrianApp")
+object Main extends TyrianApp[Msg, Model]:
+
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (Model("cats", "waiting.gif"), HttpHelper.getRandomGif("cats"))
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
@@ -27,17 +29,6 @@ object Main:
 
   def subscriptions(model: Model): Sub[Msg] =
     Sub.Empty
-
-  def main(args: Array[String]): Unit =
-    Tyrian.start(
-      document.getElementById("myapp"),
-      init,
-      update,
-      view,
-      subscriptions
-    )
-
-end Main
 
 enum Msg:
   case MorePlease                 extends Msg

@@ -1,11 +1,13 @@
 package example.game
 
-import indigo._
-import indigo.scenes._
+import indigo.*
+import indigo.scenes.*
 import tyrian.TyrianSubSystem
 
-final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String], clockwise: Boolean)
-    extends IndigoGame[Unit, Unit, Unit, Unit]:
+final case class MyAwesomeGame(
+    tyrianSubSystem: TyrianSubSystem[String],
+    clockwise: Boolean
+) extends IndigoGame[Unit, Unit, Unit, Unit]:
 
   def initialScene(bootData: Unit): Option[SceneName] =
     None
@@ -53,7 +55,9 @@ final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String], clockwi
       model: Unit
   ): GlobalEvent => Outcome[Unit] =
     case tyrianSubSystem.TyrianEvent.Receive(msg) =>
-      IndigoLogger.consoleLog(s"(Indigo) from tyrian: [${tyrianSubSystem.indigoGameId.getOrElse(" ")}] " + msg)
+      IndigoLogger.consoleLog(
+        s"(Indigo) from tyrian: [${tyrianSubSystem.indigoGameId.getOrElse(" ")}] " + msg
+      )
       val e =
         if clockwise then tyrianSubSystem.send(msg.reverse)
         else tyrianSubSystem.send(msg + "_" + msg)
