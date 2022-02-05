@@ -22,5 +22,8 @@ trait TyrianApp[Msg, Model]:
   def launch(containerId: String, flags: scala.scalajs.js.Dictionary[String]): Unit =
     ready(containerId, flags.toMap)
 
+  def launch(containerId: String, flags: Map[String, String]): Unit =
+    ready(containerId, flags)
+
   private def ready(parentElementId: String, flags: Map[String, String]): Unit =
     Tyrian.start(document.getElementById(parentElementId), init(flags), update, view, subscriptions)
