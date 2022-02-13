@@ -32,9 +32,9 @@ the state of the application in HTML.
 
 ### Tyrian vs Elm
 
-Elm is, as you would expect, a far richer offering that Tyrian is or in all likelihood, ever will be. There are a lot more people working on it and with it, and it's been around a lot longer.
+Elm is, as you would expect, a far richer offering that Tyrian is and in all likelihood ever will be. There are a lot more people working on and with Elm, and it's been around a lot longer.
 
-Having said that, while Elm's architecture has taken on a life of it's own and influenced the state of the art of functional (and even non-FP!) UI programming, Elm itself is still quite niche.
+Having said that, while Elm's architecture has taken on a life of it's own and influenced the state of the art of functional (and even non-FP!) UI programming, Elm itself has remained quite niche.
 
 People tend to love Elm, or hate it. A lot of that reaction can be attributed to the fact that Elm is a very opinionated language, and you're either into that ..or you're not.
 
