@@ -1,3 +1,6 @@
 ---
-title: "Tyrian / Indigo Bridge"
+title: "Tyrian-Indigo Bridge"
+menuTitle: "Tyrian + Indigo "
 ---
+
+// TODO

@@ -5,4 +5,6 @@ weight = 2
 chapter = true
 +++
 
-Things you need to know...
+## Core Concepts
+
+This section covers the key features and functions of Tyrian.
