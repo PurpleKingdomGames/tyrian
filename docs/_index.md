@@ -12,8 +12,6 @@ Tyrian is not designed to work alone, the intention is that you will use it alon
 
 ### Tyrian 💜's Indigo
 
-> Coming in the next release!!
-
 Tyrian is by the maintainers of [Indigo](https://indigoengine.io/), a Scala 3 game engine. As such, Indigo web games are first class citizens in Tyrian, allowing easy embedding and seamless communication between their respective event/messaging systems.
 
 ### What should I consider using Tyrian for?

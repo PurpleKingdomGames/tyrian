@@ -2,13 +2,7 @@
 title = "Core Concepts"
 menuTitle = "Core Concepts"
 weight = 2
-draft = true
+chapter = true
 +++
 
-### Subs
-
-asd
-
-### Cmds
-
-asd
+Things you need to know...
