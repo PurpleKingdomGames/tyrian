@@ -11,6 +11,11 @@ jobs:
     - uses: jodersky/setup-mill@master
       with:
         mill-version: 0.10.0
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '17'
+    - name: Install snabbdom
+      run: npm install
     - name: Tyrian Compile & Test
       run: sbt compile test +tyrian/publishLocal
     - name: Build SBT Examples
