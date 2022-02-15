@@ -9,7 +9,7 @@ These days, a normal straight-forward relationship between a frontend client and
 
 Back in the days when Perl dominated the world of server side technology and ASP was new and exciting, it was more normal for the browser to hit a url, and for the page rendering to happen entirely on the server: The HTML delivered whole and fully formed to the browser. This allow the pages to be built up from data pulled from other services and databases.
 
-This arrangement has come back into fashion, and now has the fancy name "server-side rendering" or SSR. The benefit of SSR is that HTML is incredibly cacheable. If you can manufacture a page or a fragment of a page once, then you may be able to cache it for super fast page loading performance.
+This arrangement has come back into fashion, and now has the fancy name "server-side rendering" or SSR. The benefit of SSR is that HTML is incredibly cache-able. If you can manufacture a page or a fragment of a page once, then you may be able to cache it for super fast page loading performance.
 
 ## Simple SSR with Tyrian
 
