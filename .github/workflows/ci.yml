@@ -17,7 +17,7 @@ jobs:
     - name: Install snabbdom
       run: npm install
     - name: Tyrian Compile & Test
-      run: sbt compile test +tyrian/publishLocal
+      run: sbt compile test +publishLocal gendocs
     - name: Build SBT Examples
       run: |
         pwd
