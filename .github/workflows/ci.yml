@@ -26,12 +26,12 @@ jobs:
     - name: Build Mill Examples
       run: |
         pwd
-        cd mill
+        cd examples/mill
         mill counter.compile
         mill counter.test
     - name: Build Server Examples
       run: |
         pwd
-        cd ../server-examples
+        cd examples/server-examples
         sbt buildAll
 
