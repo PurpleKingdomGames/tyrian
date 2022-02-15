@@ -155,6 +155,7 @@ lazy val jsdocs =
 lazy val docs =
   project
     .in(file("tyrian-docs"))
+    .dependsOn(tyrian.js)
     .dependsOn(tyrianIndigoBridge.js)
     .enablePlugins(MdocPlugin)
     .settings(
@@ -167,6 +168,9 @@ lazy val docs =
         "SCALAJS_VERSION" -> scalaJsDocsVersion,
         "SCALA_VERSION"   -> scalaDocsVersion
       )
+    )
+    .settings(
+      run / fork := true
     )
 
 addCommandAlias(
