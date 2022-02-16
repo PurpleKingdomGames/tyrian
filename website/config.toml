@@ -17,7 +17,7 @@ home = [ "HTML", "RSS", "JSON"]
   # Prefix URL to edit current page. Will display an "Edit this page" button on top right hand corner of every page.
   # Useful to give opportunity to people to create merge request for your doc.
   # See the config.toml file from this documentation site to have an example.
-  editURL = ""
+  editURL = "https://github.com/PurpleKingdomGames/tyrian/tree/main/docs/"
   # Author of the site, will be used in meta information
   author = "Dave Smith"
   # Description of the site, will be used in meta information
@@ -65,3 +65,8 @@ name = "<i class='fas fa-bookmark'></i> Tyrian API Docs"
 identifier = "apidocs"
 url = "/api/"
 weight = 20
+[[menu.shortcuts]]
+name = "<i class='fas fa-bullhorn'></i> GitHub Sponsors"
+identifier = "sponsors"
+url = "https://github.com/sponsors/PurpleKingdomGames"
+weight = 30
