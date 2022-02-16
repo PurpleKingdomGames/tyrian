@@ -26,7 +26,7 @@ The usual approach to handling effects (short for side effects) is to employ som
 
 This is _exactly_ what a command (`Cmd`) does. While commands themselves are only Monoidal Functors*, they work using a Monadic `Task` implementation under the covers.
 
-(* Meaning you can `map` over them, they can be combined togetherm and have an empty state `Cmd.empty`.)
+(* Meaning you can `map` over them, they can be combined together, and have an empty state `Cmd.empty`.)
 
 So far, this is sounding like effect handling as usual. But no. Primarily because you never (or rarely) actually see the underlying `Task`.
 

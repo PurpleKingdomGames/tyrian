@@ -79,7 +79,7 @@ Two of the main ways this difference visibly manifests itself are:
 
 The update function in Tyrian returns a `(Model, Cmd)` where the command is a lazily evaluated task - perhaps an HTTP call or some other side effect. Whereas in Indigo you return an `Outcome`, but an outcome does not allow you to directly describe actions that would need evaluation, it only captures updated values and events. If you want to make an HTTP call, there's an event for that.
 
-In Tyrian we expect that you'll be doing a lot of out-of-band/concurrent/side-effecting work like calling web services and interacting with JS over and FFI, in Indigo we assume you mostly won't be.
+In Tyrian we expect that you'll be doing a lot of out-of-band/concurrent/side-effecting work like calling web services and interacting with JavaScript, in Indigo we assume you mostly won't be.
 
 This has the interesting side effect that Tyrian's update functions are referentially transparent, but Indigo's are both referentially transparent and declarative. The former allows you to do more practical things, the latter is lighter and easier to test, but less clean if you do need to, say, call down to JavaScript.
 
