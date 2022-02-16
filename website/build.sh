@@ -13,7 +13,7 @@ cd $WEBSITE_DIR
 
 # -----
 # build the site
-hugo
+hugo --cleanDestinationDir
 
 # -----
 # Publish
