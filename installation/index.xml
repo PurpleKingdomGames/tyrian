@@ -2,9 +2,9 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Setup &amp; Configuration on Tyrian</title>
-    <link>https://purplekingdomgames.github.io/tyrian/installation/</link>
+    <link>https://tyrian.indigoengine.io/installation/</link>
     <description>Recent content in Setup &amp; Configuration on Tyrian</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-gb</language><atom:link href="https://purplekingdomgames.github.io/tyrian/installation/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-gb</language><atom:link href="https://tyrian.indigoengine.io/installation/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
