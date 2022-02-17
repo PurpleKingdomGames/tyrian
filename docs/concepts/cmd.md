@@ -73,12 +73,8 @@ Random.double
 ```scala mdoc:silent
 enum MyMsg:
   case MyRandom(d: Double) extends MyMsg
-  case Error               extends MyMsg
 
-Random.double.map {
-  case RandomValue.NextDouble(d) => MyMsg.MyRandom(d)
-  case _                         => MyMsg.Error
-}
+Random.double.map(next => MyMsg.MyRandom(next.value))
 ```
 
 These are simple examples, but there are much more complicated uses for commands. One great use of commands is for making [HTTP requests where the response is decoded into a `Msg`.](https://github.com/PurpleKingdomGames/tyrian/tree/main/examples)
