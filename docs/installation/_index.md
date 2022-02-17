@@ -4,6 +4,20 @@ menuTitle = "Installation"
 weight = 1
 +++
 
+## Quick Setup with Giter8
+
+You can create an sbt based Tyrian project and have it up and running in less than 5 minutes!*
+
+From your command line, create a folder for your project, navigate into it, and run:
+
+```sh
+sbt new PurpleKingdomGames/tyrian.g8
+```
+
+Then follow the instructions in the README file.
+
+(* Probably, if you have sbt and npm/yarn already installed... 😅)
+
 ## Installation
 
 Tyrian is a Scala 3 Web UI library, so please set your Scala version to `@SCALA_VERSION@` or higher.
