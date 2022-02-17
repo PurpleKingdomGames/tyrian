@@ -5,14 +5,15 @@ import org.scalajs.dom.document
 import tyrian.Html.*
 import tyrian.*
 import tyrian.cmds.Logger
+import tyrian.cmds.Random
 
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
 object IndigoSandbox extends TyrianApp[Msg, Model]:
 
-  val gameDivId1: String = "my-game-1"
-  val gameDivId2: String = "my-game-2"
+  val gameDivId1: String    = "my-game-1"
+  val gameDivId2: String    = "my-game-2"
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
@@ -21,11 +22,15 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
+      case Msg.NewRandomInt(i) =>
+        (model.copy(randomNumber = i), Cmd.Empty)
+
       case Msg.NewContent(content) =>
         val cmds =
           Cmd.Batch(
             model.bridge.publish(gameId1, content),
-            model.bridge.publish(gameId2, content)
+            model.bridge.publish(gameId2, content),
+            Random.int.map(next => Msg.NewRandomInt(next.value))
           )
         (model.copy(field = content), cmds)
 
@@ -83,6 +88,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
     ) ++ counters
 
     div(
+      div("Random number: " + model.randomNumber.toString),
       div(id := gameDivId1)(),
       div(id := gameDivId2)(),
       div(
@@ -121,6 +127,7 @@ enum Msg:
   case Modify(i: Int, msg: Counter.Msg) extends Msg
   case StartIndigo                      extends Msg
   case IndigoReceive(msg: String)       extends Msg
+  case NewRandomInt(i: Int)             extends Msg
 
 object Counter:
 
@@ -143,7 +150,12 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(bridge: TyrianIndigoBridge[String], field: String, components: List[Counter.Model])
+final case class Model(
+    bridge: TyrianIndigoBridge[String],
+    field: String,
+    components: List[Counter.Model],
+    randomNumber: Int
+)
 object Model:
   val init: Model =
-    Model(TyrianIndigoBridge(), "", Nil)
+    Model(TyrianIndigoBridge(), "", Nil, 0)

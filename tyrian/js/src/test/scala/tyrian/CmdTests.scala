@@ -3,6 +3,8 @@ package tyrian
 @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
 class CmdTests extends munit.FunSuite {
 
+  import CmdUtils.*
+
   test("map - Empty") {
     assertEquals(Cmd.Empty.map(_ => Int), Cmd.Empty)
   }
@@ -74,17 +76,6 @@ class CmdTests extends munit.FunSuite {
     assertEquals(actual, expected)
   }
 
-  def runCmd[Msg](cmd: Cmd[Msg]): Msg =
-    cmd match
-      case c: Cmd.RunTask[_, _, _] =>
-        c.task match
-          case Task.Succeeded(value) => c.toMessage(Right(value))
-          case _                     => throw new Exception("failed on run task")
-
-      case Cmd.Emit(msg) =>
-        msg
-
-      case _ =>
-        throw new Exception("failed, was not a run task")
-
 }
+
+
