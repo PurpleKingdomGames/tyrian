@@ -12,8 +12,8 @@ ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
 lazy val scala3Version      = "3.1.1"
-lazy val tyrianDocsVersion  = "0.3.0"
-lazy val scalaJsDocsVersion = "1.8.0"
+lazy val tyrianDocsVersion  = "0.3.1"
+lazy val scalaJsDocsVersion = "1.9.0"
 lazy val scalaDocsVersion   = "3.1.1"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
