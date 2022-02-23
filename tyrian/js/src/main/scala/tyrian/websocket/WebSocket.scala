@@ -4,48 +4,84 @@ import org.scalajs.dom
 import tyrian.Cmd
 import tyrian.Sub
 import tyrian.Task
+import tyrian.websocket.WebSocketEvent
+import util.Functions
 
-import scala.collection.mutable
-
-final class WebSocket(address: String, onOpenSendMessage: Option[String]):
-
-  @SuppressWarnings(Array("scalafix:DisableSyntax.var", "scalafix:DisableSyntax.null"))
-  private var liveSocket: LiveSocket = null
-
+final class WebSocket(liveSocket: LiveSocket):
   def publish[Msg](message: String): Cmd[Msg] =
     Cmd.SideEffect(() => liveSocket.socket.send(message))
 
-  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
   def subscribe[Msg](f: WebSocketEvent => Msg): Sub[Msg] =
-    def newConnToSubs: Either[WebSocketEvent.Error, LiveSocket] => Sub[Msg] = {
-      case Left(e) =>
-        Sub.emit(f(e))
+    if WebSocketReadyState.fromInt(liveSocket.socket.readyState).isOpen then liveSocket.subs.map(f)
+    else Sub.emit(f(WebSocketEvent.Close))
 
-      case Right(ls) =>
-        liveSocket = ls
-        ls.subs.map(f)
+final class LiveSocket(val socket: dom.WebSocket, val subs: Sub[WebSocketEvent])
+
+enum WebSocketReadyState derives CanEqual:
+  case CONNECTING, OPEN, CLOSING, CLOSED
+
+  def isOpen: Boolean =
+    this match
+      case CLOSED  => false
+      case CLOSING => false
+      case _       => true
+
+object WebSocketReadyState:
+  def fromInt(i: Int): WebSocketReadyState =
+    i match {
+      case 0 => CONNECTING
+      case 1 => OPEN
+      case 2 => CLOSING
+      case 3 => CLOSED
+      case _ => CLOSED
     }
 
-    if liveSocket != null && WebSocketReadyState.fromInt(liveSocket.socket.readyState).isOpen then
-      liveSocket.subs.map(f)
-    else newConnToSubs(newConnection(address, onOpenSendMessage))
+object WebSocket:
+  /** Acquires a WebSocket connection with default keep-alive message */
+  def connect(address: String): Either[String, WebSocket] =
+    newConnection(address, None, None, true).map(WebSocket(_))
+
+  /** Acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
+  def connect(address: String, onOpenMessage: String): Either[String, WebSocket] =
+    newConnection(address, Option(onOpenMessage), None, true).map(WebSocket(_))
+
+  /** Acquires a WebSocket connection with custom keep-alive message */
+  def connect(address: String, keepAliveMessage: Option[String]): Either[String, WebSocket] =
+    newConnection(address, None, keepAliveMessage, true).map(WebSocket(_))
+
+  /** Acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
+  def connect(address: String, onOpenMessage: String, keepAliveMessage: Option[String]): Either[String, WebSocket] =
+    newConnection(address, Some(onOpenMessage), keepAliveMessage, true).map(WebSocket(_))
+
+  /** Acquires a WebSocket connection with disabled keep-alive mechanism */
+  def noKeepAlive(address: String): Either[String, WebSocket] =
+    newConnection(address, None, None, false).map(WebSocket(_))
 
   private def newConnection(
       address: String,
-      onOpenSendMessage: Option[String]
-  ): Either[WebSocketEvent.Error, LiveSocket] =
+      onOpenSendMessage: Option[String],
+      withKeepAliveMessage: Option[String],
+      keepAliveEnabled: Boolean
+  ): Either[String, LiveSocket] =
     try {
-      val socket = new dom.WebSocket(address)
+      val socket    = new dom.WebSocket(address)
+      val keepAlive = new KeepAlive(socket, withKeepAliveMessage, 20000)
 
       val subs =
         Sub.Batch(
           Sub.fromEvent("message", socket) { e =>
             Some(WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString))
           },
-          Sub.fromEvent("error", socket)(_ => Some(WebSocketEvent.Error("Web socket connection error"))),
-          Sub.fromEvent("close", socket)(e => Some(WebSocketEvent.Close)),
-          Sub.fromEvent("open", socket) { e =>
+          Sub.fromEvent("error", socket) { _ =>
+            Some(WebSocketEvent.Error("Web socket connection error"))
+          },
+          Sub.fromEvent("close", socket) { _ =>
+            if keepAliveEnabled then keepAlive.cancel() else ()
+            Some(WebSocketEvent.Close)
+          },
+          Sub.fromEvent("open", socket) { _ =>
             onOpenSendMessage.foreach(msg => socket.send(msg))
+            if keepAliveEnabled then keepAlive.run() else ()
             Some(WebSocketEvent.Open)
           }
         )
@@ -53,36 +89,19 @@ final class WebSocket(address: String, onOpenSendMessage: Option[String]):
       Right(LiveSocket(socket, subs))
     } catch {
       case e: Throwable =>
-        Left(
-          WebSocketEvent.Error(s"Error trying to set up websocket: ${e.getMessage}")
-        )
+        Left(s"Error trying to set up websocket: ${e.getMessage}")
     }
 
-  final class LiveSocket(val socket: dom.WebSocket, val subs: Sub[WebSocketEvent])
+  final class KeepAlive(socket: dom.WebSocket, msg: Option[String], timeout: Int):
+    @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+    private var timerId = 0;
 
-  enum WebSocketReadyState derives CanEqual:
-    case CONNECTING, OPEN, CLOSING, CLOSED
+    @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
+    def run(): Unit =
+      if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
+        println("[info] Sending heartbeat 💓")
+        socket.send(msg.getOrElse("{ \"Heartbeat\": {} }"))
+      timerId = dom.window.setTimeout(Functions.fun0(() => run()), timeout)
 
-    def isOpen: Boolean =
-      this match
-        case CLOSED  => false
-        case CLOSING => false
-        case _       => true
-
-  object WebSocketReadyState:
-    def fromInt(i: Int): WebSocketReadyState =
-      i match {
-        case 0 => CONNECTING
-        case 1 => OPEN
-        case 2 => CLOSING
-        case 3 => CLOSED
-        case _ => CLOSED
-      }
-
-object WebSocket:
-
-  def apply(address: String): WebSocket =
-    new WebSocket(address, None)
-
-  def apply(address: String, onOpenMessage: String): WebSocket =
-    new WebSocket(address, Option(onOpenMessage))
+    def cancel(): Unit =
+      if (timerId <= 0) then dom.window.clearTimeout(timerId) else ()

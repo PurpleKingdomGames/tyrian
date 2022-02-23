@@ -35,13 +35,26 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
         (model.copy(components = cs), Cmd.Empty)
 
+      case Msg.Connect =>
+        WebSocket.connect(
+          address = model.socketUrl,
+          onOpenMessage = "Connect me!",
+          keepAliveMessage = Some("Heartbeat")
+        ) match
+        case Left(err) => (model.copy(error = Some(err)), Cmd.Empty)
+        case Right(ws) => (model.copy(echoSocket = Some(ws)), Cmd.Empty)
+
+      case Msg.Disconnected =>
+        println("WebSocket not connected yet")
+        (model, Cmd.Empty)
+
       case Msg.FromSocket(message) =>
         println("Got: " + message)
         (model.copy(log = message :: model.log), Cmd.Empty)
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, model.echoSocket.publish(message))
+        (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.Empty))
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -53,10 +66,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
       button(onClick(Msg.Insert))(text("insert"))
     ) ++ counters
 
+    val connect =
+      if model.echoSocket.isEmpty then div(myStyle)(button(onClick(Msg.Connect))(text("Connect"))) else div()
+
     div(
       div(
         input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
-        div(myStyle)(text(model.field.reverse))
+        div(myStyle)(text(model.field.reverse)),
+        connect
       ),
       div(elems),
       div(
@@ -76,18 +93,20 @@ object Sandbox extends TyrianApp[Msg, Model]:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    model.echoSocket.subscribe {
-      case WebSocketEvent.Error(errorMesage) =>
-        Msg.FromSocket(errorMesage)
+    model.echoSocket.fold(Sub.emit(Msg.Disconnected)) {
+      _.subscribe {
+        case WebSocketEvent.Error(errorMesage) =>
+          Msg.FromSocket(errorMesage)
 
-      case WebSocketEvent.Receive(message) =>
-        Msg.FromSocket(message)
+        case WebSocketEvent.Receive(message) =>
+          Msg.FromSocket(message)
 
-      case WebSocketEvent.Open =>
-        Msg.FromSocket("<no message - socket opened>")
+        case WebSocketEvent.Open =>
+          Msg.FromSocket("<no message - socket opened>")
 
-      case WebSocketEvent.Close =>
-        Msg.FromSocket("<no message - socket closed>")
+        case WebSocketEvent.Close =>
+          Msg.FromSocket("<no message - socket closed>")
+      }
     }
 
 enum Msg:
@@ -97,6 +116,8 @@ enum Msg:
   case Modify(i: Int, msg: Counter.Msg) extends Msg
   case FromSocket(message: String)      extends Msg
   case ToSocket(message: String)        extends Msg
+  case Connect                          extends Msg
+  case Disconnected                     extends Msg
 
 object Counter:
 
@@ -119,7 +140,15 @@ object Counter:
       case Msg.Increment => model + 1
       case Msg.Decrement => model - 1
 
-final case class Model(echoSocket: WebSocket, field: String, components: List[Counter.Model], log: List[String])
+final case class Model(
+  echoSocket: Option[WebSocket],
+  socketUrl: String,
+  field: String,
+  components: List[Counter.Model],
+  log: List[String],
+  error: Option[String]
+)
+
 object Model:
   val init: Model =
-    Model(WebSocket("ws://localhost:8080/wsecho", "Connect me!"), "", Nil, Nil)
+    Model(None, "ws://localhost:8080/wsecho", "", Nil, Nil, None)
