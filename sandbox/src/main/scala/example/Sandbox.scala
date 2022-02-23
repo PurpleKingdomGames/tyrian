@@ -104,8 +104,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
         case WebSocketEvent.Open =>
           Msg.FromSocket("<no message - socket opened>")
 
-        case WebSocketEvent.Close =>
-          Msg.FromSocket("<no message - socket closed>")
+        case WebSocketEvent.Close(code, reason) =>
+          Msg.FromSocket(s"<socket closed> - code: $code, reason: $reason")
       }
     }
 

@@ -8,12 +8,15 @@ import tyrian.websocket.WebSocketEvent
 import util.Functions
 
 final class WebSocket(liveSocket: LiveSocket):
+  def disconnect[Msg]: Cmd[Msg] =
+    Cmd.SideEffect(() => liveSocket.socket.close(1000, "Graceful shutdown"))
+
   def publish[Msg](message: String): Cmd[Msg] =
     Cmd.SideEffect(() => liveSocket.socket.send(message))
 
   def subscribe[Msg](f: WebSocketEvent => Msg): Sub[Msg] =
     if WebSocketReadyState.fromInt(liveSocket.socket.readyState).isOpen then liveSocket.subs.map(f)
-    else Sub.emit(f(WebSocketEvent.Close))
+    else Sub.emit(f(WebSocketEvent.Error("Connection not ready")))
 
 final class LiveSocket(val socket: dom.WebSocket, val subs: Sub[WebSocketEvent])
 
@@ -72,12 +75,16 @@ object WebSocket:
           Sub.fromEvent("message", socket) { e =>
             Some(WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString))
           },
-          Sub.fromEvent("error", socket) { _ =>
+          Sub.fromEvent("error", socket) { e =>
+            val msg =
+              try { e.asInstanceOf[dom.ErrorEvent].message }
+              catch { case _: Throwable => "Unknown" }
             Some(WebSocketEvent.Error("Web socket connection error"))
           },
-          Sub.fromEvent("close", socket) { _ =>
+          Sub.fromEvent("close", socket) { e =>
             if keepAliveEnabled then keepAlive.cancel() else ()
-            Some(WebSocketEvent.Close)
+            val ev = e.asInstanceOf[dom.CloseEvent]
+            Some(WebSocketEvent.Close(ev.code, ev.reason))
           },
           Sub.fromEvent("open", socket) { _ =>
             onOpenSendMessage.foreach(msg => socket.send(msg))
