@@ -10,6 +10,7 @@ import tyrian.Attribute
 import tyrian.Cmd
 import tyrian.Event
 import tyrian.Html
+import tyrian.NamedAttribute
 import tyrian.Property
 import tyrian.Sub
 import tyrian.Tag
@@ -87,9 +88,14 @@ final class TyrianRuntime[Model, Msg](
   }
 
   def toVNode(html: Html[Msg]): VNode =
-    html match {
+    html match
       case Tag(name, attrs, children) =>
-        val as = js.Dictionary(attrs.collect { case Attribute(n, v) => (n, v) }: _*)
+        val as = js.Dictionary(
+          attrs.collect {
+            case Attribute(n, v)   => (n, v)
+            case NamedAttribute(n) => (n, "")
+          }: _*
+        )
 
         val props =
           js.Dictionary(attrs.collect { case Property(n, v) => (n, v) }: _*)
@@ -106,9 +112,8 @@ final class TyrianRuntime[Model, Msg](
           }
 
         h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
-    }
 
-  private lazy val patch =
+  private lazy val patch: (VNode | dom.Element, VNode) => VNode =
     snabbdom.snabbdom.init(
       js.Array(snabbdom.modules.props, snabbdom.modules.attributes, snabbdom.modules.eventlisteners)
     )
@@ -118,5 +123,3 @@ final class TyrianRuntime[Model, Msg](
 
   def start(): Unit =
     performSideEffects(initCmd, subscriptions(currentState), onMsg)
-
-end TyrianRuntime

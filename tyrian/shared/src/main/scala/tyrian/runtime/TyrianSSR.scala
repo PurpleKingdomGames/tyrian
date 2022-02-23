@@ -1,6 +1,6 @@
 package tyrian.runtime
 
-import tyrian._
+import tyrian.*
 
 object TyrianSSR:
 
@@ -42,7 +42,7 @@ object Render:
       html match
         case tag: Tag[_] =>
           val attributes =
-            spacer(tag.attributes.map(_.render).mkString(" "))
+            spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
 
           val children = tag.children.map {
             case t: Text    => t.value
@@ -54,9 +54,11 @@ object Render:
   extension (a: Attr[_])
     def render: String =
       a match
-        case _: Event[_, _] => ""
-        case a: Attribute   => a.render
-        case p: Property    => p.render
+        case _: Event[_, _]         => ""
+        case a: Attribute           => a.render
+        case p: Property            => p.render
+        case a: NamedAttribute      => a.name
+        case _: EmptyAttribute.type => ""
 
   extension (a: Attribute)
     def render: String =

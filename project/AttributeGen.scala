@@ -41,7 +41,8 @@ object AttributeGen {
 
   def genNoValue(attrName: String, realName: Option[String]): String = {
     val attr = realName.getOrElse(attrName.toLowerCase)
-    s"""  def $attrName: Attr[Nothing] = Attribute("$attr", "$attr")
+    s"""  def $attrName: NamedAttribute = NamedAttribute("$attr")
+    |  def $attrName(isUsed: Boolean): Attr[Nothing] = if isUsed then NamedAttribute("$attr") else EmptyAttribute
     |
     |""".stripMargin
   }
