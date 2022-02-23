@@ -39,7 +39,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
         WebSocket.connect(
           address = model.socketUrl,
           onOpenMessage = "Connect me!",
-          keepAliveMessage = Some("Heartbeat")
+          keepAliveSettings = KeepAliveSettings.default
         ) match
         case Left(err) => (model.copy(error = Some(err)), Cmd.Empty)
         case Right(ws) => (model.copy(echoSocket = Some(ws)), Cmd.Empty)
