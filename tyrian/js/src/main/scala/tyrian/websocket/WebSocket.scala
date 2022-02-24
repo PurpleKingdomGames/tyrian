@@ -48,27 +48,27 @@ object KeepAliveSettings:
 
 object WebSocket:
   /** Acquires a WebSocket connection with default keep-alive message */
-  def connect(address: String): Either[String, WebSocket] =
+  def connect(address: String): Task[String, WebSocket] =
     newConnection(address, None, KeepAliveSettings.default).map(WebSocket(_))
 
   /** Acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
-  def connect(address: String, onOpenMessage: String): Either[String, WebSocket] =
+  def connect(address: String, onOpenMessage: String): Task[String, WebSocket] =
     newConnection(address, Option(onOpenMessage), KeepAliveSettings.default).map(WebSocket(_))
 
   /** Acquires a WebSocket connection with custom keep-alive message */
-  def connect(address: String, keepAliveSettings: KeepAliveSettings): Either[String, WebSocket] =
+  def connect(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
     newConnection(address, None, keepAliveSettings).map(WebSocket(_))
 
   /** Acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
-  def connect(address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings): Either[String, WebSocket] =
+  def connect(address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
     newConnection(address, Some(onOpenMessage), keepAliveSettings).map(WebSocket(_))
 
   private def newConnection(
       address: String,
       onOpenSendMessage: Option[String],
       settings: KeepAliveSettings
-  ): Either[String, LiveSocket] =
-    try {
+  ): Task[String, LiveSocket] =
+    Task.Delay { () =>
       val socket    = new dom.WebSocket(address)
       val keepAlive = new KeepAlive(socket, settings.message, settings.timeout)
 
@@ -95,10 +95,7 @@ object WebSocket:
           }
         )
 
-      Right(LiveSocket(socket, subs))
-    } catch {
-      case e: Throwable =>
-        Left(s"Error trying to set up websocket: ${e.getMessage}")
+      LiveSocket(socket, subs)
     }
 
   final class KeepAlive(socket: dom.WebSocket, msg: String, timeout: FiniteDuration):

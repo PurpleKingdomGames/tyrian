@@ -35,16 +35,27 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
         (model.copy(components = cs), Cmd.Empty)
 
-      case Msg.Connect =>
-        WebSocket.connect(
-          address = model.socketUrl,
-          onOpenMessage = "Connect me!",
-          keepAliveSettings = KeepAliveSettings.default
-        ) match
-        case Left(err) => (model.copy(error = Some(err)), Cmd.Empty)
-        case Right(ws) => (model.copy(echoSocket = Some(ws)), Cmd.Empty)
+      case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
+        println(s"Failed to open WebSocket connection: $err")
+        (model, Cmd.Empty)
 
-      case Msg.Disconnected =>
+      case Msg.WebSocketStatus(Status.Connected(ws)) =>
+        (model.copy(echoSocket = Some(ws)), Cmd.Empty)
+
+      case Msg.WebSocketStatus(Status.Connecting) =>
+        (model, Cmd.RunTask(
+          WebSocket.connect(
+            address = model.socketUrl,
+            onOpenMessage = "Connect me!",
+            keepAliveSettings = KeepAliveSettings.default
+          ),
+          {
+            case Left(err) => Status.ConnectionError(err).asMsg
+            case Right(ws) => Status.Connected(ws).asMsg
+          }
+        ))
+
+      case Msg.WebSocketStatus(Status.Disconnected) =>
         println("WebSocket not connected yet")
         (model, Cmd.Empty)
 
@@ -67,7 +78,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
     ) ++ counters
 
     val connect =
-      if model.echoSocket.isEmpty then div(myStyle)(button(onClick(Msg.Connect))(text("Connect"))) else div()
+      if model.echoSocket.isEmpty
+      then div(myStyle)(button(onClick(Status.Connecting.asMsg))(text("Connect")))
+      else div()
 
     div(
       div(
@@ -93,7 +106,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    model.echoSocket.fold(Sub.emit(Msg.Disconnected)) {
+    model.echoSocket.fold(Sub.emit(Status.Disconnected.asMsg)) {
       _.subscribe {
         case WebSocketEvent.Error(errorMesage) =>
           Msg.FromSocket(errorMesage)
@@ -110,14 +123,21 @@ object Sandbox extends TyrianApp[Msg, Model]:
     }
 
 enum Msg:
-  case NewContent(content: String)      extends Msg
-  case Insert                           extends Msg
-  case Remove                           extends Msg
-  case Modify(i: Int, msg: Counter.Msg) extends Msg
-  case FromSocket(message: String)      extends Msg
-  case ToSocket(message: String)        extends Msg
-  case Connect                          extends Msg
-  case Disconnected                     extends Msg
+  case NewContent(content: String)
+  case Insert
+  case Remove
+  case Modify(i: Int, msg: Counter.Msg)
+  case FromSocket(message: String)
+  case ToSocket(message: String)
+  case WebSocketStatus(status: Status)
+
+enum Status:
+  case Connecting
+  case Connected(ws: WebSocket)
+  case ConnectionError(msg: String)
+  case Disconnected
+
+  def asMsg: Msg = Msg.WebSocketStatus(this)
 
 object Counter:
 
