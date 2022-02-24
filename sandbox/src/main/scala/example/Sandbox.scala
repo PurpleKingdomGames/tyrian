@@ -37,7 +37,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
       case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
         println(s"Failed to open WebSocket connection: $err")
-        (model, Cmd.Empty)
+        (model.copy(error = Some(err)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connected(ws)) =>
         (model.copy(echoSocket = Some(ws)), Cmd.Empty)
