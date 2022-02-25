@@ -7,7 +7,7 @@
 An Elm-inspired Scala UI library for Scala 3.
 
 The main documentation site, complete with installation instructions, is available here:
-[tyrian.indigoengine.io/](tyrian.indigoengine.io/)
+[tyrian.indigoengine.io/](https://tyrian.indigoengine.io/)
 
 ## Local build instructions
 
