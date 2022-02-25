@@ -5,12 +5,8 @@ object AttributeGen {
 
   def generateAttributeNameTypes: String =
     List("String", "Int", "Double", "Boolean").map { typ =>
-      s"""  opaque type AttributeName$typ = String
-      |  object AttributeName$typ:
-      |    inline def apply(name: String): AttributeName$typ = name
-      |    extension (a: AttributeName$typ)
-      |      inline def toString: String      = a
-      |      def :=(value: $typ): Attribute = Attribute(a.toString, ${if (typ == "String") "value" else "value.toString"})
+      s"""  final class AttributeName$typ(name: String):
+      |    def :=(value: $typ): Attribute = Attribute(name.toString, ${if (typ == "String") "value" else "value.toString"})
       |
       |""".stripMargin
     }.mkString
@@ -45,7 +41,8 @@ object AttributeGen {
 
   def genNoValue(attrName: String, realName: Option[String]): String = {
     val attr = realName.getOrElse(attrName.toLowerCase)
-    s"""  def $attrName: Attr[Nothing] = Attribute("$attr", "$attr")
+    s"""  def $attrName: NamedAttribute = NamedAttribute("$attr")
+    |  def $attrName(isUsed: Boolean): Attr[Nothing] = if isUsed then NamedAttribute("$attr") else EmptyAttribute
     |
     |""".stripMargin
   }
@@ -134,7 +131,7 @@ object AttributeGen {
       Normal("headers"),
       Normal("height").withTypes("String", "Int"),
       NoValue("hidden"),
-      Normal("high").withTypes("String", "Int", "Double"),
+      Normal("high").withTypes("String", "Double"),
       Normal("href"),
       Normal("hrefLang"),
       Normal("http"),
@@ -145,7 +142,7 @@ object AttributeGen {
       Normal("lang"),
       Normal("list"),
       NoValue("loop"),
-      Normal("low").withTypes("String", "Int", "Double"),
+      Normal("low").withTypes("String", "Double"),
       Normal("max").withTypes("String", "Int"),
       Normal("maxLength").withTypes("String", "Int"),
       Normal("media"),
@@ -227,7 +224,7 @@ object AttributeGen {
       EventEmitting("onWaiting"),
       EventEmitting("onWheel"),
       NoValue("open"),
-      Normal("optimum").withTypes("String", "Int", "Double"),
+      Normal("optimum").withTypes("String", "Double"),
       Normal("pattern"),
       Normal("placeholder"),
       Normal("poster"),
@@ -262,7 +259,7 @@ object AttributeGen {
       Normal("typ", "type"),
       Normal("tpe", "type"),
       Normal("useMap"),
-      Normal("value").withTypes("String", "Int", "Boolean"),
+      Normal("value").withTypes("String", "Double", "Boolean"),
       Normal("width").withTypes("String", "Int"),
       Normal("wrap")
     )

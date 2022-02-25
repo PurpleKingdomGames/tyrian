@@ -88,7 +88,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
     ) ++ counters
 
     div(
-      div("Random number: " + model.randomNumber.toString),
+      div(hidden(false))("Random number: " + model.randomNumber.toString),
       div(id := gameDivId1)(),
       div(id := gameDivId2)(),
       div(

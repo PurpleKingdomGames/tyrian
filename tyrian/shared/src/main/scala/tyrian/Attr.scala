@@ -4,6 +4,16 @@ package tyrian
 sealed trait Attr[+M]:
   def map[N](f: M => N): Attr[N]
 
+/** An attribute of an HTML tag that does not exist, used as a "do not render" placeholder
+  */
+case object EmptyAttribute extends Attr[Nothing]:
+  def map[N](f: Nothing => N): EmptyAttribute.type = this
+
+/** An attribute of an HTML tag that only has a name, no value
+  */
+final case class NamedAttribute(name: String) extends Attr[Nothing]:
+  def map[N](f: Nothing => N): NamedAttribute = this
+
 /** Attribute of an HTML tag
   *
   * Attributes are like properties, but can be removed. This is important for attributes like disabled, hidden, selected

@@ -70,6 +70,36 @@ class TyrianSSRTests extends munit.FunSuite {
     assertEquals(actual, expected)
   }
 
+  test("Can render attributes") {
+    val elems: List[Elem[Msg]] =
+      List(
+        div(id := "my-div", hidden)(("some content"))
+      )
+
+    val actual =
+      TyrianSSR.render(elems)
+
+    val expected =
+      """<div id="my-div" hidden>some content</div>"""
+
+    assertEquals(actual, expected)
+  }
+
+  test("Can render attributes and exclude hidden ones") {
+    val elems: List[Elem[Msg]] =
+      List(
+        div(id := "my-div", hidden(false))(("some content"))
+      )
+
+    val actual =
+      TyrianSSR.render(elems)
+
+    val expected =
+      """<div id="my-div">some content</div>"""
+
+    assertEquals(actual, expected)
+  }
+
   test("Can render a simple page") {
     val elems: Elem[Msg] =
       html(

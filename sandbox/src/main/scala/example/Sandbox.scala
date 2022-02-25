@@ -2,6 +2,7 @@ package example
 
 import tyrian.Html.*
 import tyrian.*
+import tyrian.cmds.Dom
 import tyrian.cmds.Logger
 import tyrian.websocket.*
 
@@ -15,6 +16,16 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
+      case Msg.Log(msg) =>
+        (model, Logger.info(msg))
+
+      case Msg.FocusOnInputField =>
+        val cmd = Dom.focus("text-reverse-field") {
+          case Left(Dom.NotFound(id)) => Msg.Log("Element not found: " + id)
+          case _                      => Msg.Log("Focused on input field")
+        }
+        (model, cmd)
+
       case Msg.NewContent(content) =>
         (model.copy(field = content), Cmd.Empty)
 
@@ -84,7 +95,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     div(
       div(
-        input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
+        button(onClick(Msg.FocusOnInputField))("Focus on the textfield"),
+        input(id := "text-reverse-field", placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse)),
         connect
       ),
@@ -129,6 +141,8 @@ enum Msg:
   case Modify(i: Int, msg: Counter.Msg)
   case FromSocket(message: String)
   case ToSocket(message: String)
+  case FocusOnInputField
+  case Log(msg: String)
   case WebSocketStatus(status: Status)
 
 enum Status:
