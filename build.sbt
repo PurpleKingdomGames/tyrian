@@ -170,6 +170,7 @@ lazy val docs =
         "SCALA_VERSION"   -> scalaDocsVersion
       )
     )
+    .dependsOn(tyrian.jvm)
     .settings(
       run / fork := true
     )
