@@ -81,7 +81,7 @@ object WebSocket:
             val msg =
               try { e.asInstanceOf[dom.ErrorEvent].message }
               catch { case _: Throwable => "Unknown" }
-            Some(WebSocketEvent.Error("Web socket connection error"))
+            Some(WebSocketEvent.Error(msg))
           },
           Sub.fromEvent("close", socket) { e =>
             if settings.enabled then keepAlive.cancel() else ()
