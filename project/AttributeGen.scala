@@ -6,7 +6,11 @@ object AttributeGen {
   def generateAttributeNameTypes: String =
     List("String", "Int", "Double", "Boolean").map { typ =>
       s"""  final class AttributeName$typ(name: String):
-      |    def :=(value: $typ): Attribute = Attribute(name.toString, ${if (typ == "String") "value" else "value.toString"})
+      |    def :=(value: $typ): Attribute = Attribute(name.toString, ${if (typ == "String") "value"
+      else "value.toString"})
+      |
+      |  final class PropertyName$typ(name: String):
+      |    def :=(value: $typ): Property = Property(name.toString, ${if (typ == "String") "value" else "value.toString"})
       |
       |""".stripMargin
     }.mkString
@@ -18,14 +22,14 @@ object AttributeGen {
     |  def properties(ps: (String, String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
     |
     |  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Attr[M] = Event(name, msg)
-    |  
     |""".stripMargin
 
-  def genAttr(tag: AttributeType): String =
+  def genAttr(tag: AttributeType, isAttribute: Boolean): String =
     tag match {
-      case Normal(name, attrName, types) => genNormal(name, attrName, types)
-      case NoValue(name, attrName)       => genNoValue(name, attrName)
-      case EventEmitting(name, attrName) => genEventEmitting(name, attrName)
+      case Normal(name, attrName, types) if isAttribute => genNormal(name, attrName, types)
+      case Normal(name, attrName, types)                => genNormalProp(name, attrName, types)
+      case NoValue(name, attrName)                      => genNoValue(name, attrName)
+      case EventEmitting(name, attrName)                => genEventEmitting(name, attrName)
     }
 
   def genNormal(attrName: String, realName: Option[String], types: List[String]): String = {
@@ -33,6 +37,17 @@ object AttributeGen {
     val res = types.map { t =>
       s"""  @targetName("$attrName-$t")
       |  val $attrName: AttributeName$t = AttributeName$t("$attr")
+      |""".stripMargin
+    }.mkString
+
+    "\n" + res + "\n"
+  }
+
+  def genNormalProp(propName: String, realName: Option[String], types: List[String]): String = {
+    val prop = realName.getOrElse(propName.toLowerCase)
+    val res = types.map { t =>
+      s"""  @targetName("$propName-$t")
+      |  val $propName: PropertyName$t = PropertyName$t("$prop")
       |""".stripMargin
     }.mkString
 
@@ -76,7 +91,12 @@ object AttributeGen {
     println("Generating Html Attributes")
 
     val contents: String =
-      generateAttributeNameTypes + genAttributesAndProperties + attrList.map(genAttr).mkString
+      generateAttributeNameTypes +
+        genAttributesAndProperties +
+        "\n\n  // Attributes\n\n" +
+        attrList.map(a => genAttr(a, true)).mkString +
+        "\n\n  // Properties\n\n" +
+        propList.map(p => genAttr(p, false)).mkString
 
     val file: File =
       sourceManagedDir / (moduleName + ".scala")
@@ -259,9 +279,13 @@ object AttributeGen {
       Normal("typ", "type"),
       Normal("tpe", "type"),
       Normal("useMap"),
-      Normal("value").withTypes("String", "Double", "Boolean"),
       Normal("width").withTypes("String", "Int"),
       Normal("wrap")
+    )
+
+  def propList: List[Normal] =
+    List(
+      Normal("value").withTypes("String", "Double", "Boolean")
     )
 
 }
