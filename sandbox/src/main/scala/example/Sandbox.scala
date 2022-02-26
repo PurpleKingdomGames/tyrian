@@ -16,6 +16,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
+      case Msg.Clear =>
+        (model.copy(field = ""), Cmd.Empty)
+
       case Msg.Log(msg) =>
         (model, Logger.info(msg))
 
@@ -54,17 +57,20 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model.copy(echoSocket = Some(ws)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connecting) =>
-        (model, Cmd.RunTask(
-          WebSocket.connect(
-            address = model.socketUrl,
-            onOpenMessage = "Connect me!",
-            keepAliveSettings = KeepAliveSettings.default
-          ),
-          {
-            case Left(err) => Status.ConnectionError(err).asMsg
-            case Right(ws) => Status.Connected(ws).asMsg
-          }
-        ))
+        (
+          model,
+          Cmd.RunTask(
+            WebSocket.connect(
+              address = model.socketUrl,
+              onOpenMessage = "Connect me!",
+              keepAliveSettings = KeepAliveSettings.default
+            ),
+            {
+              case Left(err) => Status.ConnectionError(err).asMsg
+              case Right(ws) => Status.Connected(ws).asMsg
+            }
+          )
+        )
 
       case Msg.WebSocketStatus(Status.Disconnected) =>
         println("WebSocket not connected yet")
@@ -89,15 +95,21 @@ object Sandbox extends TyrianApp[Msg, Model]:
     ) ++ counters
 
     val connect =
-      if model.echoSocket.isEmpty
-      then div(myStyle)(button(onClick(Status.Connecting.asMsg))(text("Connect")))
+      if model.echoSocket.isEmpty then div(myStyle)(button(onClick(Status.Connecting.asMsg))(text("Connect")))
       else div()
 
     div(
       div(
         button(onClick(Msg.FocusOnInputField))("Focus on the textfield"),
-        input(id := "text-reverse-field", placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
+        input(
+          id          := "text-reverse-field",
+          value       := model.field,
+          placeholder := "Text to reverse",
+          onInput(s => Msg.NewContent(s)),
+          myStyle
+        ),
         div(myStyle)(text(model.field.reverse)),
+        button(onClick(Msg.Clear))("clear"),
         connect
       ),
       div(elems),
@@ -144,6 +156,7 @@ enum Msg:
   case FocusOnInputField
   case Log(msg: String)
   case WebSocketStatus(status: Status)
+  case Clear
 
 enum Status:
   case Connecting
@@ -175,12 +188,12 @@ object Counter:
       case Msg.Decrement => model - 1
 
 final case class Model(
-  echoSocket: Option[WebSocket],
-  socketUrl: String,
-  field: String,
-  components: List[Counter.Model],
-  log: List[String],
-  error: Option[String]
+    echoSocket: Option[WebSocket],
+    socketUrl: String,
+    field: String,
+    components: List[Counter.Model],
+    log: List[String],
+    error: Option[String]
 )
 
 object Model:
