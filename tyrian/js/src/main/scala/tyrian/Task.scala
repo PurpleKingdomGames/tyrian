@@ -19,7 +19,7 @@ sealed trait Task[+Err, +Success]:
   def map[Success2](f: Success => Success2): Task[Err, Success2] =
     Task.Mapped(this, f)
 
-  /** Combines to tasks in parallel */
+  /** Combines two tasks in parallel */
   def product[Success2, Err2 >: Err](that: Task[Err2, Success2]): Task[Err2, (Success, Success2)] =
     Task.Multiplied(this, that)
 
