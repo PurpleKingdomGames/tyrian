@@ -65,6 +65,9 @@ object Task:
   /** A task that is a fire and forget side effect */
   final case class SideEffect(thunk: () => Unit) extends Task[Nothing, Unit]
 
+  /** A task that suspends the side-effect of producing A. If it fails, an error message is returned */
+  final case class Delay[A](thunk: () => A) extends Task[String, A]
+
   /** A task that succeeded with the given `value` */
   final case class Succeeded[A](value: A) extends Task[Nothing, A]
 

@@ -1,7 +1,7 @@
 package tyrian.websocket
 
 enum WebSocketEvent derives CanEqual:
-  case Open                     extends WebSocketEvent
-  case Receive(message: String) extends WebSocketEvent
-  case Error(error: String)     extends WebSocketEvent
-  case Close                    extends WebSocketEvent
+  case Open
+  case Receive(message: String)
+  case Error(error: String)
+  case Close(code: Int, reason: String)
