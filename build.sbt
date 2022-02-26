@@ -148,15 +148,16 @@ lazy val jsdocs =
     .settings(
       neverPublish,
       organization                           := "io.indigoengine",
-      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % Dependancies.scalajsDomVersion
+      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % Dependancies.scalajsDomVersion,
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
     )
+    .dependsOn(tyrian.js)
+    .dependsOn(tyrianIndigoBridge.js)
     .enablePlugins(ScalaJSPlugin)
 
 lazy val docs =
   project
     .in(file("tyrian-docs"))
-    .dependsOn(tyrian.js)
-    .dependsOn(tyrianIndigoBridge.js)
     .enablePlugins(MdocPlugin)
     .settings(
       neverPublish,

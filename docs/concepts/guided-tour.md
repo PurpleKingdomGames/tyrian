@@ -17,7 +17,7 @@ The example is comprised of two buttons, `+` and `-`, and some text that shows a
 
 The version of this in the [examples](https://github.com/PurpleKingdomGames/tyrian/tree/main/examples) is already quite lean, but the version below has been stripped back to the minimum.
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
 import tyrian.Html.*
 import tyrian.*
 
@@ -84,14 +84,14 @@ Our app is a counter, so we need a number we can increment and decrement. In thi
 
 To use our model, we're going to have to initialize it!
 
-```scala mdoc:reset:invisible
+```scala mdoc:js:shared:invisible
 import tyrian.Html.*
 import tyrian.*
 
 type Model = Int
 ```
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
   def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     (0, Cmd.Empty)
 ```
@@ -109,7 +109,7 @@ Let's draw the page. All the functions in Tyrian are encouraged to be pure, whic
 
 The `view` takes the latest immutable (read-only) model, and produces some HTML in the form of `Html[Msg]`.
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
   def view(model: Model): Html[Msg] =
     div(
       button("-"),
@@ -128,23 +128,14 @@ div(id := "my container")(...)
 
 Of course a button isn't much use unless it does something, and what we can do is emit an event, called a message, when the button is clicked. For that we need to declare our message type which we'll do as a simple enum that represents the two actions we want to perform:
 
-```scala mdoc:silent
+```scala mdoc:js:shared
 enum Msg:
   case Increment, Decrement
 ```
 
 ...and add our click events:
 
-```scala mdoc:reset:invisible
-import tyrian.Html.*
-import tyrian.*
-
-type Model = Int
-enum Msg:
-  case Increment, Decrement
-```
-
-```scala mdoc:silent
+```scala mdoc:js:compile-only
   def view(model: Model): Html[Msg] =
     div(
       button(onClick(Msg.Decrement))("-"),
@@ -159,7 +150,7 @@ enum Msg:
 
 The final thing we need to do is react to the messages the view is sending, as follows:
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.Increment => (model + 1, Cmd.Empty)

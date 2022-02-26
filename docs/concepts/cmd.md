@@ -38,7 +38,7 @@ Commands can be produced as part of a result of calling the `init` or `updateMod
 
 Here is an example in which, on receiving a message `Msg.LogThis`, we are not going to change the model, but we want to write to the browser's JavaScript console:
 
-```scala mdoc:silent
+```scala mdoc:js:shared
 import tyrian.*
 import tyrian.cmds.*
 
@@ -55,7 +55,7 @@ def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
 
 To achieve this, we use the `Logger` command that comes with Tyrian. The `Logger` command is in fact just a `Cmd.SideEffect` that captures a value or behavior as a zero argument function, known as a `thunk`, in this case a simplified implementation could just be:
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
 def consoleLog(msg: String): Cmd[Nothing] =
   Cmd.SideEffect { () =>
     println(msg)
@@ -64,13 +64,13 @@ def consoleLog(msg: String): Cmd[Nothing] =
 
 But commands can also return values in the form of messages. The `Random` command looks like this:
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
 Random.double
 ```
 
 ...and produces an instance of `RandomValue`, but this leads to a problem since `RandomValue` is almost certainly not your app's `Msg` type, and so we must map over the result:
 
-```scala mdoc:silent
+```scala mdoc:js:compile-only
 enum MyMsg:
   case MyRandom(d: Double) extends MyMsg
 
