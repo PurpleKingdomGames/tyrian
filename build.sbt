@@ -152,7 +152,7 @@ lazy val jsdocs =
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
     )
     .dependsOn(tyrian.js)
-    .dependsOn(tyrianIndigoBridge.js)
+    // .dependsOn(tyrianIndigoBridge.js)
     .enablePlugins(ScalaJSPlugin)
 
 lazy val docs =
