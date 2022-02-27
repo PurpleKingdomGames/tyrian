@@ -3,6 +3,7 @@ package example
 import tyrian.Html.*
 import tyrian.*
 import tyrian.cmds.Dom
+import tyrian.cmds.LocalStorage
 import tyrian.cmds.Logger
 import tyrian.websocket.*
 
@@ -16,6 +17,38 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
+      case Msg.Save(k, v) =>
+        val cmd = LocalStorage.setItem(k, v) {
+          case Left(e)  => Msg.Log("Error saving: " + e)
+          case Right(_) => Msg.Log("Save successful")
+        }
+
+        (model, cmd)
+
+      case Msg.Load(k) =>
+        val cmd = LocalStorage.getItem(k) {
+          case Left(e) => Msg.Log("Error loading: " + e)
+          case Right(data) =>
+            println("Loaded: " + data)
+            Msg.DataLoaded(data)
+        }
+
+        (model, cmd)
+
+      case Msg.ClearStorage(k) =>
+        val cmd = LocalStorage.removeItem(k) {
+          case Left(e)     => Msg.Log("Error removing: " + e)
+          case Right(data) => Msg.Log("Item remove successful")
+        }
+
+        (model.copy(saveData = None), cmd)
+
+      case Msg.DataLoaded(data) =>
+        (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.Empty)
+
+      case Msg.StageSaveData(content) =>
+        (model.copy(tmpSaveData = content), Cmd.Empty)
+
       case Msg.Clear =>
         (model.copy(field = ""), Cmd.Empty)
 
@@ -100,6 +133,16 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     div(
       div(
+        input(
+          placeholder := "What should we save?",
+          value       := model.tmpSaveData,
+          onInput(s => Msg.StageSaveData(s))
+        ),
+        button(disabled(model.tmpSaveData.isEmpty), onClick(Msg.Save("test-data", model.tmpSaveData)))("Save"),
+        button(onClick(Msg.Load("test-data")))("Load"),
+        button(onClick(Msg.ClearStorage("test-data")))("Clear")
+      ),
+      div(
         button(onClick(Msg.FocusOnInputField))("Focus on the textfield"),
         input(
           id          := "text-reverse-field",
@@ -157,6 +200,11 @@ enum Msg:
   case Log(msg: String)
   case WebSocketStatus(status: Status)
   case Clear
+  case StageSaveData(content: String)
+  case Save(key: String, value: String)
+  case Load(key: String)
+  case ClearStorage(key: String)
+  case DataLoaded(data: String)
 
 enum Status:
   case Connecting
@@ -193,9 +241,11 @@ final case class Model(
     field: String,
     components: List[Counter.Model],
     log: List[String],
-    error: Option[String]
+    error: Option[String],
+    tmpSaveData: String,
+    saveData: Option[String]
 )
 
 object Model:
   val init: Model =
-    Model(None, "ws://localhost:8080/wsecho", "", Nil, Nil, None)
+    Model(None, "ws://localhost:8080/wsecho", "", Nil, Nil, None, "", None)
