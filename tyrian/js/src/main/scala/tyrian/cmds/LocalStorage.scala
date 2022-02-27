@@ -8,7 +8,9 @@ import scala.util.control.NonFatal
 
 object LocalStorage:
 
-  final case class Error(message: String)
+  enum Error:
+    case Failure(message: String)
+    case NotFound(key: String)
 
   def setItem[Msg](key: String, data: String, toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
     Cmd.Run(toMessage) { observer =>
@@ -16,7 +18,7 @@ object LocalStorage:
         observer.onNext(dom.window.localStorage.setItem(key, data))
       catch {
         case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
+          observer.onError(Error.Failure(e.getMessage))
       }
 
       () => ()
@@ -25,13 +27,16 @@ object LocalStorage:
   def setItem[Msg](key: String, data: String)(toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
     setItem(key, data, toMessage)
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
   def getItem[Msg](key: String, toMessage: Either[Error, String] => Msg): Cmd[Msg] =
     Cmd.Run(toMessage) { observer =>
       try
-        observer.onNext(dom.window.localStorage.getItem(key))
+        val item = dom.window.localStorage.getItem(key)
+        if item == null then observer.onError(Error.NotFound(key))
+        else observer.onNext(item)
       catch {
         case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
+          observer.onError(Error.Failure(e.getMessage))
       }
 
       () => ()
@@ -46,7 +51,7 @@ object LocalStorage:
         observer.onNext(dom.window.localStorage.removeItem(key))
       catch {
         case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
+          observer.onError(Error.Failure(e.getMessage))
       }
 
       () => ()
@@ -61,7 +66,7 @@ object LocalStorage:
         observer.onNext(dom.window.localStorage.clear())
       catch {
         case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
+          observer.onError(Error.Failure(e.getMessage))
       }
 
       () => ()
@@ -73,7 +78,7 @@ object LocalStorage:
         observer.onNext(dom.window.localStorage.key(index))
       catch {
         case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
+          observer.onError(Error.Failure(e.getMessage))
       }
 
       () => ()
@@ -88,7 +93,7 @@ object LocalStorage:
         observer.onNext(dom.window.localStorage.length)
       catch {
         case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
+          observer.onError(Error.Failure(e.getMessage))
       }
 
       () => ()

@@ -13,7 +13,16 @@ import scala.scalajs.js.annotation.*
 object Sandbox extends TyrianApp[Msg, Model]:
 
   def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    (Model.init, Logger.info(flags.toString))
+    val cmds =
+      Cmd.Batch(
+        Logger.info(flags.toString),
+        Navigation.getLocationHash {
+          case Left(Navigation.NoHash)             => Msg.NavigateTo(Page.Page1)
+          case Right(Navigation.CurrentHash(hash)) => Msg.NavigateTo(Page.fromString(hash))
+        }
+      )
+
+    (Model.init, cmds)
 
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
@@ -48,6 +57,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
       case Msg.StageSaveData(content) =>
         (model.copy(tmpSaveData = content), Cmd.Empty)
+
+      case Msg.JumpToHomePage =>
+        (model, Navigation.setLocationHash(Page.Page1.toHash))
+
+      case Msg.NavigateTo(page) =>
+        (model.copy(page = page), Cmd.Empty)
 
       case Msg.Clear =>
         (model.copy(field = ""), Cmd.Empty)
@@ -118,6 +133,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.Empty))
 
   def view(model: Model): Html[Msg] =
+    val navItems =
+      Page.values.toList.map { pg =>
+        if pg == model.page then li(pg.toNavLabel)
+        else li(a(href := pg.toHash)(pg.toNavLabel))
+      }
+
     val counters = model.components.zipWithIndex.map { case (c, i) =>
       Counter.view(c).map(msg => Msg.Modify(i, msg))
     }
@@ -131,36 +152,51 @@ object Sandbox extends TyrianApp[Msg, Model]:
       if model.echoSocket.isEmpty then div(myStyle)(button(onClick(Status.Connecting.asMsg))(text("Connect")))
       else div()
 
+    val contents =
+      model.page match
+        case Page.Page1 =>
+          div(
+            input(
+              placeholder := "What should we save?",
+              value       := model.tmpSaveData,
+              onInput(s => Msg.StageSaveData(s))
+            ),
+            button(disabled(model.tmpSaveData.isEmpty), onClick(Msg.Save("test-data", model.tmpSaveData)))("Save"),
+            button(onClick(Msg.Load("test-data")))("Load"),
+            button(onClick(Msg.ClearStorage("test-data")))("Clear"),
+            br,
+            br,
+            button(onClick(Msg.FocusOnInputField))("Focus on the textfield"),
+            input(
+              id          := "text-reverse-field",
+              value       := model.field,
+              placeholder := "Text to reverse",
+              onInput(s => Msg.NewContent(s)),
+              myStyle
+            ),
+            div(myStyle)(text(model.field.reverse)),
+            button(onClick(Msg.Clear))("clear")
+          )
+
+        case Page.Page2 =>
+          div(elems)
+
+        case Page.Page3 =>
+          div(
+            connect,
+            p(button(onClick(Msg.ToSocket("Hello!")))("send")),
+            p("Log:"),
+            p(model.log.flatMap(msg => List(text(msg), br)))
+          )
+
     div(
       div(
-        input(
-          placeholder := "What should we save?",
-          value       := model.tmpSaveData,
-          onInput(s => Msg.StageSaveData(s))
-        ),
-        button(disabled(model.tmpSaveData.isEmpty), onClick(Msg.Save("test-data", model.tmpSaveData)))("Save"),
-        button(onClick(Msg.Load("test-data")))("Load"),
-        button(onClick(Msg.ClearStorage("test-data")))("Clear")
+        h3("Navigation:"),
+        ol(navItems),
+        button(onClick(Msg.JumpToHomePage))("Jump to homepage")
       ),
-      div(
-        button(onClick(Msg.FocusOnInputField))("Focus on the textfield"),
-        input(
-          id          := "text-reverse-field",
-          value       := model.field,
-          placeholder := "Text to reverse",
-          onInput(s => Msg.NewContent(s)),
-          myStyle
-        ),
-        div(myStyle)(text(model.field.reverse)),
-        button(onClick(Msg.Clear))("clear"),
-        connect
-      ),
-      div(elems),
-      div(
-        p(button(onClick(Msg.ToSocket("Hello!")))(text("send"))),
-        p("Log:"),
-        p(model.log.flatMap(msg => List(text(msg), br)))
-      )
+      div(br),
+      contents
     )
 
   private val myStyle =
@@ -173,21 +209,27 @@ object Sandbox extends TyrianApp[Msg, Model]:
     )
 
   def subscriptions(model: Model): Sub[Msg] =
-    model.echoSocket.fold(Sub.emit(Status.Disconnected.asMsg)) {
-      _.subscribe {
-        case WebSocketEvent.Error(errorMesage) =>
-          Msg.FromSocket(errorMesage)
+    val webSocketSubs =
+      model.echoSocket.fold(Sub.emit(Status.Disconnected.asMsg)) {
+        _.subscribe {
+          case WebSocketEvent.Error(errorMesage) =>
+            Msg.FromSocket(errorMesage)
 
-        case WebSocketEvent.Receive(message) =>
-          Msg.FromSocket(message)
+          case WebSocketEvent.Receive(message) =>
+            Msg.FromSocket(message)
 
-        case WebSocketEvent.Open =>
-          Msg.FromSocket("<no message - socket opened>")
+          case WebSocketEvent.Open =>
+            Msg.FromSocket("<no message - socket opened>")
 
-        case WebSocketEvent.Close(code, reason) =>
-          Msg.FromSocket(s"<socket closed> - code: $code, reason: $reason")
+          case WebSocketEvent.Close(code, reason) =>
+            Msg.FromSocket(s"<socket closed> - code: $code, reason: $reason")
+        }
       }
-    }
+
+    Sub.Batch(
+      webSocketSubs,
+      Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment)))
+    )
 
 enum Msg:
   case NewContent(content: String)
@@ -205,6 +247,8 @@ enum Msg:
   case Load(key: String)
   case ClearStorage(key: String)
   case DataLoaded(data: String)
+  case NavigateTo(page: Page)
+  case JumpToHomePage
 
 enum Status:
   case Connecting
@@ -236,6 +280,7 @@ object Counter:
       case Msg.Decrement => model - 1
 
 final case class Model(
+    page: Page,
     echoSocket: Option[WebSocket],
     socketUrl: String,
     field: String,
@@ -246,6 +291,30 @@ final case class Model(
     saveData: Option[String]
 )
 
+enum Page:
+  case Page1, Page2, Page3
+
+  def toNavLabel: String =
+    this match
+      case Page1 => "Input fields"
+      case Page2 => "Counters"
+      case Page3 => "WebSockets"
+
+  def toHash: String =
+    this match
+      case Page1 => "#page1"
+      case Page2 => "#page2"
+      case Page3 => "#page3"
+
+object Page:
+  def fromString(pageString: String): Page =
+    pageString match
+      case "#page2" => Page2
+      case "page2"  => Page2
+      case "#page3" => Page3
+      case "page3"  => Page3
+      case s        => Page1
+
 object Model:
   val init: Model =
-    Model(None, "ws://localhost:8080/wsecho", "", Nil, Nil, None, "", None)
+    Model(Page.Page1, None, "ws://localhost:8080/wsecho", "", Nil, Nil, None, "", None)
