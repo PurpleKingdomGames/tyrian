@@ -45,7 +45,6 @@ libraryDependencies ++= Seq(
   "io.indigoengine" %%% "tyrian" % "@VERSION@"
 )
 
-scalaJSUseMainModuleInitializer := true,
 scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
 ```
 
