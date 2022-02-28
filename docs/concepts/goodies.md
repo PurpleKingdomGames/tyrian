@@ -14,6 +14,24 @@ These nuggets of functionality are used as commands.
 - `ImageLoader` - Given a path, this cmd will load an image and return an `HTMLImageElement` for you to make use of.
 - `Logger` - A simple logger that logs to the Browsers console with a few standard headers and the log message.
 - `Random` - A Cmd to generate random values.
+- `Dom` - A few methods such as `focus` and `blur` to manipulate the DOM. Inspired by the Elm [Browser.Dom](https://package.elm-lang.org/packages/elm/browser/latest/Browser.Dom) package.
+
+### Dom
+
+Assuming two messages `Error` and `Empty`, we can attempt to focus a given ID.
+
+```scala
+import tyrian.cmds.Dom
+import tyrian.cmds.Dom.NotFound
+
+val cmd: Cmd[Msg] =
+  Dom.focus("my-id") {
+    case Left(NotFound(id)) => Msg.Error(s"ID $id not found")
+    case Right(_)           => Msg.Empty
+  }
+```
+
+`Dom.blur` works in the same way, though, performing the opposite effect.
 
 ## Built-in Pub/Sub goodies
 
