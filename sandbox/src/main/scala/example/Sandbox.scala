@@ -71,7 +71,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
       case Msg.NavigateTo(page) =>
         (model.copy(page = page), Cmd.Empty)
 
-      case Msg.TakeSnapShot =>
+      case Msg.TakeSnapshot =>
         (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
 
       case Msg.OverwriteModel(m) =>
@@ -188,7 +188,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
               myStyle
             ),
             div(myStyle)(text(model.field.reverse)),
-            button(onClick(Msg.TakeSnapShot))("Snapshot"),
+            button(onClick(Msg.TakeSnapshot))("Snapshot"),
             button(onClick(Msg.Clear))("clear")
           )
 
@@ -243,7 +243,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
     Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
-      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapShot)
+      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
     )
 
 enum Msg:
@@ -265,7 +265,7 @@ enum Msg:
   case NavigateTo(page: Page)
   case JumpToHomePage
   case OverwriteModel(model: Model)
-  case TakeSnapShot
+  case TakeSnapshot
 
 enum Status:
   case Connecting
