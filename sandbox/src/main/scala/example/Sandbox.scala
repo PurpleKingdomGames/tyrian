@@ -7,14 +7,21 @@ import tyrian.cmds.LocalStorage
 import tyrian.cmds.Logger
 import tyrian.websocket.*
 
+import scala.concurrent.duration.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianApp[Msg, Model]:
 
+  val hotReloadKey: String = "hotreload"
+
   def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     val cmds =
       Cmd.Batch(
+        HotReload.bootstrap(hotReloadKey, Model.decode) {
+          case Left(e)      => Msg.Log("Error during hot-reload!: " + e.message)
+          case Right(model) => Msg.OverwriteModel(model)
+        },
         Logger.info(flags.toString),
         Navigation.getLocationHash {
           case Left(Navigation.NoHash)             => Msg.NavigateTo(Page.Page1)
@@ -63,6 +70,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
       case Msg.NavigateTo(page) =>
         (model.copy(page = page), Cmd.Empty)
+
+      case Msg.TakeSnapShot =>
+        (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
+
+      case Msg.OverwriteModel(m) =>
+        (m, Cmd.Empty)
 
       case Msg.Clear =>
         (model.copy(field = ""), Cmd.Empty)
@@ -175,6 +188,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
               myStyle
             ),
             div(myStyle)(text(model.field.reverse)),
+            button(onClick(Msg.TakeSnapShot))("Snapshot"),
             button(onClick(Msg.Clear))("clear")
           )
 
@@ -228,7 +242,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     Sub.Batch(
       webSocketSubs,
-      Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment)))
+      Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
+      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapShot)
     )
 
 enum Msg:
@@ -249,6 +264,8 @@ enum Msg:
   case DataLoaded(data: String)
   case NavigateTo(page: Page)
   case JumpToHomePage
+  case OverwriteModel(model: Model)
+  case TakeSnapShot
 
 enum Status:
   case Connecting
@@ -318,3 +335,9 @@ object Page:
 object Model:
   val init: Model =
     Model(Page.Page1, None, "ws://localhost:8080/wsecho", "", Nil, Nil, None, "", None)
+
+  // We're only saving/loading the input field contents as an example
+  def encode(model: Model): String = model.field
+  def decode: Option[String] => Model =
+    case None       => Model.init
+    case Some(data) => Model(Page.Page1, None, "ws://localhost:8080/wsecho", data, Nil, Nil, None, "", None)
