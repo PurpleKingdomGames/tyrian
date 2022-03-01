@@ -133,6 +133,10 @@ object Sandbox extends TyrianApp[Msg, Model]:
           )
         )
 
+      case Msg.WebSocketStatus(Status.Disconnecting) =>
+        println("Graceful shutdown of WS connection")
+        (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.Empty))
+
       case Msg.WebSocketStatus(Status.Disconnected) =>
         println("WebSocket not connected yet")
         (model, Cmd.Empty)
@@ -163,7 +167,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     val connect =
       if model.echoSocket.isEmpty then div(myStyle)(button(onClick(Status.Connecting.asMsg))(text("Connect")))
-      else div()
+      else div(myStyle)(button(onClick(Status.Disconnecting.asMsg))(text("Disconnect")))
 
     val contents =
       model.page match
@@ -237,6 +241,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
           case WebSocketEvent.Close(code, reason) =>
             Msg.FromSocket(s"<socket closed> - code: $code, reason: $reason")
+
+          case WebSocketEvent.Heartbeat =>
+            Msg.ToSocket("<💓 heartbeat 💓>")
         }
       }
 
@@ -271,6 +278,7 @@ enum Status:
   case Connecting
   case Connected(ws: WebSocket)
   case ConnectionError(msg: String)
+  case Disconnecting
   case Disconnected
 
   def asMsg: Msg = Msg.WebSocketStatus(this)
@@ -333,11 +341,14 @@ object Page:
       case s        => Page1
 
 object Model:
+  //val echoServer = "ws://ws.ifelse.io" // public echo server
+  val echoServer = "ws://localhost:8080/wsecho"
+
   val init: Model =
-    Model(Page.Page1, None, "ws://localhost:8080/wsecho", "", Nil, Nil, None, "", None)
+    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None)
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field
   def decode: Option[String] => Model =
     case None       => Model.init
-    case Some(data) => Model(Page.Page1, None, "ws://localhost:8080/wsecho", data, Nil, Nil, None, "", None)
+    case Some(data) => Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None)
