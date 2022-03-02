@@ -24,7 +24,21 @@ There is also a `build.sh` script in the root folder, but that also builds the d
 
 If you would like to have the environment set up without installing any dependencies globally (think `node`, `yarn`, `java`, etc), you can give the [Nix](https://nixos.org/) development shells a try.
 
-There are two different shells, which require you to enable [flakes](https://nixos.wiki/wiki/Flakes#Installing_flakes).
+There are three different shells, which require you to enable [flakes](https://nixos.wiki/wiki/Flakes#Installing_flakes).
+
+#### Main
+
+The `main` dev shell combines both the `jvm` and `js` shells described below.
+
+```console
+$ nix develop .#main
+```
+
+Locally you can run `nix develop .#main`. However, if you would like to use the same shell in a different repository, you can run the following command instead.
+
+```console
+nix develop github:PurpleKingdomGames/tyrian#main
+```
 
 #### JVM
 
@@ -58,7 +72,7 @@ $ cs java-home
 /nix/store/drg31yiw0619r981n0yyv7lnziiyxwww-openjdk-headless-17.0.1+12
 ```
 
-Locally you can run `nix develop .#jvm`. However, if you would like to use the same shell in a different repository, you can run the following command instead.
+Or remotely.
 
 ```console
 nix develop github:PurpleKingdomGames/tyrian#jvm
