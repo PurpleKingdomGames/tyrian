@@ -41,10 +41,9 @@ object WebSocketReadyState:
       case _ => CLOSED
     }
 
-final case class KeepAliveSettings(message: String, timeout: FiniteDuration, enabled: Boolean)
+final case class KeepAliveSettings(timeout: FiniteDuration)
 object KeepAliveSettings:
-  def default  = KeepAliveSettings("{ \"Heartbeat\": {} }", 20.seconds, true)
-  def disabled = default.copy(enabled = false)
+  def default  = KeepAliveSettings(20.seconds)
 
 object WebSocket:
   /** Acquires a WebSocket connection with default keep-alive message */
@@ -70,7 +69,7 @@ object WebSocket:
   ): Task[String, LiveSocket] =
     Task.Delay { () =>
       val socket    = new dom.WebSocket(address)
-      val keepAlive = new KeepAlive(socket, settings.message, settings.timeout)
+      val keepAlive = new KeepAlive(socket, settings)
 
       val subs =
         Sub.Batch(
@@ -84,30 +83,23 @@ object WebSocket:
             Some(WebSocketEvent.Error(msg))
           },
           Sub.fromEvent("close", socket) { e =>
-            if settings.enabled then keepAlive.cancel() else ()
             val ev = e.asInstanceOf[dom.CloseEvent]
             Some(WebSocketEvent.Close(ev.code, ev.reason))
           },
           Sub.fromEvent("open", socket) { _ =>
             onOpenSendMessage.foreach(msg => socket.send(msg))
-            if settings.enabled then keepAlive.run() else ()
             Some(WebSocketEvent.Open)
-          }
+          },
+          keepAlive.run
         )
 
       LiveSocket(socket, subs)
     }
 
-  final class KeepAlive(socket: dom.WebSocket, msg: String, timeout: FiniteDuration):
-    @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-    private var timerId = 0;
-
+  final class KeepAlive(socket: dom.WebSocket, settings: KeepAliveSettings):
     @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-    def run(): Unit =
+    def run: Sub[WebSocketEvent] =
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
-        println("[info] Sending heartbeat 💓")
-        socket.send(msg)
-      timerId = dom.window.setTimeout(Functions.fun0(() => run()), timeout.toMillis.toDouble)
-
-    def cancel(): Unit =
-      if (timerId <= 0) then dom.window.clearTimeout(timerId) else ()
+        Sub.every(settings.timeout, "ws-heartbeat").map(_ => WebSocketEvent.Heartbeat)
+      else
+        Sub.Empty

@@ -5,3 +5,4 @@ enum WebSocketEvent derives CanEqual:
   case Receive(message: String)
   case Error(error: String)
   case Close(code: Int, reason: String)
+  case Heartbeat
