@@ -75,7 +75,6 @@ object counter extends ScalaJSModule {
   def ivyDeps = Agg(ivy"io.indigoengine::tyrian::@VERSION@")
 
   override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
-  override def useECMAScript2015 = T(true) // required for the tyrian/indigo bridge
 
   object test extends Tests {
     def ivyDeps = Agg(ivy"org.scalameta::munit::0.7.29")
@@ -83,8 +82,9 @@ object counter extends ScalaJSModule {
     def testFramework = "munit.Framework"
 
     override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
-    override def jsEnvConfig = T(JsEnvConfig.NodeJs(args = List("--dns-result-order=ipv4first")))
-    override def useECMAScript2015 = T(true)
+    override def jsEnvConfig = T(
+      JsEnvConfig.NodeJs(args = List("--dns-result-order=ipv4first"))
+    )
   }
 
 }
