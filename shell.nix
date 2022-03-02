@@ -1,4 +1,4 @@
-{ shell ? "jvm", system ? builtins.currentSystem or "unknown-system" }:
+{ shell ? "main", system ? builtins.currentSystem or "unknown-system" }:
 
 let
   compat = (import

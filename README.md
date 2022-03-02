@@ -109,8 +109,8 @@ nix develop github:PurpleKingdomGames/tyrian#js
 
 #### Can I use the old `nix-shell`?
 
-Absolutely! The `shell.nix` file provides a flakes-compatible shell that works with `nix-shell`. It selects the `jvm` shell by default, but you can specify which one you want. E.g.
+Absolutely! The `shell.nix` file provides a flakes-compatible shell that works with `nix-shell`. It selects the `main` shell by default, but you can specify which one you want. E.g.
 
 ```console
-$ nix-shell --argstr shell js
+$ nix-shell --argstr shell jvm
 ```
