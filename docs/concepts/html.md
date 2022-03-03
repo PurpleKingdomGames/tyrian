@@ -13,6 +13,9 @@ Here is a simple made up example of the syntax to give you a flavor:
 import tyrian.*
 import tyrian.Html.*
 
+enum Msg:
+  case Greet
+
 val styles  = style(CSS.`font-family`("Arial, Helvetica, sans-serif"))
 val topLine = p(b(text("This is some HTML in bold.")))
 
