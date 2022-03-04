@@ -43,23 +43,49 @@ object WebSocketReadyState:
 
 final case class KeepAliveSettings(timeout: FiniteDuration)
 object KeepAliveSettings:
-  def default  = KeepAliveSettings(20.seconds)
+  def default = KeepAliveSettings(20.seconds)
 
 object WebSocket:
   /** Acquires a WebSocket connection with default keep-alive message */
-  def connect(address: String): Task[String, WebSocket] =
-    newConnection(address, None, KeepAliveSettings.default).map(WebSocket(_))
+  def connect[Msg](address: String)(resultToMessage: Either[String, WebSocket] => Msg): Cmd[Msg] =
+    Cmd.RunTask(connectTask(address), resultToMessage)
 
   /** Acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
-  def connect(address: String, onOpenMessage: String): Task[String, WebSocket] =
-    newConnection(address, Option(onOpenMessage), KeepAliveSettings.default).map(WebSocket(_))
+  def connect[Msg](address: String, onOpenMessage: String)(
+      resultToMessage: Either[String, WebSocket] => Msg
+  ): Cmd[Msg] =
+    Cmd.RunTask(connectTask(address, onOpenMessage), resultToMessage)
 
   /** Acquires a WebSocket connection with custom keep-alive message */
-  def connect(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
-    newConnection(address, None, keepAliveSettings).map(WebSocket(_))
+  def connect[Msg](address: String, keepAliveSettings: KeepAliveSettings)(
+      resultToMessage: Either[String, WebSocket] => Msg
+  ): Cmd[Msg] =
+    Cmd.RunTask(connectTask(address, keepAliveSettings), resultToMessage)
 
   /** Acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
-  def connect(address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
+  def connect[Msg](address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings)(
+      resultToMessage: Either[String, WebSocket] => Msg
+  ): Cmd[Msg] =
+    Cmd.RunTask(connectTask(address, onOpenMessage, keepAliveSettings), resultToMessage)
+
+  /** A task that acquires a WebSocket connection with default keep-alive message */
+  def connectTask(address: String): Task[String, WebSocket] =
+    newConnection(address, None, KeepAliveSettings.default).map(WebSocket(_))
+
+  /** A task that acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
+  def connectTask(address: String, onOpenMessage: String): Task[String, WebSocket] =
+    newConnection(address, Option(onOpenMessage), KeepAliveSettings.default).map(WebSocket(_))
+
+  /** A task that acquires a WebSocket connection with custom keep-alive message */
+  def connectTask(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
+    newConnection(address, None, keepAliveSettings).map(WebSocket(_))
+
+  /** A task that acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
+  def connectTask(
+      address: String,
+      onOpenMessage: String,
+      keepAliveSettings: KeepAliveSettings
+  ): Task[String, WebSocket] =
     newConnection(address, Some(onOpenMessage), keepAliveSettings).map(WebSocket(_))
 
   private def newConnection(
@@ -78,7 +104,7 @@ object WebSocket:
           },
           Sub.fromEvent("error", socket) { e =>
             val msg =
-              try { e.asInstanceOf[dom.ErrorEvent].message }
+              try e.asInstanceOf[dom.ErrorEvent].message
               catch { case _: Throwable => "Unknown" }
             Some(WebSocketEvent.Error(msg))
           },
@@ -101,5 +127,4 @@ object WebSocket:
     def run: Sub[WebSocketEvent] =
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
         Sub.every(settings.timeout, "ws-heartbeat").map(_ => WebSocketEvent.Heartbeat)
-      else
-        Sub.Empty
+      else Sub.Empty
