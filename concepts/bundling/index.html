@@ -12,22 +12,22 @@
     <title>Building &amp; Bundling - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1645374553" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1645374553" rel="stylesheet">
-    <link href="/css/hybrid.css?1645374553" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1645374553" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1645374553" rel="stylesheet">
-    <link href="/css/auto-complete.css?1645374553" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1645374553" rel="stylesheet">
-    <link href="/css/theme.css?1645374553" rel="stylesheet">
-    <link href="/css/tabs.css?1645374553" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1645374553" rel="stylesheet">
+    <link href="/css/nucleus.css?1646493643" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1646493643" rel="stylesheet">
+    <link href="/css/hybrid.css?1646493643" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1646493643" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1646493643" rel="stylesheet">
+    <link href="/css/auto-complete.css?1646493643" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1646493643" rel="stylesheet">
+    <link href="/css/theme.css?1646493643" rel="stylesheet">
+    <link href="/css/tabs.css?1646493643" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1646493643" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1645374553" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1646493643" rel="stylesheet">
     
-    <link href="/css/foo.css?1645374553" rel="stylesheet"><link href="/css/bar.css?1645374553" rel="stylesheet">
+    <link href="/css/foo.css?1646493643" rel="stylesheet"><link href="/css/bar.css?1646493643" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1645374553"></script>
+    <script src="/js/jquery-3.3.1.min.js?1646493643"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1645374553"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1645374553"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1646493643"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1646493643"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1645374553"></script>
+<script type="text/javascript" src="/js/search.js?1646493643"></script>
 
     
   </div>
@@ -246,6 +246,27 @@
       <li data-nav-id="/concepts/networking/" title="Networking" class="dd-item ">
         <a href="/concepts/networking/">
         Networking
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/concepts/html/" title="Rendering HTML" class="dd-item ">
+        <a href="/concepts/html/">
+        Rendering HTML
         
         </a>
     </li>
@@ -465,7 +486,16 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#bundler-differences">Bundler differences</a>
+      <ul>
+        <li><a href="#parceljs">Parcel.js</a></li>
+        <li><a href="#scalajs-bundler">scalajs-bundler</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -489,11 +519,46 @@
 
 
 <p>The JavaScript community don&rsquo;t like to use the word &lsquo;compiler&rsquo;, but tools that gather, parse, and link source files into deployable &lsquo;bundles&rsquo; are an essential part of modern web app development.</p>
-<p>These tools are called &lsquo;bundlers&rsquo;, the most famous of which is probably <a href="https://webpack.js.org/">Webpack</a>. It is beyond the scope of these docs to explain how bundlers work, but they are well documented tools.</p>
-<p>Tyrian needs bundlers too. We could probably manage without them just for our raw app, but inevitably we&rsquo;ll need images, and style sheets, and font files, and other JS libraries and so on. Bundlers also give you access to things like dev-servers that feature hot-reloading (i.e. your website refreshes when you re-compile your Tyrian app) which is great during development.</p>
-<p>I&rsquo;ve already mentioned that Webpack is the most well know bundler, and Scala.js has an <a href="https://scalacenter.github.io/scalajs-bundler/">sbt based bundler</a> that uses Webpack under the covers. We have a standalone <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples/bundler">example of using Tyrian with scalajs-bundler</a> you can look at, and we also use it in our <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples/server-examples">server based example</a>.</p>
-<p><a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">All of the other examples</a> use <a href="https://parceljs.org/">Parcel.js</a>. This is because Webpack is very config heavy and scary, while Parcel is almost zero config.</p>
-<p>Neither solution is perfect. Use whatever suits your needs best.</p>
+<p>These tools are called &lsquo;bundlers&rsquo;, the most well known of which is probably <a href="https://webpack.js.org/">Webpack</a>. It is beyond the scope of these docs to explain how bundlers work, but they are well documented tools.</p>
+<p>Tyrian needs bundlers too. We could probably manage without them for our raw app, but sooner or later we&rsquo;re bound to need images, and style sheets, and font files, and other JS libraries etc., and that&rsquo;s where bundlers shine.</p>
+<p>Bundlers also give you access to things like dev-servers that feature hot-reloading (i.e. your website refreshes when you re-compile your Tyrian app) which is great during development.</p>
+<h2 id="bundler-differences">Bundler differences</h2>
+<h3 id="parceljs">Parcel.js</h3>
+<p><a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">Most of our examples</a> use <a href="https://parceljs.org/">Parcel.js</a>. This is because Webpack is very config heavy, while Parcel is almost zero config. In practical terms this means that Parcel is very quick to get up and running, but if you find a corner case then sourcing a workaround can be tricky. Webpack on the other hand looks to have configuration and plugins for pretty much anything you can think of, and an increased learning curve to go with it.</p>
+<h3 id="scalajs-bundler">scalajs-bundler</h3>
+<p>I&rsquo;ve already mentioned that Webpack is the most well known bundler, and Scala.js has an sbt based bundler called <a href="https://scalacenter.github.io/scalajs-bundler/">scalajs-bundler</a> that uses Webpack under the covers.</p>
+<p>We have a standalone <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples/bundler">example of using Tyrian with scalajs-bundler</a> you can look at, and we also use it in our <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples/server-examples">server based example</a>.</p>
+<h4 id="converting-from-parceljs-to-scalajs-bundler">Converting from Parcel.js to scalajs-bundler</h4>
+<p>In the parcel.js examples, you always call <code>TyrianApp.launch(..)</code> sooner or later. With scalajs-bundler (at least in our examples), the app launches itself. There are a few subtle differences you need to look out for:</p>
+<ol>
+<li>In your <code>build.sbt</code> file, you need to tell Scala.js to run from the <code>main</code> method.</li>
+</ol>
+<p><code>scalaJSUseMainModuleInitializer := true,</code></p>
+<ol start="2">
+<li>&hellip;and so you&rsquo;ll need a <code>main</code> method!</li>
+</ol>
+<p>To do that we just call one of the underlying <code>launch</code> methods on the <code>TyrianApp</code> trait. (These are the same methods we would have called from JavaScript to launch the app via Parcel.js.)</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">def</span> main<span style="color:#f92672">(</span>args<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Array</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Unit</span> <span style="color:#f92672">=</span>
+  launch<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;myapp&#34;</span><span style="color:#f92672">)</span>
+</code></pre></div><ol start="3">
+<li>Add the scalajs-bundler plugin.</li>
+</ol>
+<p>Add the following to <code>project/plugins.sbt</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">addSbtPlugin<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ch.epfl.scala&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;sbt-scalajs-bundler&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.20.0&#34;</span><span style="color:#f92672">)</span>
+</code></pre></div><p>And enable the plugin on the project in your <code>build.sbt</code> file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">enablePlugins<span style="color:#f92672">(</span><span style="color:#a6e22e">ScalaJSBundlerPlugin</span><span style="color:#f92672">)</span>
+</code></pre></div><ol start="4">
+<li>Include any NPM dependencies in your sbt build, at minimum, you&rsquo;ll need Snabbdom:</li>
+</ol>
+<p><code>Compile / npmDependencies += &quot;snabbdom&quot; -&gt; &quot;3.0.1&quot;</code></p>
+<ol start="5">
+<li>Reference the right <code>js</code> file.</li>
+</ol>
+<p>In the parcel.js examples, you&rsquo;ll see that we directly reference the normal Scala.js build output file in the <code>target</code> directory (or <code>out</code> directory in Mill examples), such as <code>target/scala-3.1.1/tyrianapp-fastopt.js</code>. This is so that you can hot-reload on re-compile. However in scalajs-bundler, the output folder and file name you need to use will be slightly different, such as <code>target/scala-3.1.1/scalajs-bundler/main/tyrianapp-fastopt-bundle.js</code>.</p>
+<p>This is because scalajs-bundler is combining your code with all your other js dependencies (e.g. Snabbdom) into one big bundle, hence the name change.</p>
+<blockquote>
+<p>Note: Behind the scenes, parcel.js does the same thing, it&rsquo;s just not as obvious and doesn&rsquo;t require you to do anything.</p>
+</blockquote>
 
 
 <footer class="footline">
@@ -710,6 +775,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -760,16 +841,16 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1645374553"></script>
-    <script src="/js/perfect-scrollbar.min.js?1645374553"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1645374553"></script>
-    <script src="/js/jquery.sticky.js?1645374553"></script>
-    <script src="/js/featherlight.min.js?1645374553"></script>
-    <script src="/js/highlight.pack.js?1645374553"></script>
+    <script src="/js/clipboard.min.js?1646493643"></script>
+    <script src="/js/perfect-scrollbar.min.js?1646493643"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1646493643"></script>
+    <script src="/js/jquery.sticky.js?1646493643"></script>
+    <script src="/js/featherlight.min.js?1646493643"></script>
+    <script src="/js/highlight.pack.js?1646493643"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1645374553"></script>
-    <script src="/js/learn.js?1645374553"></script>
-    <script src="/js/hugo-learn.js?1645374553"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1646493643"></script>
+    <script src="/js/learn.js?1646493643"></script>
+    <script src="/js/hugo-learn.js?1646493643"></script>
     
     
 
