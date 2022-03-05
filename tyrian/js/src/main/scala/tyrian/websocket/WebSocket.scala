@@ -68,20 +68,16 @@ object WebSocket:
   ): Cmd[Msg] =
     Cmd.RunTask(connectTask(address, onOpenMessage, keepAliveSettings), resultToMessage)
 
-  /** A task that acquires a WebSocket connection with default keep-alive message */
-  def connectTask(address: String): Task[String, WebSocket] =
+  private def connectTask(address: String): Task[String, WebSocket] =
     newConnection(address, None, KeepAliveSettings.default).map(WebSocket(_))
 
-  /** A task that acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
-  def connectTask(address: String, onOpenMessage: String): Task[String, WebSocket] =
+  private def connectTask(address: String, onOpenMessage: String): Task[String, WebSocket] =
     newConnection(address, Option(onOpenMessage), KeepAliveSettings.default).map(WebSocket(_))
 
-  /** A task that acquires a WebSocket connection with custom keep-alive message */
-  def connectTask(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
+  private def connectTask(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
     newConnection(address, None, keepAliveSettings).map(WebSocket(_))
 
-  /** A task that acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
-  def connectTask(
+  private def connectTask(
       address: String,
       onOpenMessage: String,
       keepAliveSettings: KeepAliveSettings
