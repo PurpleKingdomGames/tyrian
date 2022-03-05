@@ -120,17 +120,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
       case Msg.WebSocketStatus(Status.Connecting) =>
         (
           model,
-          Cmd.RunTask(
-            WebSocket.connect(
-              address = model.socketUrl,
-              onOpenMessage = "Connect me!",
-              keepAliveSettings = KeepAliveSettings.default
-            ),
-            {
-              case Left(err) => Status.ConnectionError(err).asMsg
-              case Right(ws) => Status.Connected(ws).asMsg
-            }
-          )
+          WebSocket.connect(
+            address = model.socketUrl,
+            onOpenMessage = "Connect me!",
+            keepAliveSettings = KeepAliveSettings.default
+          ) {
+            case Left(err) => Status.ConnectionError(err).asMsg
+            case Right(ws) => Status.Connected(ws).asMsg
+          }
         )
 
       case Msg.WebSocketStatus(Status.Disconnecting) =>
@@ -341,7 +338,7 @@ object Page:
       case s        => Page1
 
 object Model:
-  //val echoServer = "ws://ws.ifelse.io" // public echo server
+  // val echoServer = "ws://ws.ifelse.io" // public echo server
   val echoServer = "ws://localhost:8080/wsecho"
 
   val init: Model =
