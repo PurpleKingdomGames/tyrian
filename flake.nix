@@ -18,7 +18,7 @@
         let
           pkgs = import nixpkgs {
             inherit system;
-            overlays = [ (f: p: { jre8 = p.jdk17_headless; }) ];
+            overlays = [ (f: p: { mill = p.mill.override { jre = p.jdk17_headless; }; }) ];
           };
           jdk = pkgs.jdk17_headless;
 
