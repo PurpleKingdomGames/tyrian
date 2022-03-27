@@ -1,5 +1,7 @@
 package tyrian.cmds
 
+import cats.effect.IO
+import cats.syntax.bifunctor._
 import org.scalajs.dom
 import tyrian.Cmd
 
@@ -8,93 +10,48 @@ import scala.util.control.NonFatal
 
 object LocalStorage:
 
-  enum Error:
-    case Failure(message: String)
+  enum Result:
+    case Found(data: String)
     case NotFound(key: String)
+    case Key(key: String)
+    case Length(length: Int)
+    case Success
+    case Failure(message: String)
 
-  def setItem[Msg](key: String, data: String, toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
-    Cmd.Run(toMessage) { observer =>
-      try
-        observer.onNext(dom.window.localStorage.setItem(key, data))
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error.Failure(e.getMessage))
-      }
-
-      () => ()
-    }
+  def setItem[Msg](key: String, data: String, toMessage: Result.Success.type => Msg): Cmd[Msg] =
+    Cmd.Run(IO(dom.window.localStorage.setItem(key, data)), _ => toMessage(Result.Success))
   @targetName("setItem_partial")
-  def setItem[Msg](key: String, data: String)(toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
+  def setItem[Msg](key: String, data: String)(toMessage: Result => Msg): Cmd[Msg] =
     setItem(key, data, toMessage)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  def getItem[Msg](key: String, toMessage: Either[Error, String] => Msg): Cmd[Msg] =
-    Cmd.Run(toMessage) { observer =>
-      try
-        val item = dom.window.localStorage.getItem(key)
-        if item == null then observer.onError(Error.NotFound(key))
-        else observer.onNext(item)
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error.Failure(e.getMessage))
-      }
-
-      () => ()
+  def getItem[Msg](key: String, toMessage: Either[Result.NotFound, Result.Found] => Msg): Cmd[Msg] =
+    val f: String => Either[Result.NotFound, Result.Found]= { (s: String) =>
+      if s == null then Left(Result.NotFound(key))
+      else Right(Result.Found(s))
     }
+    val toMsg: String => Msg = f andThen toMessage
+
+    Cmd.Run(IO(dom.window.localStorage.getItem(key)), toMsg)
   @targetName("getItem_partial")
-  def getItem[Msg](key: String)(toMessage: Either[Error, String] => Msg): Cmd[Msg] =
+  def getItem[Msg](key: String)(toMessage: Either[Result.NotFound, Result.Found] => Msg): Cmd[Msg] =
     getItem(key, toMessage)
 
-  def removeItem[Msg](key: String, toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
-    Cmd.Run(toMessage) { observer =>
-      try
-        observer.onNext(dom.window.localStorage.removeItem(key))
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error.Failure(e.getMessage))
-      }
-
-      () => ()
-    }
+  def removeItem[Msg](key: String, toMessage: Result.Success.type => Msg): Cmd[Msg] =
+    Cmd.Run(IO(dom.window.localStorage.removeItem(key)), _ => toMessage(Result.Success))
   @targetName("removeItem_partial")
-  def removeItem[Msg](key: String)(toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
+  def removeItem[Msg](key: String)(toMessage: Result => Msg): Cmd[Msg] =
     removeItem(key, toMessage)
 
-  def clear[Msg](toMessage: Either[Error, Unit] => Msg): Cmd[Msg] =
-    Cmd.Run(toMessage) { observer =>
-      try
-        observer.onNext(dom.window.localStorage.clear())
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error.Failure(e.getMessage))
-      }
+  def clear[Msg](toMessage: Result => Msg): Cmd[Msg] =
+    Cmd.Run(IO(dom.window.localStorage.clear()), _ => toMessage(Result.Success))
 
-      () => ()
-    }
-
-  def key[Msg](index: Int, toMessage: Either[Error, String] => Msg): Cmd[Msg] =
-    Cmd.Run(toMessage) { observer =>
-      try
-        observer.onNext(dom.window.localStorage.key(index))
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error.Failure(e.getMessage))
-      }
-
-      () => ()
-    }
+  def key[Msg](index: Int, toMessage: Result => Msg): Cmd[Msg] =
+    Cmd.Run(IO(dom.window.localStorage.key(index)), s => toMessage(Result.Key(s)))
   @targetName("key_partial")
-  def key[Msg](index: Int)(toMessage: Either[Error, String] => Msg): Cmd[Msg] =
+  def key[Msg](index: Int)(toMessage: Result => Msg): Cmd[Msg] =
     key(index, toMessage)
 
-  def length[Msg](toMessage: Either[Error, Int] => Msg): Cmd[Msg] =
-    Cmd.Run(toMessage) { observer =>
-      try
-        observer.onNext(dom.window.localStorage.length)
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error.Failure(e.getMessage))
-      }
-
-      () => ()
-    }
+  def length[Msg](toMessage: Result => Msg): Cmd[Msg] =
+    val toMsg: Int => Msg = l => toMessage(Result.Length(l))
+    Cmd.Run(IO(dom.window.localStorage.length), toMsg)

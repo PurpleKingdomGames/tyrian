@@ -1,5 +1,6 @@
 package tyrian
 
+import cats.effect.IO
 import org.scalajs.dom
 import util.Functions
 
@@ -11,19 +12,10 @@ object HotReload:
 
   final case class Error(message: String)
 
-  def bootstrap[Model, Msg](key: String, decode: Option[String] => Model)(
-      resultToMessage: Either[Error, Model] => Msg
+  def bootstrap[Model, Msg](key: String, decode: Option[String] => Either[String, Model])(
+      resultToMessage: Either[String, Model] => Msg
   ): Cmd[Msg] =
-    Cmd.Run(resultToMessage) { observer =>
-      try
-        observer.onNext(decode(Option(dom.window.localStorage.getItem(key))))
-      catch {
-        case NonFatal(e) =>
-          observer.onError(Error(e.getMessage))
-      }
-
-      () => ()
-    }
+    Cmd.Run(IO(decode(Option(dom.window.localStorage.getItem(key)))), resultToMessage)
 
   def snapshot[Model](key: String, model: Model, encode: Model => String): Cmd[Nothing] =
     Cmd.SideEffect { () =>

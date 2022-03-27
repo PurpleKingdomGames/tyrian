@@ -1,5 +1,9 @@
 package tyrian
 
+import cats.effect.IO
+
+import scala.annotation.targetName
+
 /** A command describes some side-effect to perform.
   *
   * The difference with a `Task` is that a command never produces error values.
@@ -23,39 +27,27 @@ object Cmd:
   case object Empty extends Cmd[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
 
-  final case class SideEffect(task: Task.SideEffect) extends Cmd[Nothing]:
+  final case class SideEffect(task: IO[Unit]) extends Cmd[Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): SideEffect = this
   object SideEffect:
     def apply(thunk: () => Unit): SideEffect =
-      SideEffect(Task.SideEffect(thunk))
+      SideEffect(IO(thunk()))
 
   final case class Emit[Msg](msg: Msg) extends Cmd[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg))
 
-  final case class Run[Err, Success, Msg](
-      observable: Task.Observable[Err, Success],
-      toMessage: Either[Err, Success] => Msg
+  final case class Run[A, Msg](
+      observable: IO[A],
+      toMessage: A => Msg
   ) extends Cmd[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Run[Err, Success, OtherMsg] = Run(observable, toMessage andThen f)
-    def attempt[OtherMsg](resultToMessage: Either[Err, Success] => OtherMsg): Run[Err, Success, OtherMsg] =
+    def map[OtherMsg](f: Msg => OtherMsg): Run[A, OtherMsg] = Run(observable, toMessage andThen f)
+    def attempt[OtherMsg](resultToMessage: A => OtherMsg): Run[A, OtherMsg] =
       Run(observable, resultToMessage)
   object Run:
 
-    def apply[Err, Success, Msg](toMessage: Either[Err, Success] => Msg)(
-        observable: Task.Observable[Err, Success]
-    ): Run[Err, Success, Msg] =
+    @targetName("Cmd.Run separate param lists")
+    def apply[A, Msg](observable: IO[A])(toMessage: A => Msg): Run[A, Msg] =
       Run(observable, toMessage)
-
-    final case class ImcompleteRunCmd[Err, Success](observable: Task.Observable[Err, Success]):
-      def attempt[Msg](resultToMessage: Either[Err, Success] => Msg): Run[Err, Success, Msg] =
-        Run(observable, resultToMessage)
-
-    def apply[Err, Success](observable: Task.Observable[Err, Success]): ImcompleteRunCmd[Err, Success] =
-      ImcompleteRunCmd(observable)
-
-  final case class RunTask[Err, Success, Msg](task: Task[Err, Success], toMessage: Either[Err, Success] => Msg)
-      extends Cmd[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): RunTask[Err, Success, OtherMsg] = RunTask(task, toMessage andThen f)
 
   case class Combine[Msg](cmd1: Cmd[Msg], cmd2: Cmd[Msg]) extends Cmd[Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Combine[OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))

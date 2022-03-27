@@ -1,8 +1,8 @@
 package tyrian
 
+import cats.effect.IO
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
-import tyrian.Task.Observable
 import util.Functions
 
 import java.util.concurrent.TimeUnit
@@ -59,13 +59,17 @@ object Sub:
     * @tparam Msg
     *   type of message produced by the subscription
     */
-  // FIXME Use Task instead of Observable, at this level
-  final case class OfObservable[Err, Value, Msg](
+  final case class OfObservable[A, Msg](
       id: String,
-      observable: Observable[Err, Value],
-      f: Either[Err, Value] => Msg
+      observable: IO[(Either[Throwable, A] => Unit) => IO[Unit]],
+      toMsg: A => Msg
   ) extends Sub[Msg]:
-    def map[OtherMsg](g: Msg => OtherMsg): Sub[OtherMsg] = OfObservable(id, observable, f andThen g)
+    def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg] =
+      OfObservable(
+        id,
+        observable,
+        toMsg andThen f
+      )
 
   /** Merge two subscriptions into a single one */
   final case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg]:
@@ -77,19 +81,6 @@ object Sub:
   object Batch:
     def apply[Msg](subs: Sub[Msg]*): Batch[Msg] =
       Batch(subs.toList)
-
-  /** Same as `OfObservable` but when the observable never fails
-    *
-    * @param id
-    *   Subscription id
-    * @param observable
-    *   Source of messages that never produces errors
-    * @return
-    *   A subscription to the messages source
-    */
-  @nowarn // Supposedly can never fail, but is doing an unsafe projection.
-  def ofTotalObservable[Msg](id: String, observable: Observable[Nothing, Msg]): Sub[Msg] =
-    OfObservable[Nothing, Msg, Msg](id, observable, _.toOption.get)
 
   /** @return
     *   A subscription that emits a msg once. Identical to timeout with a duration of 0.
@@ -113,38 +104,185 @@ object Sub:
     *   Type of message
     */
   def timeout[Msg](duration: FiniteDuration, msg: Msg, id: String): Sub[Msg] =
-    ofTotalObservable[Msg](
-      id,
-      { observer =>
+    // val acquire: IO[Int] =
+    //   Dispatcher[IO].use { dispatcher =>
+    //     IO.delay {
+    //       dom.window.setTimeout(
+    //         Functions.fun0(() => dispatcher.unsafeRunAndForget(IO(msg))),
+    //         duration.toMillis.toDouble
+    //       )
+    //     }
+    //   }
+
+    // IO.async { callback =>
+    //   IO {
+    //     dom.window.setTimeout(
+    //       Functions.fun0(() => callback(Right(msg))),
+    //       duration.toMillis.toDouble
+    //     )
+    //     None
+    //   }
+    // }
+
+    // IO {
+    //   dom.window.setTimeout(
+    //     Functions.fun0(() => msg),
+    //     duration.toMillis.toDouble
+    //   )
+    // }
+
+    // val release = (handler: Int) =>
+    //   IO {
+    //     dom.window.clearTimeout(handler)
+    //   }
+
+    // val res =
+    //   Resource.make(acquire)(release)
+
+    // val task: IO[Msg] =
+    //   IO.async { callback =>
+    //     IO {
+    //       val handle =
+    //         dom.window.setTimeout(
+    //           Functions.fun0(() => callback(Right(msg))),
+    //           duration.toMillis.toDouble
+    //         )
+    //       Some(IO(dom.window.clearTimeout(handle)))
+    //     }
+    //   }
+
+    // val task = IO.fromFuture(
+    //   IO {
+    //     val p = Promise[Msg]()
+    //     val handle =
+    //       dom.window.setTimeout(Functions.fun0(() => p.success(msg)), duration.toMillis.toDouble)
+    //     p.future.map(m => (m, handle))
+    //   }
+    // )
+
+    // val sub: IO[Msg] =
+    //   for {
+    //     res         <- task
+    //     cancellable <- IO(res._1).onCancel(IO(dom.window.clearTimeout(res._2)))
+    //   } yield cancellable
+
+    // IO.delay {
+    //   val handle =
+    //     dom.window.setTimeout(Functions.fun0(() => msg), duration.toMillis.toDouble)
+    // }
+
+    val task =
+      // Dispatcher[IO].use { dispatcher =>
+      IO.delay { (callback: Either[Throwable, Msg] => Unit) =>
         val handle =
-          dom.window.setTimeout(Functions.fun0(() => observer.onNext(msg)), duration.toMillis.toDouble)
-        () => dom.window.clearTimeout(handle)
+          dom.window.setTimeout(
+            Functions.fun0(() => callback(Right(msg))),
+            duration.toMillis.toDouble
+          )
+        IO(dom.window.clearTimeout(handle))
       }
-    )
+    // }
+    // Dispatcher[IO].use { dispatcher =>
+    //   IO.delay { (callback: Either[Throwable, Msg] => Unit) =>
+    //     val handle =
+    //       dom.window.setTimeout(
+    //         Functions.fun0(() => dispatcher.unsafeRunAndForget(IO(callback(Right(msg))))),
+    //         duration.toMillis.toDouble
+    //       )
+    //     IO(dom.window.clearTimeout(handle))
+    //   }
+    // }
+
+    OfObservable[Msg, Msg](id, task, identity) // TODO, the toMsg function...
 
   def every(interval: FiniteDuration, id: String): Sub[js.Date] =
-    ofTotalObservable[js.Date](
-      id,
-      { observer =>
-        val handle =
-          dom.window.setInterval(Functions.fun0(() => observer.onNext(new js.Date())), interval.toMillis.toDouble)
-        () => dom.window.clearInterval(handle)
-      }
-    )
+    // IO.async { callback =>
+    //   IO {
+    //     val handle =
+    //       dom.window.setInterval(
+    //         Functions.fun0(() => callback(Right(new js.Date()))),
+    //         interval.toMillis.toDouble
+    //       )
+    //     Some(IO(dom.window.clearTimeout(handle)))
+    //   }
+    // }
+    // val task = IO.fromFuture(
+    //   IO {
+    //     val p = Promise[js.Date]()
+    //     val handle =
+    //       dom.window.setInterval(Functions.fun0(() => p.success(new js.Date())), interval.toMillis.toDouble)
+    //     p.future.map(m => (m, handle))
+    //   }
+    // )
+
+    // val sub: IO[js.Date] =
+    //   for {
+    //     res         <- task
+    //     cancellable <- IO(res._1).onCancel(IO(dom.window.clearTimeout(res._2)))
+    //   } yield cancellable
+
+    val task =
+      // Dispatcher[IO].use { dispatcher =>
+        IO.delay { (callback: Either[Throwable, js.Date] => Unit) =>
+          val handle =
+            dom.window.setInterval(
+              Functions.fun0(() => callback(Right(new js.Date()))),
+              interval.toMillis.toDouble
+            )
+          IO(dom.window.clearTimeout(handle))
+        }
+      // }
+
+    OfObservable[js.Date, js.Date](id, task, identity) // TODO, the toMsg function...
 
   def fromEvent[A, Msg](name: String, target: EventTarget)(extract: A => Option[Msg]): Sub[Msg] =
-    Sub.ofTotalObservable[Msg](
-      name + target.hashCode,
-      { observer =>
-        val listener = Functions.fun { (a: A) =>
-          extract(a) match {
-            case Some(msg) => observer.onNext(msg)
-            case None      => ()
+    val task =
+      // IO.async { callback =>
+      //   IO {
+      //     val listener = Functions.fun { (a: A) =>
+      //       extract(a) match
+      //         case Some(msg) =>
+      //           println("calling the callback with " + msg.toString)
+      //           callback(Right(msg))
+      //         case None => ()
+      //     }
+      //     target.addEventListener(name, listener)
+      //     Some(IO(target.removeEventListener(name, listener)))
+      //   }
+      // }
+      // Dispatcher[IO].use { dispatcher =>
+        IO.delay { (callback: Either[Throwable, Msg] => Unit) =>
+          val listener = Functions.fun { (a: A) =>
+            extract(a) match
+              case Some(msg) =>
+                println("calling the callback with " + msg.toString)
+                callback(Right(msg))
+              case None => ()
           }
+          target.addEventListener(name, listener)
+          IO(target.removeEventListener(name, listener))
         }
-        target.addEventListener(name, listener)
-        () => target.removeEventListener(name, listener)
-      }
-    )
+      // }
+
+    // val task = IO.fromFuture(
+    //   IO {
+    //     val p = Promise[Msg]()
+    //     val listener = Functions.fun { (a: A) =>
+    //       extract(a) match
+    //         case Some(msg) => p.success(msg)
+    //         case None      => ()
+    //     }
+    //     target.addEventListener(name, listener)
+    //     p.future.map(m => (m, listener))
+    //   }
+    // )
+
+    // val sub: IO[Msg] =
+    //   for {
+    //     res         <- task
+    //     cancellable <- IO(res._1).onCancel(IO(target.removeEventListener(name, res._2)))
+    //   } yield cancellable
+
+    OfObservable[Msg, Msg](name + target.hashCode, task, identity) // TODO, the toMsg function...
 
 end Sub

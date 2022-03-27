@@ -1,9 +1,11 @@
 package tyrian.runtime
 
+import cats.effect.unsafe.implicits.global
 import tyrian.Cmd
-import tyrian.Task
 
 object CmdRunner:
+
+  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   def runCmd[Msg](
       cmd: Cmd[Msg],
       callback: Msg => Unit,
@@ -19,13 +21,15 @@ object CmdRunner:
             callback(msg)
 
           case Cmd.SideEffect(task) =>
-            async(TaskRunner.execTask(task, _ => ()))
+            async(task.unsafeRunAndForget())
 
           case Cmd.Run(obs, f) =>
-            async(TaskRunner.execTask(Task.RunObservable(obs), f andThen callback))
-
-          case Cmd.RunTask(task, f) =>
-            async(TaskRunner.execTask(task, f andThen callback))
+            async(
+              obs.unsafeRunAsync {
+                case Right(v) => (f andThen callback)(v)
+                case Left(e)  => throw e
+              }
+            )
 
           case Cmd.Combine(cmd1, cmd2) =>
             loop(cmd1)

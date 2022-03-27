@@ -1,30 +1,35 @@
 package tyrian.cmds
 
+import cats.effect.IO
 import org.scalajs.dom.document
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.Event
 import tyrian.Cmd
 
+import scala.concurrent.Promise
+
 /** Given a path, this cmd will load an image and return an `HTMLImageElement` for you to make use of.
   */
 object ImageLoader:
 
-  def load[Msg](path: String)(resultToMessage: Either[ImageLoadError, html.Image] => Msg): Cmd[Msg] =
-    Cmd
-      .Run[ImageLoadError, html.Image] { observer =>
+  def load[Msg](path: String)(resultToMessage: Result => Msg): Cmd[Msg] =
+    val task =
+      IO {
+        val p                 = Promise[Result]()
         val image: html.Image = document.createElement("img").asInstanceOf[html.Image]
         image.src = path
         image.onload = { (_: Event) =>
-          observer.onNext(image)
+          p.success(Result.Image(image))
         }
         image.addEventListener(
           "error",
-          (_: Event) => observer.onError(ImageLoadError(s"Image load error from path '$path'", path)),
+          (_: Event) => p.success(Result.ImageLoadError(s"Image load error from path '$path'", path)),
           false
         )
-
-        () => ()
+        p.future
       }
-      .attempt(resultToMessage)
+    Cmd.Run(IO.fromFuture(task), resultToMessage)
 
-  final case class ImageLoadError(message: String, path: String)
+  enum Result:
+    case Image(img: html.Image)
+    case ImageLoadError(message: String, path: String)

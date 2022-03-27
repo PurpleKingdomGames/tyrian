@@ -1,9 +1,9 @@
 package tyrian.websocket
 
+import cats.effect.IO
 import org.scalajs.dom
 import tyrian.Cmd
 import tyrian.Sub
-import tyrian.Task
 import tyrian.websocket.WebSocketEvent
 import util.Functions
 
@@ -47,49 +47,53 @@ object KeepAliveSettings:
 
 object WebSocket:
   /** Acquires a WebSocket connection with default keep-alive message */
-  def connect[Msg](address: String)(resultToMessage: Either[String, WebSocket] => Msg): Cmd[Msg] =
-    Cmd.RunTask(connectTask(address), resultToMessage)
+  def connect[Msg](address: String)(resultToMessage: WebSocketConnect => Msg): Cmd[Msg] =
+    Cmd.Run(connectTask(address), resultToMessage)
 
   /** Acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
   def connect[Msg](address: String, onOpenMessage: String)(
-      resultToMessage: Either[String, WebSocket] => Msg
+      resultToMessage: WebSocketConnect => Msg
   ): Cmd[Msg] =
-    Cmd.RunTask(connectTask(address, onOpenMessage), resultToMessage)
+    Cmd.Run(connectTask(address, onOpenMessage), resultToMessage)
 
   /** Acquires a WebSocket connection with custom keep-alive message */
   def connect[Msg](address: String, keepAliveSettings: KeepAliveSettings)(
-      resultToMessage: Either[String, WebSocket] => Msg
+      resultToMessage: WebSocketConnect => Msg
   ): Cmd[Msg] =
-    Cmd.RunTask(connectTask(address, keepAliveSettings), resultToMessage)
+    Cmd.Run(connectTask(address, keepAliveSettings), resultToMessage)
 
   /** Acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
   def connect[Msg](address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings)(
-      resultToMessage: Either[String, WebSocket] => Msg
+      resultToMessage: WebSocketConnect => Msg
   ): Cmd[Msg] =
-    Cmd.RunTask(connectTask(address, onOpenMessage, keepAliveSettings), resultToMessage)
+    Cmd.Run(connectTask(address, onOpenMessage, keepAliveSettings), resultToMessage)
 
-  private def connectTask(address: String): Task[String, WebSocket] =
-    newConnection(address, None, KeepAliveSettings.default).map(WebSocket(_))
+  private def connectTask(address: String): IO[WebSocketConnect] =
+    newConnection(address, None, KeepAliveSettings.default)
+      .map(ls => WebSocketConnect.Socket(WebSocket(ls)))
 
-  private def connectTask(address: String, onOpenMessage: String): Task[String, WebSocket] =
-    newConnection(address, Option(onOpenMessage), KeepAliveSettings.default).map(WebSocket(_))
+  private def connectTask(address: String, onOpenMessage: String): IO[WebSocketConnect] =
+    newConnection(address, Option(onOpenMessage), KeepAliveSettings.default)
+      .map(ls => WebSocketConnect.Socket(WebSocket(ls)))
 
-  private def connectTask(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
-    newConnection(address, None, keepAliveSettings).map(WebSocket(_))
+  private def connectTask(address: String, keepAliveSettings: KeepAliveSettings): IO[WebSocketConnect] =
+    newConnection(address, None, keepAliveSettings)
+      .map(ls => WebSocketConnect.Socket(WebSocket(ls)))
 
   private def connectTask(
       address: String,
       onOpenMessage: String,
       keepAliveSettings: KeepAliveSettings
-  ): Task[String, WebSocket] =
-    newConnection(address, Some(onOpenMessage), keepAliveSettings).map(WebSocket(_))
+  ): IO[WebSocketConnect] =
+    newConnection(address, Some(onOpenMessage), keepAliveSettings)
+      .map(ls => WebSocketConnect.Socket(WebSocket(ls)))
 
   private def newConnection(
       address: String,
       onOpenSendMessage: Option[String],
       settings: KeepAliveSettings
-  ): Task[String, LiveSocket] =
-    Task.Delay { () =>
+  ): IO[LiveSocket] =
+    IO.delay {
       val socket    = new dom.WebSocket(address)
       val keepAlive = new KeepAlive(socket, settings)
 
@@ -124,3 +128,7 @@ object WebSocket:
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
         Sub.every(settings.timeout, "ws-heartbeat").map(_ => WebSocketEvent.Heartbeat)
       else Sub.Empty
+
+enum WebSocketConnect:
+  case Error(msg: String)
+  case Socket(webSocket: WebSocket)

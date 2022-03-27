@@ -14,9 +14,6 @@ import tyrian.NamedAttribute
 import tyrian.Property
 import tyrian.Sub
 import tyrian.Tag
-import tyrian.Task
-import tyrian.Task.Cancelable
-import tyrian.Task.Observer
 import tyrian.Text
 import util.Functions.fun
 
@@ -35,10 +32,6 @@ final class TyrianRuntime[Model, Msg](
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var currentState: Model = initState
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var currentSubscriptions: List[(String, Cancelable)] = Nil
-  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var aboutToRunSubscriptions: Set[String] = Set.empty
-  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var vnode = render(node, currentState)
 
   def async(thunk: => Unit): Unit =
@@ -51,41 +44,9 @@ final class TyrianRuntime[Model, Msg](
     performSideEffects(cmd, subscriptions(currentState), onMsg)
   }
 
-  def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit = {
+  def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit =
     CmdRunner.runCmd(cmd, callback, async)
-
-    val allSubs = {
-      def loop(sub: Sub[Msg]): List[Sub.OfObservable[_, _, Msg]] =
-        sub match
-          case Sub.Empty               => Nil
-          case Sub.Combine(sub1, sub2) => loop(sub1) ++ loop(sub2)
-          case Sub.Batch(subs)         => subs.flatMap(loop)
-          case s: Sub.OfObservable[_, _, _] =>
-            List(s.asInstanceOf[Sub.OfObservable[_, _, Msg]])
-
-      loop(sub)
-    }
-
-    val (stillActives, discarded) =
-      currentSubscriptions.partition { case (id, _) => allSubs.exists(_.id == id) }
-
-    val newSubs =
-      allSubs.filter(s => stillActives.forall(_._1 != s.id) && !aboutToRunSubscriptions.contains(s.id))
-
-    aboutToRunSubscriptions = aboutToRunSubscriptions ++ newSubs.map(_.id)
-    currentSubscriptions = stillActives
-
-    async {
-      discarded.foreach(_._2.cancel())
-
-      newSubs.foreach { case Sub.OfObservable(id, observable, f) =>
-        val cancelable = observable.run(TaskRunner.asObserver(f andThen callback))
-        aboutToRunSubscriptions = aboutToRunSubscriptions - id
-        currentSubscriptions = (id -> cancelable) :: currentSubscriptions
-      }
-    }
-
-  }
+    SubRunner.runSub(sub, callback, async)
 
   def toVNode(html: Html[Msg]): VNode =
     html match

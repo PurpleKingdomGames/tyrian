@@ -1,7 +1,7 @@
 package tyrian.cmds
 
+import cats.effect.IO
 import tyrian.Cmd
-import tyrian.Task
 
 /** A Cmd to generate random values.
   */
@@ -62,58 +62,28 @@ object Random:
   end Seeded
 
   extension (i: RandomValue.NextInt)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
     def toCmd: Cmd[RandomValue.NextInt] =
-      val f: Either[_, Int] => RandomValue.NextInt = {
-        case Right(v: Int) => RandomValue.NextInt(v)
-        case _             => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+      Cmd.Run(IO(i.value), RandomValue.NextInt(_))
 
   extension (i: RandomValue.NextLong)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
     def toCmd: Cmd[RandomValue.NextLong] =
-      val f: Either[_, Long] => RandomValue.NextLong = {
-        case Right(v: Long) => RandomValue.NextLong(v)
-        case _              => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+      Cmd.Run(IO(i.value), RandomValue.NextLong(_))
 
   extension (i: RandomValue.NextFloat)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
     def toCmd: Cmd[RandomValue.NextFloat] =
-      val f: Either[_, Float] => RandomValue.NextFloat = {
-        case Right(v: Float) => RandomValue.NextFloat(v)
-        case _               => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+      Cmd.Run(IO(i.value), RandomValue.NextFloat(_))
 
   extension (i: RandomValue.NextDouble)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
     def toCmd: Cmd[RandomValue.NextDouble] =
-      val f: Either[_, Double] => RandomValue.NextDouble = {
-        case Right(v: Double) => RandomValue.NextDouble(v)
-        case _                => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+      Cmd.Run(IO(i.value), RandomValue.NextDouble(_))
 
   extension (i: RandomValue.NextAlphaNumeric)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
     def toCmd: Cmd[RandomValue.NextAlphaNumeric] =
-      val f: Either[_, String] => RandomValue.NextAlphaNumeric = {
-        case Right(v: String) => RandomValue.NextAlphaNumeric(v)
-        case _                => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
-      
+      Cmd.Run(IO(i.value), RandomValue.NextAlphaNumeric(_))
+
   extension [A](i: RandomValue.NextShuffle[A])
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
     def toCmd: Cmd[RandomValue.NextShuffle[A]] =
-      val f: Either[_, List[A]] => RandomValue.NextShuffle[A] = {
-        case Right(v: List[A]) => RandomValue.NextShuffle(v)
-        case _                 => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+      Cmd.Run(IO(i.value), RandomValue.NextShuffle(_))
 
 enum RandomValue derives CanEqual:
   case NextInt(value: Int)             extends RandomValue

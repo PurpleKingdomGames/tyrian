@@ -19,13 +19,13 @@ object Sandbox extends TyrianApp[Msg, Model]:
     val cmds =
       Cmd.Batch(
         HotReload.bootstrap(hotReloadKey, Model.decode) {
-          case Left(e)      => Msg.Log("Error during hot-reload!: " + e.message)
+          case Left(msg)    => Msg.Log("Error during hot-reload!: " + msg)
           case Right(model) => Msg.OverwriteModel(model)
         },
         Logger.info(flags.toString),
         Navigation.getLocationHash {
-          case Left(Navigation.NoHash)             => Msg.NavigateTo(Page.Page1)
-          case Right(Navigation.CurrentHash(hash)) => Msg.NavigateTo(Page.fromString(hash))
+          case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
+          case _                                   => Msg.NavigateTo(Page.Page1)
         }
       )
 
@@ -34,27 +34,25 @@ object Sandbox extends TyrianApp[Msg, Model]:
   def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.Save(k, v) =>
-        val cmd = LocalStorage.setItem(k, v) {
-          case Left(e)  => Msg.Log("Error saving: " + e)
-          case Right(_) => Msg.Log("Save successful")
+        val cmd = LocalStorage.setItem(k, v) { _ =>
+          Msg.Log("Save successful")
         }
 
         (model, cmd)
 
       case Msg.Load(k) =>
         val cmd = LocalStorage.getItem(k) {
-          case Left(e) => Msg.Log("Error loading: " + e)
-          case Right(data) =>
-            println("Loaded: " + data)
-            Msg.DataLoaded(data)
+          case Left(e) => Msg.Log("Error loading: " + e.key)
+          case Right(found) =>
+            println("Loaded: " + found.data)
+            Msg.DataLoaded(found.data)
         }
 
         (model, cmd)
 
       case Msg.ClearStorage(k) =>
-        val cmd = LocalStorage.removeItem(k) {
-          case Left(e)     => Msg.Log("Error removing: " + e)
-          case Right(data) => Msg.Log("Item remove successful")
+        val cmd = LocalStorage.removeItem(k) { _ =>
+          Msg.Log("Item removed successfully")
         }
 
         (model.copy(saveData = None), cmd)
@@ -125,8 +123,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
             onOpenMessage = "Connect me!",
             keepAliveSettings = KeepAliveSettings.default
           ) {
-            case Left(err) => Status.ConnectionError(err).asMsg
-            case Right(ws) => Status.Connected(ws).asMsg
+            case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
+            case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
           }
         )
 
@@ -247,7 +245,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
     Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
-      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
+      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapshot),
+      Sub.timeout(2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log")
     )
 
 enum Msg:
@@ -346,6 +345,6 @@ object Model:
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field
-  def decode: Option[String] => Model =
-    case None       => Model.init
-    case Some(data) => Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None)
+  def decode: Option[String] => Either[String, Model] =
+    case None       => Left("No snapshot found")
+    case Some(data) => Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None))

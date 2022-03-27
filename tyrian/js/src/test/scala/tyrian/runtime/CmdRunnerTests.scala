@@ -1,60 +1,62 @@
 package tyrian.runtime
 
 import tyrian.Cmd
-import tyrian.Task
+// import tyrian.Task
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.var", "scalafix:DisableSyntax.throw"))
 class CmdRunnerTests extends munit.FunSuite {
 
-  test("run a cmd with a task") {
+  // test("run a cmd with a task") {
 
-    var output: Int = -1
+  //   var output: Int = -1
 
-    val cmd: Cmd[Int] =
-      Cmd.RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
+  //   val cmd: Cmd[Int] =
+  //     Cmd.RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
 
-    val callback: Int => Unit = (i: Int) => {
-      output = i
-      ()
-    }
-    val async: (=> Unit) => Unit = thing => thing
+  //   val callback: Int => Unit = (i: Int) => {
+  //     output = i
+  //     ()
+  //   }
+  //   val async: (=> Unit) => Unit = thing => thing
 
-    val actual =
-      CmdRunner.runCmd(cmd, callback, async)
+  //   val actual =
+  //     CmdRunner.runCmd(cmd, callback, async)
 
-    assertEquals(output, 10)
-  }
+  //   assertEquals(output, 10)
+  // }
 
-  test("run a cmd with an observable") {
+  // test("run a cmd with an observable") {
 
-    val toMessage = (res: Either[String, Int]) => res.toOption.getOrElse(throw new Exception(res.toString))
+  //   val toMessage = (res: Either[String, Int]) => res.toOption.getOrElse(throw new Exception(res.toString))
 
-    var output: Int = -1
+  //   var output: Int = -1
 
-    val cmd: Cmd[Int] =
-      Cmd.Run[String, Int] { observable =>
-        observable.onNext(20)
-        () => ()
-      }.attempt(toMessage)
+  //   val cmd: Cmd[Int] =
+  //     Cmd.Run[String, Int] { observable =>
+  //       observable.onNext(20)
+  //       () => ()
+  //     }.attempt(toMessage)
 
-    val callback: Int => Unit = (i: Int) => {
-      output = i
-      ()
-    }
-    val async: (=> Unit) => Unit = thing => thing
+  //   val callback: Int => Unit = (i: Int) => {
+  //     output = i
+  //     ()
+  //   }
+  //   val async: (=> Unit) => Unit = thing => thing
 
-    val actual =
-      CmdRunner.runCmd(cmd, callback, async)
+  //   val actual =
+  //     CmdRunner.runCmd(cmd, callback, async)
 
-    assertEquals(output, 20)
-  }
+  //   assertEquals(output, 20)
+  // }
 
   test("run a cmd side effect") {
 
     var output: Int = -1
 
     val cmd: Cmd[Int] =
-      Cmd.SideEffect(() => output = 2)
+      Cmd.SideEffect { () => 
+        output = 2
+      }
 
     val async: (=> Unit) => Unit = thing => thing
 

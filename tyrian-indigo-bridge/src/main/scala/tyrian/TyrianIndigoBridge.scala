@@ -1,5 +1,6 @@
 package tyrian
 
+import cats.effect.IO
 import org.scalajs.dom.Event
 import org.scalajs.dom.EventTarget
 import tyrian.Cmd
@@ -41,18 +42,22 @@ final class TyrianIndigoBridge[A]:
           case id if e.indigoGameId == id => extract(e.value)
           case _                          => None
 
-    tyrian.Sub.ofTotalObservable[B](
-      TyrianIndigoBridge.BridgeToTyrian.EventName + this.hashCode,
-      { observer =>
+    val task =
+      IO.delay { (callback: Either[Throwable, B] => Unit) =>
         val listener = Functions.fun { (a: TyrianIndigoBridge.BridgeToTyrian[A]) =>
           eventExtract(a) match {
-            case Some(b) => observer.onNext(b)
+            case Some(b) => callback(Right(b))
             case None    => ()
           }
         }
         eventTarget.addEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener)
-        () => eventTarget.removeEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener)
+        IO(eventTarget.removeEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener))
       }
+
+    Sub.OfObservable[B, B](
+      TyrianIndigoBridge.BridgeToTyrian.EventName + this.hashCode,
+      task,
+      identity
     )
 
 object TyrianIndigoBridge:
