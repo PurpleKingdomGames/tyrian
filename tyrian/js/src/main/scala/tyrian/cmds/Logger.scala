@@ -1,5 +1,6 @@
 package tyrian.cmds
 
+import cats.effect.kernel.Async
 import tyrian.Cmd
 
 import scala.collection.mutable.ArrayBuffer
@@ -38,32 +39,32 @@ object Logger:
       println(formatMessage(DEBUG, message))
     }
 
-  def consoleLog(messages: String*): Cmd.SideEffect =
+  def consoleLog[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
     Cmd.SideEffect { () =>
       consoleLogString(messages.toList.mkString(", "))
     }
 
-  def info(messages: String*): Cmd.SideEffect =
+  def info[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
     Cmd.SideEffect { () =>
       infoString(messages.toList.mkString(", "))
     }
 
-  def error(messages: String*): Cmd.SideEffect =
+  def error[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
     Cmd.SideEffect { () =>
       errorString(messages.toList.mkString(", "))
     }
 
-  def errorOnce(messages: String*): Cmd.SideEffect =
+  def errorOnce[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
     Cmd.SideEffect { () =>
       errorOnceString(messages.toList.mkString(", "))
     }
 
-  def debug(messages: String*): Cmd.SideEffect =
+  def debug[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
     Cmd.SideEffect { () =>
       debugString(messages.toList.mkString(", "))
     }
 
-  def debugOnce(messages: String*): Cmd.SideEffect =
+  def debugOnce[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
     Cmd.SideEffect { () =>
       debugOnceString(messages.toList.mkString(", "))
     }

@@ -1,7 +1,7 @@
 package tyrian
 
 import org.scalajs.dom.HashChangeEvent
-import cats.effect.IO
+import cats.effect.kernel.Async
 import org.scalajs.dom.window
 import tyrian.Sub
 
@@ -15,7 +15,7 @@ object Navigation:
     case CurrentHash(hash: String)
     case NoHash
 
-  def onLocationHashChange[Msg](resultToMessage: Result.HashChange => Msg): Sub[Msg] =
+  def onLocationHashChange[F[_]: Async, Msg](resultToMessage: Result.HashChange => Msg): Sub[F, Msg] =
     Sub.fromEvent("hashchange", window) { e =>
       try {
         val evt     = e.asInstanceOf[HashChangeEvent]
@@ -29,16 +29,16 @@ object Navigation:
       }
     }
 
-  def getLocationHash[Msg](resultToMessage: Result => Msg): Cmd[Msg] =
+  def getLocationHash[F[_]: Async, Msg](resultToMessage: Result => Msg): Cmd[F, Msg] =
     val task =
-      IO.delay {
+      Async[F].delay {
         val hash = window.location.hash
         if hash.nonEmpty then Result.CurrentHash(hash.substring(1))
         else Result.NoHash
       }
     Cmd.Run(task, resultToMessage)
 
-  def setLocationHash(newHash: String): Cmd[Nothing] =
+  def setLocationHash[F[_]: Async](newHash: String): Cmd[F, Nothing] =
     Cmd.SideEffect { () =>
       window.location.hash = if newHash.startsWith("#") then newHash else "#" + newHash
     }

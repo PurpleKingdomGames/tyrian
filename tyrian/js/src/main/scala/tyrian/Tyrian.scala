@@ -1,5 +1,7 @@
 package tyrian
 
+import cats.effect.kernel.Async
+import cats.effect.std.Dispatcher
 import org.scalajs.dom.Element
 import tyrian.runtime.TyrianRuntime
 import tyrian.runtime.TyrianSSR
@@ -29,13 +31,13 @@ object Tyrian:
     * @return
     *   The tyrian runtime
     */
-  def start[Model, Msg](
+  def start[F[_]: Async, Model, Msg](
       node: Element,
-      init: (Model, Cmd[Msg]),
-      update: (Msg, Model) => (Model, Cmd[Msg]),
+      init: (Model, Cmd[F, Msg]),
+      update: (Msg, Model) => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
-      subscriptions: Model => Sub[Msg]
-  ): Unit =
+      subscriptions: Model => Sub[F, Msg]
+  ): F[Unit] =
     new TyrianRuntime(
       init,
       update,
