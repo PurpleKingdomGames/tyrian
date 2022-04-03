@@ -1,6 +1,7 @@
 package tyrian
 
 import org.scalajs.dom.Element
+import tyrian.runtime.RunWithCallback
 import tyrian.runtime.TyrianRuntime
 import tyrian.runtime.TyrianSSR
 
@@ -34,14 +35,16 @@ object Tyrian:
       init: (Model, Cmd[Msg]),
       update: (Msg, Model) => (Model, Cmd[Msg]),
       view: Model => Html[Msg],
-      subscriptions: Model => Sub[Msg]
+      subscriptions: Model => Sub[Msg],
+      runner: RunWithCallback[Msg]
   ): Unit =
     new TyrianRuntime(
       init,
       update,
       view,
       subscriptions,
-      node
+      node,
+      runner
     ).start()
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.

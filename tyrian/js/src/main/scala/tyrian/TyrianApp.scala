@@ -1,6 +1,8 @@
 package tyrian
 
+import cats.effect.unsafe.implicits.global
 import org.scalajs.dom.document
+import tyrian.runtime.RunWithCallback
 
 import scala.scalajs.js.annotation._
 
@@ -26,4 +28,12 @@ trait TyrianApp[Msg, Model]:
     ready(containerId, flags)
 
   private def ready(parentElementId: String, flags: Map[String, String]): Unit =
-    Tyrian.start(document.getElementById(parentElementId), init(flags), update, view, subscriptions)
+    val runner: RunWithCallback[Msg] = task => cb => task.unsafeRunAsync(cb)
+    Tyrian.start(
+      document.getElementById(parentElementId),
+      init(flags),
+      update,
+      view,
+      subscriptions,
+      runner
+    )
