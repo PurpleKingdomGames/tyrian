@@ -42,3 +42,20 @@ object SubRunner:
       inProgress: List[String]
   ): List[Sub.OfObservable[_, Msg]] =
     subs.filter(s => alive.forall(_ != s.id) && !inProgress.contains(s.id))
+
+  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
+  def toRun[Msg](newSubs: List[Sub.OfObservable[_, Msg]], callback: Msg => Unit): List[IO[SubToRun]] =
+    newSubs.map { case Sub.OfObservable(id, observable, toMsg) =>
+      // Fire off the new sub
+      observable
+        .map { run =>
+          val cancel = run {
+            case Left(e)  => throw e
+            case Right(m) => callback(toMsg(m))
+          }
+
+          SubToRun(id, cancel)
+        }
+    }
+
+  final case class SubToRun(id: String, cancel: IO[Unit])

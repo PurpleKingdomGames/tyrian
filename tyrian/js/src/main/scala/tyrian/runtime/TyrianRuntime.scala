@@ -55,14 +55,10 @@ final class TyrianRuntime[Model, Msg](
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit =
-    CmdRunner.cmdToTaskList(cmd).foreach { task =>
-      task.unsafeRunAsync {
-        case Right(Some(msg)) => callback(msg)
-        case Right(None)      => ()
-        case Left(e)          => throw e
-      }
-    }
+    // Cmds
+    val cmdsToRun = CmdRunner.cmdToTaskList(cmd)
 
+    // Subs
     val allSubs                 = SubRunner.flatten(sub)
     val (stillAlive, discarded) = SubRunner.aliveAndDead(allSubs, currentSubscriptions)
     val newSubs                 = SubRunner.findNewSubs(allSubs, stillAlive.map(_._1), aboutToRunSubscriptions.toList)
@@ -72,31 +68,27 @@ final class TyrianRuntime[Model, Msg](
     // Update the current subs
     currentSubscriptions = stillAlive
 
-    newSubs.foreach { case Sub.OfObservable(id, observable, toMsg) =>
-      // Fire off the new sub
-      observable
-        .map { run =>
-          run {
-            case Left(e)  => throw e
-            case Right(m) => callback(toMsg(m))
-          }
-        }
-        .map { cancel =>
+    val subsToRun =
+      SubRunner
+        .toRun(newSubs, callback)
+        .map(_.map { sub =>
           // Remove from the queue
-          aboutToRunSubscriptions = aboutToRunSubscriptions - id
+          aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
           // Add to the current subs
-          currentSubscriptions = (id -> cancel) :: currentSubscriptions
-        }
-        .unsafeRunAsync {
-          case Right(_) => ()
-          case Left(e)  => throw e
-        }
-    }
+          currentSubscriptions = (sub.id -> sub.cancel) :: currentSubscriptions
 
-    discarded.foreach {
-      _.unsafeRunAsync {
-        case Right(_) => ()
-        case Left(e)  => throw e
+          Option.empty[Msg]
+        })
+
+    val subsToDiscard =
+      discarded.map(_.map(_ => Option.empty[Msg]))
+
+    // Run them all
+    (cmdsToRun ++ subsToRun ++ subsToDiscard).foreach { task =>
+      task.unsafeRunAsync {
+        case Right(Some(msg)) => callback(msg)
+        case Right(None)      => ()
+        case Left(e)          => throw e
       }
     }
 
