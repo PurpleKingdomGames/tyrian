@@ -1,6 +1,6 @@
 package tyrian.cmds
 
-import cats.effect.IO
+import cats.effect.kernel.Async
 import org.scalajs.dom
 import org.scalajs.dom.document
 import org.scalajs.dom.html
@@ -16,13 +16,13 @@ import scala.scalajs.js
   */
 object FileReader:
 
-  def read[Msg](fileInputFieldId: String)(
+  def read[F[_]: Async, Msg](fileInputFieldId: String)(
       resultToMessage: Result[js.Any] => Msg
-  ): Cmd[Msg] =
+  ): Cmd[F, Msg] =
     val files = document.getElementById(fileInputFieldId).asInstanceOf[html.Input].files
-    if files.length == 0 then Cmd.Empty
+    if files.length == 0 then Cmd.empty
     else
-      val task = IO {
+      val task = Async[F].delay {
         val file       = files.item(0)
         val p          = Promise[Result[js.Any]]()
         val fileReader = new dom.FileReader()
@@ -44,16 +44,16 @@ object FileReader:
         p.future
       }
 
-      Cmd.Run(IO.fromFuture(task), resultToMessage)
+      Cmd.Run(Async[F].fromFuture(task), resultToMessage)
 
-  def readImage[Msg](inputFieldId: String)(resultToMessage: Result[html.Image] => Msg): Cmd[Msg] =
+  def readImage[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[html.Image] => Msg): Cmd[F, Msg] =
     val cast: Result[js.Any] => Result[html.Image] = {
       case Result.Error(msg)    => Result.Error(msg)
       case Result.File(n, p, d) => Result.File(n, p, d.asInstanceOf[html.Image])
     }
     read(inputFieldId)(cast andThen resultToMessage)
 
-  def readText[Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[Msg] =
+  def readText[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
     val cast: Result[js.Any] => Result[String] = {
       case Result.Error(msg)    => Result.Error(msg)
       case Result.File(n, p, d) => Result.File(n, p, d.asInstanceOf[String])

@@ -1,5 +1,6 @@
 package tyrian
 
+import cats.effect.kernel.Async
 import org.scalajs.dom.Element
 import tyrian.runtime.RunWithCallback
 import tyrian.runtime.TyrianRuntime
@@ -30,13 +31,13 @@ object Tyrian:
     * @return
     *   The tyrian runtime
     */
-  def start[Model, Msg](
+  def start[F[_]: Async, Model, Msg](
       node: Element,
-      init: (Model, Cmd[Msg]),
-      update: (Msg, Model) => (Model, Cmd[Msg]),
+      init: (Model, Cmd[F, Msg]),
+      update: (Msg, Model) => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
-      subscriptions: Model => Sub[Msg],
-      runner: RunWithCallback[Msg]
+      subscriptions: Model => Sub[F, Msg],
+      runner: RunWithCallback[F, Msg]
   ): Unit =
     new TyrianRuntime(
       init,

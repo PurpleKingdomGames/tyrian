@@ -1,6 +1,6 @@
 package tyrian
 
-import cats.effect.IO
+import cats.effect.kernel.Async
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import util.Functions
@@ -20,30 +20,31 @@ import scala.scalajs.js
   * @tparam Msg
   *   Type of message produced by the resource
   */
-sealed trait Sub[+Msg]:
+sealed trait Sub[F[_]: Async, +Msg]:
 
   /** Transforms the type of messages produced by the subscription */
-  def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg]
+  def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg]
 
   /** Merges the notifications of this subscription and `sub2` */
-  final def combine[LubMsg >: Msg](sub2: Sub[LubMsg]): Sub[LubMsg] =
+  final def combine[LubMsg >: Msg](sub2: Sub[F, LubMsg]): Sub[F, LubMsg] =
     (this, sub2) match {
-      case (Sub.Empty, Sub.Empty) => Sub.Empty
-      case (Sub.Empty, s2)        => s2
-      case (s1, Sub.Empty)        => s1
-      case (s1, s2)               => Sub.Combine(s1, s2)
+      case (Sub.Empty(), Sub.Empty()) => Sub.Empty()
+      case (Sub.Empty(), s2)          => s2
+      case (s1, Sub.Empty())          => s1
+      case (s1, s2)                   => Sub.Combine(s1, s2)
     }
-  final def |+|[LubMsg >: Msg](sub2: Sub[LubMsg]): Sub[LubMsg] =
+  final def |+|[LubMsg >: Msg](sub2: Sub[F, LubMsg]): Sub[F, LubMsg] =
     combine(sub2)
 
 object Sub:
 
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
-  given CanEqual[Sub[_], Sub[_]]       = CanEqual.derived
+  given CanEqual[Sub[_, _], Sub[_, _]] = CanEqual.derived
 
   /** The empty subscription represents the absence of subscriptions */
-  case object Empty extends Sub[Nothing]:
-    def map[OtherMsg](f: Nothing => OtherMsg): Sub[OtherMsg] = this
+  final case class Empty[F[_]: Async]() extends Sub[F, Nothing]:
+    def map[OtherMsg](f: Nothing => OtherMsg): Empty[F] = this
+  def empty[F[_]: Async]: Empty[F] = Empty()
 
   /** A subscription that forwards the notifications produced by the given `observable`
     * @param id
@@ -59,12 +60,12 @@ object Sub:
     * @tparam Msg
     *   type of message produced by the subscription
     */
-  final case class OfObservable[A, Msg](
+  final case class OfObservable[F[_]: Async, A, Msg](
       id: String,
-      observable: IO[(Either[Throwable, A] => Unit) => IO[Unit]],
+      observable: F[(Either[Throwable, A] => Unit) => F[Unit]],
       toMsg: A => Msg
-  ) extends Sub[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg] =
+  ) extends Sub[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg] =
       OfObservable(
         id,
         observable,
@@ -72,14 +73,14 @@ object Sub:
       )
 
   /** Merge two subscriptions into a single one */
-  final case class Combine[+Msg](sub1: Sub[Msg], sub2: Sub[Msg]) extends Sub[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Sub[OtherMsg] = Combine(sub1.map(f), sub2.map(f))
+  final case class Combine[F[_]: Async, +Msg](sub1: Sub[F, Msg], sub2: Sub[F, Msg]) extends Sub[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg] = Combine(sub1.map(f), sub2.map(f))
 
   /** Treat many subscriptions as one */
-  final case class Batch[Msg](subs: List[Sub[Msg]]) extends Sub[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Batch[OtherMsg] = this.copy(subs = subs.map(_.map(f)))
+  final case class Batch[F[_]: Async, Msg](subs: List[Sub[F, Msg]]) extends Sub[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Batch[F, OtherMsg] = this.copy(subs = subs.map(_.map(f)))
   object Batch:
-    def apply[Msg](subs: Sub[Msg]*): Batch[Msg] =
+    def apply[F[_]: Async, Msg](subs: Sub[F, Msg]*): Batch[F, Msg] =
       Batch(subs.toList)
 
   /** @return
@@ -89,7 +90,7 @@ object Sub:
     * @tparam Msg
     *   Type of message
     */
-  def emit[Msg](msg: Msg): Sub[Msg] =
+  def emit[F[_]: Async, Msg](msg: Msg): Sub[F, Msg] =
     timeout(FiniteDuration(0, TimeUnit.MILLISECONDS), msg, msg.toString)
 
   /** @return
@@ -103,35 +104,35 @@ object Sub:
     * @tparam Msg
     *   Type of message
     */
-  def timeout[Msg](duration: FiniteDuration, msg: Msg, id: String): Sub[Msg] =
+  def timeout[F[_]: Async, Msg](duration: FiniteDuration, msg: Msg, id: String): Sub[F, Msg] =
     val task =
-      IO.delay { (callback: Either[Throwable, Msg] => Unit) =>
+      Async[F].delay { (callback: Either[Throwable, Msg] => Unit) =>
         val handle =
           dom.window.setTimeout(
             Functions.fun0(() => callback(Right(msg))),
             duration.toMillis.toDouble
           )
-        IO(dom.window.clearTimeout(handle))
+        Async[F].delay(dom.window.clearTimeout(handle))
       }
 
-    OfObservable[Msg, Msg](id, task, identity) // TODO, the toMsg function...
+    OfObservable[F, Msg, Msg](id, task, identity) // TODO, the toMsg function...
 
-  def every(interval: FiniteDuration, id: String): Sub[js.Date] =
+  def every[F[_]: Async](interval: FiniteDuration, id: String): Sub[F, js.Date] =
     val task =
-      IO.delay { (callback: Either[Throwable, js.Date] => Unit) =>
+      Async[F].delay { (callback: Either[Throwable, js.Date] => Unit) =>
         val handle =
           dom.window.setInterval(
             Functions.fun0(() => callback(Right(new js.Date()))),
             interval.toMillis.toDouble
           )
-        IO(dom.window.clearTimeout(handle))
+        Async[F].delay(dom.window.clearTimeout(handle))
       }
 
-    OfObservable[js.Date, js.Date](id, task, identity) // TODO, the toMsg function...
+    OfObservable[F, js.Date, js.Date](id, task, identity) // TODO, the toMsg function...
 
-  def fromEvent[A, Msg](name: String, target: EventTarget)(extract: A => Option[Msg]): Sub[Msg] =
+  def fromEvent[F[_]: Async, A, Msg](name: String, target: EventTarget)(extract: A => Option[Msg]): Sub[F, Msg] =
     val task =
-      IO.delay { (callback: Either[Throwable, Msg] => Unit) =>
+      Async[F].delay { (callback: Either[Throwable, Msg] => Unit) =>
         val listener = Functions.fun { (a: A) =>
           extract(a) match
             case Some(msg) =>
@@ -140,9 +141,9 @@ object Sub:
             case None => ()
         }
         target.addEventListener(name, listener)
-        IO(target.removeEventListener(name, listener))
+        Async[F].delay(target.removeEventListener(name, listener))
       }
 
-    OfObservable[Msg, Msg](name + target.hashCode, task, identity) // TODO, the toMsg function...
+    OfObservable[F, Msg, Msg](name + target.hashCode, task, identity) // TODO, the toMsg function...
 
 end Sub

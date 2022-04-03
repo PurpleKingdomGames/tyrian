@@ -1,6 +1,6 @@
 package tyrian.runtime
 
-import cats.effect.IO
+import cats.effect.kernel.Async
 import tyrian.Sub
 
 import scala.annotation.tailrec
@@ -8,14 +8,14 @@ import scala.annotation.tailrec
 object SubRunner:
 
   // Flatten all the subs into a list of indvidual subs.
-  def flatten[Msg](sub: Sub[Msg]): List[Sub.OfObservable[_, Msg]] =
+  def flatten[F[_]: Async, Msg](sub: Sub[F, Msg]): List[Sub.OfObservable[F, _, Msg]] =
     @tailrec
-    def rec(remaining: List[Sub[Msg]], acc: List[Sub.OfObservable[_, Msg]]): List[Sub.OfObservable[_, Msg]] =
+    def rec(remaining: List[Sub[F, Msg]], acc: List[Sub.OfObservable[F, _, Msg]]): List[Sub.OfObservable[F, _, Msg]] =
       remaining match
         case Nil =>
           acc
 
-        case Sub.Empty :: ss =>
+        case Sub.Empty() :: ss =>
           rec(ss, acc)
 
         case Sub.Combine(s1, s2) :: ss =>
@@ -24,38 +24,36 @@ object SubRunner:
         case Sub.Batch(sbs) :: ss =>
           rec(sbs ++ ss, acc)
 
-        case (s: Sub.OfObservable[_, _]) :: ss =>
-          rec(ss, s.asInstanceOf[Sub.OfObservable[_, Msg]] :: acc)
+        case (s: Sub.OfObservable[F, _, _]) :: ss =>
+          rec(ss, s.asInstanceOf[Sub.OfObservable[F, _, Msg]] :: acc)
 
     rec(List(sub), Nil)
 
-  def aliveAndDead[Msg](
-      subs: List[Sub.OfObservable[_, Msg]],
-      current: List[(String, IO[Unit])]
-  ): (List[(String, IO[Unit])], List[IO[Unit]]) =
+  def aliveAndDead[F[_]: Async, Msg](
+      subs: List[Sub.OfObservable[F, _, Msg]],
+      current: List[(String, F[Unit])]
+  ): (List[(String, F[Unit])], List[F[Unit]]) =
     val (a, d) = current.partition { case (id, _) => subs.exists(_.id == id) }
     (a, d.map(_._2))
 
-  def findNewSubs[Msg](
-      subs: List[Sub.OfObservable[_, Msg]],
+  def findNewSubs[F[_]: Async, Msg](
+      subs: List[Sub.OfObservable[F, _, Msg]],
       alive: List[String],
       inProgress: List[String]
-  ): List[Sub.OfObservable[_, Msg]] =
+  ): List[Sub.OfObservable[F, _, Msg]] =
     subs.filter(s => alive.forall(_ != s.id) && !inProgress.contains(s.id))
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def toRun[Msg](newSubs: List[Sub.OfObservable[_, Msg]], callback: Msg => Unit): List[IO[SubToRun]] =
+  def toRun[F[_]: Async, Msg](newSubs: List[Sub.OfObservable[F, _, Msg]], callback: Msg => Unit): List[F[SubToRun[F]]] =
     newSubs.map { case Sub.OfObservable(id, observable, toMsg) =>
-      // Fire off the new sub
-      observable
-        .map { run =>
-          val cancel = run {
-            case Left(e)  => throw e
-            case Right(m) => callback(toMsg(m))
-          }
-
-          SubToRun(id, cancel)
+      Async[F].map(observable) { run =>
+        val cancel = run {
+          case Left(e)  => throw e
+          case Right(m) => callback(toMsg(m))
         }
+
+        SubToRun(id, cancel)
+      }
     }
 
-  final case class SubToRun(id: String, cancel: IO[Unit])
+  final case class SubToRun[F[_]: Async](id: String, cancel: F[Unit])

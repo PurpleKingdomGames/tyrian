@@ -1,6 +1,6 @@
 package tyrian.http
 
-import cats.effect.IO
+import cats.effect.kernel.Async
 import org.scalajs.dom.XMLHttpRequest
 import tyrian.Cmd
 
@@ -45,11 +45,11 @@ object Http:
     *   A Cmd that describes the HTTP request
     */
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  def send[A, Msg](request: Request[A], resultToMessage: HttpResult[A] => Msg): Cmd[Msg] =
+  def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: HttpResult[A] => Msg): Cmd[F, Msg] =
 
     val task =
-      IO.fromFuture(
-        IO {
+      Async[F].fromFuture(
+        Async[F].delay {
           val xhr = new XMLHttpRequest
           val p   = Promise[ConnectionResult]()
           try {
@@ -75,35 +75,39 @@ object Http:
           }
           p.future
         }
-      ).flatMap {
-        case e @ ConnectionResult.Error(_) => IO(e)
-        case ConnectionResult.Handler(xhr) => IO(xhr).onCancel(IO(xhr.abort()))
-      }.flatMap {
-        case ConnectionResult.Error(e) =>
-          IO(HttpResult.Failure(e))
+      )
 
-        case ConnectionResult.Handler(xhr) =>
-          val response = Response(
-            url = request.url,
-            status = Status(xhr.status, xhr.statusText),
-            headers = parseHeaders(xhr.getAllResponseHeaders()),
-            body = xhr.responseText
-          )
+    val withCancel = Async[F].flatMap(task) {
+      case e @ ConnectionResult.Error(_) => Async[F].delay(e)
+      case ConnectionResult.Handler(xhr) => Async[F].onCancel(Async[F].delay(xhr), Async[F].delay(xhr.abort()))
+    }
 
-          request
-            .expect(response) match
-            case Right(r) =>
-              IO(HttpResult.Success(r))
+    val withResponse = Async[F].flatMap(withCancel) {
+      case ConnectionResult.Error(e) =>
+        Async[F].delay(HttpResult.Failure(e))
 
-            case Left(e) =>
-              IO(
-                HttpResult.Failure(
-                  HttpError.DecodingFailure(e, response)
-                )
+      case ConnectionResult.Handler(xhr) =>
+        val response = Response(
+          url = request.url,
+          status = Status(xhr.status, xhr.statusText),
+          headers = parseHeaders(xhr.getAllResponseHeaders()),
+          body = xhr.responseText
+        )
+
+        request
+          .expect(response) match
+          case Right(r) =>
+            Async[F].delay(HttpResult.Success(r))
+
+          case Left(e) =>
+            Async[F].delay(
+              HttpResult.Failure(
+                HttpError.DecodingFailure(e, response)
               )
-      }
+            )
+    }
 
-    Cmd.Run(task, resultToMessage)
+    Cmd.Run(withResponse, resultToMessage)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.noValPatterns"))
   private def parseHeaders(headers: String): Map[String, String] =

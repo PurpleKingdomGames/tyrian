@@ -1,6 +1,6 @@
 package tyrian.runtime
 
-import cats.effect.IO
+import cats.effect.kernel.Async
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.SnabbdomSyntax
@@ -21,15 +21,15 @@ import util.Functions.fun
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
 
-type RunWithCallback[Msg] = IO[Option[Msg]] => (Either[Throwable, Option[Msg]] => Unit) => Unit
+type RunWithCallback[F[_], Msg] = F[Option[Msg]] => (Either[Throwable, Option[Msg]] => Unit) => Unit
 
-final class TyrianRuntime[Model, Msg](
-    init: (Model, Cmd[Msg]),
-    update: (Msg, Model) => (Model, Cmd[Msg]),
+final class TyrianRuntime[F[_]: Async, Model, Msg](
+    init: (Model, Cmd[F, Msg]),
+    update: (Msg, Model) => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
-    subscriptions: Model => Sub[Msg],
+    subscriptions: Model => Sub[F, Msg],
     node: Element,
-    runner: RunWithCallback[Msg]
+    runner: RunWithCallback[F, Msg]
 ) extends SnabbdomSyntax:
 
   private val (initState, initCmd) = init
@@ -40,15 +40,15 @@ final class TyrianRuntime[Model, Msg](
 
   // The currently live subs.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var currentSubscriptions: List[(String, IO[Unit])] = Nil
+  private var currentSubscriptions: List[(String, F[Unit])] = Nil
   // This is a queue of new subs waiting to be run for the first time.
   // In the event that two events happen at once, you can't assume that
   // you would have run all the subs between events.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var aboutToRunSubscriptions: Set[String] = Set.empty
 
-  def onMsg(run: RunWithCallback[Msg])(msg: Msg): Unit =
-    val (updatedState: Model, cmd: Cmd[Msg]) = update(msg, currentState)
+  def onMsg(run: RunWithCallback[F, Msg])(msg: Msg): Unit =
+    val (updatedState: Model, cmd: Cmd[F, Msg]) = update(msg, currentState)
     currentState = updatedState
     vnode = render(vnode, currentState, run)
     performSideEffects(cmd, subscriptions(currentState), onMsg(run), run)
@@ -56,7 +56,7 @@ final class TyrianRuntime[Model, Msg](
   given CanEqual[Option[Msg], Option[Msg]] = CanEqual.derived
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit, run: RunWithCallback[Msg]): Unit =
+  def performSideEffects(cmd: Cmd[F, Msg], sub: Sub[F, Msg], callback: Msg => Unit, run: RunWithCallback[F, Msg]): Unit =
     // Cmds
     val cmdsToRun = CmdRunner.cmdToTaskList(cmd)
 
@@ -73,17 +73,21 @@ final class TyrianRuntime[Model, Msg](
     val subsToRun =
       SubRunner
         .toRun(newSubs, callback)
-        .map(_.map { sub =>
-          // Remove from the queue
-          aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
-          // Add to the current subs
-          currentSubscriptions = (sub.id -> sub.cancel) :: currentSubscriptions
+        .map { s =>
+          Async[F].map(s) { sub =>
+            // Remove from the queue
+            aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
+            // Add to the current subs
+            currentSubscriptions = (sub.id -> sub.cancel) :: currentSubscriptions
 
-          Option.empty[Msg]
-        })
+            Option.empty[Msg]
+          }
+        }
 
     val subsToDiscard =
-      discarded.map(_.map(_ => Option.empty[Msg]))
+      discarded.map { d =>
+        Async[F].map(d)(_ => Option.empty[Msg])
+      }
 
     // Run them all
     (cmdsToRun ++ subsToRun ++ subsToDiscard).foreach { task =>
@@ -94,7 +98,7 @@ final class TyrianRuntime[Model, Msg](
       }
     }
 
-  def toVNode(html: Html[Msg], run: RunWithCallback[Msg]): VNode =
+  def toVNode(html: Html[Msg], run: RunWithCallback[F, Msg]): VNode =
     html match
       case Tag(name, attrs, children) =>
         val as = js.Dictionary(
@@ -125,7 +129,7 @@ final class TyrianRuntime[Model, Msg](
       js.Array(snabbdom.modules.props, snabbdom.modules.attributes, snabbdom.modules.eventlisteners)
     )
 
-  def render(oldNode: Element | VNode, model: Model, run: RunWithCallback[Msg]): VNode =
+  def render(oldNode: Element | VNode, model: Model, run: RunWithCallback[F, Msg]): VNode =
     patch(oldNode, toVNode(view(model), run))
 
   def start(): Unit =
