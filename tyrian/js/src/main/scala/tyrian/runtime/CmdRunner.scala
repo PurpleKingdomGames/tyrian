@@ -1,42 +1,37 @@
 package tyrian.runtime
 
-import cats.effect.unsafe.implicits.global
+import cats.effect.IO
 import tyrian.Cmd
+
+import scala.annotation.tailrec
 
 object CmdRunner:
 
-  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def runCmd[Msg](
-      cmd: Cmd[Msg],
-      callback: Msg => Unit,
-      async: (=> Unit) => Unit
-  ): Unit =
-    val allCmds = {
-      def loop(cmd: Cmd[Msg]): Unit =
-        cmd match
-          case Cmd.Empty =>
-            ()
+  def cmdToTaskList[Msg](cmd: Cmd[Msg]): List[IO[Option[Msg]]] =
+    @tailrec
+    def rec(remaining: List[Cmd[Msg]], acc: List[IO[Option[Msg]]]): List[IO[Option[Msg]]] =
+      remaining match
+        case Nil =>
+          acc.reverse
 
-          case Cmd.Emit(msg) =>
-            callback(msg)
+        case cmd :: cmds =>
+          cmd match
+            case Cmd.Empty =>
+              rec(cmds, acc)
 
-          case Cmd.SideEffect(task) =>
-            async(task.unsafeRunAndForget())
+            case Cmd.Emit(msg) =>
+              rec(cmds, IO.delay(Option(msg)) :: acc)
 
-          case Cmd.Run(obs, f) =>
-            async(
-              obs.unsafeRunAsync {
-                case Right(v) => (f andThen callback)(v)
-                case Left(e)  => throw e
-              }
-            )
+            case Cmd.SideEffect(task) =>
+              rec(cmds, task.map(_ => Option.empty[Msg]) :: acc)
 
-          case Cmd.Combine(cmd1, cmd2) =>
-            loop(cmd1)
-            loop(cmd2)
+            case Cmd.Run(task, f) =>
+              rec(cmds, task.map(p => Option(f(p))) :: acc)
 
-          case Cmd.Batch(cmds) =>
-            cmds.foreach(loop)
+            case Cmd.Combine(cmd1, cmd2) =>
+              rec(cmd1 :: cmd2 :: cmds, acc)
 
-      loop(cmd)
-    }
+            case Cmd.Batch(cs) =>
+              rec(cs ++ cmds, acc)
+
+    rec(List(cmd), Nil)

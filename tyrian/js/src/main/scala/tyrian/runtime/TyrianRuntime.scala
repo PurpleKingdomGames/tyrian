@@ -1,5 +1,7 @@
 package tyrian.runtime
 
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.SnabbdomSyntax
@@ -34,19 +36,69 @@ final class TyrianRuntime[Model, Msg](
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var vnode = render(node, currentState)
 
-  def async(thunk: => Unit): Unit =
-    js.timers.setTimeout(0)(thunk)
+  // The currently live subs.
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+  private var currentSubscriptions: List[(String, IO[Unit])] = Nil
+  // This is a queue of new subs waiting to be run for the first time.
+  // In the event that two events happen at once, you can't assume that
+  // you would have run all the subs between events.
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+  private var aboutToRunSubscriptions: Set[String] = Set.empty
 
-  def onMsg(msg: Msg): Unit = {
+  def onMsg(msg: Msg): Unit =
     val (updatedState: Model, cmd: Cmd[Msg]) = update(msg, currentState)
     currentState = updatedState
     vnode = render(vnode, currentState)
     performSideEffects(cmd, subscriptions(currentState), onMsg)
-  }
 
+  given CanEqual[Option[Msg], Option[Msg]] = CanEqual.derived
+
+  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit =
-    CmdRunner.runCmd(cmd, callback, async)
-    SubRunner.runSub(sub, callback, async)
+    CmdRunner.cmdToTaskList(cmd).foreach { task =>
+      task.unsafeRunAsync {
+        case Right(Some(msg)) => callback(msg)
+        case Right(None)      => ()
+        case Left(e)          => throw e
+      }
+    }
+
+    val allSubs                 = SubRunner.flatten(sub)
+    val (stillAlive, discarded) = SubRunner.aliveAndDead(allSubs, currentSubscriptions)
+    val newSubs                 = SubRunner.findNewSubs(allSubs, stillAlive.map(_._1), aboutToRunSubscriptions.toList)
+
+    // Update the first run queue
+    aboutToRunSubscriptions = aboutToRunSubscriptions ++ newSubs.map(_.id)
+    // Update the current subs
+    currentSubscriptions = stillAlive
+
+    newSubs.foreach { case Sub.OfObservable(id, observable, toMsg) =>
+      // Fire off the new sub
+      observable
+        .map { run =>
+          run {
+            case Left(e)  => throw e
+            case Right(m) => callback(toMsg(m))
+          }
+        }
+        .map { cancel =>
+          // Remove from the queue
+          aboutToRunSubscriptions = aboutToRunSubscriptions - id
+          // Add to the current subs
+          currentSubscriptions = (id -> cancel) :: currentSubscriptions
+        }
+        .unsafeRunAsync {
+          case Right(_) => ()
+          case Left(e)  => throw e
+        }
+    }
+
+    discarded.foreach {
+      _.unsafeRunAsync {
+        case Right(_) => ()
+        case Left(e)  => throw e
+      }
+    }
 
   def toVNode(html: Html[Msg]): VNode =
     html match
