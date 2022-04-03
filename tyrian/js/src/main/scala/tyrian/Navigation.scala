@@ -15,7 +15,7 @@ object Navigation:
     case CurrentHash(hash: String)
     case NoHash
 
-  def onLocationHashChange[F[_]: Async, Msg](resultToMessage: Result.HashChange => Msg): Sub[F, Msg] =
+  def onLocationHashChange[Msg](resultToMessage: Result.HashChange => Msg): Sub[Msg] =
     Sub.fromEvent("hashchange", window) { e =>
       try {
         val evt     = e.asInstanceOf[HashChangeEvent]
@@ -29,16 +29,16 @@ object Navigation:
       }
     }
 
-  def getLocationHash[F[_]: Async, Msg](resultToMessage: Result => Msg): Cmd[F, Msg] =
+  def getLocationHash[Msg](resultToMessage: Result => Msg): Cmd[Msg] =
     val task =
-      Async[F].delay {
+      IO.delay {
         val hash = window.location.hash
         if hash.nonEmpty then Result.CurrentHash(hash.substring(1))
         else Result.NoHash
       }
     Cmd.Run(task, resultToMessage)
 
-  def setLocationHash[F[_]: Async](newHash: String): Cmd[F, Nothing] =
+  def setLocationHash(newHash: String): Cmd[Nothing] =
     Cmd.SideEffect { () =>
       window.location.hash = if newHash.startsWith("#") then newHash else "#" + newHash
     }

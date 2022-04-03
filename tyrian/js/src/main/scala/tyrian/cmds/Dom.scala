@@ -1,6 +1,6 @@
 package tyrian.cmds
 
-import cats.effect.kernel.Async
+import cats.effect.IO
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.HTMLInputElement
 import tyrian.Cmd
@@ -10,20 +10,20 @@ object Dom:
   case object Success
   final case class NotFound(elementId: String)
 
-  def focus[F[_]: Async, Msg](elementId: String)(resultToMessage: Either[NotFound, Success.type] => Msg): Cmd[F, Msg] =
+  def focus[Msg](elementId: String)(resultToMessage: Either[NotFound, Success.type] => Msg): Cmd[Msg] =
     affectInputElement(elementId, _.focus(), resultToMessage)
 
-  def blur[F[_]: Async, Msg](elementId: String)(resultToMessage: Either[NotFound, Success.type] => Msg): Cmd[F, Msg] =
+  def blur[Msg](elementId: String)(resultToMessage: Either[NotFound, Success.type] => Msg): Cmd[Msg] =
     affectInputElement(elementId, _.blur(), resultToMessage)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  private def affectInputElement[F[_]: Async, Msg](
+  private def affectInputElement[Msg](
       elementId: String,
       modifier: HTMLInputElement => Unit,
       resultToMessage: Either[NotFound, Success.type] => Msg
-  ): Cmd[F, Msg] =
+  ): Cmd[Msg] =
     val task =
-      Async[F].delay {
+      IO.delay {
         val node = document.getElementById(elementId)
         if node != null then
           modifier(node.asInstanceOf[HTMLInputElement])

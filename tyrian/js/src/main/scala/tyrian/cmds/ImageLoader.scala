@@ -1,7 +1,6 @@
 package tyrian.cmds
 
-import cats.effect.kernel.Async
-import cats.effect.kernel.Sync
+import cats.effect.IO
 import org.scalajs.dom.document
 import org.scalajs.dom.html
 import org.scalajs.dom.raw.Event
@@ -13,9 +12,9 @@ import scala.concurrent.Promise
   */
 object ImageLoader:
 
-  def load[F[_]: Async, Msg](path: String)(resultToMessage: Result => Msg): Cmd[F, Msg] =
+  def load[Msg](path: String)(resultToMessage: Result => Msg): Cmd[Msg] =
     val task =
-      Sync[F].delay {
+      IO {
         val p                 = Promise[Result]()
         val image: html.Image = document.createElement("img").asInstanceOf[html.Image]
         image.src = path
@@ -29,7 +28,7 @@ object ImageLoader:
         )
         p.future
       }
-    Cmd.Run(Async[F].fromFuture(task), resultToMessage)
+    Cmd.Run(IO.fromFuture(task), resultToMessage)
 
   enum Result:
     case Image(img: html.Image)

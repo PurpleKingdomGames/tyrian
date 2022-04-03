@@ -1,6 +1,5 @@
 package example
 
-import cats.effect.IO
 import example.game.MyAwesomeGame
 import org.scalajs.dom.document
 import tyrian.Html.*
@@ -18,55 +17,45 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
-  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    val cmds =
-      Cmd.Batch[IO, Msg](
-        Logger.info("Starting up!"),
-        Cmd.Emit(Msg.StartIndigo)
-      )
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+    (Model.init, Cmd.Emit(Msg.StartIndigo))
 
-    (Model.init, cmds)
-
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.NewRandomInt(i) =>
-        (model.copy(randomNumber = i), Cmd.empty)
+        (model.copy(randomNumber = i), Cmd.Empty)
 
       case Msg.NewContent(content) =>
         val cmds =
           Cmd.Batch(
             model.bridge.publish(gameId1, content),
             model.bridge.publish(gameId2, content),
-            Random.int[IO].map(next => Msg.NewRandomInt(next.value))
+            Random.int.map(next => Msg.NewRandomInt(next.value))
           )
         (model.copy(field = content), cmds)
 
       case Msg.Insert =>
-        (model.copy(components = Counter.init :: model.components), Cmd.empty)
+        (model.copy(components = Counter.init :: model.components), Cmd.Empty)
 
       case Msg.Remove =>
         val cs = model.components match
           case Nil    => Nil
           case _ :: t => t
 
-        (model.copy(components = cs), Cmd.empty)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.Modify(id, m) =>
         val cs = model.components.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
 
-        (model.copy(components = cs), Cmd.empty)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.StartIndigo =>
-        println("Msg.StartIndigo")
         (
           model,
           Cmd.Batch(
-            Cmd.SideEffect(IO(println("fish"))),
-            Logger.info("Firing up Indigo instances"),
             Cmd.SideEffect { () =>
-              println("game 1 start")
               MyAwesomeGame(model.bridge.subSystem(gameId1), true)
                 .launch(
                   gameDivId1,
@@ -75,7 +64,6 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
                 )
             },
             Cmd.SideEffect { () =>
-              println("game 2 start")
               MyAwesomeGame(model.bridge.subSystem(gameId2), false)
                 .launch(
                   gameDivId2,
@@ -110,7 +98,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
       div(elems)
     )
 
-  def subscriptions(model: Model): Sub[IO, Msg] =
+  def subscriptions(model: Model): Sub[Msg] =
     Sub.Batch(
       model.bridge.subscribe { case msg =>
         Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
@@ -163,7 +151,7 @@ object Counter:
       case Msg.Decrement => model - 1
 
 final case class Model(
-    bridge: TyrianIndigoBridge[IO, String],
+    bridge: TyrianIndigoBridge[String],
     field: String,
     components: List[Counter.Model],
     randomNumber: Int

@@ -93,9 +93,8 @@ lazy val tyrian =
       commonJsSettings,
       libraryDependencies ++= Seq(
         "org.scala-js"  %%% "scalajs-dom"                 % Dependancies.scalajsDomVersion,
-        "org.typelevel" %%% "cats-effect-kernel"          % Dependancies.catsEffect,
-        "org.typelevel" %%% "cats-effect"                 % Dependancies.catsEffect, // TODO: Remove
-        "org.scala-js"  %%% "scala-js-macrotask-executor" % Dependancies.scalajsMacroTask // TODO: Remove?
+        "org.typelevel" %%% "cats-effect"                 % Dependancies.catsEffect,
+        "org.scala-js"  %%% "scala-js-macrotask-executor" % Dependancies.scalajsMacroTask
       )
     )
 
@@ -124,11 +123,7 @@ lazy val sandbox =
       commonSettings,
       name := "sandbox",
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-      scalacOptions -= "-language:strictEquality",
-      libraryDependencies ++= Seq(
-        "org.typelevel" %%% "cats-effect"                 % Dependancies.catsEffect,
-        "org.scala-js"  %%% "scala-js-macrotask-executor" % Dependancies.scalajsMacroTask
-      )
+      scalacOptions -= "-language:strictEquality"
     )
 
 lazy val indigoSandbox =
@@ -147,11 +142,7 @@ lazy val indigoSandbox =
         "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
         "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
       ),
-      scalacOptions -= "-language:strictEquality",
-      libraryDependencies ++= Seq(
-        "org.typelevel" %%% "cats-effect"                 % Dependancies.catsEffect,
-        "org.scala-js"  %%% "scala-js-macrotask-executor" % Dependancies.scalajsMacroTask
-      )
+      scalacOptions -= "-language:strictEquality"
     )
 
 lazy val jsdocs =

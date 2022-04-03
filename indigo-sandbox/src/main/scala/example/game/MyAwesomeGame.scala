@@ -1,11 +1,10 @@
 package example.game
 
-import cats.effect.IO
 import indigo._
 import indigo.scenes._
 import tyrian.TyrianSubSystem
 
-final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[IO, String], clockwise: Boolean)
+final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[String], clockwise: Boolean)
     extends IndigoGame[Unit, Unit, Unit, Unit]:
 
   def initialScene(bootData: Unit): Option[SceneName] =

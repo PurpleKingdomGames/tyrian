@@ -1,32 +1,32 @@
 package tyrian
 
-import cats.effect.kernel.Async
+import cats.effect.IO
 import org.scalajs.dom.Event
 import org.scalajs.dom.EventTarget
 import tyrian.Cmd
 import tyrian.Sub
 import util.Functions
 
-final class TyrianIndigoBridge[F[_]: Async, A]:
+final class TyrianIndigoBridge[A]:
 
   val eventTarget: EventTarget = new EventTarget()
 
-  def publish(value: A): Cmd[F, Nothing] =
+  def publish(value: A): Cmd[Nothing] =
     publishToBridge(None, value)
-  def publish(indigoGame: IndigoGameId, value: A): Cmd[F, Nothing] =
+  def publish(indigoGame: IndigoGameId, value: A): Cmd[Nothing] =
     publishToBridge(Option(indigoGame), value)
 
-  def subscribe[B](extract: A => Option[B])(using CanEqual[B, B]): Sub[F, B] =
+  def subscribe[B](extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
     subscribeToBridge(None, extract)
-  def subscribe[B](indigoGame: IndigoGameId)(extract: A => Option[B])(using CanEqual[B, B]): Sub[F, B] =
+  def subscribe[B](indigoGame: IndigoGameId)(extract: A => Option[B])(using CanEqual[B, B]): Sub[B] =
     subscribeToBridge(Option(indigoGame), extract)
 
-  def subSystem: TyrianSubSystem[F, A] =
+  def subSystem: TyrianSubSystem[A] =
     TyrianSubSystem(this)
-  def subSystem(indigoGame: IndigoGameId): TyrianSubSystem[F, A] =
+  def subSystem(indigoGame: IndigoGameId): TyrianSubSystem[A] =
     TyrianSubSystem(Option(indigoGame), this)
 
-  private def publishToBridge(indigoGameId: Option[IndigoGameId], value: A): Cmd[F, Nothing] =
+  private def publishToBridge(indigoGameId: Option[IndigoGameId], value: A): Cmd[Nothing] =
     Cmd.SideEffect { () =>
       eventTarget.dispatchEvent(TyrianIndigoBridge.BridgeToIndigo(indigoGameId, value))
       ()
@@ -34,7 +34,7 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
 
   private def subscribeToBridge[B](indigoGameId: Option[IndigoGameId], extract: A => Option[B])(using
       CanEqual[B, B]
-  ): Sub[F, B] =
+  ): Sub[B] =
     val eventExtract: TyrianIndigoBridge.BridgeToTyrian[A] => Option[B] =
       e =>
         indigoGameId match
@@ -43,7 +43,7 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
           case _                          => None
 
     val task =
-      Async[F].delay { (callback: Either[Throwable, B] => Unit) =>
+      IO.delay { (callback: Either[Throwable, B] => Unit) =>
         val listener = Functions.fun { (a: TyrianIndigoBridge.BridgeToTyrian[A]) =>
           eventExtract(a) match {
             case Some(b) => callback(Right(b))
@@ -51,10 +51,10 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
           }
         }
         eventTarget.addEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener)
-        Async[F].delay(eventTarget.removeEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener))
+        IO(eventTarget.removeEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener))
       }
 
-    Sub.OfObservable[F, B, B](
+    Sub.OfObservable[B, B](
       TyrianIndigoBridge.BridgeToTyrian.EventName + this.hashCode,
       task,
       identity
@@ -62,8 +62,8 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
 
 object TyrianIndigoBridge:
 
-  def apply[F[_]: Async, A](): TyrianIndigoBridge[F, A] =
-    new TyrianIndigoBridge[F, A]()
+  def apply[A](): TyrianIndigoBridge[A] =
+    new TyrianIndigoBridge[A]()
 
   final class BridgeToIndigo[A](val indigoGameId: Option[IndigoGameId], val value: A)
       extends Event(BridgeToIndigo.EventName)

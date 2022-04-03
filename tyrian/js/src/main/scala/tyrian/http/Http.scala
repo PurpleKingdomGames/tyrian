@@ -1,6 +1,6 @@
 package tyrian.http
 
-import cats.effect.kernel.Async
+import cats.effect.IO
 import org.scalajs.dom.XMLHttpRequest
 import tyrian.Cmd
 
@@ -45,48 +45,42 @@ object Http:
     *   A Cmd that describes the HTTP request
     */
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: HttpResult[A] => Msg): Cmd[F, Msg] =
-    val httpCall =
-      Async[F].delay {
-        val xhr = new XMLHttpRequest
-        val p   = Promise[ConnectionResult]()
-        try {
-          request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
-
-          xhr.timeout = request.timeout.map(_.toMillis.toDouble).getOrElse(0)
-          xhr.withCredentials = request.withCredentials
-          xhr.open(request.method.asString, request.url)
-          xhr.onload = _ => p.success(ConnectionResult.Handler(xhr))
-          xhr.onerror = _ => p.success(ConnectionResult.Error(HttpError.NetworkError))
-          xhr.ontimeout = _ => p.success(ConnectionResult.Error(HttpError.Timeout))
-
-          request.body match
-            case Body.Empty =>
-              xhr.send(null)
-
-            case Body.PlainText(contentType, body) =>
-              xhr.setRequestHeader("Content-Type", contentType)
-              xhr.send(body)
-
-        } catch {
-          case ex: Throwable => p.success(ConnectionResult.Error(HttpError.BadRequest(ex.getMessage)))
-        }
-        p.future
-      }
-
-    val cancellable =
-      Async[F].flatMap(Async[F].fromFuture(httpCall)) {
-        case e @ ConnectionResult.Error(_) =>
-          Async[F].delay(e)
-
-        case ConnectionResult.Handler(xhr) =>
-          Async[F].onCancel(Async[F].delay(xhr), Async[F].delay(xhr.abort()))
-      }
+  def send[A, Msg](request: Request[A], resultToMessage: HttpResult[A] => Msg): Cmd[Msg] =
 
     val task =
-      Async[F].flatMap(cancellable) {
+      IO.fromFuture(
+        IO {
+          val xhr = new XMLHttpRequest
+          val p   = Promise[ConnectionResult]()
+          try {
+            request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
+
+            xhr.timeout = request.timeout.map(_.toMillis.toDouble).getOrElse(0)
+            xhr.withCredentials = request.withCredentials
+            xhr.open(request.method.asString, request.url)
+            xhr.onload = _ => p.success(ConnectionResult.Handler(xhr))
+            xhr.onerror = _ => p.success(ConnectionResult.Error(HttpError.NetworkError))
+            xhr.ontimeout = _ => p.success(ConnectionResult.Error(HttpError.Timeout))
+
+            request.body match
+              case Body.Empty =>
+                xhr.send(null)
+
+              case Body.PlainText(contentType, body) =>
+                xhr.setRequestHeader("Content-Type", contentType)
+                xhr.send(body)
+
+          } catch {
+            case ex: Throwable => p.success(ConnectionResult.Error(HttpError.BadRequest(ex.getMessage)))
+          }
+          p.future
+        }
+      ).flatMap {
+        case e @ ConnectionResult.Error(_) => IO(e)
+        case ConnectionResult.Handler(xhr) => IO(xhr).onCancel(IO(xhr.abort()))
+      }.flatMap {
         case ConnectionResult.Error(e) =>
-          Async[F].delay(HttpResult.Failure(e))
+          IO(HttpResult.Failure(e))
 
         case ConnectionResult.Handler(xhr) =>
           val response = Response(
@@ -99,10 +93,10 @@ object Http:
           request
             .expect(response) match
             case Right(r) =>
-              Async[F].delay(HttpResult.Success(r))
+              IO(HttpResult.Success(r))
 
             case Left(e) =>
-              Async[F].delay(
+              IO(
                 HttpResult.Failure(
                   HttpError.DecodingFailure(e, response)
                 )

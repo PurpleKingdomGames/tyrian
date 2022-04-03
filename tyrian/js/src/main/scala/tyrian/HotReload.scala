@@ -1,6 +1,6 @@
 package tyrian
 
-import cats.effect.kernel.Async
+import cats.effect.IO
 import org.scalajs.dom
 import util.Functions
 
@@ -12,12 +12,12 @@ object HotReload:
 
   final case class Error(message: String)
 
-  def bootstrap[F[_]: Async, Model, Msg](key: String, decode: Option[String] => Either[String, Model])(
+  def bootstrap[Model, Msg](key: String, decode: Option[String] => Either[String, Model])(
       resultToMessage: Either[String, Model] => Msg
-  ): Cmd[F, Msg] =
-    Cmd.Run(Async[F].delay(decode(Option(dom.window.localStorage.getItem(key)))), resultToMessage)
+  ): Cmd[Msg] =
+    Cmd.Run(IO(decode(Option(dom.window.localStorage.getItem(key)))), resultToMessage)
 
-  def snapshot[F[_]: Async, Model](key: String, model: Model, encode: Model => String): Cmd[F, Nothing] =
+  def snapshot[Model](key: String, model: Model, encode: Model => String): Cmd[Nothing] =
     Cmd.SideEffect { () =>
       dom.window.localStorage.setItem(key, encode(model))
     }

@@ -1,6 +1,5 @@
 package example
 
-import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
 import tyrian.cmds.Dom
@@ -16,9 +15,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
   val hotReloadKey: String = "hotreload"
 
-  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
     val cmds =
-      Cmd.Batch[IO, Msg](
+      Cmd.Batch(
         HotReload.bootstrap(hotReloadKey, Model.decode) {
           case Left(msg)    => Msg.Log("Error during hot-reload!: " + msg)
           case Right(model) => Msg.OverwriteModel(model)
@@ -32,17 +31,17 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     (Model.init, cmds)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
     msg match
       case Msg.Save(k, v) =>
-        val cmd = LocalStorage.setItem[IO, Msg](k, v) { _ =>
+        val cmd = LocalStorage.setItem(k, v) { _ =>
           Msg.Log("Save successful")
         }
 
         (model, cmd)
 
       case Msg.Load(k) =>
-        val cmd = LocalStorage.getItem[IO, Msg](k) {
+        val cmd = LocalStorage.getItem(k) {
           case Left(e) => Msg.Log("Error loading: " + e.key)
           case Right(found) =>
             println("Loaded: " + found.data)
@@ -52,98 +51,98 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model, cmd)
 
       case Msg.ClearStorage(k) =>
-        val cmd = LocalStorage.removeItem[IO, Msg](k) { _ =>
+        val cmd = LocalStorage.removeItem(k) { _ =>
           Msg.Log("Item removed successfully")
         }
 
         (model.copy(saveData = None), cmd)
 
       case Msg.DataLoaded(data) =>
-        (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.empty)
+        (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.Empty)
 
       case Msg.StageSaveData(content) =>
-        (model.copy(tmpSaveData = content), Cmd.empty)
+        (model.copy(tmpSaveData = content), Cmd.Empty)
 
       case Msg.JumpToHomePage =>
         (model, Navigation.setLocationHash(Page.Page1.toHash))
 
       case Msg.NavigateTo(page) =>
-        (model.copy(page = page), Cmd.empty)
+        (model.copy(page = page), Cmd.Empty)
 
       case Msg.TakeSnapshot =>
         (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
 
       case Msg.OverwriteModel(m) =>
-        (m, Cmd.empty)
+        (m, Cmd.Empty)
 
       case Msg.Clear =>
-        (model.copy(field = ""), Cmd.empty)
+        (model.copy(field = ""), Cmd.Empty)
 
       case Msg.Log(msg) =>
         (model, Logger.info(msg))
 
       case Msg.FocusOnInputField =>
-        val cmd = Dom.focus[IO, Msg]("text-reverse-field") {
+        val cmd = Dom.focus("text-reverse-field") {
           case Left(Dom.NotFound(id)) => Msg.Log("Element not found: " + id)
           case _                      => Msg.Log("Focused on input field")
         }
         (model, cmd)
 
       case Msg.NewContent(content) =>
-        (model.copy(field = content), Cmd.empty)
+        (model.copy(field = content), Cmd.Empty)
 
       case Msg.Insert =>
-        (model.copy(components = Counter.init :: model.components), Cmd.empty)
+        (model.copy(components = Counter.init :: model.components), Cmd.Empty)
 
       case Msg.Remove =>
         val cs = model.components match
           case Nil    => Nil
           case _ :: t => t
 
-        (model.copy(components = cs), Cmd.empty)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.Modify(id, m) =>
         val cs = model.components.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
 
-        (model.copy(components = cs), Cmd.empty)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
         println(s"Failed to open WebSocket connection: $err")
-        (model.copy(error = Some(err)), Cmd.empty)
+        (model.copy(error = Some(err)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connected(ws)) =>
-        (model.copy(echoSocket = Some(ws)), Cmd.empty)
+        (model.copy(echoSocket = Some(ws)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connecting) =>
         (
           model,
-          WebSocket.connect[IO, Msg](
+          WebSocket.connect(
             address = model.socketUrl,
             onOpenMessage = "Connect me!",
             keepAliveSettings = KeepAliveSettings.default
           ) {
-            case WebSocketConnect.Error(err)               => Status.ConnectionError(err).asMsg
-            case s: WebSocketConnect.Socket[IO] @unchecked => Status.Connected(s.webSocket).asMsg
+            case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
+            case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
           }
         )
 
       case Msg.WebSocketStatus(Status.Disconnecting) =>
         println("Graceful shutdown of WS connection")
-        (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.empty))
+        (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.Empty))
 
       case Msg.WebSocketStatus(Status.Disconnected) =>
         println("WebSocket not connected yet")
-        (model, Cmd.empty)
+        (model, Cmd.Empty)
 
       case Msg.FromSocket(message) =>
         println("Got: " + message)
-        (model.copy(log = message :: model.log), Cmd.empty)
+        (model.copy(log = message :: model.log), Cmd.Empty)
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.empty))
+        (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.Empty))
 
   def view(model: Model): Html[Msg] =
     val navItems =
@@ -222,9 +221,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
       "text-align" -> "center"
     )
 
-  def subscriptions(model: Model): Sub[IO, Msg] =
+  def subscriptions(model: Model): Sub[Msg] =
     val webSocketSubs =
-      model.echoSocket.fold(Sub.emit[IO, Msg](Status.Disconnected.asMsg)) {
+      model.echoSocket.fold(Sub.emit(Status.Disconnected.asMsg)) {
         _.subscribe {
           case WebSocketEvent.Error(errorMesage) =>
             Msg.FromSocket(errorMesage)
@@ -246,7 +245,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
     Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
-      Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot),
+      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapshot),
       Sub.timeout(2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log")
     )
 
@@ -273,7 +272,7 @@ enum Msg:
 
 enum Status:
   case Connecting
-  case Connected(ws: WebSocket[IO])
+  case Connected(ws: WebSocket)
   case ConnectionError(msg: String)
   case Disconnecting
   case Disconnected
@@ -303,7 +302,7 @@ object Counter:
 
 final case class Model(
     page: Page,
-    echoSocket: Option[WebSocket[IO]],
+    echoSocket: Option[WebSocket],
     socketUrl: String,
     field: String,
     components: List[Counter.Model],
