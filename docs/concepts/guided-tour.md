@@ -20,19 +20,20 @@ The version of this in the [examples](https://github.com/PurpleKingdomGames/tyri
 ```scala mdoc:silent
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    (0, Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+    (0, Cmd.empty)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
-      case Msg.Increment => (model + 1, Cmd.Empty)
-      case Msg.Decrement => (model - 1, Cmd.Empty)
+      case Msg.Increment => (model + 1, Cmd.empty)
+      case Msg.Decrement => (model - 1, Cmd.empty)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -41,8 +42,8 @@ object Main extends TyrianApp[Msg, Model]:
       button(onClick(Msg.Increment))("+")
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
-    Sub.Empty
+  def subscriptions(model: Model): Sub[IO, Msg] =
+    Sub.empty
 
 type Model = Int
 
@@ -87,13 +88,14 @@ To use our model, we're going to have to initialize it!
 ```scala mdoc:reset:invisible
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 type Model = Int
 ```
 
 ```scala mdoc:silent
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    (0, Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+    (0, Cmd.empty)
 ```
 
 There's a few things going on here, the only bit we _really_ care about here is the `0` because that is going to be the starting value of our 'model'.
@@ -138,6 +140,7 @@ enum Msg:
 ```scala mdoc:reset:invisible
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 type Model = Int
 enum Msg:
@@ -160,10 +163,10 @@ enum Msg:
 The final thing we need to do is react to the messages the view is sending, as follows:
 
 ```scala mdoc:silent
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
-      case Msg.Increment => (model + 1, Cmd.Empty)
-      case Msg.Decrement => (model - 1, Cmd.Empty)
+      case Msg.Increment => (model + 1, Cmd.empty)
+      case Msg.Decrement => (model - 1, Cmd.empty)
 ```
 
 Recall that our 'model' is just a type alias for an `Int`, so all we do is match on the `Msg` enum type, and either increment or decrement the model - done!
