@@ -39,9 +39,9 @@ object Cmd:
 
   final case class Run[F[_]: Async, A, Msg](
       observable: F[A],
-      toMessage: A => Msg
+      toMsg: A => Msg
   ) extends Cmd[F, Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Run[F, A, OtherMsg] = Run(observable, toMessage andThen f)
+    def map[OtherMsg](f: Msg => OtherMsg): Run[F, A, OtherMsg] = Run(observable, toMsg andThen f)
     def attempt[OtherMsg](resultToMessage: A => OtherMsg): Run[F, A, OtherMsg] =
       Run(observable, resultToMessage)
   object Run:

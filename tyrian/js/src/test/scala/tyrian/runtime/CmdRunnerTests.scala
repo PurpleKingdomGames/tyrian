@@ -49,46 +49,46 @@ class CmdRunnerTests extends munit.FunSuite {
   //   assertEquals(output, 20)
   // }
 
-  test("run a cmd side effect") {
+  // test("run a cmd side effect") {
 
-    var output: Int = -1
+  //   var output: Int = -1
 
-    val cmd: Cmd[Int] =
-      Cmd.SideEffect { () => 
-        output = 2
-      }
+  //   val cmd: Cmd[Int] =
+  //     Cmd.SideEffect { () => 
+  //       output = 2
+  //     }
 
-    val async: (=> Unit) => Unit = thing => thing
+  //   val async: (=> Unit) => Unit = thing => thing
 
-    val actual =
-      CmdRunner.runCmd(cmd, _ => (), async)
+  //   val actual =
+  //     CmdRunner.runCmd(cmd, _ => (), async)
 
-    assertEquals(output, 2)
-  }
+  //   assertEquals(output, 2)
+  // }
 
-  test("emit a message") {
+  // test("emit a message") {
 
-    val initial = "Hello, "
+  //   val initial = "Hello, "
 
-    var output: String = initial
+  //   var output: String = initial
 
-    final case class TestMsg(message: String)
+  //   final case class TestMsg(message: String)
 
-    val msg = "world!"
+  //   val msg = "world!"
 
-    val cmd: Cmd[TestMsg] =
-      Cmd.Emit[TestMsg](TestMsg(msg))
+  //   val cmd: Cmd[TestMsg] =
+  //     Cmd.Emit[TestMsg](TestMsg(msg))
 
-    val callback: TestMsg => Unit = (msg: TestMsg) => {
-      output = output + msg.message
-      ()
-    }
-    val async: (=> Unit) => Unit = thing => thing
+  //   val callback: TestMsg => Unit = (msg: TestMsg) => {
+  //     output = output + msg.message
+  //     ()
+  //   }
+  //   val async: (=> Unit) => Unit = thing => thing
 
-    val actual =
-      CmdRunner.runCmd(cmd, callback, async)
+  //   val actual =
+  //     CmdRunner.runCmd(cmd, callback, async)
 
-    assertEquals(output, initial + msg)
-  }
+  //   assertEquals(output, initial + msg)
+  // }
 
 }

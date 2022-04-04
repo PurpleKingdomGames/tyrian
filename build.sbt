@@ -20,7 +20,8 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % "0.7.29" % Test
+    "org.scalameta" %%% "munit"               % "0.7.29"                      % Test,
+    "org.typelevel" %%% "munit-cats-effect-3" % Dependancies.munitCatsEffect3 % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-language:strictEquality"),

@@ -1,81 +1,72 @@
 package tyrian
 
-@SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-class CmdTests extends munit.FunSuite {
+import cats.effect.IO
 
-  // import CmdUtils.*
+@SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
+class CmdTests extends munit.CatsEffectSuite {
+
+  import CmdSubUtils.*
 
   test("map - Empty") {
-    assertEquals(Cmd.Empty.map(_ => Int), Cmd.Empty)
+    assertEquals(Cmd.Empty[IO]().map(_ => 10), Cmd.Empty[IO]())
   }
 
-  // test("map - RunTask") {
-  //   val mapped =
-  //     Cmd
-  //       .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
-  //       .map(_ * 100)
+  test("map - Run") {
+    val mapped =
+      Cmd
+        .Run(IO(10), (res: Int) => res.toString)
+        .map(s => s"count: $s")
 
-  //   val actual: Int =
-  //     runCmd(mapped)
+    val actual: IO[String] =
+      mapped.run
 
-  //   val expected: Int =
-  //     1000
+    val expected: String =
+      "count: 10"
 
-  //   assertEquals(actual, expected)
-  // }
+    actual.assertEquals(expected)
+  }
 
-  // test("map - Combine") {
-  //   val mapped =
-  //     Cmd.Combine(
-  //       Cmd
-  //         .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
-  //         .map(_ * 100),
-  //       Cmd
-  //         .RunTask[String, Int, Int](Task.Succeeded(10), (res: Either[String, Int]) => res.toOption.getOrElse(0))
-  //         .map(_ * 10)
-  //     )
+  test("map - Combine") {
+    val mapped =
+      Cmd.Combine(
+        Cmd
+          .Run(IO(10), identity)
+          .map(_ * 100),
+        Cmd
+          .Run(IO(10), identity)
+          .map(_ * 10)
+      )
 
-  //   val actual: (Int, Int) =
-  //     (runCmd(mapped.cmd1), runCmd(mapped.cmd2))
+    mapped.cmd1.run.assertEquals(1000)
+    mapped.cmd2.run.assertEquals(100)
+  }
 
-  //   val expected: (Int, Int) =
-  //     (1000, 100)
+  test("map - Batch") {
+    val mapped =
+      Cmd.Batch(
+        Cmd.Run(IO(10), identity).map(_ * 2),
+        Cmd.Combine(
+          Cmd.Run(IO(10), identity).map(_ * 100),
+          Cmd.Run(IO(10), identity).map(_ * 10)
+        )
+      )
 
-  //   assertEquals(actual, expected)
-  // }
+    val actual: IO[(Int, Int, Int)] =
+      mapped.cmds match
+        case c1 :: (cs: Cmd.Combine[IO, _]) :: Nil =>
+          for {
+            a <- runCmd(c1)
+            b <- runCmd(cs.cmd1)
+            c <- runCmd(cs.cmd2)
+          } yield (a, b, c)
 
-  // test("map - Batch") {
-  //   val toMessage = (res: Either[String, Int]) => res.toOption.getOrElse(0)
+        case _ =>
+          throw new Exception("wrong pattern")
 
-  //   val mapped =
-  //     Cmd.Batch(
-  //       Cmd
-  //         .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)
-  //         .map(_ * 2),
-  //       Cmd.Combine(
-  //         Cmd
-  //           .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)
-  //           .map(_ * 100),
-  //         Cmd
-  //           .RunTask[String, Int, Int](Task.Succeeded(10), toMessage)
-  //           .map(_ * 10)
-  //       )
-  //     )
+    val expected: (Int, Int, Int) =
+      (20, 1000, 100)
 
-  //   val actual: (Int, Int, Int) =
-  //     mapped.cmds match
-  //       case c1 :: (cs: Cmd.Combine[_]) :: Nil =>
-  //         (runCmd(c1), runCmd(cs.cmd1), runCmd(cs.cmd2))
-
-  //       case _ =>
-  //         throw new Exception("wrong pattern")
-
-  //   val expected: (Int, Int, Int) =
-  //     (20, 1000, 100)
-
-  //   assertEquals(actual, expected)
-  // }
+    actual.assertEquals(expected)
+  }
 
 }
-
-
