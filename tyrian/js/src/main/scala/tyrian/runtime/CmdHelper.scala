@@ -5,7 +5,7 @@ import tyrian.Cmd
 
 import scala.annotation.tailrec
 
-object CmdRunner:
+object CmdHelper:
 
   def cmdToTaskList[F[_]: Async, Msg](cmd: Cmd[F, Msg]): List[F[Option[Msg]]] =
     @tailrec

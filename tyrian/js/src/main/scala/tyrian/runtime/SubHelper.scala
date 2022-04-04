@@ -5,7 +5,7 @@ import tyrian.Sub
 
 import scala.annotation.tailrec
 
-object SubRunner:
+object SubHelper:
 
   // Flatten all the subs into a list of indvidual subs.
   def flatten[F[_]: Async, Msg](sub: Sub[F, Msg]): List[Sub.OfObservable[F, _, Msg]] =

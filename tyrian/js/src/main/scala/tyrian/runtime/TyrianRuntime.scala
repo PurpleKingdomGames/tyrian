@@ -56,14 +56,19 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   given CanEqual[Option[Msg], Option[Msg]] = CanEqual.derived
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def performSideEffects(cmd: Cmd[F, Msg], sub: Sub[F, Msg], callback: Msg => Unit, run: RunWithCallback[F, Msg]): Unit =
+  def performSideEffects(
+      cmd: Cmd[F, Msg],
+      sub: Sub[F, Msg],
+      callback: Msg => Unit,
+      run: RunWithCallback[F, Msg]
+  ): Unit =
     // Cmds
-    val cmdsToRun = CmdRunner.cmdToTaskList(cmd)
+    val cmdsToRun = CmdHelper.cmdToTaskList(cmd)
 
     // Subs
-    val allSubs                 = SubRunner.flatten(sub)
-    val (stillAlive, discarded) = SubRunner.aliveAndDead(allSubs, currentSubscriptions)
-    val newSubs                 = SubRunner.findNewSubs(allSubs, stillAlive.map(_._1), aboutToRunSubscriptions.toList)
+    val allSubs                 = SubHelper.flatten(sub)
+    val (stillAlive, discarded) = SubHelper.aliveAndDead(allSubs, currentSubscriptions)
+    val newSubs                 = SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), aboutToRunSubscriptions.toList)
 
     // Update the first run queue
     aboutToRunSubscriptions = aboutToRunSubscriptions ++ newSubs.map(_.id)
@@ -71,7 +76,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     currentSubscriptions = stillAlive
 
     val subsToRun =
-      SubRunner
+      SubHelper
         .toRun(newSubs, callback)
         .map { s =>
           Async[F].map(s) { sub =>
