@@ -27,7 +27,7 @@ class SubTests extends munit.CatsEffectSuite {
     }
 
     val runnable =
-      Sub.OfObservable[IO, Int, Int]("test", observable, identity)
+      Sub.Observe[IO, Int, Int]("test", observable, identity)
 
     runnable.run(callback).map(_ => state == 10).assert
   }
@@ -48,8 +48,8 @@ class SubTests extends munit.CatsEffectSuite {
 
     val combined =
       Sub.Combine(
-        Sub.OfObservable[IO, Int, Int]("sub1", observable(1000), identity),
-        Sub.OfObservable[IO, Int, Int]("sub2", observable(100), identity)
+        Sub.Observe[IO, Int, Int]("sub1", observable(1000), identity),
+        Sub.Observe[IO, Int, Int]("sub2", observable(100), identity)
       )
 
     IO.both(
@@ -74,10 +74,10 @@ class SubTests extends munit.CatsEffectSuite {
 
     val batched =
       Sub.Batch[IO, Int](
-        Sub.OfObservable[IO, Int, Int]("sub1", observable(10), identity),
+        Sub.Observe[IO, Int, Int]("sub1", observable(10), identity),
         Sub.Combine(
-          Sub.OfObservable[IO, Int, Int]("sub2", observable(100), identity),
-          Sub.OfObservable[IO, Int, Int]("sub3", observable(1000), identity)
+          Sub.Observe[IO, Int, Int]("sub2", observable(100), identity),
+          Sub.Observe[IO, Int, Int]("sub3", observable(1000), identity)
         )
       )
 

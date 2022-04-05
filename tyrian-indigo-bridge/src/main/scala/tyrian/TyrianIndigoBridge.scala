@@ -27,7 +27,7 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
     TyrianSubSystem(Option(indigoGame), this)
 
   private def publishToBridge(indigoGameId: Option[IndigoGameId], value: A): Cmd[F, Nothing] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       eventTarget.dispatchEvent(TyrianIndigoBridge.BridgeToIndigo(indigoGameId, value))
       ()
     }
@@ -54,7 +54,7 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
         Async[F].delay(eventTarget.removeEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener))
       }
 
-    Sub.OfObservable[F, B, B](
+    Sub.Observe[F, B, B](
       TyrianIndigoBridge.BridgeToTyrian.EventName + this.hashCode,
       task,
       identity

@@ -40,31 +40,31 @@ object Logger:
     }
 
   def consoleLog[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       consoleLogString(messages.toList.mkString(", "))
     }
 
   def info[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       infoString(messages.toList.mkString(", "))
     }
 
   def error[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       errorString(messages.toList.mkString(", "))
     }
 
   def errorOnce[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       errorOnceString(messages.toList.mkString(", "))
     }
 
   def debug[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       debugString(messages.toList.mkString(", "))
     }
 
   def debugOnce[F[_]: Async](messages: String*): Cmd.SideEffect[F] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       debugOnceString(messages.toList.mkString(", "))
     }

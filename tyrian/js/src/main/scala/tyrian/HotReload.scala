@@ -18,6 +18,6 @@ object HotReload:
     Cmd.Run(Async[F].delay(decode(Option(dom.window.localStorage.getItem(key)))), resultToMessage)
 
   def snapshot[F[_]: Async, Model](key: String, model: Model, encode: Model => String): Cmd[F, Nothing] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       dom.window.localStorage.setItem(key, encode(model))
     }

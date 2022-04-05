@@ -39,6 +39,6 @@ object Navigation:
     Cmd.Run(task, resultToMessage)
 
   def setLocationHash[F[_]: Async](newHash: String): Cmd[F, Nothing] =
-    Cmd.SideEffect { () =>
+    Cmd.SideEffect {
       window.location.hash = if newHash.startsWith("#") then newHash else "#" + newHash
     }

@@ -56,7 +56,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
         (
           model,
           Cmd.Batch(
-            Cmd.SideEffect { () =>
+            Cmd.SideEffect {
               MyAwesomeGame(model.bridge.subSystem(gameId1), true)
                 .launch(
                   gameDivId1,
@@ -64,7 +64,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
                   "height" -> "200"
                 )
             },
-            Cmd.SideEffect { () =>
+            Cmd.SideEffect {
               MyAwesomeGame(model.bridge.subSystem(gameId2), false)
                 .launch(
                   gameDivId2,

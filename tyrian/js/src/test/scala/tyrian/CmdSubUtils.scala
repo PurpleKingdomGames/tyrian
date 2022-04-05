@@ -10,7 +10,7 @@ object CmdSubUtils:
   def runCmd[Msg](cmd: Cmd[IO, Msg]): IO[Msg] =
     cmd match
       case c: Cmd.Run[IO, _, _] =>
-        c.observable.map(c.toMsg)
+        c.task.map(c.toMsg)
 
       case Cmd.Emit(msg) =>
         IO(msg)
@@ -23,7 +23,7 @@ object CmdSubUtils:
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   def runSub[A, Msg](sub: Sub[IO, Msg])(callback: Either[Throwable, A] => Unit): IO[Unit] =
     sub match
-      case s: Sub.OfObservable[IO, A, Msg] @unchecked =>
+      case s: Sub.Observe[IO, A, Msg] @unchecked =>
         s.observable.map { run =>
           run(callback)
         }
