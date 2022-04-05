@@ -3,38 +3,15 @@ package tyrian
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import org.scalajs.dom.document
+import tyrian.TyrianAppF
 import tyrian.runtime.RunWithCallback
 
 import scala.scalajs.js.annotation._
 
-trait TyrianApp[Msg, Model]:
+/** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
+  * as providing a number of standard app launching methods.
+  */
+trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg])
-
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg])
-
-  def view(model: Model): Html[Msg]
-
-  def subscriptions(model: Model): Sub[IO, Msg]
-
-  @JSExport
-  def launch(containerId: String): Unit =
-    ready(containerId, Map[String, String]())
-
-  @JSExport
-  def launch(containerId: String, flags: scala.scalajs.js.Dictionary[String]): Unit =
-    ready(containerId, flags.toMap)
-
-  def launch(containerId: String, flags: Map[String, String]): Unit =
-    ready(containerId, flags)
-
-  private def ready(parentElementId: String, flags: Map[String, String]): Unit =
-    val runner: RunWithCallback[IO, Msg] = task => cb => task.unsafeRunAsync(cb)
-    Tyrian.start(
-      document.getElementById(parentElementId),
-      init(flags),
-      update,
-      view,
-      subscriptions,
-      runner
-    )
+  protected val runner: RunWithCallback[IO, Msg] =
+    task => cb => task.unsafeRunAsync(cb)
