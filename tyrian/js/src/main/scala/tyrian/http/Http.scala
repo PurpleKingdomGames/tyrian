@@ -7,6 +7,7 @@ import tyrian.Cmd
 import scala.concurrent.Promise
 import scala.util.Try
 
+/** Send HTTP requests as a command */
 object Http:
 
   enum ConnectionResult:
@@ -17,7 +18,7 @@ object Http:
     case Success(value: A)
     case Failure(e: HttpError)
 
-  /** Tries to transforms a response body of type String to a value of type A.
+  /** Tries to transform an response body of type String to a value of type A.
     * @tparam A
     *   type of the successfully decoded response
     */
@@ -33,10 +34,12 @@ object Http:
         d(response)
 
   /** Send an HTTP request.
-    * @param resultToMessage
-    *   transforms a successful or failed response into a Msg
     * @param request
     *   the request
+    * @param resultToMessage
+    *   transforms a successful or failed response into a Msg
+    * @tparam F
+    *   Effect type, e.g. `IO`
     * @tparam A
     *   type of the successfully decoded response
     * @tparam Msg

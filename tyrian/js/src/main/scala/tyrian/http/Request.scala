@@ -41,7 +41,7 @@ final case class Request[A](
     this.copy(headers = headers ++ newHeaders)
   def addHeaders(newHeaders: Header*): Request[A] =
     addHeaders(newHeaders.toList)
-    
+
   def withUrl(newUrl: String): Request[A] =
     this.copy(url = newUrl)
 

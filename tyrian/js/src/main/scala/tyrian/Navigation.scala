@@ -8,6 +8,7 @@ import tyrian.Sub
 import scala.scalajs.js
 import scala.util.control.NonFatal
 
+/** Provides simple routing based on url hash (anchor), such as: `http://mysite.com/#page1` */
 object Navigation:
 
   enum Result:
@@ -15,6 +16,7 @@ object Navigation:
     case CurrentHash(hash: String)
     case NoHash
 
+  /** Subscribes to changes in the url hash and reports when they occur */
   def onLocationHashChange[F[_]: Async, Msg](resultToMessage: Result.HashChange => Msg): Sub[F, Msg] =
     Sub.fromEvent("hashchange", window) { e =>
       try {
@@ -29,6 +31,7 @@ object Navigation:
       }
     }
 
+  /** Fetch the current location hash */
   def getLocationHash[F[_]: Async, Msg](resultToMessage: Result => Msg): Cmd[F, Msg] =
     val task =
       Async[F].delay {
@@ -38,6 +41,7 @@ object Navigation:
       }
     Cmd.Run(task, resultToMessage)
 
+  /** Set the location hash, the change can then be detected using the `onLocationHashChange` subscription */
   def setLocationHash[F[_]: Async](newHash: String): Cmd[F, Nothing] =
     Cmd.SideEffect {
       window.location.hash = if newHash.startsWith("#") then newHash else "#" + newHash

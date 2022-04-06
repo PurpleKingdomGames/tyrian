@@ -12,10 +12,8 @@ object Tyrian:
   type KeyboardEvent    = org.scalajs.dom.KeyboardEvent
   type HTMLInputElement = org.scalajs.dom.raw.HTMLInputElement
 
-  /** Computes the initial state of the given application, renders it on the given DOM element, and listens to user
-    * actions
-    * @param node
-    *   the DOM element to mount the app to
+  /** Directly starts the app. Computes the initial state of the given application, renders it on the given DOM element,
+    * and listens to user actions
     * @param init
     *   initial state
     * @param update
@@ -24,12 +22,17 @@ object Tyrian:
     *   view function
     * @param subscriptions
     *   subscriptions function
+    * @param node
+    *   the DOM element to mount the app to
+    * @param runner
+    *   the function that runs the program. Has a type of `F[Option[Msg]] => (Either[Throwable, Option[Msg]] => Unit) =>
+    *   Unit`, essentially: `task.unsafeRunAsync(callback)`
+    * @tparam F
+    *   The effect type to use, e.g. `IO`
     * @tparam Model
     *   Type of model
     * @tparam Msg
     *   Type of messages
-    * @return
-    *   The tyrian runtime
     */
   def start[F[_]: Async, Model, Msg](
       node: Element,

@@ -16,6 +16,9 @@ import scala.scalajs.js
   */
 object FileReader:
 
+  /** Generic read function, you will need to cast the result to the type you're expecting. This is normal, and is
+    * because we are accessing unknown resources.
+    */
   def read[F[_]: Async, Msg](fileInputFieldId: String)(
       resultToMessage: Result[js.Any] => Msg
   ): Cmd[F, Msg] =
@@ -46,6 +49,7 @@ object FileReader:
 
       Cmd.Run(Async[F].fromFuture(task), resultToMessage)
 
+  /** Reads an input file as an image */
   def readImage[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[html.Image] => Msg): Cmd[F, Msg] =
     val cast: Result[js.Any] => Result[html.Image] = {
       case Result.Error(msg)    => Result.Error(msg)
@@ -53,6 +57,7 @@ object FileReader:
     }
     read(inputFieldId)(cast andThen resultToMessage)
 
+  /** Reads an input file as plain text */
   def readText[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
     val cast: Result[js.Any] => Result[String] = {
       case Result.Error(msg)    => Result.Error(msg)

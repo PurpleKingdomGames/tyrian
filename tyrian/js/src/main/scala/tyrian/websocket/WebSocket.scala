@@ -9,17 +9,22 @@ import util.Functions
 
 import scala.concurrent.duration.*
 
+/** Helper WebSocket instance to store in your model that acts as a controller */
 final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
+  /** Disconnect from this WebSocket */
   def disconnect[Msg]: Cmd[F, Msg] =
     Cmd.SideEffect(liveSocket.socket.close(1000, "Graceful shutdown"))
 
+  /** Publish a message to this WebSocket */
   def publish[Msg](message: String): Cmd[F, Msg] =
     Cmd.SideEffect(liveSocket.socket.send(message))
 
+  /** Subscribe to messages from this WebSocket */
   def subscribe[Msg](f: WebSocketEvent => Msg): Sub[F, Msg] =
     if WebSocketReadyState.fromInt(liveSocket.socket.readyState).isOpen then liveSocket.subs.map(f)
     else Sub.emit(f(WebSocketEvent.Error("Connection not ready")))
 
+/** The running instance of the WebSocket */
 final class LiveSocket[F[_]: Async](val socket: dom.WebSocket, val subs: Sub[F, WebSocketEvent])
 
 enum WebSocketReadyState derives CanEqual:

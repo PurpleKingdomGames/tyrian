@@ -27,7 +27,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
         Navigation.getLocationHash {
           case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
           case _                                   => Msg.NavigateTo(Page.Page1)
-        }
+        },
+        LocalStorage.key(0) {
+          case LocalStorage.Result.Key(key) => Msg.Log("Found local storage key: " + key)
+          case _                            => Msg.Log("No local storage enties found.")
+        },
+        LocalStorage.length(l => Msg.Log("Number of local storage entries: " + l.length))
       )
 
     (Model.init, cmds)

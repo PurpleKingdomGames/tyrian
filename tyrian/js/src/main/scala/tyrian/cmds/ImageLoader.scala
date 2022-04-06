@@ -12,6 +12,7 @@ import scala.concurrent.Promise
   */
 object ImageLoader:
 
+  /** Load an image from the given path and produce a message */
   def load[F[_]: Async, Msg](path: String)(resultToMessage: Result => Msg): Cmd[F, Msg] =
     val task =
       Async[F].delay {
