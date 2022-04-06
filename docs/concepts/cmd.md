@@ -58,7 +58,7 @@ To achieve this, we use the `Logger` command that comes with Tyrian. The `Logger
 
 ```scala mdoc:silent
 def consoleLog(msg: String): Cmd[IO, Nothing] =
-  Cmd.SideEffect { () =>
+  Cmd.SideEffect {
     println(msg)
   }
 ```
