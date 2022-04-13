@@ -1,6 +1,6 @@
 package tyrian
 
-import cats.effect.kernel.Async
+import cats.effect.kernel.Concurrent
 import org.scalajs.dom.document
 import tyrian.runtime.RunWithCallback
 
@@ -9,7 +9,7 @@ import scala.scalajs.js.annotation._
 /** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
-trait TyrianAppF[F[_]: Async, Msg, Model]:
+trait TyrianAppF[F[_]: Concurrent, Msg, Model]:
 
   protected val runner: RunWithCallback[F, Msg]
 

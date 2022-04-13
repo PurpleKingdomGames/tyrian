@@ -1,6 +1,6 @@
 package tyrian.runtime
 
-import cats.effect.kernel.Async
+import cats.effect.kernel.Concurrent
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.SnabbdomSyntax
@@ -23,7 +23,7 @@ import scala.scalajs.js.Dynamic.{literal => obj}
 
 type RunWithCallback[F[_], Msg] = F[Option[Msg]] => (Either[Throwable, Option[Msg]] => Unit) => Unit
 
-final class TyrianRuntime[F[_]: Async, Model, Msg](
+final class TyrianRuntime[F[_]: Concurrent, Model, Msg](
     init: (Model, Cmd[F, Msg]),
     update: (Msg, Model) => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
@@ -79,7 +79,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       SubHelper
         .toRun(newSubs, callback)
         .map { s =>
-          Async[F].map(s) { sub =>
+          Concurrent[F].map(s) { sub =>
             // Remove from the queue
             aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
             // Add to the current subs
@@ -91,7 +91,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
 
     val subsToDiscard =
       discarded.map { d =>
-        Async[F].map(d)(_ => Option.empty[Msg])
+        Concurrent[F].map(d)(_ => Option.empty[Msg])
       }
 
     // Run them all

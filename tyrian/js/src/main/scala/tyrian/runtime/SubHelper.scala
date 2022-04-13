@@ -1,6 +1,6 @@
 package tyrian.runtime
 
-import cats.effect.kernel.Async
+import cats.effect.kernel.Concurrent
 import tyrian.Sub
 
 import scala.annotation.tailrec
@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 object SubHelper:
 
   // Flatten all the subs into a list of indvidual subs.
-  def flatten[F[_]: Async, Msg](sub: Sub[F, Msg]): List[Sub.Observe[F, _, Msg]] =
+  def flatten[F[_]: Concurrent, Msg](sub: Sub[F, Msg]): List[Sub.Observe[F, _, Msg]] =
     @tailrec
     def rec(remaining: List[Sub[F, Msg]], acc: List[Sub.Observe[F, _, Msg]]): List[Sub.Observe[F, _, Msg]] =
       remaining match
@@ -29,14 +29,14 @@ object SubHelper:
 
     rec(List(sub), Nil)
 
-  def aliveAndDead[F[_]: Async, Msg](
+  def aliveAndDead[F[_]: Concurrent, Msg](
       subs: List[Sub.Observe[F, _, Msg]],
       current: List[(String, F[Unit])]
   ): (List[(String, F[Unit])], List[F[Unit]]) =
     val (a, d) = current.partition { case (id, _) => subs.exists(_.id == id) }
     (a, d.map(_._2))
 
-  def findNewSubs[F[_]: Async, Msg](
+  def findNewSubs[F[_]: Concurrent, Msg](
       subs: List[Sub.Observe[F, _, Msg]],
       alive: List[String],
       inProgress: List[String]
@@ -44,9 +44,9 @@ object SubHelper:
     subs.filter(s => alive.forall(_ != s.id) && !inProgress.contains(s.id))
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def toRun[F[_]: Async, Msg](newSubs: List[Sub.Observe[F, _, Msg]], callback: Msg => Unit): List[F[SubToRun[F]]] =
+  def toRun[F[_]: Concurrent, Msg](newSubs: List[Sub.Observe[F, _, Msg]], callback: Msg => Unit): List[F[SubToRun[F]]] =
     newSubs.map { case Sub.Observe(id, observable, toMsg) =>
-      Async[F].map(observable) { run =>
+      Concurrent[F].map(observable) { run =>
         val cancel = run {
           case Left(e)  => throw e
           case Right(m) => callback(toMsg(m))
@@ -56,4 +56,4 @@ object SubHelper:
       }
     }
 
-  final case class SubToRun[F[_]: Async](id: String, cancel: F[Unit])
+  final case class SubToRun[F[_]: Concurrent](id: String, cancel: F[Unit])

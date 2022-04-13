@@ -1,6 +1,6 @@
 package tyrian
 
-import cats.effect.kernel.Async
+import cats.effect.kernel.Concurrent
 import org.scalajs.dom.Element
 import tyrian.runtime.RunWithCallback
 import tyrian.runtime.TyrianRuntime
@@ -34,7 +34,7 @@ object Tyrian:
     * @tparam Msg
     *   Type of messages
     */
-  def start[F[_]: Async, Model, Msg](
+  def start[F[_]: Concurrent, Model, Msg](
       node: Element,
       init: (Model, Cmd[F, Msg]),
       update: (Msg, Model) => (Model, Cmd[F, Msg]),
