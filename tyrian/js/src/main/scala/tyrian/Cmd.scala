@@ -1,6 +1,6 @@
 package tyrian
 
-import cats.effect.kernel.Concurrent
+import cats.Applicative
 
 import scala.annotation.targetName
 
@@ -21,8 +21,8 @@ object Cmd:
   final case class SideEffect[F[_]](task: F[Unit]) extends Cmd[F, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): SideEffect[F] = this
   object SideEffect:
-    def apply[F[_]: Concurrent](thunk: => Unit): SideEffect[F] =
-      SideEffect(Concurrent[F].pure(thunk))
+    def apply[F[_]: Applicative](thunk: => Unit): SideEffect[F] =
+      SideEffect(Applicative[F].pure(thunk))
 
   /** Simply produces a message that will then be actioned. */
   final case class Emit[Msg](msg: Msg) extends Cmd[Nothing, Msg]:
