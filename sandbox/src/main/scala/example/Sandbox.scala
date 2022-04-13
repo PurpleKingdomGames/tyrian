@@ -17,8 +17,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
   val hotReloadKey: String = "hotreload"
 
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    val cmds =
-      Cmd.Batch[IO, Msg](
+    val cmds: Cmd.Batch[IO, Msg] =
+      Cmd.Batch(
         HotReload.bootstrap(hotReloadKey, Model.decode) {
           case Left(msg)    => Msg.Log("Error during hot-reload!: " + msg)
           case Right(model) => Msg.OverwriteModel(model)
@@ -40,14 +40,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
   def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.Save(k, v) =>
-        val cmd = LocalStorage.setItem[IO, Msg](k, v) { _ =>
+        val cmd: Cmd[IO, Msg] = LocalStorage.setItem(k, v) { _ =>
           Msg.Log("Save successful")
         }
 
         (model, cmd)
 
       case Msg.Load(k) =>
-        val cmd = LocalStorage.getItem[IO, Msg](k) {
+        val cmd: Cmd[IO, Msg] = LocalStorage.getItem(k) {
           case Left(e) => Msg.Log("Error loading: " + e.key)
           case Right(found) =>
             println("Loaded: " + found.data)
@@ -57,7 +57,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model, cmd)
 
       case Msg.ClearStorage(k) =>
-        val cmd = LocalStorage.removeItem[IO, Msg](k) { _ =>
+        val cmd: Cmd[IO, Msg] = LocalStorage.removeItem(k) { _ =>
           Msg.Log("Item removed successfully")
         }
 
@@ -88,7 +88,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model, Logger.info(msg))
 
       case Msg.FocusOnInputField =>
-        val cmd = Dom.focus[IO, Msg]("text-reverse-field") {
+        val cmd: Cmd[IO, Msg] = Dom.focus("text-reverse-field") {
           case Left(Dom.NotFound(id)) => Msg.Log("Element not found: " + id)
           case _                      => Msg.Log("Focused on input field")
         }
@@ -124,7 +124,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
       case Msg.WebSocketStatus(Status.Connecting) =>
         (
           model,
-          WebSocket.connect[IO, Msg](
+          WebSocket.connect(
             address = model.socketUrl,
             onOpenMessage = "Connect me!",
             keepAliveSettings = KeepAliveSettings.default
@@ -248,7 +248,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
         }
       }
 
-    Sub.Batch[IO, Msg](
+    Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
       Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot),
