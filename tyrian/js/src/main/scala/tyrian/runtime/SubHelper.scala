@@ -15,7 +15,7 @@ object SubHelper:
         case Nil =>
           acc
 
-        case Sub.Empty() :: ss =>
+        case Sub.Empty :: ss =>
           rec(ss, acc)
 
         case Sub.Combine(s1, s2) :: ss =>
@@ -24,7 +24,7 @@ object SubHelper:
         case Sub.Batch(sbs) :: ss =>
           rec(sbs ++ ss, acc)
 
-        case (s: Sub.Observe[F, _, _]) :: ss =>
+        case (s: Sub.Observe[_, _, _]) :: ss =>
           rec(ss, s.asInstanceOf[Sub.Observe[F, _, Msg]] :: acc)
 
     rec(List(sub), Nil)

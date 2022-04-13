@@ -16,7 +16,7 @@ object CmdHelper:
 
         case cmd :: cmds =>
           cmd match
-            case Cmd.Empty() =>
+            case Cmd.Empty =>
               rec(cmds, acc)
 
             case Cmd.Emit(msg) =>

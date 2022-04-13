@@ -64,25 +64,25 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model.copy(saveData = None), cmd)
 
       case Msg.DataLoaded(data) =>
-        (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.empty)
+        (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.Empty)
 
       case Msg.StageSaveData(content) =>
-        (model.copy(tmpSaveData = content), Cmd.empty)
+        (model.copy(tmpSaveData = content), Cmd.Empty)
 
       case Msg.JumpToHomePage =>
         (model, Navigation.setLocationHash(Page.Page1.toHash))
 
       case Msg.NavigateTo(page) =>
-        (model.copy(page = page), Cmd.empty)
+        (model.copy(page = page), Cmd.Empty)
 
       case Msg.TakeSnapshot =>
         (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
 
       case Msg.OverwriteModel(m) =>
-        (m, Cmd.empty)
+        (m, Cmd.Empty)
 
       case Msg.Clear =>
-        (model.copy(field = ""), Cmd.empty)
+        (model.copy(field = ""), Cmd.Empty)
 
       case Msg.Log(msg) =>
         (model, Logger.info(msg))
@@ -95,31 +95,31 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model, cmd)
 
       case Msg.NewContent(content) =>
-        (model.copy(field = content), Cmd.empty)
+        (model.copy(field = content), Cmd.Empty)
 
       case Msg.Insert =>
-        (model.copy(components = Counter.init :: model.components), Cmd.empty)
+        (model.copy(components = Counter.init :: model.components), Cmd.Empty)
 
       case Msg.Remove =>
         val cs = model.components match
           case Nil    => Nil
           case _ :: t => t
 
-        (model.copy(components = cs), Cmd.empty)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.Modify(id, m) =>
         val cs = model.components.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
 
-        (model.copy(components = cs), Cmd.empty)
+        (model.copy(components = cs), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
         println(s"Failed to open WebSocket connection: $err")
-        (model.copy(error = Some(err)), Cmd.empty)
+        (model.copy(error = Some(err)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connected(ws)) =>
-        (model.copy(echoSocket = Some(ws)), Cmd.empty)
+        (model.copy(echoSocket = Some(ws)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connecting) =>
         (
@@ -136,19 +136,19 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
       case Msg.WebSocketStatus(Status.Disconnecting) =>
         println("Graceful shutdown of WS connection")
-        (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.empty))
+        (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.Empty))
 
       case Msg.WebSocketStatus(Status.Disconnected) =>
         println("WebSocket not connected yet")
-        (model, Cmd.empty)
+        (model, Cmd.Empty)
 
       case Msg.FromSocket(message) =>
         println("Got: " + message)
-        (model.copy(log = message :: model.log), Cmd.empty)
+        (model.copy(log = message :: model.log), Cmd.Empty)
 
       case Msg.ToSocket(message) =>
         println("Sent: " + message)
-        (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.empty))
+        (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.Empty))
 
   def view(model: Model): Html[Msg] =
     val navItems =

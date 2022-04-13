@@ -20,23 +20,10 @@ import scala.scalajs.js
   * @tparam Msg
   *   Type of message produced by the resource
   */
-sealed trait Sub[F[_]: Concurrent, +Msg]:
+sealed trait Sub[+F[_], +Msg]:
 
   /** Transforms the type of messages produced by the subscription */
   def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg]
-
-  /** Merges the notifications of this subscription and the `other` */
-  final def combine[LubMsg >: Msg](other: Sub[F, LubMsg]): Sub[F, LubMsg] =
-    (this, other) match {
-      case (Sub.Empty(), Sub.Empty()) => Sub.Empty()
-      case (Sub.Empty(), s2)          => s2
-      case (s1, Sub.Empty())          => s1
-      case (s1, s2)                   => Sub.Combine(s1, s2)
-    }
-
-  /** Infix notation for `combine`. Merges the notifications of this subscription and `other` */
-  final def |+|[LubMsg >: Msg](other: Sub[F, LubMsg]): Sub[F, LubMsg] =
-    combine(other)
 
 object Sub:
 
@@ -44,9 +31,8 @@ object Sub:
   given CanEqual[Sub[_, _], Sub[_, _]] = CanEqual.derived
 
   /** The empty subscription represents the absence of subscriptions */
-  final case class Empty[F[_]: Concurrent]() extends Sub[F, Nothing]:
-    def map[OtherMsg](f: Nothing => OtherMsg): Empty[F] = this
-  def empty[F[_]: Concurrent]: Empty[F] = Empty()
+  case object Empty extends Sub[Nothing, Nothing]:
+    def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
 
   /** A subscription that forwards the notifications produced by the given `observable`
     * @param id
@@ -63,7 +49,7 @@ object Sub:
     * @tparam Msg
     *   type of message produced by the subscription
     */
-  final case class Observe[F[_]: Concurrent, A, Msg](
+  final case class Observe[F[_], A, Msg](
       id: String,
       observable: F[(Either[Throwable, A] => Unit) => F[Unit]],
       toMsg: A => Msg
@@ -76,14 +62,14 @@ object Sub:
       )
 
   /** Merge two subscriptions into a single one */
-  final case class Combine[F[_]: Concurrent, +Msg](sub1: Sub[F, Msg], sub2: Sub[F, Msg]) extends Sub[F, Msg]:
+  final case class Combine[F[_], +Msg](sub1: Sub[F, Msg], sub2: Sub[F, Msg]) extends Sub[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg] = Combine(sub1.map(f), sub2.map(f))
 
   /** Treat many subscriptions as one */
-  final case class Batch[F[_]: Concurrent, Msg](subs: List[Sub[F, Msg]]) extends Sub[F, Msg]:
+  final case class Batch[F[_], Msg](subs: List[Sub[F, Msg]]) extends Sub[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Batch[F, OtherMsg] = this.copy(subs = subs.map(_.map(f)))
   object Batch:
-    def apply[F[_]: Concurrent, Msg](subs: Sub[F, Msg]*): Batch[F, Msg] =
+    def apply[F[_], Msg](subs: Sub[F, Msg]*): Batch[F, Msg] =
       Batch(subs.toList)
 
   /** A subscription that emits a msg once. Identical to timeout with a duration of 0. */
