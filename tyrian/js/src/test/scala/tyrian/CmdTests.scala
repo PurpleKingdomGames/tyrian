@@ -8,7 +8,7 @@ class CmdTests extends munit.CatsEffectSuite {
   import CmdSubUtils.*
 
   test("map - Empty") {
-    assertEquals(Cmd.Empty[IO]().map(_ => 10), Cmd.Empty[IO]())
+    assertEquals(Cmd.Empty.map(_ => 10), Cmd.Empty)
   }
 
   test("map - Run") {
