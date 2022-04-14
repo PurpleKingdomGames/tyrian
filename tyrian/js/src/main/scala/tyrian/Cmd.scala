@@ -1,6 +1,6 @@
 package tyrian
 
-import cats.Applicative
+import cats.effect.kernel.Sync
 
 import scala.annotation.targetName
 
@@ -16,7 +16,7 @@ object Cmd:
   extension [F[_], Msg, LubMsg >: Msg](cmd: Cmd[F, Msg])
     def combine(other: Cmd[F, LubMsg]): Cmd[F, LubMsg] = Cmd.merge(cmd, other)
     def |+|(other: Cmd[F, LubMsg]): Cmd[F, LubMsg]     = Cmd.merge(cmd, other)
-    
+
   final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
     (a, b) match {
       case (Cmd.Empty, Cmd.Empty) => Cmd.Empty
@@ -33,8 +33,8 @@ object Cmd:
   final case class SideEffect[F[_]](task: F[Unit]) extends Cmd[F, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): SideEffect[F] = this
   object SideEffect:
-    def apply[F[_]: Applicative](thunk: => Unit): SideEffect[F] =
-      SideEffect(Applicative[F].pure(thunk))
+    def apply[F[_]: Sync](thunk: => Unit): SideEffect[F] =
+      SideEffect(Sync[F].delay(thunk)) // TODO not good enough, needs to be delay, not pure.
 
   /** Simply produces a message that will then be actioned. */
   final case class Emit[Msg](msg: Msg) extends Cmd[Nothing, Msg]:
