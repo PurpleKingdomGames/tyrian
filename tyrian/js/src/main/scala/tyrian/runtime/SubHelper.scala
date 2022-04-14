@@ -19,7 +19,7 @@ object SubHelper:
           rec(ss, acc)
 
         case Sub.Combine(s1, s2) :: ss =>
-          rec(s1 :: s1 :: ss, acc)
+          rec(s1 :: s2 :: ss, acc)
 
         case Sub.Batch(sbs) :: ss =>
           rec(sbs ++ ss, acc)

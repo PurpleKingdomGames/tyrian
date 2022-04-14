@@ -13,6 +13,18 @@ sealed trait Cmd[+F[_], +Msg]:
 object Cmd:
   given CanEqual[Cmd[_, _], Cmd[_, _]] = CanEqual.derived
 
+  extension [F[_], Msg, LubMsg >: Msg](cmd: Cmd[F, Msg])
+    def combine(other: Cmd[F, LubMsg]): Cmd[F, LubMsg] = Cmd.merge(cmd, other)
+    def |+|(other: Cmd[F, LubMsg]): Cmd[F, LubMsg]     = Cmd.merge(cmd, other)
+    
+  final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
+    (a, b) match {
+      case (Cmd.Empty, Cmd.Empty) => Cmd.Empty
+      case (Cmd.Empty, c2)        => c2
+      case (c1, Cmd.Empty)        => c1
+      case (c1, c2)               => Cmd.Combine[F, LubMsg](c1, c2)
+    }
+
   /** The empty command represents the absence of any command to perform */
   case object Empty extends Cmd[Nothing, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
@@ -42,14 +54,6 @@ object Cmd:
   /** Merge two commands into a single one */
   case class Combine[F[_], Msg](cmd1: Cmd[F, Msg], cmd2: Cmd[F, Msg]) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Combine[F, OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))
-
-  final def combine[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
-    (a, b) match {
-      case (Cmd.Empty, Cmd.Empty) => Cmd.Empty
-      case (Cmd.Empty, c2)          => c2
-      case (c1, Cmd.Empty)          => c1
-      case (c1, c2)                   => Cmd.Combine[F, LubMsg](c1, c2)
-    }
 
   /** Treat many commands as one */
   case class Batch[F[_], Msg](cmds: List[Cmd[F, Msg]]) extends Cmd[F, Msg]:

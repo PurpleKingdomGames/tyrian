@@ -31,6 +31,18 @@ object Sub:
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
   given CanEqual[Sub[_, _], Sub[_, _]] = CanEqual.derived
 
+  extension [F[_], Msg, LubMsg >: Msg](sub: Sub[F, Msg])
+    def combine(other: Sub[F, LubMsg]): Sub[F, LubMsg] = Sub.merge(sub, other)
+    def |+|(other: Sub[F, LubMsg]): Sub[F, LubMsg]     = Sub.merge(sub, other)
+
+  final def merge[F[_], Msg, LubMsg >: Msg](a: Sub[F, Msg], b: Sub[F, LubMsg]): Sub[F, LubMsg] =
+    (a, b) match {
+      case (Sub.Empty, Sub.Empty) => Sub.Empty
+      case (Sub.Empty, s2)        => s2
+      case (s1, Sub.Empty)        => s1
+      case (s1, s2)               => Sub.Combine(s1, s2)
+    }
+
   /** The empty subscription represents the absence of subscriptions */
   case object Empty extends Sub[Nothing, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this

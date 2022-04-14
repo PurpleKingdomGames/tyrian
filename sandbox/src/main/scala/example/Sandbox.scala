@@ -17,7 +17,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
   val hotReloadKey: String = "hotreload"
 
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    val cmds: Cmd.Batch[IO, Msg] =
+    val cmds: Cmd[IO, Msg] =
       Cmd.Batch(
         HotReload.bootstrap(hotReloadKey, Model.decode) {
           case Left(msg)    => Msg.Log("Error during hot-reload!: " + msg)
@@ -248,11 +248,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
         }
       }
 
+    val simpleSubs: Sub[IO, Msg] =
+      Sub.timeout[IO, Msg](2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log") |+|
+        Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
+
     Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
-      Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot),
-      Sub.timeout(2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log")
+      simpleSubs
     )
 
 enum Msg:

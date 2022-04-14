@@ -27,12 +27,11 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
         (model.copy(randomNumber = i), Cmd.Empty)
 
       case Msg.NewContent(content) =>
-        val cmds =
-          Cmd.Batch(
-            model.bridge.publish(gameId1, content),
-            model.bridge.publish(gameId2, content),
+        val cmds: Cmd[IO, Msg] =
+          model.bridge.publish(gameId1, content) |+|
+            model.bridge.publish(gameId2, content) |+|
             Random.int[IO].map(next => Msg.NewRandomInt(next.value))
-          )
+
         (model.copy(field = content), cmds)
 
       case Msg.Insert =>
