@@ -94,7 +94,8 @@ lazy val tyrian =
       commonJsSettings,
       libraryDependencies ++= Seq(
         "org.scala-js"  %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
-        "org.typelevel" %%% "cats-effect-kernel" % Dependancies.catsEffect
+        "org.typelevel" %%% "cats-effect-kernel" % Dependancies.catsEffect,
+        "co.fs2"        %%% "fs2-core"           % Dependancies.fs2
       )
     )
 

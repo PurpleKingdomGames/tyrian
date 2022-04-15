@@ -1,6 +1,8 @@
 package tyrian.runtime
 
 import cats.effect.kernel.Concurrent
+import cats.effect.std.Dispatcher
+import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.SnabbdomSyntax
@@ -21,22 +23,22 @@ import util.Functions.fun
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
 
-type RunWithCallback[F[_], Msg] = F[Option[Msg]] => (Either[Throwable, Option[Msg]] => Unit) => Unit
-
 final class TyrianRuntime[F[_]: Concurrent, Model, Msg](
     init: (Model, Cmd[F, Msg]),
     update: (Msg, Model) => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
     subscriptions: Model => Sub[F, Msg],
     node: Element,
-    runner: RunWithCallback[F, Msg]
+    channel: => Channel[F, Msg],
+    dispatcher: Dispatcher[F]
 ) extends SnabbdomSyntax:
 
+  // TODO: These will need to be `Ref`'s or `Deferred`'s at some point.
   private val (initState, initCmd) = init
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var currentState: Model = initState
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var vnode: VNode = render(node, currentState, runner)
+  private var vnode: VNode = render(node, currentState)
 
   // The currently live subs.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
@@ -47,20 +49,18 @@ final class TyrianRuntime[F[_]: Concurrent, Model, Msg](
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var aboutToRunSubscriptions: Set[String] = Set.empty
 
-  def onMsg(run: RunWithCallback[F, Msg])(msg: Msg): Unit =
+  def onMsg(msg: Msg): Unit =
     val (updatedState: Model, cmd: Cmd[F, Msg]) = update(msg, currentState)
     currentState = updatedState
-    vnode = render(vnode, currentState, run)
-    performSideEffects(cmd, subscriptions(currentState), onMsg(run), run)
+    vnode = render(vnode, currentState)
+    performSideEffects(cmd, subscriptions(currentState), onMsg)
 
   given CanEqual[Option[Msg], Option[Msg]] = CanEqual.derived
 
-  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   def performSideEffects(
       cmd: Cmd[F, Msg],
       sub: Sub[F, Msg],
-      callback: Msg => Unit,
-      run: RunWithCallback[F, Msg]
+      callback: Msg => Unit
   ): Unit =
     // Cmds
     val cmdsToRun = CmdHelper.cmdToTaskList(cmd)
@@ -96,14 +96,13 @@ final class TyrianRuntime[F[_]: Concurrent, Model, Msg](
 
     // Run them all
     (cmdsToRun ++ subsToRun ++ subsToDiscard).foreach { task =>
-      run(task) {
-        case Right(Some(msg)) => callback(msg)
-        case Right(None)      => ()
-        case Left(e)          => throw e
-      }
+      dispatcher.unsafeRunAndForget(Concurrent[F].map(task) {
+        case Some(msg) => callback(msg)
+        case None      => ()
+      })
     }
 
-  def toVNode(html: Html[Msg], run: RunWithCallback[F, Msg]): VNode =
+  def toVNode(html: Html[Msg]): VNode =
     html match
       case Tag(name, attrs, children) =>
         val as = js.Dictionary(
@@ -118,13 +117,13 @@ final class TyrianRuntime[F[_]: Concurrent, Model, Msg](
 
         val events =
           js.Dictionary(attrs.collect { case Event(n, msg) =>
-            (n, fun((e: dom.Event) => onMsg(run)(msg.asInstanceOf[dom.Event => Msg](e))))
+            (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
           }: _*)
 
         val childrenElem: List[VNodeParam] =
           children.map {
             case t: Text            => VNodeParam.Text(t.value)
-            case subHtml: Html[Msg] => VNodeParam.Node(toVNode(subHtml, run))
+            case subHtml: Html[Msg] => VNodeParam.Node(toVNode(subHtml))
           }
 
         h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
@@ -134,8 +133,8 @@ final class TyrianRuntime[F[_]: Concurrent, Model, Msg](
       js.Array(snabbdom.modules.props, snabbdom.modules.attributes, snabbdom.modules.eventlisteners)
     )
 
-  def render(oldNode: Element | VNode, model: Model, run: RunWithCallback[F, Msg]): VNode =
-    patch(oldNode, toVNode(view(model), run))
+  def render(oldNode: Element | VNode, model: Model): VNode =
+    patch(oldNode, toVNode(view(model)))
 
   def start(): Unit =
-    performSideEffects(initCmd, subscriptions(currentState), onMsg(runner), runner)
+    performSideEffects(initCmd, subscriptions(currentState), onMsg)

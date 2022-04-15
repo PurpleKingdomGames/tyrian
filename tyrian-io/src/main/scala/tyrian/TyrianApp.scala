@@ -1,10 +1,11 @@
 package tyrian
 
 import cats.effect.IO
+import cats.effect.kernel.Resource
 import cats.effect.unsafe.implicits.global
 import org.scalajs.dom.document
 import tyrian.TyrianAppF
-import tyrian.runtime.RunWithCallback
+import tyrian.runtime.TyrianRuntime
 
 import scala.scalajs.js.annotation._
 
@@ -13,5 +14,5 @@ import scala.scalajs.js.annotation._
   */
 trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
-  protected val runner: RunWithCallback[IO, Msg] =
-    task => cb => task.unsafeRunAsync(cb)
+  val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
+    _.map(_.start()).useForever.unsafeRunAndForget()

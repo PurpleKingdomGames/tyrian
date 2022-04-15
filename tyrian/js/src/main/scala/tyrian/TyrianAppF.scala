@@ -1,17 +1,18 @@
 package tyrian
 
-import cats.effect.kernel.Concurrent
+import cats.effect.kernel.Async
+import cats.effect.kernel.Resource
 import org.scalajs.dom.document
-import tyrian.runtime.RunWithCallback
+import tyrian.runtime.TyrianRuntime
 
 import scala.scalajs.js.annotation._
 
 /** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
-trait TyrianAppF[F[_]: Concurrent, Msg, Model]:
+trait TyrianAppF[F[_]: Async, Msg, Model]:
 
-  protected val runner: RunWithCallback[F, Msg]
+  val run: Resource[F, TyrianRuntime[F, Model, Msg]] => Unit
 
   /** Used to initialise your app. Accepts simple flags and produces the initial model state, along with any commands to
     * run at start up, in order to trigger other processes.
@@ -51,12 +52,13 @@ trait TyrianAppF[F[_]: Concurrent, Msg, Model]:
   def launch(containerId: String, flags: Map[String, String]): Unit =
     ready(containerId, flags)
 
-  private def ready(parentElementId: String, flags: Map[String, String]): Unit =
-    Tyrian.start(
-      document.getElementById(parentElementId),
-      init(flags),
-      update,
-      view,
-      subscriptions,
-      runner
+  def ready(parentElementId: String, flags: Map[String, String]): Unit =
+    run(
+      Tyrian.start(
+        document.getElementById(parentElementId),
+        init(flags),
+        update,
+        view,
+        subscriptions
+      )
     )

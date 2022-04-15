@@ -1,8 +1,12 @@
 package tyrian
 
-import cats.effect.kernel.Concurrent
+import cats.effect.kernel.Async
+import cats.effect.kernel.Resource
+import cats.effect.std.Dispatcher
+import cats.syntax.all._
+import fs2.Stream
+import fs2.concurrent.Channel
 import org.scalajs.dom.Element
-import tyrian.runtime.RunWithCallback
 import tyrian.runtime.TyrianRuntime
 import tyrian.runtime.TyrianSSR
 
@@ -34,22 +38,51 @@ object Tyrian:
     * @tparam Msg
     *   Type of messages
     */
-  def start[F[_]: Concurrent, Model, Msg](
+  def start[F[_]: Async, Model, Msg](
       node: Element,
       init: (Model, Cmd[F, Msg]),
       update: (Msg, Model) => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
-      subscriptions: Model => Sub[F, Msg],
-      runner: RunWithCallback[F, Msg]
-  ): Unit =
-    new TyrianRuntime(
-      init,
-      update,
-      view,
-      subscriptions,
-      node,
-      runner
-    ).start()
+      subscriptions: Model => Sub[F, Msg]
+  ): Resource[F, TyrianRuntime[F, Model, Msg]] =
+
+    val d: Resource[F, Dispatcher[F]] =
+      Dispatcher[F]
+
+    val res: Resource[F, (TyrianRuntime[F, Model, Msg], Channel[F, Msg])] =
+      d.flatMap { dispatcher =>
+        Resource.make {
+          Async[F].map(Channel.synchronous[F, Msg]) { channel =>
+            (
+              new TyrianRuntime(
+                init,
+                update,
+                view,
+                subscriptions,
+                node,
+                channel,
+                dispatcher
+              ),
+              channel
+            )
+          }
+        } { _ =>
+          Async[F].pure(())
+        }
+      }
+
+    res.flatMap { case (runtime, channel) =>
+      Stream
+        .emit(runtime)
+        .concurrently {
+          channel.stream.map { msg =>  // TODO: Not used yet
+            runtime.onMsg(msg)
+          }
+        }
+        .compile
+        .resource
+        .lastOrError
+    }
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.
     */
