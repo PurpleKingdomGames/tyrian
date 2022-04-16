@@ -35,11 +35,8 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     model: Ref[F, Model],
     vnode: Ref[F, Option[VNode]],
     channel: => Channel[F, F[Unit]],
-    dispatcher: Dispatcher[F]
+    dispatcher: => Dispatcher[F]
 ) extends SnabbdomSyntax:
-
-  // TODO...?
-  private val (_, initCmd) = init
 
   // The currently live subs.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
@@ -83,12 +80,9 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         sideEffects <- gatherSideEffects(cmd, subscriptions(updatedState))
       } yield Stream.emits(sideEffects)
 
-    val toPush: F[Stream[F, Nothing]] =
-      Async[F].map(results) { (stream: Stream[F, F[Unit]]) =>
-        stream.foreach(x => channel.send(x).map(_ => ()))
-      }
-
-    toPush.flatMap(s => s.compile.drain)
+    Async[F].flatMap(results) { (stream: Stream[F, F[Unit]]) =>
+      stream.foreach(channel.send(_).map(_ => ())).compile.drain
+    }
 
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
 
@@ -175,6 +169,6 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   def start(): Unit =
     dispatcher.unsafeRunAndForget(
       model.get.map { currentState =>
-        initialise(initCmd)
+        initialise(init._2)
       }
     )

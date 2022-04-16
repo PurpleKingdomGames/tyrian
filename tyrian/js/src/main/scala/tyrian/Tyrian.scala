@@ -48,18 +48,16 @@ object Tyrian:
       subscriptions: Model => Sub[F, Msg]
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
 
-    val (initState, _) = init // TODO...?
-
     val d: Resource[F, Dispatcher[F]] =
       Dispatcher[F]
 
     val res: Resource[F, (TyrianRuntime[F, Model, Msg], Channel[F, F[Unit]])] =
       d.flatMap { dispatcher =>
         Resource.make {
+          val resources =
+            (Channel.synchronous[F, F[Unit]], Async[F].ref(init._1), Async[F].ref[Option[VNode]](None)).tupled
 
-          val t = (Channel.synchronous[F, F[Unit]], Async[F].ref(initState), Async[F].ref[Option[VNode]](None)).tupled
-
-          Async[F].map(t) { (channel, model, vnode) =>
+          Async[F].map(resources) { (channel, model, vnode) =>
             (
               new TyrianRuntime(
                 init,
