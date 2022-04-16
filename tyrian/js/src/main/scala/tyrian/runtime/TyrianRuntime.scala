@@ -81,7 +81,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       } yield Stream.emits(sideEffects)
 
     Async[F].flatMap(results) { (stream: Stream[F, F[Unit]]) =>
-      stream.foreach(channel.send(_).map(_ => ())).compile.drain
+      stream.foreach(channel.send(_).void).compile.drain
     }
 
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
