@@ -28,7 +28,8 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
 
       case Msg.NewContent(content) =>
         val cmds: Cmd[IO, Msg] =
-          model.bridge.publish(gameId1, content) |+|
+          Logger.info[IO]("New content: " + content) |+|
+            model.bridge.publish(gameId1, content) |+|
             model.bridge.publish(gameId2, content) |+|
             Random.int[IO].map(next => Msg.NewRandomInt(next.value))
 

@@ -1,12 +1,14 @@
 package tyrian
 
 import cats.effect.kernel.Async
+import cats.effect.kernel.Ref
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
 import cats.syntax.all._
 import fs2.Stream
 import fs2.concurrent.Channel
 import org.scalajs.dom.Element
+import snabbdom.VNode
 import tyrian.runtime.TyrianRuntime
 import tyrian.runtime.TyrianSSR
 
@@ -46,13 +48,18 @@ object Tyrian:
       subscriptions: Model => Sub[F, Msg]
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
 
+    val (initState, _) = init // TODO...?
+
     val d: Resource[F, Dispatcher[F]] =
       Dispatcher[F]
 
-    val res: Resource[F, (TyrianRuntime[F, Model, Msg], Channel[F, Msg])] =
+    val res: Resource[F, (TyrianRuntime[F, Model, Msg], Channel[F, F[Unit]])] =
       d.flatMap { dispatcher =>
         Resource.make {
-          Async[F].map(Channel.synchronous[F, Msg]) { channel =>
+
+          val t = (Channel.synchronous[F, F[Unit]], Async[F].ref(initState), Async[F].ref[Option[VNode]](None)).tupled
+
+          Async[F].map(t) { (channel, model, vnode) =>
             (
               new TyrianRuntime(
                 init,
@@ -60,6 +67,8 @@ object Tyrian:
                 view,
                 subscriptions,
                 node,
+                model,
+                vnode,
                 channel,
                 dispatcher
               ),
@@ -74,11 +83,7 @@ object Tyrian:
     res.flatMap { case (runtime, channel) =>
       Stream
         .emit(runtime)
-        .concurrently {
-          channel.stream.map { msg =>  // TODO: Not used yet
-            runtime.onMsg(msg)
-          }
-        }
+        .concurrently(channel.stream.flatMap(Stream.eval))
         .compile
         .resource
         .lastOrError
