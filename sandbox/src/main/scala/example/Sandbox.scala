@@ -119,9 +119,11 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model.copy(error = Some(err)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connected(ws)) =>
+        println("WS connected")
         (model.copy(echoSocket = Some(ws)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connecting) =>
+        println("Establishing WS connection")
         (
           model,
           WebSocket.connect(
