@@ -140,7 +140,7 @@ object Sub:
   def emit[F[_]: Sync, Msg](msg: Msg): Sub[F, Msg] =
     timeout(FiniteDuration(0, TimeUnit.MILLISECONDS), msg, msg.toString)
 
-  /** A subscription that notifies its subscribers with `msg` after a `duration`. */
+  /** A subscription that produces a `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg, id: String): Sub[F, Msg] =
     val acquire: F[(Either[Throwable, Msg] => Unit) => Int] =
       Sync[F].delay { (callback: Either[Throwable, Msg] => Unit) =>
@@ -165,11 +165,11 @@ object Sub:
 
     Observe(id, task)
 
-  /** A subscription that notifies its subscribers with `msg` after a `duration`. */
+  /** A subscription that produces a `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg): Sub[F, Msg] =
     timeout(duration, msg, "[tyrian-sub-every] " + duration.toString + msg.toString)
 
-  /** A subscription that repeatedly notifies its subscribers with `msg` based on an `interval`. */
+  /** A subscription that repeatedly produces a `msg` based on an `interval`. */
   def every[F[_]: Sync](interval: FiniteDuration, id: String): Sub[F, js.Date] =
     Sub.make[F, js.Date, Int](id) { callback =>
       Sync[F].delay {
@@ -182,7 +182,7 @@ object Sub:
       Sync[F].delay(dom.window.clearTimeout(handle))
     }
 
-  /** A subscription that repeatedly notifies its subscribers with `msg` based on an `interval`. */
+  /** A subscription that repeatedly produces a `msg` based on an `interval`. */
   def every[F[_]: Sync](interval: FiniteDuration): Sub[F, js.Date] =
     every(interval, "[tyrian-sub-every] " + interval.toString)
 
