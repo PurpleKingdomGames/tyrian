@@ -108,13 +108,17 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         SubHelper
           .toRun(newSubs, onMsg)
           .map { s =>
-            Async[F].map(s) { sub =>
-              // Remove from the queue
-              aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
-              // Add to the current subs
-              currentSubscriptions = (sub.id -> sub.cancel) :: currentSubscriptions
+            Async[F].map(s) {
+              case Some(sub) =>
+                // Remove from the queue
+                aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
+                // Add to the current subs
+                currentSubscriptions = (sub.id -> sub.cancel) :: currentSubscriptions
 
-              Option.empty[Msg]
+                Option.empty[Msg]
+
+              case None =>
+                Option.empty[Msg]
             }
           }
 

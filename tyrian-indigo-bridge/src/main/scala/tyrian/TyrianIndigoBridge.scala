@@ -7,6 +7,8 @@ import tyrian.Cmd
 import tyrian.Sub
 import util.Functions
 
+import scala.scalajs.js
+
 final class TyrianIndigoBridge[F[_]: Async, A]:
 
   val eventTarget: EventTarget = new EventTarget()
@@ -35,29 +37,29 @@ final class TyrianIndigoBridge[F[_]: Async, A]:
   private def subscribeToBridge[B](indigoGameId: Option[IndigoGameId], extract: A => Option[B])(using
       CanEqual[B, B]
   ): Sub[F, B] =
-    val eventExtract: TyrianIndigoBridge.BridgeToTyrian[A] => Option[B] =
-      e =>
-        indigoGameId match
-          case None                       => extract(e.value)
-          case id if e.indigoGameId == id => extract(e.value)
-          case _                          => None
+    import TyrianIndigoBridge.BridgeToTyrian
 
-    val task =
-      Async[F].delay { (callback: Either[Throwable, B] => Unit) =>
-        val listener = Functions.fun { (a: TyrianIndigoBridge.BridgeToTyrian[A]) =>
-          eventExtract(a) match {
-            case Some(b) => callback(Right(b))
-            case None    => ()
-          }
-        }
-        eventTarget.addEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener)
-        Async[F].delay(eventTarget.removeEventListener(TyrianIndigoBridge.BridgeToTyrian.EventName, listener))
+    val eventExtract: BridgeToTyrian[A] => Option[B] = e =>
+      indigoGameId match
+        case None                       => extract(e.value)
+        case id if e.indigoGameId == id => extract(e.value)
+        case _                          => None
+
+    val acquire = (callback: Either[Throwable, BridgeToTyrian[A]] => Unit) =>
+      Async[F].delay {
+        val listener = Functions.fun((a: BridgeToTyrian[A]) => callback(Right(a)))
+        eventTarget.addEventListener(BridgeToTyrian.EventName, listener)
+        listener
       }
 
-    Sub.Observe[F, B, B](
-      TyrianIndigoBridge.BridgeToTyrian.EventName + this.hashCode,
-      task,
-      identity
+    val release = (listener: js.Function1[BridgeToTyrian[A], Unit]) =>
+      Async[F].delay(eventTarget.removeEventListener(BridgeToTyrian.EventName, listener))
+
+    Sub.Observe(
+      BridgeToTyrian.EventName + this.hashCode,
+      acquire,
+      release,
+      eventExtract
     )
 
 object TyrianIndigoBridge:

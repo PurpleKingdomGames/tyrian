@@ -1,7 +1,9 @@
 package tyrian
 
+import cats.data.Kleisli
 import cats.effect.kernel.Concurrent
 import cats.effect.kernel.Sync
+import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import util.Functions
@@ -51,10 +53,10 @@ object Sub:
     * @param id
     *   Globally unique identifier for this subscription
     * @param observable
-    *   Observable and cancellable/closable effect that produces notifications, encoded as a callback with an effect
-    *   describing how to close the subscription.
+    *   Observable and cancellable/closable effect that produces notifications. Encoded as a callback with an effect
+    *   describing how to optionally close the subscription.
     * @param toMsg
-    *   a function that turns every notification value into a message
+    *   a function that turns every notification value into a possible message
     * @tparam F
     *   type of the effect monad, must be a Cats Effect 3 Concurrent.
     * @tparam A
@@ -64,15 +66,64 @@ object Sub:
     */
   final case class Observe[F[_], A, Msg](
       id: String,
-      observable: F[(Either[Throwable, A] => Unit) => F[Unit]],
-      toMsg: A => Msg
+      observable: F[(Either[Throwable, A] => Unit) => F[Option[F[Unit]]]],
+      toMsg: A => Option[Msg]
   ) extends Sub[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg] =
       Observe(
         id,
         observable,
-        toMsg andThen f
+        Kleisli(toMsg).map(f).run
       )
+
+  object Observe:
+
+    /** Construct a cancelable observable sub by describing how to acquire and release the resource, and optionally
+      * produce a message
+      */
+    def apply[F[_]: Sync, A, Msg, R](
+        id: String,
+        acquire: (Either[Throwable, A] => Unit) => F[R],
+        release: R => F[Unit],
+        toMsg: A => Option[Msg]
+    ): Sub[F, Msg] =
+      val task = Sync[F].delay {
+        val cancel = Kleisli((res: R) => Sync[F].delay(Option(release(res))))
+        (Kleisli(acquire) andThen cancel).run
+      }
+      Observe[F, A, Msg](id, task, toMsg)
+
+    /** Construct a cancelable observable sub of a value */
+    def apply[F[_], A](id: String, observable: F[(Either[Throwable, A] => Unit) => F[Option[F[Unit]]]]): Sub[F, A] =
+      Observe(id, observable, Option.apply)
+
+  /** Make a cancelable subscription that produces an optional message */
+  def make[F[_]: Sync, A, Msg, R](id: String)(acquire: (Either[Throwable, A] => Unit) => F[R])(
+      release: R => F[Unit]
+  )(toMsg: A => Option[Msg]): Sub[F, Msg] =
+    val task = Sync[F].delay {
+      val cancel = Kleisli((res: R) => Sync[F].delay(Option(release(res))))
+      (Kleisli(acquire) andThen cancel).run
+    }
+    Observe[F, A, Msg](id, task, toMsg)
+
+  /** Make a cancelable subscription that returns a value (to be mapped into a Msg) */
+  def make[F[_]: Sync, A, R](id: String)(acquire: (Either[Throwable, A] => Unit) => F[R])(
+      release: R => F[Unit]
+  ): Sub[F, A] =
+    make[F, A, A, R](id)(acquire)(release)(Option.apply)
+
+  private def _forget[F[_]: Sync]: Unit => F[Option[F[Unit]]] =
+    (_: Unit) => Sync[F].delay(Option(Sync[F].delay(())))
+
+  /** Make an uncancelable subscription that produces am optional message */
+  def forever[F[_]: Sync, A, Msg](acquire: (Either[Throwable, A] => Unit) => Unit)(
+      toMsg: A => Option[Msg]
+  ): Sub[F, Msg] =
+    val task =
+      Sync[F].delay(acquire andThen _forget)
+
+    Observe[F, A, Msg]("<none>", task, toMsg)
 
   /** Merge two subscriptions into a single one */
   final case class Combine[F[_], +Msg](sub1: Sub[F, Msg], sub2: Sub[F, Msg]) extends Sub[F, Msg]:
@@ -91,17 +142,28 @@ object Sub:
 
   /** A subscription that notifies its subscribers with `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg, id: String): Sub[F, Msg] =
-    val task =
+    val acquire: F[(Either[Throwable, Msg] => Unit) => Int] =
       Sync[F].delay { (callback: Either[Throwable, Msg] => Unit) =>
-        val handle =
-          dom.window.setTimeout(
-            Functions.fun0(() => callback(Right(msg))),
-            duration.toMillis.toDouble
-          )
-        Sync[F].delay(dom.window.clearTimeout(handle))
+        dom.window.setTimeout(
+          Functions.fun0(() => callback(Right(msg))),
+          duration.toMillis.toDouble
+        )
       }
 
-    Observe[F, Msg, Msg](id, task, identity)
+    val release: F[Int => F[Option[F[Unit]]]] =
+      Sync[F].delay { (handle: Int) =>
+        Sync[F].delay {
+          Option(Sync[F].delay(dom.window.clearTimeout(handle)))
+        }
+      }
+
+    val task =
+      for {
+        a <- acquire
+        r <- release
+      } yield a andThen r
+
+    Observe(id, task)
 
   /** A subscription that notifies its subscribers with `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg): Sub[F, Msg] =
@@ -109,35 +171,33 @@ object Sub:
 
   /** A subscription that repeatedly notifies its subscribers with `msg` based on an `interval`. */
   def every[F[_]: Sync](interval: FiniteDuration, id: String): Sub[F, js.Date] =
-    val task =
-      Sync[F].delay { (callback: Either[Throwable, js.Date] => Unit) =>
-        val handle =
-          dom.window.setInterval(
-            Functions.fun0(() => callback(Right(new js.Date()))),
-            interval.toMillis.toDouble
-          )
-        Sync[F].delay(dom.window.clearTimeout(handle))
+    Sub.make[F, js.Date, Int](id) { callback =>
+      Sync[F].delay {
+        dom.window.setInterval(
+          Functions.fun0(() => callback(Right(new js.Date()))),
+          interval.toMillis.toDouble
+        )
       }
-
-    Observe[F, js.Date, js.Date](id, task, identity)
+    } { handle =>
+      Sync[F].delay(dom.window.clearTimeout(handle))
+    }
 
   /** A subscription that repeatedly notifies its subscribers with `msg` based on an `interval`. */
   def every[F[_]: Sync](interval: FiniteDuration): Sub[F, js.Date] =
     every(interval, "[tyrian-sub-every] " + interval.toString)
 
-  /** A subscription that emtis a `msg` based on an a JavaScript event. */
+  /** A subscription that emits a `msg` based on an a JavaScript event. */
   def fromEvent[F[_]: Sync, A, Msg](name: String, target: EventTarget)(extract: A => Option[Msg]): Sub[F, Msg] =
-    val task =
-      Sync[F].delay { (callback: Either[Throwable, Msg] => Unit) =>
+    Sub.make[F, A, Msg, js.Function1[A, Unit]](name + target.hashCode) { callback =>
+      Sync[F].delay {
         val listener = Functions.fun { (a: A) =>
-          extract(a) match
-            case Some(msg) => callback(Right(msg))
-            case None      => ()
+          callback(Right(a))
         }
         target.addEventListener(name, listener)
-        Sync[F].delay(target.removeEventListener(name, listener))
+        listener
       }
-
-    Observe[F, Msg, Msg](name + target.hashCode, task, identity)
+    } { listener =>
+      Sync[F].delay(target.removeEventListener(name, listener))
+    }(extract)
 
 end Sub

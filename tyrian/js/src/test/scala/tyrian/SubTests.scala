@@ -5,7 +5,7 @@ import cats.effect.IO
 @SuppressWarnings(Array("scalafix:DisableSyntax.throw", "scalafix:DisableSyntax.var"))
 class SubTests extends munit.CatsEffectSuite {
 
-  type Obs[A] = IO[(Either[Throwable, A] => Unit) => IO[Unit]]
+  type Obs[A] = IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]]
 
   import CmdSubUtils.*
 
@@ -23,11 +23,11 @@ class SubTests extends munit.CatsEffectSuite {
 
     val observable: Obs[Int] = IO.delay { cb =>
       cb(Right(10))
-      IO(())
+      IO(Option(IO(())))
     }
 
     val runnable =
-      Sub.Observe[IO, Int, Int]("test", observable, identity)
+      Sub.Observe[IO, Int]("test", observable)
 
     runnable.run(callback).map(_ => state == 10).assert
   }
@@ -43,13 +43,13 @@ class SubTests extends munit.CatsEffectSuite {
     val observable: Int => Obs[Int] = i =>
       IO.delay { cb =>
         cb(Right(i))
-        IO(())
+        IO(Option(IO(())))
       }
 
     val combined =
       Sub.Combine(
-        Sub.Observe[IO, Int, Int]("sub1", observable(1000), identity),
-        Sub.Observe[IO, Int, Int]("sub2", observable(100), identity)
+        Sub.Observe[IO, Int]("sub1", observable(1000)),
+        Sub.Observe[IO, Int]("sub2", observable(100))
       )
 
     IO.both(
@@ -69,15 +69,15 @@ class SubTests extends munit.CatsEffectSuite {
     val observable: Int => Obs[Int] = i =>
       IO.delay { cb =>
         cb(Right(i))
-        IO(())
+        IO(Option(IO(())))
       }
 
     val batched =
       Sub.Batch[IO, Int](
-        Sub.Observe[IO, Int, Int]("sub1", observable(10), identity),
+        Sub.Observe[IO, Int]("sub1", observable(10)),
         Sub.Combine(
-          Sub.Observe[IO, Int, Int]("sub2", observable(100), identity),
-          Sub.Observe[IO, Int, Int]("sub3", observable(1000), identity)
+          Sub.Observe[IO, Int]("sub2", observable(100)),
+          Sub.Observe[IO, Int]("sub3", observable(1000))
         )
       )
 
