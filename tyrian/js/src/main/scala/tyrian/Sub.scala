@@ -3,6 +3,7 @@ package tyrian
 import cats.data.Kleisli
 import cats.effect.kernel.Concurrent
 import cats.effect.kernel.Sync
+import cats.kernel.Monoid
 import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
@@ -203,5 +204,13 @@ object Sub:
     } { listener =>
       Sync[F].delay(target.removeEventListener(name, listener))
     }(extract)
+
+  given [F[_], Msg]: Monoid[Sub[F, Msg]] = new Monoid[Sub[F, Msg]] {
+    def empty: Sub[F, Msg]                                   = Sub.Empty
+    def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
+  }
+
+  def combineAll[F[_], A](list: List[Sub[F, A]])(implicit M: Monoid[Sub[F, A]]): Sub[F, A] =
+    list.foldRight(M.empty)(M.combine)
 
 end Sub

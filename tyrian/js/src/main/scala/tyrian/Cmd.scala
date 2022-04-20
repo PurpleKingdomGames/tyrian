@@ -1,6 +1,7 @@
 package tyrian
 
 import cats.effect.kernel.Sync
+import cats.kernel.Monoid
 
 import scala.annotation.targetName
 
@@ -65,3 +66,11 @@ object Cmd:
   object Batch:
     def apply[F[_], Msg](cmds: Cmd[F, Msg]*): Batch[F, Msg] =
       Batch(cmds.toList)
+
+  given [F[_], Msg]: Monoid[Cmd[F, Msg]] = new Monoid[Cmd[F, Msg]] {
+    def empty: Cmd[F, Msg]                                   = Cmd.Empty
+    def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
+  }
+
+  def combineAll[F[_], A](list: List[Cmd[F, A]])(implicit M: Monoid[Cmd[F, A]]): Cmd[F, A] =
+    list.foldRight(M.empty)(M.combine)
