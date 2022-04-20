@@ -38,7 +38,7 @@ object Cmd:
     def map[OtherMsg](f: Nothing => OtherMsg): SideEffect[F] = this
   object SideEffect:
     def apply[F[_]: Sync](thunk: => Unit): SideEffect[F] =
-      SideEffect(Sync[F].delay(thunk)) // TODO not good enough, needs to be delay, not pure.
+      SideEffect(Sync[F].delay(thunk))
 
   /** Simply produces a message that will then be actioned. */
   final case class Emit[Msg](msg: Msg) extends Cmd[Nothing, Msg]:
