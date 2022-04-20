@@ -28,14 +28,18 @@ sealed trait Sub[+F[_], +Msg]:
   /** Transforms the type of messages produced by the subscription */
   def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg]
 
+  /** Infix operation for combining two Subs into one. */
+  def combine[F2[x] >: F[x], LubMsg >: Msg](other: Sub[F2, LubMsg]): Sub[F2, LubMsg] =
+    Sub.merge(this, other)
+
+  /** Infix operator for combining two Subs into one. */
+  def |+|[F2[x] >: F[x], LubMsg >: Msg](other: Sub[F2, LubMsg]): Sub[F2, LubMsg] =
+    Sub.merge(this, other)
+
 object Sub:
 
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
   given CanEqual[Sub[_, _], Sub[_, _]] = CanEqual.derived
-
-  extension [F[_], Msg, LubMsg >: Msg](sub: Sub[F, Msg])
-    def combine(other: Sub[F, LubMsg]): Sub[F, LubMsg] = Sub.merge(sub, other)
-    def |+|(other: Sub[F, LubMsg]): Sub[F, LubMsg]     = Sub.merge(sub, other)
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Sub[F, Msg], b: Sub[F, LubMsg]): Sub[F, LubMsg] =
     (a, b) match {

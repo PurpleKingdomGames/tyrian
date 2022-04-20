@@ -10,12 +10,16 @@ sealed trait Cmd[+F[_], +Msg]:
   /** Transforms the type of messages produced by the command */
   def map[OtherMsg](f: Msg => OtherMsg): Cmd[F, OtherMsg]
 
+  /** Infix operation for combining two Cmds into one. */
+  def combine[F2[x] >: F[x], LubMsg >: Msg](other: Cmd[F2, LubMsg]): Cmd[F2, LubMsg] =
+    Cmd.merge(this, other)
+
+  /** Infix operator for combining two Cmds into one. */
+  def |+|[F2[x] >: F[x], LubMsg >: Msg](other: Cmd[F2, LubMsg]): Cmd[F2, LubMsg] =
+    Cmd.merge(this, other)
+
 object Cmd:
   given CanEqual[Cmd[_, _], Cmd[_, _]] = CanEqual.derived
-
-  extension [F[_], Msg, LubMsg >: Msg](cmd: Cmd[F, Msg])
-    def combine(other: Cmd[F, LubMsg]): Cmd[F, LubMsg] = Cmd.merge(cmd, other)
-    def |+|(other: Cmd[F, LubMsg]): Cmd[F, LubMsg]     = Cmd.merge(cmd, other)
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
     (a, b) match {
