@@ -20,7 +20,8 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % "0.7.29" % Test
+    "org.scalameta" %%% "munit"               % "0.7.29"                      % Test,
+    "org.typelevel" %%% "munit-cats-effect-3" % Dependancies.munitCatsEffect3 % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-language:strictEquality"),
@@ -77,7 +78,7 @@ lazy val tyrianProject =
         docs
       )
     )
-    .aggregate(tyrian.js, tyrian.jvm, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js)
+    .aggregate(tyrian.js, tyrian.jvm, tyrianIO.js, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js)
 
 lazy val tyrian =
   crossProject(JSPlatform, JVMPlatform)
@@ -92,9 +93,29 @@ lazy val tyrian =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom" % Dependancies.scalajsDomVersion
+        "org.scala-js"  %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
+        "org.typelevel" %%% "cats-effect-kernel" % Dependancies.catsEffect,
+        "co.fs2"        %%% "fs2-core"           % Dependancies.fs2
       )
     )
+
+lazy val tyrianIO =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-io"))
+    .settings(
+      name := "tyrian-io",
+      commonSettings ++ publishSettings
+    )
+    .jsSettings(
+      commonJsSettings,
+      libraryDependencies ++= Seq(
+        "org.scala-js"  %%% "scalajs-dom" % Dependancies.scalajsDomVersion,
+        "org.typelevel" %%% "cats-effect" % Dependancies.catsEffect
+      )
+    )
+    .dependsOn(tyrian)
 
 lazy val tyrianIndigoBridge =
   crossProject(JSPlatform)
@@ -115,7 +136,7 @@ lazy val sandbox =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
     .withoutSuffixFor(JSPlatform)
-    .dependsOn(tyrian)
+    .dependsOn(tyrianIO)
     .settings(
       neverPublish,
       commonSettings,
@@ -130,6 +151,7 @@ lazy val indigoSandbox =
     .withoutSuffixFor(JSPlatform)
     .in(file("indigo-sandbox"))
     .dependsOn(tyrianIndigoBridge)
+    .dependsOn(tyrianIO)
     .settings(
       neverPublish,
       commonSettings,
@@ -156,6 +178,7 @@ lazy val docs =
   project
     .in(file("tyrian-docs"))
     .dependsOn(tyrian.js)
+    .dependsOn(tyrianIO.js)
     .dependsOn(tyrianIndigoBridge.js)
     .enablePlugins(MdocPlugin)
     .settings(
@@ -202,6 +225,7 @@ addCommandAlias(
   List(
     "tyrianJS/clean",
     "tyrianJVM/clean",
+    "tyrianIO/clean",
     "tyrianIndigoBridge/clean",
     "sandbox/clean",
     "indigoSandbox/clean"
@@ -213,6 +237,7 @@ addCommandAlias(
   List(
     "tyrianJS/compile",
     "tyrianJVM/compile",
+    "tyrianIO/compile",
     "tyrianIndigoBridge/compile",
     "sandbox/compile",
     "indigoSandbox/compile"
@@ -224,6 +249,7 @@ addCommandAlias(
   List(
     "tyrianJS/test",
     "tyrianJVM/test",
+    "tyrianIO/test",
     "tyrianIndigoBridge/test",
     "sandbox/test",
     "indigoSandbox/test"

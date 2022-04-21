@@ -26,7 +26,7 @@ The usual approach to handling effects (short for side effects) is to employ som
 
 This is _exactly_ what a command (`Cmd`) does. While commands themselves are only Monoidal Functors*, they work using a Monadic `Task` implementation under the covers.
 
-(* Meaning you can `map` over them, they can be combined together, and have an empty state `Cmd.empty`.)
+(* Meaning you can `map` over them, they can be combined together, and have an empty state `Cmd.Empty`.)
 
 So far, this is sounding like effect handling as usual. But no. Primarily because you never (or rarely) actually see the underlying `Task`.
 
@@ -41,13 +41,14 @@ Here is an example in which, on receiving a message `Msg.LogThis`, we are not go
 ```scala mdoc:silent
 import tyrian.*
 import tyrian.cmds.*
+import cats.effect.IO
 
 type Model = Int
 
 enum Msg:
   case LogThis(message: String)
 
-def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
   msg match
     case Msg.LogThis(msg) =>
       (model, Logger.consoleLog(msg))
@@ -56,21 +57,21 @@ def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
 To achieve this, we use the `Logger` command that comes with Tyrian. The `Logger` command is in fact just a `Cmd.SideEffect` that captures a value or behavior as a zero argument function, known as a `thunk`, in this case a simplified implementation could just be:
 
 ```scala mdoc:silent
-def consoleLog(msg: String): Cmd[Nothing] =
-  Cmd.SideEffect { () =>
+def consoleLog(msg: String): Cmd[IO, Nothing] =
+  Cmd.SideEffect {
     println(msg)
   }
 ```
 
 But commands can also return values in the form of messages. The `Random` command looks like this:
 
-```scala mdoc:silent
+```scala
 Random.double
 ```
 
 ...and produces an instance of `RandomValue`, but this leads to a problem since `RandomValue` is almost certainly not your app's `Msg` type, and so we must map over the result:
 
-```scala mdoc:silent
+```scala
 enum MyMsg:
   case MyRandom(d: Double) extends MyMsg
 

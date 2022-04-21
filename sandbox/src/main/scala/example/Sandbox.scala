@@ -1,5 +1,6 @@
 package example
 
+import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
 import tyrian.cmds.Dom
@@ -15,46 +16,49 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
   val hotReloadKey: String = "hotreload"
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    val cmds =
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+    val cmds: Cmd[IO, Msg] =
       Cmd.Batch(
         HotReload.bootstrap(hotReloadKey, Model.decode) {
-          case Left(e)      => Msg.Log("Error during hot-reload!: " + e.message)
+          case Left(msg)    => Msg.Log("Error during hot-reload!: " + msg)
           case Right(model) => Msg.OverwriteModel(model)
         },
         Logger.info(flags.toString),
         Navigation.getLocationHash {
-          case Left(Navigation.NoHash)             => Msg.NavigateTo(Page.Page1)
-          case Right(Navigation.CurrentHash(hash)) => Msg.NavigateTo(Page.fromString(hash))
-        }
+          case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
+          case _                                   => Msg.NavigateTo(Page.Page1)
+        },
+        LocalStorage.key(0) {
+          case LocalStorage.Result.Key(key) => Msg.Log("Found local storage key: " + key)
+          case _                            => Msg.Log("No local storage enties found.")
+        },
+        LocalStorage.length(l => Msg.Log("Number of local storage entries: " + l.length))
       )
 
     (Model.init, cmds)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.Save(k, v) =>
-        val cmd = LocalStorage.setItem(k, v) {
-          case Left(e)  => Msg.Log("Error saving: " + e)
-          case Right(_) => Msg.Log("Save successful")
+        val cmd: Cmd[IO, Msg] = LocalStorage.setItem(k, v) { _ =>
+          Msg.Log("Save successful")
         }
 
         (model, cmd)
 
       case Msg.Load(k) =>
-        val cmd = LocalStorage.getItem(k) {
-          case Left(e) => Msg.Log("Error loading: " + e)
-          case Right(data) =>
-            println("Loaded: " + data)
-            Msg.DataLoaded(data)
+        val cmd: Cmd[IO, Msg] = LocalStorage.getItem(k) {
+          case Left(e) => Msg.Log("Error loading: " + e.key)
+          case Right(found) =>
+            println("Loaded: " + found.data)
+            Msg.DataLoaded(found.data)
         }
 
         (model, cmd)
 
       case Msg.ClearStorage(k) =>
-        val cmd = LocalStorage.removeItem(k) {
-          case Left(e)     => Msg.Log("Error removing: " + e)
-          case Right(data) => Msg.Log("Item remove successful")
+        val cmd: Cmd[IO, Msg] = LocalStorage.removeItem(k) { _ =>
+          Msg.Log("Item removed successfully")
         }
 
         (model.copy(saveData = None), cmd)
@@ -84,7 +88,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model, Logger.info(msg))
 
       case Msg.FocusOnInputField =>
-        val cmd = Dom.focus("text-reverse-field") {
+        val cmd: Cmd[IO, Msg] = Dom.focus("text-reverse-field") {
           case Left(Dom.NotFound(id)) => Msg.Log("Element not found: " + id)
           case _                      => Msg.Log("Focused on input field")
         }
@@ -115,9 +119,11 @@ object Sandbox extends TyrianApp[Msg, Model]:
         (model.copy(error = Some(err)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connected(ws)) =>
+        println("WS connected")
         (model.copy(echoSocket = Some(ws)), Cmd.Empty)
 
       case Msg.WebSocketStatus(Status.Connecting) =>
+        println("Establishing WS connection")
         (
           model,
           WebSocket.connect(
@@ -125,8 +131,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
             onOpenMessage = "Connect me!",
             keepAliveSettings = KeepAliveSettings.default
           ) {
-            case Left(err) => Status.ConnectionError(err).asMsg
-            case Right(ws) => Status.Connected(ws).asMsg
+            case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
+            case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
           }
         )
 
@@ -223,9 +229,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
       "text-align" -> "center"
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
+  def subscriptions(model: Model): Sub[IO, Msg] =
     val webSocketSubs =
-      model.echoSocket.fold(Sub.emit(Status.Disconnected.asMsg)) {
+      model.echoSocket.fold(Sub.emit[IO, Msg](Status.Disconnected.asMsg)) {
         _.subscribe {
           case WebSocketEvent.Error(errorMesage) =>
             Msg.FromSocket(errorMesage)
@@ -244,10 +250,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
         }
       }
 
+    val simpleSubs: Sub[IO, Msg] =
+      Sub.timeout[IO, Msg](2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log") |+|
+        Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
+
     Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
-      Sub.every(1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
+      simpleSubs
     )
 
 enum Msg:
@@ -273,7 +283,7 @@ enum Msg:
 
 enum Status:
   case Connecting
-  case Connected(ws: WebSocket)
+  case Connected(ws: WebSocket[IO])
   case ConnectionError(msg: String)
   case Disconnecting
   case Disconnected
@@ -303,7 +313,7 @@ object Counter:
 
 final case class Model(
     page: Page,
-    echoSocket: Option[WebSocket],
+    echoSocket: Option[WebSocket[IO]],
     socketUrl: String,
     field: String,
     components: List[Counter.Model],
@@ -346,6 +356,6 @@ object Model:
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field
-  def decode: Option[String] => Model =
-    case None       => Model.init
-    case Some(data) => Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None)
+  def decode: Option[String] => Either[String, Model] =
+    case None       => Left("No snapshot found")
+    case Some(data) => Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None))

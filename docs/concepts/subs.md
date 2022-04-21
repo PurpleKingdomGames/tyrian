@@ -11,6 +11,7 @@ For example, we could chose to observe the mouse position, and emit a message ev
 ```scala
 import org.scalajs.dom.document
 import org.scalajs.dom.MouseEvent
+import cats.effect.IO
 
 import tyrian.*
 
@@ -19,12 +20,12 @@ type Model = ???
 enum Msg:
   case MouseMove(x: Double, y: Double)
 
-val mousePosition: Sub[Msg] = 
+val mousePosition: Sub[IO, Msg] = 
   Sub.fromEvent("mousemove", document) { case e: MouseEvent  =>
     Option(Msg.MouseMove(e.pageX, e.pageY))
   }
 
-def subscriptions(model: Model): Sub[Msg] =
+def subscriptions(model: Model): Sub[IO, Msg] =
   mousePosition
 ```
 
@@ -34,7 +35,7 @@ Subscriptions can be used on their own, or in conjunction with commands to form 
 
 ### Working with Subscriptions
 
-Subscriptions are Functors which means that you can `map` over them to change the resultant message. They are also Monoids which means that they have an empty representation `Sub.empty` and that you can `combine` them together, using `combine` or the shorthand operator: `sub1 |+| sub2`.
+Subscriptions are Functors which means that you can `map` over them to change the resultant message. They are also Monoids which means that they have an empty representation `Sub.Empty` and that you can `combine` them together, using `combine` or the shorthand operator: `sub1 |+| sub2`.
 
 A common thing to need to do is batch multiple subs together into a single subscription, like this:
 
@@ -50,7 +51,7 @@ enum Msg:
   case MouseMove(x: Double, y: Double)
   case CurrentSeconds(seconds: Double)
 
-val mousePosition: Sub[Msg] = 
+val mousePosition: Sub[IO, Msg] = 
   Sub.fromEvent("mousemove", document) { case e: MouseEvent  =>
     Option(Msg.MouseMove(e.pageX, e.pageY))
   }
@@ -59,8 +60,8 @@ val tick =
   Sub.every(1.second, "tick")
     .map(date => Msg.CurrentSeconds(date.getSeconds()))
 
-def subscriptions(model: Model): Sub[Msg] =
-  Sub.Batch(
+def subscriptions(model: Model): Sub[IO, Msg] =
+  Sub.Batch[IO, Msg](
     mousePosition,
     tick
   )

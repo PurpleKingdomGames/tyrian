@@ -20,16 +20,17 @@ The version of this in the [examples](https://github.com/PurpleKingdomGames/tyri
 ```scala mdoc:silent
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (0, Cmd.Empty)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.Increment => (model + 1, Cmd.Empty)
       case Msg.Decrement => (model - 1, Cmd.Empty)
@@ -41,7 +42,7 @@ object Main extends TyrianApp[Msg, Model]:
       button(onClick(Msg.Increment))("+")
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
+  def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.Empty
 
 type Model = Int
@@ -87,12 +88,13 @@ To use our model, we're going to have to initialize it!
 ```scala mdoc:reset:invisible
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 type Model = Int
 ```
 
 ```scala mdoc:silent
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (0, Cmd.Empty)
 ```
 
@@ -101,7 +103,7 @@ There's a few things going on here, the only bit we _really_ care about here is 
 Some of the other things you can see here:
 
 - `flags` - Flags can be passed into the app at launch time, think of them like command line arguments.
-- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.empty`.
+- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.Empty`.
 
 #### Rendering the page
 
@@ -138,6 +140,7 @@ enum Msg:
 ```scala mdoc:reset:invisible
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 type Model = Int
 enum Msg:
@@ -160,7 +163,7 @@ enum Msg:
 The final thing we need to do is react to the messages the view is sending, as follows:
 
 ```scala mdoc:silent
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.Increment => (model + 1, Cmd.Empty)
       case Msg.Decrement => (model - 1, Cmd.Empty)

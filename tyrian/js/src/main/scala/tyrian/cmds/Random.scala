@@ -1,119 +1,109 @@
 package tyrian.cmds
 
+import cats.effect.kernel.Sync
 import tyrian.Cmd
-import tyrian.Task
 
-/** A Cmd to generate random values.
-  */
+/** Generate random values. */
 object Random:
 
   private val r: scala.util.Random =
     new scala.util.Random()
 
-  def int: Cmd[RandomValue.NextInt] =
+  /** Random `Int` */
+  def int[F[_]: Sync]: Cmd[F, RandomValue.NextInt] =
     RandomValue.NextInt(r.nextInt).toCmd
-  def int(upperLimit: Int): Cmd[RandomValue.NextInt] =
+
+  /** Random `Int` within an upper limit */
+  def int[F[_]: Sync](upperLimit: Int): Cmd[F, RandomValue.NextInt] =
     RandomValue.NextInt(r.nextInt(upperLimit)).toCmd
 
-  def long: Cmd[RandomValue.NextLong] =
+  /** Random `Long` */
+  def long[F[_]: Sync]: Cmd[F, RandomValue.NextLong] =
     RandomValue.NextLong(r.nextLong).toCmd
-  def long(upperLimit: Long): Cmd[RandomValue.NextLong] =
+
+  /** Random `Long` within an upper limit */
+  def long[F[_]: Sync](upperLimit: Long): Cmd[F, RandomValue.NextLong] =
     RandomValue.NextLong(r.nextLong(upperLimit)).toCmd
 
-  def float: Cmd[RandomValue.NextFloat] =
+  /** Random `Float` */
+  def float[F[_]: Sync]: Cmd[F, RandomValue.NextFloat] =
     RandomValue.NextFloat(r.nextFloat).toCmd
 
-  def double: Cmd[RandomValue.NextDouble] =
+  /** Random `Double` */
+  def double[F[_]: Sync]: Cmd[F, RandomValue.NextDouble] =
     RandomValue.NextDouble(r.nextDouble).toCmd
 
-  def alphaNumeric(length: Int): Cmd[RandomValue.NextAlphaNumeric] =
+  /** Random series of alphanumeric characters */
+  def alphaNumeric[F[_]: Sync](length: Int): Cmd[F, RandomValue.NextAlphaNumeric] =
     RandomValue.NextAlphaNumeric(r.alphanumeric.take(length).mkString).toCmd
 
-  def shuffle[A](l: List[A]): Cmd[RandomValue.NextShuffle[A]] =
+  /** Randomly shuffle a list of elements */
+  def shuffle[F[_]: Sync, A](l: List[A]): Cmd[F, RandomValue.NextShuffle[A]] =
     RandomValue.NextShuffle(r.shuffle(l)).toCmd
 
+  /** Random values produced based on a specific seed value */
   final case class Seeded(seed: Long):
 
     private val r: scala.util.Random =
       new scala.util.Random(seed)
 
-    def int: Cmd[RandomValue.NextInt] =
+    /** Random `Int` */
+    def int[F[_]: Sync]: Cmd[F, RandomValue.NextInt] =
       RandomValue.NextInt(r.nextInt).toCmd
-    def int(upperLimit: Int): Cmd[RandomValue.NextInt] =
+
+    /** Random `Int` within an upper limit */
+    def int[F[_]: Sync](upperLimit: Int): Cmd[F, RandomValue.NextInt] =
       RandomValue.NextInt(r.nextInt(upperLimit)).toCmd
 
-    def long: Cmd[RandomValue.NextLong] =
+    /** Random `Long` */
+    def long[F[_]: Sync]: Cmd[F, RandomValue.NextLong] =
       RandomValue.NextLong(r.nextLong).toCmd
-    def long(upperLimit: Long): Cmd[RandomValue.NextLong] =
+
+    /** Random `Long` within an upper limit */
+    def long[F[_]: Sync](upperLimit: Long): Cmd[F, RandomValue.NextLong] =
       RandomValue.NextLong(r.nextLong(upperLimit)).toCmd
 
-    def float: Cmd[RandomValue.NextFloat] =
+    /** Random `Float` */
+    def float[F[_]: Sync]: Cmd[F, RandomValue.NextFloat] =
       RandomValue.NextFloat(r.nextFloat).toCmd
 
-    def double: Cmd[RandomValue.NextDouble] =
+    /** Random `Double` */
+    def double[F[_]: Sync]: Cmd[F, RandomValue.NextDouble] =
       RandomValue.NextDouble(r.nextDouble).toCmd
 
-    def alphaNumeric(length: Int): Cmd[RandomValue.NextAlphaNumeric] =
+    /** Random series of alphanumeric characters */
+    def alphaNumeric[F[_]: Sync](length: Int): Cmd[F, RandomValue.NextAlphaNumeric] =
       RandomValue.NextAlphaNumeric(r.alphanumeric.take(length).mkString).toCmd
 
-    def shuffle[A](l: List[A]): Cmd[RandomValue.NextShuffle[A]] =
+    /** Randomly shuffle a list of elements */
+    def shuffle[F[_]: Sync, A](l: List[A]): Cmd[F, RandomValue.NextShuffle[A]] =
       RandomValue.NextShuffle(r.shuffle(l)).toCmd
 
   end Seeded
 
-  extension (i: RandomValue.NextInt)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-    def toCmd: Cmd[RandomValue.NextInt] =
-      val f: Either[_, Int] => RandomValue.NextInt = {
-        case Right(v: Int) => RandomValue.NextInt(v)
-        case _             => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+  extension [F[_]: Sync](i: RandomValue.NextInt)
+    def toCmd: Cmd[F, RandomValue.NextInt] =
+      Cmd.Run(Sync[F].delay(i.value), RandomValue.NextInt(_))
 
-  extension (i: RandomValue.NextLong)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-    def toCmd: Cmd[RandomValue.NextLong] =
-      val f: Either[_, Long] => RandomValue.NextLong = {
-        case Right(v: Long) => RandomValue.NextLong(v)
-        case _              => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+  extension [F[_]: Sync](i: RandomValue.NextLong)
+    def toCmd: Cmd[F, RandomValue.NextLong] =
+      Cmd.Run(Sync[F].delay(i.value), RandomValue.NextLong(_))
 
-  extension (i: RandomValue.NextFloat)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-    def toCmd: Cmd[RandomValue.NextFloat] =
-      val f: Either[_, Float] => RandomValue.NextFloat = {
-        case Right(v: Float) => RandomValue.NextFloat(v)
-        case _               => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+  extension [F[_]: Sync](i: RandomValue.NextFloat)
+    def toCmd: Cmd[F, RandomValue.NextFloat] =
+      Cmd.Run(Sync[F].delay(i.value), RandomValue.NextFloat(_))
 
-  extension (i: RandomValue.NextDouble)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-    def toCmd: Cmd[RandomValue.NextDouble] =
-      val f: Either[_, Double] => RandomValue.NextDouble = {
-        case Right(v: Double) => RandomValue.NextDouble(v)
-        case _                => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+  extension [F[_]: Sync](i: RandomValue.NextDouble)
+    def toCmd: Cmd[F, RandomValue.NextDouble] =
+      Cmd.Run(Sync[F].delay(i.value), RandomValue.NextDouble(_))
 
-  extension (i: RandomValue.NextAlphaNumeric)
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-    def toCmd: Cmd[RandomValue.NextAlphaNumeric] =
-      val f: Either[_, String] => RandomValue.NextAlphaNumeric = {
-        case Right(v: String) => RandomValue.NextAlphaNumeric(v)
-        case _                => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
-      
-  extension [A](i: RandomValue.NextShuffle[A])
-    @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-    def toCmd: Cmd[RandomValue.NextShuffle[A]] =
-      val f: Either[_, List[A]] => RandomValue.NextShuffle[A] = {
-        case Right(v: List[A]) => RandomValue.NextShuffle(v)
-        case _                 => throw new Exception("Unfailable random has failed!")
-      }
-      Cmd.RunTask(Task.Succeeded(i.value), f)
+  extension [F[_]: Sync](i: RandomValue.NextAlphaNumeric)
+    def toCmd: Cmd[F, RandomValue.NextAlphaNumeric] =
+      Cmd.Run(Sync[F].delay(i.value), RandomValue.NextAlphaNumeric(_))
+
+  extension [F[_]: Sync, A](i: RandomValue.NextShuffle[A])
+    def toCmd: Cmd[F, RandomValue.NextShuffle[A]] =
+      Cmd.Run(Sync[F].delay(i.value), RandomValue.NextShuffle(_))
 
 enum RandomValue derives CanEqual:
   case NextInt(value: Int)             extends RandomValue
