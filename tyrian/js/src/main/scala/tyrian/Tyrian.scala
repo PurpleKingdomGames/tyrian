@@ -47,45 +47,33 @@ object Tyrian:
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
+    Dispatcher[F].evalMap { dispatcher =>
+      for {
+        channel <- Channel.synchronous[F, F[Unit]]
+        model   <- Async[F].ref(init._1)
+        vnode   <- Async[F].ref[Option[VNode]](None)
 
-    val d: Resource[F, Dispatcher[F]] =
-      Dispatcher[F]
-
-    val res: Resource[F, (TyrianRuntime[F, Model, Msg], Channel[F, F[Unit]])] =
-      d.flatMap { dispatcher =>
-        Resource.make {
-          val resources =
-            (Channel.synchronous[F, F[Unit]], Async[F].ref(init._1), Async[F].ref[Option[VNode]](None)).tupled
-
-          Async[F].map(resources) { (channel, model, vnode) =>
-            (
-              new TyrianRuntime(
-                init,
-                update,
-                view,
-                subscriptions,
-                node,
-                model,
-                vnode,
-                channel,
-                dispatcher
-              ),
-              channel
-            )
-          }
-        } { _ =>
-          Async[F].pure(())
+        runtime <- Async[F].delay {
+          new TyrianRuntime(
+            init,
+            update,
+            view,
+            subscriptions,
+            node,
+            model,
+            vnode,
+            channel,
+            dispatcher
+          )
         }
-      }
 
-    res.flatMap { case (runtime, channel) =>
-      Stream
+      } yield Stream
         .emit(runtime)
         .concurrently(channel.stream.flatMap(Stream.eval))
         .compile
         .resource
         .lastOrError
-    }
+    }.flatten
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.
     */
