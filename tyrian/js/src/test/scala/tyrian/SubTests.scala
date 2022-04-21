@@ -52,7 +52,7 @@ class SubTests extends munit.CatsEffectSuite {
   }
 
   test("map - Empty") {
-    assertEquals(Sub.Empty.map(_ => 10), Sub.Empty)
+    assertEquals(Sub.None.map(_ => 10), Sub.None)
   }
 
   test("Run") {

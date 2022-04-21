@@ -44,15 +44,15 @@ object Sub:
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Sub[F, Msg], b: Sub[F, LubMsg]): Sub[F, LubMsg] =
     (a, b) match {
-      case (Sub.Empty, Sub.Empty) => Sub.Empty
-      case (Sub.Empty, s2)        => s2
-      case (s1, Sub.Empty)        => s1
-      case (s1, s2)               => Sub.Combine(s1, s2)
+      case (Sub.None, Sub.None) => Sub.None
+      case (Sub.None, s2)       => s2
+      case (s1, Sub.None)       => s1
+      case (s1, s2)             => Sub.Combine(s1, s2)
     }
 
   /** The empty subscription represents the absence of subscriptions */
-  case object Empty extends Sub[Nothing, Nothing]:
-    def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
+  case object None extends Sub[Nothing, Nothing]:
+    def map[OtherMsg](f: Nothing => OtherMsg): None.type = this
 
   /** A subscription that forwards the notifications produced by the given `observable`
     * @param id
@@ -206,7 +206,7 @@ object Sub:
     }(extract)
 
   given [F[_], Msg]: Monoid[Sub[F, Msg]] = new Monoid[Sub[F, Msg]] {
-    def empty: Sub[F, Msg]                                   = Sub.Empty
+    def empty: Sub[F, Msg]                                   = Sub.None
     def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
   }
 

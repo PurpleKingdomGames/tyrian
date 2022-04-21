@@ -16,7 +16,7 @@ object SubHelper:
         case Nil =>
           acc
 
-        case Sub.Empty :: ss =>
+        case Sub.None :: ss =>
           rec(ss, acc)
 
         case Sub.Combine(s1, s2) :: ss =>

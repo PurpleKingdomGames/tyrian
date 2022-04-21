@@ -132,7 +132,7 @@ object WebSocket:
     def run: Sub[F, WebSocketEvent] =
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
         Sub.every(settings.timeout, "ws-heartbeat").map(_ => WebSocketEvent.Heartbeat)
-      else Sub.Empty
+      else Sub.None
 
 sealed trait WebSocketConnect[F[_]: Async]
 object WebSocketConnect:

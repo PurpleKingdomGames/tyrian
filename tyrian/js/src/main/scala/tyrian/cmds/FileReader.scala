@@ -23,7 +23,7 @@ object FileReader:
       resultToMessage: Result[js.Any] => Msg
   ): Cmd[F, Msg] =
     val files = document.getElementById(fileInputFieldId).asInstanceOf[html.Input].files
-    if files.length == 0 then Cmd.Empty
+    if files.length == 0 then Cmd.None
     else
       val task = Async[F].delay {
         val file       = files.item(0)

@@ -24,7 +24,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
   def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.NewRandomInt(i) =>
-        (model.copy(randomNumber = i), Cmd.Empty)
+        (model.copy(randomNumber = i), Cmd.None)
 
       case Msg.NewContent(content) =>
         val cmds: Cmd[IO, Msg] =
@@ -36,21 +36,21 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
         (model.copy(field = content), cmds)
 
       case Msg.Insert =>
-        (model.copy(components = Counter.init :: model.components), Cmd.Empty)
+        (model.copy(components = Counter.init :: model.components), Cmd.None)
 
       case Msg.Remove =>
         val cs = model.components match
           case Nil    => Nil
           case _ :: t => t
 
-        (model.copy(components = cs), Cmd.Empty)
+        (model.copy(components = cs), Cmd.None)
 
       case Msg.Modify(id, m) =>
         val cs = model.components.zipWithIndex.map { case (c, i) =>
           if i == id then Counter.update(m, c) else c
         }
 
-        (model.copy(components = cs), Cmd.Empty)
+        (model.copy(components = cs), Cmd.None)
 
       case Msg.StartIndigo =>
         (
