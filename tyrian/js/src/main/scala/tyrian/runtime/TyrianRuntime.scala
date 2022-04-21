@@ -1,5 +1,11 @@
 package tyrian.runtime
 
+import cats.effect.kernel.Async
+import cats.effect.kernel.Ref
+import cats.effect.std.Dispatcher
+import cats.syntax.all.*
+import fs2.Stream
+import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.SnabbdomSyntax
@@ -14,78 +20,121 @@ import tyrian.NamedAttribute
 import tyrian.Property
 import tyrian.Sub
 import tyrian.Tag
-import tyrian.Task
-import tyrian.Task.Cancelable
-import tyrian.Task.Observer
 import tyrian.Text
 import util.Functions.fun
 
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
 
-final class TyrianRuntime[Model, Msg](
-    init: (Model, Cmd[Msg]),
-    update: (Msg, Model) => (Model, Cmd[Msg]),
+final class TyrianRuntime[F[_]: Async, Model, Msg](
+    init: (Model, Cmd[F, Msg]),
+    update: (Msg, Model) => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
-    subscriptions: Model => Sub[Msg],
-    node: Element
+    subscriptions: Model => Sub[F, Msg],
+    node: Element,
+    model: Ref[F, Model],
+    vnode: Ref[F, Option[VNode]],
+    channel: => Channel[F, F[Unit]],
+    dispatcher: => Dispatcher[F]
 ) extends SnabbdomSyntax:
 
-  private val (initState, initCmd) = init
+  // The currently live subs.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var currentState: Model = initState
-  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var currentSubscriptions: List[(String, Cancelable)] = Nil
+  private var currentSubscriptions: List[(String, F[Unit])] = Nil
+  // This is a queue of new subs waiting to be run for the first time.
+  // In the event that two events happen at once, you can't assume that
+  // you would have run all the subs between events.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var aboutToRunSubscriptions: Set[String] = Set.empty
-  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  private var vnode = render(node, currentState)
 
-  def async(thunk: => Unit): Unit =
-    js.timers.setTimeout(0)(thunk)
+  def initialise(cmd: Cmd[F, Msg]): Unit =
+    val res: F[Unit] =
+      for {
+        currentModel <- model.get
+        complete     <- completeUpdate(cmd, currentModel)
+      } yield complete
 
-  def onMsg(msg: Msg): Unit = {
-    val (updatedState: Model, cmd: Cmd[Msg]) = update(msg, currentState)
-    currentState = updatedState
-    vnode = render(vnode, currentState)
-    performSideEffects(cmd, subscriptions(currentState), onMsg)
-  }
+    dispatcher.unsafeRunAndForget(res)
 
-  def performSideEffects(cmd: Cmd[Msg], sub: Sub[Msg], callback: Msg => Unit): Unit = {
-    CmdRunner.runCmd(cmd, callback, async)
+  def onMsg(msg: Msg): Unit =
+    val res: F[Unit] =
+      for {
+        currentModel <- model.get
+        updated      <- Async[F].delay(update(msg, currentModel))
+        updatedState <- Async[F].delay(updated._1)
+        cmd          <- Async[F].delay(updated._2)
+        complete     <- completeUpdate(cmd, updatedState)
+      } yield complete
 
-    val allSubs = {
-      def loop(sub: Sub[Msg]): List[Sub.OfObservable[_, _, Msg]] =
-        sub match
-          case Sub.Empty               => Nil
-          case Sub.Combine(sub1, sub2) => loop(sub1) ++ loop(sub2)
-          case Sub.Batch(subs)         => subs.flatMap(loop)
-          case s: Sub.OfObservable[_, _, _] =>
-            List(s.asInstanceOf[Sub.OfObservable[_, _, Msg]])
+    dispatcher.unsafeRunAndForget(res)
 
-      loop(sub)
+  def completeUpdate(cmd: Cmd[F, Msg], updatedState: Model): F[Unit] =
+    val results: F[Stream[F, F[Unit]]] =
+      for {
+        _ <- model.set(updatedState)
+        n <- vnode.get
+        _ <- vnode.set(n match {
+          case Some(existingNode) => Some(render(existingNode, updatedState))
+          case None               => Some(render(node, updatedState))
+        })
+        sideEffects <- gatherSideEffects(cmd, subscriptions(updatedState))
+      } yield Stream.emits(sideEffects)
+
+    Async[F].flatMap(results) { (stream: Stream[F, F[Unit]]) =>
+      stream.foreach(channel.send(_).void).compile.drain
     }
 
-    val (stillActives, discarded) =
-      currentSubscriptions.partition { case (id, _) => allSubs.exists(_.id == id) }
+  given CanEqual[Option[_], Option[_]] = CanEqual.derived
 
-    val newSubs =
-      allSubs.filter(s => stillActives.forall(_._1 != s.id) && !aboutToRunSubscriptions.contains(s.id))
+  def gatherSideEffects(
+      cmd: Cmd[F, Msg],
+      sub: Sub[F, Msg]
+  ): F[List[F[Unit]]] =
+    Async[F].delay {
+      // Cmds
+      val cmdsToRun = CmdHelper.cmdToTaskList(cmd)
 
-    aboutToRunSubscriptions = aboutToRunSubscriptions ++ newSubs.map(_.id)
-    currentSubscriptions = stillActives
+      // Subs
+      val allSubs                 = SubHelper.flatten(sub)
+      val (stillAlive, discarded) = SubHelper.aliveAndDead(allSubs, currentSubscriptions)
+      val newSubs                 = SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), aboutToRunSubscriptions.toList)
 
-    async {
-      discarded.foreach(_._2.cancel())
+      // Update the first run queue
+      aboutToRunSubscriptions = aboutToRunSubscriptions ++ newSubs.map(_.id)
+      // Update the current subs
+      currentSubscriptions = stillAlive
 
-      newSubs.foreach { case Sub.OfObservable(id, observable, f) =>
-        val cancelable = observable.run(TaskRunner.asObserver(f andThen callback))
-        aboutToRunSubscriptions = aboutToRunSubscriptions - id
-        currentSubscriptions = (id -> cancelable) :: currentSubscriptions
+      val subsToRun =
+        SubHelper
+          .toRun(newSubs, onMsg)
+          .map { s =>
+            Async[F].map(s) {
+              case Some(sub) =>
+                // Remove from the queue
+                aboutToRunSubscriptions = aboutToRunSubscriptions - sub.id
+                // Add to the current subs
+                currentSubscriptions = (sub.id -> sub.cancel) :: currentSubscriptions
+
+                Option.empty[Msg]
+
+              case None =>
+                Option.empty[Msg]
+            }
+          }
+
+      val subsToDiscard =
+        discarded.map { d =>
+          Async[F].map(d)(_ => Option.empty[Msg])
+        }
+
+      // Run them all
+      (cmdsToRun ++ subsToRun ++ subsToDiscard).map { task =>
+        Async[F].map(task) {
+          case Some(msg) => onMsg(msg)
+          case None      => ()
+        }
       }
     }
-
-  }
 
   def toVNode(html: Html[Msg]): VNode =
     html match
@@ -122,4 +171,8 @@ final class TyrianRuntime[Model, Msg](
     patch(oldNode, toVNode(view(model)))
 
   def start(): Unit =
-    performSideEffects(initCmd, subscriptions(currentState), onMsg)
+    dispatcher.unsafeRunAndForget(
+      model.get.map { currentState =>
+        initialise(init._2)
+      }
+    )

@@ -1,5 +1,6 @@
 package tyrian.cmds
 
+import cats.effect.kernel.Sync
 import tyrian.Cmd
 
 import scala.collection.mutable.ArrayBuffer
@@ -38,32 +39,38 @@ object Logger:
       println(formatMessage(DEBUG, message))
     }
 
-  def consoleLog(messages: String*): Cmd.SideEffect =
-    Cmd.SideEffect { () =>
+  /** consoleLog is JavaScripts println */
+  def consoleLog[F[_]: Sync](messages: String*): Cmd.SideEffect[F] =
+    Cmd.SideEffect {
       consoleLogString(messages.toList.mkString(", "))
     }
 
-  def info(messages: String*): Cmd.SideEffect =
-    Cmd.SideEffect { () =>
+  /** Log at an info level */
+  def info[F[_]: Sync](messages: String*): Cmd.SideEffect[F] =
+    Cmd.SideEffect {
       infoString(messages.toList.mkString(", "))
     }
 
-  def error(messages: String*): Cmd.SideEffect =
-    Cmd.SideEffect { () =>
+  /** Log at an error level */
+  def error[F[_]: Sync](messages: String*): Cmd.SideEffect[F] =
+    Cmd.SideEffect {
       errorString(messages.toList.mkString(", "))
     }
 
-  def errorOnce(messages: String*): Cmd.SideEffect =
-    Cmd.SideEffect { () =>
+  /** Log at an error level, but only log each message once. */
+  def errorOnce[F[_]: Sync](messages: String*): Cmd.SideEffect[F] =
+    Cmd.SideEffect {
       errorOnceString(messages.toList.mkString(", "))
     }
 
-  def debug(messages: String*): Cmd.SideEffect =
-    Cmd.SideEffect { () =>
+  /** Log at an debug level */
+  def debug[F[_]: Sync](messages: String*): Cmd.SideEffect[F] =
+    Cmd.SideEffect {
       debugString(messages.toList.mkString(", "))
     }
 
-  def debugOnce(messages: String*): Cmd.SideEffect =
-    Cmd.SideEffect { () =>
+  /** Log at an debug level, but only log each message once. */
+  def debugOnce[F[_]: Sync](messages: String*): Cmd.SideEffect[F] =
+    Cmd.SideEffect {
       debugOnceString(messages.toList.mkString(", "))
     }

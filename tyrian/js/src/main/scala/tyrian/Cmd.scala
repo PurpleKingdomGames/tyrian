@@ -1,67 +1,76 @@
 package tyrian
 
-/** A command describes some side-effect to perform.
-  *
-  * The difference with a `Task` is that a command never produces error values.
-  */
-sealed trait Cmd[+Msg]:
-  def map[OtherMsg](f: Msg => OtherMsg): Cmd[OtherMsg]
+import cats.effect.kernel.Sync
+import cats.kernel.Monoid
 
-  final def combine[LubMsg >: Msg](other: Cmd[LubMsg]): Cmd[LubMsg] =
-    (this, other) match {
+import scala.annotation.targetName
+
+/** A command describes some side-effect to perform.
+  */
+sealed trait Cmd[+F[_], +Msg]:
+  /** Transforms the type of messages produced by the command */
+  def map[OtherMsg](f: Msg => OtherMsg): Cmd[F, OtherMsg]
+
+  /** Infix operation for combining two Cmds into one. */
+  def combine[F2[x] >: F[x], LubMsg >: Msg](other: Cmd[F2, LubMsg]): Cmd[F2, LubMsg] =
+    Cmd.merge(this, other)
+
+  /** Infix operator for combining two Cmds into one. */
+  def |+|[F2[x] >: F[x], LubMsg >: Msg](other: Cmd[F2, LubMsg]): Cmd[F2, LubMsg] =
+    Cmd.merge(this, other)
+
+object Cmd:
+  given CanEqual[Cmd[_, _], Cmd[_, _]] = CanEqual.derived
+
+  final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
+    (a, b) match {
       case (Cmd.Empty, Cmd.Empty) => Cmd.Empty
       case (Cmd.Empty, c2)        => c2
       case (c1, Cmd.Empty)        => c1
-      case (c1, c2)               => Cmd.Combine(c1, c2)
+      case (c1, c2)               => Cmd.Combine[F, LubMsg](c1, c2)
     }
-  final def |+|[LubMsg >: Msg](other: Cmd[LubMsg]): Cmd[LubMsg] =
-    combine(other)
 
-object Cmd:
-  given CanEqual[Cmd[_], Cmd[_]] = CanEqual.derived
-
-  case object Empty extends Cmd[Nothing]:
+  /** The empty command represents the absence of any command to perform */
+  case object Empty extends Cmd[Nothing, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
 
-  final case class SideEffect(task: Task.SideEffect) extends Cmd[Nothing]:
-    def map[OtherMsg](f: Nothing => OtherMsg): SideEffect = this
+  /** Runs a task that produces no message */
+  final case class SideEffect[F[_]](task: F[Unit]) extends Cmd[F, Nothing]:
+    def map[OtherMsg](f: Nothing => OtherMsg): SideEffect[F] = this
   object SideEffect:
-    def apply(thunk: () => Unit): SideEffect =
-      SideEffect(Task.SideEffect(thunk))
+    def apply[F[_]: Sync](thunk: => Unit): SideEffect[F] =
+      SideEffect(Sync[F].delay(thunk))
 
-  final case class Emit[Msg](msg: Msg) extends Cmd[Msg]:
+  /** Simply produces a message that will then be actioned. */
+  final case class Emit[Msg](msg: Msg) extends Cmd[Nothing, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg))
 
-  final case class Run[Err, Success, Msg](
-      observable: Task.Observable[Err, Success],
-      toMessage: Either[Err, Success] => Msg
-  ) extends Cmd[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Run[Err, Success, OtherMsg] = Run(observable, toMessage andThen f)
-    def attempt[OtherMsg](resultToMessage: Either[Err, Success] => OtherMsg): Run[Err, Success, OtherMsg] =
-      Run(observable, resultToMessage)
+  /** Represents runnable concurrent task that produces a message */
+  final case class Run[F[_], A, Msg](
+      task: F[A],
+      toMsg: A => Msg
+  ) extends Cmd[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Run[F, A, OtherMsg] = Run(task, toMsg andThen f)
   object Run:
+    @targetName("Cmd.Run separate param lists")
+    def apply[F[_], A, Msg](task: F[A])(toMessage: A => Msg): Run[F, A, Msg] =
+      Run(task, toMessage)
 
-    def apply[Err, Success, Msg](toMessage: Either[Err, Success] => Msg)(
-        observable: Task.Observable[Err, Success]
-    ): Run[Err, Success, Msg] =
-      Run(observable, toMessage)
+  /** Merge two commands into a single one */
+  case class Combine[F[_], Msg](cmd1: Cmd[F, Msg], cmd2: Cmd[F, Msg]) extends Cmd[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Combine[F, OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))
 
-    final case class ImcompleteRunCmd[Err, Success](observable: Task.Observable[Err, Success]):
-      def attempt[Msg](resultToMessage: Either[Err, Success] => Msg): Run[Err, Success, Msg] =
-        Run(observable, resultToMessage)
-
-    def apply[Err, Success](observable: Task.Observable[Err, Success]): ImcompleteRunCmd[Err, Success] =
-      ImcompleteRunCmd(observable)
-
-  final case class RunTask[Err, Success, Msg](task: Task[Err, Success], toMessage: Either[Err, Success] => Msg)
-      extends Cmd[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): RunTask[Err, Success, OtherMsg] = RunTask(task, toMessage andThen f)
-
-  case class Combine[Msg](cmd1: Cmd[Msg], cmd2: Cmd[Msg]) extends Cmd[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Combine[OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))
-
-  case class Batch[Msg](cmds: List[Cmd[Msg]]) extends Cmd[Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Batch[OtherMsg] = this.copy(cmds = cmds.map(_.map(f)))
+  /** Treat many commands as one */
+  case class Batch[F[_], Msg](cmds: List[Cmd[F, Msg]]) extends Cmd[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Batch[F, OtherMsg] = this.copy(cmds = cmds.map(_.map(f)))
   object Batch:
-    def apply[Msg](cmds: Cmd[Msg]*): Batch[Msg] =
+    def apply[F[_], Msg](cmds: Cmd[F, Msg]*): Batch[F, Msg] =
       Batch(cmds.toList)
+
+  given [F[_], Msg]: Monoid[Cmd[F, Msg]] = new Monoid[Cmd[F, Msg]] {
+    def empty: Cmd[F, Msg]                                   = Cmd.Empty
+    def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
+  }
+
+  def combineAll[F[_], A](list: List[Cmd[F, A]]): Cmd[F, A] =
+    Monoid[Cmd[F, A]].combineAll(list)

@@ -20,16 +20,17 @@ The version of this in the [examples](https://github.com/PurpleKingdomGames/tyri
 ```scala mdoc:js:compile-only
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (0, Cmd.Empty)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.Increment => (model + 1, Cmd.Empty)
       case Msg.Decrement => (model - 1, Cmd.Empty)
@@ -41,7 +42,7 @@ object Main extends TyrianApp[Msg, Model]:
       button(onClick(Msg.Increment))("+")
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
+  def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.Empty
 
 type Model = Int
@@ -87,12 +88,13 @@ To use our model, we're going to have to initialize it!
 ```scala mdoc:js:shared:invisible
 import tyrian.Html.*
 import tyrian.*
+import cats.effect.IO
 
 type Model = Int
 ```
 
 ```scala mdoc:js:compile-only
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (0, Cmd.Empty)
 ```
 
@@ -101,7 +103,7 @@ There's a few things going on here, the only bit we _really_ care about here is 
 Some of the other things you can see here:
 
 - `flags` - Flags can be passed into the app at launch time, think of them like command line arguments.
-- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.empty`.
+- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.Empty`.
 
 #### Rendering the page
 
@@ -136,12 +138,20 @@ enum Msg:
 ...and add our click events:
 
 ```scala mdoc:js:compile-only
-  def view(model: Model): Html[Msg] =
-    div(
-      button(onClick(Msg.Decrement))("-"),
-      div(model.toString),
-      button(onClick(Msg.Increment))("+")
-    )
+import tyrian.Html.*
+import tyrian.*
+import cats.effect.IO
+
+type Model = Int
+enum Msg:
+  case Increment, Decrement
+
+def view(model: Model): Html[Msg] =
+  div(
+    button(onClick(Msg.Decrement))("-"),
+    div(model.toString),
+    button(onClick(Msg.Increment))("+")
+  )
 ```
 
 > Note the return type of view is `Html[Msg]`. This is because unlike normal JavaScript, the `onClick` is not directly instigating a normal callback, the HTML elements are mapped through and produce messages as values that are passed back to Tyrian.
@@ -151,7 +161,7 @@ enum Msg:
 The final thing we need to do is react to the messages the view is sending, as follows:
 
 ```scala mdoc:js:compile-only
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
+  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
       case Msg.Increment => (model + 1, Cmd.Empty)
       case Msg.Decrement => (model - 1, Cmd.Empty)

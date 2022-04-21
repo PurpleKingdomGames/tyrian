@@ -1,13 +1,24 @@
-package tyrian
-package http
+package tyrian.http
 
+import cats.effect.kernel.Async
 import org.scalajs.dom.XMLHttpRequest
+import tyrian.Cmd
 
+import scala.concurrent.Promise
 import scala.util.Try
 
+/** Send HTTP requests as a command */
 object Http:
 
-  /** Tries to transforms a response body of type String to a value of type A.
+  enum ConnectionResult:
+    case Handler(xhr: XMLHttpRequest)
+    case Error(e: HttpError)
+
+  enum HttpResult[A]:
+    case Success(value: A)
+    case Failure(e: HttpError)
+
+  /** Tries to transform an response body of type String to a value of type A.
     * @tparam A
     *   type of the successfully decoded response
     */
@@ -23,10 +34,12 @@ object Http:
         d(response)
 
   /** Send an HTTP request.
-    * @param resultToMessage
-    *   transforms a successful or failed response into a Msg
     * @param request
     *   the request
+    * @param resultToMessage
+    *   transforms a successful or failed response into a Msg
+    * @tparam F
+    *   Effect type, e.g. `IO`
     * @tparam A
     *   type of the successfully decoded response
     * @tparam Msg
@@ -35,35 +48,48 @@ object Http:
     *   A Cmd that describes the HTTP request
     */
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  def send[A, Msg](request: Request[A], resultToMessage: Either[http.HttpError, A] => Msg): Cmd[Msg] =
-    Task
-      .RunObservable[http.HttpError, XMLHttpRequest] { observer =>
-        val xhr = new XMLHttpRequest
-        try {
-          request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
+  def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: HttpResult[A] => Msg): Cmd[F, Msg] =
 
-          xhr.timeout = request.timeout.map(_.toMillis.toDouble).getOrElse(0)
-          xhr.withCredentials = request.withCredentials
-          xhr.open(request.method.asString, request.url)
-          xhr.onload = _ => observer.onNext(xhr)
-          xhr.onerror = _ => observer.onError(HttpError.NetworkError)
-          xhr.ontimeout = _ => observer.onError(HttpError.Timeout)
+    val task =
+      Async[F].fromFuture(
+        Async[F].delay {
+          val xhr = new XMLHttpRequest
+          val p   = Promise[ConnectionResult]()
+          try {
+            request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
 
-          request.body match
-            case Body.Empty =>
-              xhr.send(null)
+            xhr.timeout = request.timeout.map(_.toMillis.toDouble).getOrElse(0)
+            xhr.withCredentials = request.withCredentials
+            xhr.open(request.method.asString, request.url)
+            xhr.onload = _ => p.success(ConnectionResult.Handler(xhr))
+            xhr.onerror = _ => p.success(ConnectionResult.Error(HttpError.NetworkError))
+            xhr.ontimeout = _ => p.success(ConnectionResult.Error(HttpError.Timeout))
 
-            case Body.PlainText(contentType, body) =>
-              xhr.setRequestHeader("Content-Type", contentType)
-              xhr.send(body)
+            request.body match
+              case Body.Empty =>
+                xhr.send(null)
 
-        } catch {
-          case ex: Throwable => observer.onError(HttpError.BadRequest(ex.getMessage))
+              case Body.PlainText(contentType, body) =>
+                xhr.setRequestHeader("Content-Type", contentType)
+                xhr.send(body)
+
+          } catch {
+            case ex: Throwable => p.success(ConnectionResult.Error(HttpError.BadRequest(ex.getMessage)))
+          }
+          p.future
         }
+      )
 
-        () => xhr.abort()
-      }
-      .attempt(_.flatMap { xhr =>
+    val withCancel = Async[F].flatMap(task) {
+      case e @ ConnectionResult.Error(_) => Async[F].delay(e)
+      case ConnectionResult.Handler(xhr) => Async[F].onCancel(Async[F].delay(xhr), Async[F].delay(xhr.abort()))
+    }
+
+    val withResponse = Async[F].flatMap(withCancel) {
+      case ConnectionResult.Error(e) =>
+        Async[F].delay(HttpResult.Failure(e))
+
+      case ConnectionResult.Handler(xhr) =>
         val response = Response(
           url = request.url,
           status = Status(xhr.status, xhr.statusText),
@@ -74,12 +100,17 @@ object Http:
         request
           .expect(response) match
           case Right(r) =>
-            Right(r)
+            Async[F].delay(HttpResult.Success(r))
 
           case Left(e) =>
-            Left(HttpError.DecodingFailure(e, response))
-      })
-      .map(resultToMessage)
+            Async[F].delay(
+              HttpResult.Failure(
+                HttpError.DecodingFailure(e, response)
+              )
+            )
+    }
+
+    Cmd.Run(withResponse, resultToMessage)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.noValPatterns"))
   private def parseHeaders(headers: String): Map[String, String] =

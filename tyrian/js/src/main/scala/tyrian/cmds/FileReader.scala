@@ -1,5 +1,6 @@
 package tyrian.cmds
 
+import cats.effect.kernel.Async
 import org.scalajs.dom
 import org.scalajs.dom.document
 import org.scalajs.dom.html
@@ -7,6 +8,7 @@ import org.scalajs.dom.raw
 import org.scalajs.dom.raw.Event
 import tyrian.Cmd
 
+import scala.concurrent.Promise
 import scala.scalajs.js
 
 /** Given the id of a file input field that has had a file selected, this Cmd will read either an image or text file to
@@ -14,43 +16,55 @@ import scala.scalajs.js
   */
 object FileReader:
 
-  def read[Msg](fileInputFieldId: String)(resultToMessage: Either[Error, File[js.Any]] => Msg): Cmd[Msg] =
+  /** Generic read function, you will need to cast the result to the type you're expecting. This is normal, and is
+    * because we are accessing unknown resources.
+    */
+  def read[F[_]: Async, Msg](fileInputFieldId: String)(
+      resultToMessage: Result[js.Any] => Msg
+  ): Cmd[F, Msg] =
     val files = document.getElementById(fileInputFieldId).asInstanceOf[html.Input].files
     if files.length == 0 then Cmd.Empty
     else
-      val file = files.item(0)
-      Cmd
-        .Run[Error, File[js.Any]] { observer =>
-          val fileReader = new dom.FileReader()
-          fileReader.addEventListener(
-            "load",
-            (e: Event) =>
-              observer.onNext(
-                File(
-                  name = file.name,
-                  path = e.target.asInstanceOf[js.Dynamic].result.asInstanceOf[String],
-                  data = fileReader.result
-                )
-              ),
-            false
-          )
-          fileReader.onerror =
-            _ => observer.onError(Error(s"Error reading from file type input field '$fileInputFieldId'"))
-          fileReader.readAsDataURL(file)
+      val task = Async[F].delay {
+        val file       = files.item(0)
+        val p          = Promise[Result[js.Any]]()
+        val fileReader = new dom.FileReader()
+        fileReader.addEventListener(
+          "load",
+          (e: Event) =>
+            p.success(
+              Result.File(
+                name = file.name,
+                path = e.target.asInstanceOf[js.Dynamic].result.asInstanceOf[String],
+                data = fileReader.result
+              )
+            ),
+          false
+        )
+        fileReader.onerror =
+          _ => p.success(Result.Error(s"Error reading from file type input field '$fileInputFieldId'"))
+        fileReader.readAsDataURL(file)
+        p.future
+      }
 
-          () => (),
-        }
-        .attempt(resultToMessage)
+      Cmd.Run(Async[F].fromFuture(task), resultToMessage)
 
-  def readImage[Msg](inputFieldId: String)(resultToMessage: Either[Error, File[html.Image]] => Msg): Cmd[Msg] =
-    val cast: Either[Error, File[js.Any]] => Either[Error, File[html.Image]] =
-      _.map(fi => File(fi.name, fi.path, fi.data.asInstanceOf[html.Image]))
+  /** Reads an input file as an image */
+  def readImage[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[html.Image] => Msg): Cmd[F, Msg] =
+    val cast: Result[js.Any] => Result[html.Image] = {
+      case Result.Error(msg)    => Result.Error(msg)
+      case Result.File(n, p, d) => Result.File(n, p, d.asInstanceOf[html.Image])
+    }
     read(inputFieldId)(cast andThen resultToMessage)
 
-  def readText[Msg](inputFieldId: String)(resultToMessage: Either[Error, File[String]] => Msg): Cmd[Msg] =
-    val cast: Either[Error, File[js.Any]] => Either[Error, File[String]] =
-      _.map(fi => File(fi.name, fi.path, fi.data.asInstanceOf[String]))
+  /** Reads an input file as plain text */
+  def readText[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
+    val cast: Result[js.Any] => Result[String] = {
+      case Result.Error(msg)    => Result.Error(msg)
+      case Result.File(n, p, d) => Result.File(n, p, d.asInstanceOf[String])
+    }
     read(inputFieldId)(cast andThen resultToMessage)
 
-  final case class Error(message: String)
-  final case class File[A](name: String, path: String, data: A)
+  enum Result[A]:
+    case Error(message: String)
+    case File(name: String, path: String, data: A)

@@ -1,26 +1,31 @@
 package tyrian.websocket
 
+import cats.effect.kernel.Async
 import org.scalajs.dom
 import tyrian.Cmd
 import tyrian.Sub
-import tyrian.Task
 import tyrian.websocket.WebSocketEvent
 import util.Functions
 
 import scala.concurrent.duration.*
 
-final class WebSocket(liveSocket: LiveSocket):
-  def disconnect[Msg]: Cmd[Msg] =
-    Cmd.SideEffect(() => liveSocket.socket.close(1000, "Graceful shutdown"))
+/** Helper WebSocket instance to store in your model that acts as a controller */
+final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
+  /** Disconnect from this WebSocket */
+  def disconnect[Msg]: Cmd[F, Msg] =
+    Cmd.SideEffect(liveSocket.socket.close(1000, "Graceful shutdown"))
 
-  def publish[Msg](message: String): Cmd[Msg] =
-    Cmd.SideEffect(() => liveSocket.socket.send(message))
+  /** Publish a message to this WebSocket */
+  def publish[Msg](message: String): Cmd[F, Msg] =
+    Cmd.SideEffect(liveSocket.socket.send(message))
 
-  def subscribe[Msg](f: WebSocketEvent => Msg): Sub[Msg] =
+  /** Subscribe to messages from this WebSocket */
+  def subscribe[Msg](f: WebSocketEvent => Msg): Sub[F, Msg] =
     if WebSocketReadyState.fromInt(liveSocket.socket.readyState).isOpen then liveSocket.subs.map(f)
     else Sub.emit(f(WebSocketEvent.Error("Connection not ready")))
 
-final class LiveSocket(val socket: dom.WebSocket, val subs: Sub[WebSocketEvent])
+/** The running instance of the WebSocket */
+final class LiveSocket[F[_]: Async](val socket: dom.WebSocket, val subs: Sub[F, WebSocketEvent])
 
 enum WebSocketReadyState derives CanEqual:
   case CONNECTING, OPEN, CLOSING, CLOSED
@@ -41,36 +46,61 @@ object WebSocketReadyState:
       case _ => CLOSED
     }
 
-final case class KeepAliveSettings(message: String, timeout: FiniteDuration, enabled: Boolean)
+final case class KeepAliveSettings(timeout: FiniteDuration)
 object KeepAliveSettings:
-  def default  = KeepAliveSettings("{ \"Heartbeat\": {} }", 20.seconds, true)
-  def disabled = default.copy(enabled = false)
+  def default = KeepAliveSettings(20.seconds)
 
 object WebSocket:
   /** Acquires a WebSocket connection with default keep-alive message */
-  def connect(address: String): Task[String, WebSocket] =
-    newConnection(address, None, KeepAliveSettings.default).map(WebSocket(_))
+  def connect[F[_]: Async, Msg](address: String)(resultToMessage: WebSocketConnect[F] => Msg): Cmd[F, Msg] =
+    Cmd.Run(connectTask(address), resultToMessage)
 
   /** Acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
-  def connect(address: String, onOpenMessage: String): Task[String, WebSocket] =
-    newConnection(address, Option(onOpenMessage), KeepAliveSettings.default).map(WebSocket(_))
+  def connect[F[_]: Async, Msg](address: String, onOpenMessage: String)(
+      resultToMessage: WebSocketConnect[F] => Msg
+  ): Cmd[F, Msg] =
+    Cmd.Run(connectTask(address, onOpenMessage), resultToMessage)
 
   /** Acquires a WebSocket connection with custom keep-alive message */
-  def connect(address: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
-    newConnection(address, None, keepAliveSettings).map(WebSocket(_))
+  def connect[F[_]: Async, Msg](address: String, keepAliveSettings: KeepAliveSettings)(
+      resultToMessage: WebSocketConnect[F] => Msg
+  ): Cmd[F, Msg] =
+    Cmd.Run(connectTask(address, keepAliveSettings), resultToMessage)
 
   /** Acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
-  def connect(address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings): Task[String, WebSocket] =
-    newConnection(address, Some(onOpenMessage), keepAliveSettings).map(WebSocket(_))
+  def connect[F[_]: Async, Msg](address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings)(
+      resultToMessage: WebSocketConnect[F] => Msg
+  ): Cmd[F, Msg] =
+    Cmd.Run(connectTask(address, onOpenMessage, keepAliveSettings), resultToMessage)
 
-  private def newConnection(
+  private def connectTask[F[_]: Async](address: String): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, None, KeepAliveSettings.default))(ls => WebSocketConnect.Socket(WebSocket(ls)))
+
+  private def connectTask[F[_]: Async](address: String, onOpenMessage: String): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, Option(onOpenMessage), KeepAliveSettings.default))(ls =>
+      WebSocketConnect.Socket(WebSocket(ls))
+    )
+
+  private def connectTask[F[_]: Async](address: String, keepAliveSettings: KeepAliveSettings): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, None, keepAliveSettings))(ls => WebSocketConnect.Socket(WebSocket(ls)))
+
+  private def connectTask[F[_]: Async](
+      address: String,
+      onOpenMessage: String,
+      keepAliveSettings: KeepAliveSettings
+  ): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, Some(onOpenMessage), keepAliveSettings))(ls =>
+      WebSocketConnect.Socket(WebSocket(ls))
+    )
+
+  private def newConnection[F[_]: Async](
       address: String,
       onOpenSendMessage: Option[String],
       settings: KeepAliveSettings
-  ): Task[String, LiveSocket] =
-    Task.Delay { () =>
+  ): F[LiveSocket[F]] =
+    Async[F].delay {
       val socket    = new dom.WebSocket(address)
-      val keepAlive = new KeepAlive(socket, settings.message, settings.timeout)
+      val keepAlive = new KeepAlive(socket, settings)
 
       val subs =
         Sub.Batch(
@@ -79,35 +109,32 @@ object WebSocket:
           },
           Sub.fromEvent("error", socket) { e =>
             val msg =
-              try { e.asInstanceOf[dom.ErrorEvent].message }
+              try e.asInstanceOf[dom.ErrorEvent].message
               catch { case _: Throwable => "Unknown" }
             Some(WebSocketEvent.Error(msg))
           },
           Sub.fromEvent("close", socket) { e =>
-            if settings.enabled then keepAlive.cancel() else ()
             val ev = e.asInstanceOf[dom.CloseEvent]
             Some(WebSocketEvent.Close(ev.code, ev.reason))
           },
           Sub.fromEvent("open", socket) { _ =>
             onOpenSendMessage.foreach(msg => socket.send(msg))
-            if settings.enabled then keepAlive.run() else ()
             Some(WebSocketEvent.Open)
-          }
+          },
+          keepAlive.run
         )
 
       LiveSocket(socket, subs)
     }
 
-  final class KeepAlive(socket: dom.WebSocket, msg: String, timeout: FiniteDuration):
-    @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-    private var timerId = 0;
-
+  final class KeepAlive[F[_]: Async](socket: dom.WebSocket, settings: KeepAliveSettings):
     @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-    def run(): Unit =
+    def run: Sub[F, WebSocketEvent] =
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
-        println("[info] Sending heartbeat 💓")
-        socket.send(msg)
-      timerId = dom.window.setTimeout(Functions.fun0(() => run()), timeout.toMillis.toDouble)
+        Sub.every(settings.timeout, "ws-heartbeat").map(_ => WebSocketEvent.Heartbeat)
+      else Sub.Empty
 
-    def cancel(): Unit =
-      if (timerId <= 0) then dom.window.clearTimeout(timerId) else ()
+sealed trait WebSocketConnect[F[_]: Async]
+object WebSocketConnect:
+  final case class Error[F[_]: Async](msg: String)              extends WebSocketConnect[F]
+  final case class Socket[F[_]: Async](webSocket: WebSocket[F]) extends WebSocketConnect[F]

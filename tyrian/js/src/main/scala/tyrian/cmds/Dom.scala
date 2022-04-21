@@ -1,32 +1,36 @@
 package tyrian.cmds
 
+import cats.effect.kernel.Async
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.HTMLInputElement
 import tyrian.Cmd
 
+/** Dom utilities */
 object Dom:
 
+  case object Success
   final case class NotFound(elementId: String)
 
-  def focus[Msg](elementId: String)(resultToMessage: Either[NotFound, Unit] => Msg): Cmd[Msg] =
+  /** Focus (highlight) on a DOM input element */
+  def focus[F[_]: Async, Msg](elementId: String)(resultToMessage: Either[NotFound, Success.type] => Msg): Cmd[F, Msg] =
     affectInputElement(elementId, _.focus(), resultToMessage)
 
-  def blur[Msg](elementId: String)(resultToMessage: Either[NotFound, Unit] => Msg): Cmd[Msg] =
+  /** Blur (deselect) a DOM input element */
+  def blur[F[_]: Async, Msg](elementId: String)(resultToMessage: Either[NotFound, Success.type] => Msg): Cmd[F, Msg] =
     affectInputElement(elementId, _.blur(), resultToMessage)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  private def affectInputElement[Msg](
+  private def affectInputElement[F[_]: Async, Msg](
       elementId: String,
       modifier: HTMLInputElement => Unit,
-      resultToMessage: Either[NotFound, Unit] => Msg
-  ): Cmd[Msg] =
-    Cmd
-      .Run[NotFound, Unit] { observer =>
+      resultToMessage: Either[NotFound, Success.type] => Msg
+  ): Cmd[F, Msg] =
+    val task =
+      Async[F].delay {
         val node = document.getElementById(elementId)
-
-        if node != null then observer.onNext(modifier(node.asInstanceOf[HTMLInputElement]))
-        else observer.onError(NotFound(elementId))
-
-        () => ()
+        if node != null then
+          modifier(node.asInstanceOf[HTMLInputElement])
+          Right(Success)
+        else Left(NotFound(elementId))
       }
-      .attempt(resultToMessage)
+    Cmd.Run(task, resultToMessage)
