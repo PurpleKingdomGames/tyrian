@@ -22,7 +22,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
   /** The update method allows you to modify the model based on incoming messages (events). As well as an updated model,
     * you can also produce commands to run.
     */
-  def update(msg: Msg, model: Model): (Model, Cmd[F, Msg])
+  def update(model: Model): Msg => (Model, Cmd[F, Msg])
 
   /** Used to render your current model into an HTML view.
     */

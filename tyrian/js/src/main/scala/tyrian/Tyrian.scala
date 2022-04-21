@@ -43,7 +43,7 @@ object Tyrian:
   def start[F[_]: Async, Model, Msg](
       node: Element,
       init: (Model, Cmd[F, Msg]),
-      update: (Msg, Model) => (Model, Cmd[F, Msg]),
+      update: Model => Msg => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
