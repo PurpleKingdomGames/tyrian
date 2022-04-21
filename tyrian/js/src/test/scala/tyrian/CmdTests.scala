@@ -91,4 +91,54 @@ class CmdTests extends munit.CatsEffectSuite {
     actual.assertEquals(expected)
   }
 
+  test("Combine to Batch") {
+    val actual =
+      Cmd
+        .Combine(
+          Cmd.Emit(10),
+          Cmd.Emit(20)
+        )
+        .toBatch
+
+    val expected =
+      Cmd.Batch(
+        Cmd.Emit(10),
+        Cmd.Emit(20)
+      )
+
+    assertEquals(actual, expected)
+  }
+
+  test("Batch cons") {
+    val actual =
+      Cmd.Emit(10) :: Cmd.Batch(Cmd.Emit(20))
+
+    val expected =
+      Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20))
+  }
+
+  test("Batch prepend") {
+    val actual =
+      Cmd.Emit(10) +: Cmd.Batch(Cmd.Emit(20))
+
+    val expected =
+      Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20))
+  }
+
+  test("Batch append") {
+    val actual =
+      Cmd.Batch(Cmd.Emit(10)) :+ Cmd.Emit(20)
+
+    val expected =
+      Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20))
+  }
+
+  test("Batch concat") {
+    val actual =
+      Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20)) ++ Cmd.Batch(Cmd.Emit(30), Cmd.Emit(40))
+
+    val expected =
+      Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20), Cmd.Emit(30), Cmd.Emit(40))
+  }
+
 }

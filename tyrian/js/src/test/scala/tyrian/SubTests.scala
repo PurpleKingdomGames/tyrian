@@ -137,4 +137,68 @@ class SubTests extends munit.CatsEffectSuite {
         throw new Exception("wrong pattern")
   }
 
+  test("Batch ops") {
+    var state = 0
+
+    val callback: Either[Throwable, Int] => Unit = {
+      case Right(i) => state = i; ()
+      case Left(_)  => throw new Exception("failed")
+    }
+
+    val observable: Int => Obs[Int] = i =>
+      IO.delay { cb =>
+        cb(Right(i))
+        IO(Option(IO(())))
+      }
+
+    val test1 =
+      Sub.Batch[IO, Int](
+        Sub.Observe[IO, Int]("sub1", observable(10)),
+        Sub.Observe[IO, Int]("sub2", observable(20))
+      )
+
+    def check(batched: Sub.Batch[IO, Int]): IO[(Unit, Unit)] =
+      batched.subs match
+        case s1 :: s2 :: Nil =>
+          IO.both(
+            s1.run(callback).map(_ => state == 10).assert,
+            s2.run(callback).map(_ => state == 20).assert
+          )
+
+        case _ =>
+          throw new Exception("wrong pattern")
+
+    IO.both(
+      IO.both(
+        check(
+          Sub.Batch[IO, Int](
+            Sub.Observe[IO, Int]("sub1", observable(10))
+          ) ++
+            Sub.Batch[IO, Int](
+              Sub.Observe[IO, Int]("sub2", observable(20))
+            )
+        ),
+        check(
+          Sub.Observe[IO, Int]("sub1", observable(10)) ::
+            Sub.Batch[IO, Int](
+              Sub.Observe[IO, Int]("sub2", observable(20))
+            )
+        )
+      ),
+      IO.both(
+        check(
+          Sub.Batch[IO, Int](
+            Sub.Observe[IO, Int]("sub2", observable(10))
+          ) :+ Sub.Observe[IO, Int]("sub1", observable(20))
+        ),
+        check(
+          Sub.Observe[IO, Int]("sub1", observable(10)) +:
+            Sub.Batch[IO, Int](
+              Sub.Observe[IO, Int]("sub2", observable(20))
+            )
+        )
+      )
+    )
+  }
+
 }

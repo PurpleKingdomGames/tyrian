@@ -59,10 +59,16 @@ object Cmd:
   /** Merge two commands into a single one */
   case class Combine[F[_], Msg](cmd1: Cmd[F, Msg], cmd2: Cmd[F, Msg]) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Combine[F, OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))
+    def toBatch: Cmd.Batch[F, Msg]                              = Cmd.Batch(List(cmd1, cmd2))
 
   /** Treat many commands as one */
   case class Batch[F[_], Msg](cmds: List[Cmd[F, Msg]]) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Batch[F, OtherMsg] = this.copy(cmds = cmds.map(_.map(f)))
+    def ++(other: Batch[F, Msg]): Batch[F, Msg]               = Batch(cmds ++ other.cmds)
+    def ::(cmd: Cmd[F, Msg]): Batch[F, Msg]                   = Batch(cmd :: cmds)
+    def +:(cmd: Cmd[F, Msg]): Batch[F, Msg]                   = Batch(cmd +: cmds)
+    def :+(cmd: Cmd[F, Msg]): Batch[F, Msg]                   = Batch(cmds :+ cmd)
+
   object Batch:
     def apply[F[_], Msg](cmds: Cmd[F, Msg]*): Batch[F, Msg] =
       Batch(cmds.toList)
