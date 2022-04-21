@@ -1,7 +1,7 @@
 package tyrian
 
-import org.scalajs.dom.HashChangeEvent
 import cats.effect.kernel.Async
+import org.scalajs.dom.HashChangeEvent
 import org.scalajs.dom.window
 import tyrian.Sub
 
