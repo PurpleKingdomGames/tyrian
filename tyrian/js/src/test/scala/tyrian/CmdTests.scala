@@ -19,11 +19,11 @@ class CmdTests extends munit.CatsEffectSuite {
 
     val expected =
       Cmd.Combine(
-        Cmd.Emit(10),
         Cmd.Combine(
-          Cmd.Emit(20),
-          Cmd.Emit(30)
-        )
+          Cmd.Emit(10),
+          Cmd.Emit(20)
+        ),
+        Cmd.Emit(30)
       )
 
     assertEquals(actual, expected)

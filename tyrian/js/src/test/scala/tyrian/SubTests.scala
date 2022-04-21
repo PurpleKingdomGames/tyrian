@@ -33,18 +33,18 @@ class SubTests extends munit.CatsEffectSuite {
       Sub.combineAll(subs)
 
     result match {
-      case Sub.Combine(sub1, combo) =>
+      case Sub.Combine(combo, sub3) =>
         IO.both(
-          sub1.run(callback).map(_ => state == 10).assert,
           combo match {
-            case Sub.Combine(sub2, sub3) =>
+            case Sub.Combine(sub1, sub2) =>
               IO.both(
-                sub2.run(callback).map(_ => state == 20).assert,
-                sub3.run(callback).map(_ => state == 30).assert
+                sub1.run(callback).map(_ => state == 10).assert,
+                sub2.run(callback).map(_ => state == 20).assert
               )
 
             case _ => throw new Exception("failed")
-          }
+          },
+          sub3.run(callback).map(_ => state == 30).assert
         )
 
       case _ => throw new Exception("failed")

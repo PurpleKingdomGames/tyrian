@@ -210,7 +210,7 @@ object Sub:
     def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
   }
 
-  def combineAll[F[_], A](list: List[Sub[F, A]])(implicit M: Monoid[Sub[F, A]]): Sub[F, A] =
-    list.foldRight(M.empty)(M.combine)
+  def combineAll[F[_], A](list: List[Sub[F, A]]): Sub[F, A] =
+    Monoid[Sub[F, A]].combineAll(list)
 
 end Sub
