@@ -24,15 +24,15 @@ object Cmd:
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
     (a, b) match {
-      case (Cmd.Empty, Cmd.Empty) => Cmd.Empty
-      case (Cmd.Empty, c2)        => c2
-      case (c1, Cmd.Empty)        => c1
-      case (c1, c2)               => Cmd.Combine[F, LubMsg](c1, c2)
+      case (Cmd.None, Cmd.None) => Cmd.None
+      case (Cmd.None, c2)       => c2
+      case (c1, Cmd.None)       => c1
+      case (c1, c2)             => Cmd.Combine[F, LubMsg](c1, c2)
     }
 
   /** The empty command represents the absence of any command to perform */
-  case object Empty extends Cmd[Nothing, Nothing]:
-    def map[OtherMsg](f: Nothing => OtherMsg): Empty.type = this
+  case object None extends Cmd[Nothing, Nothing]:
+    def map[OtherMsg](f: Nothing => OtherMsg): None.type = this
 
   /** Runs a task that produces no message */
   final case class SideEffect[F[_]](task: F[Unit]) extends Cmd[F, Nothing]:
@@ -74,7 +74,7 @@ object Cmd:
       Batch(cmds.toList)
 
   given [F[_], Msg]: Monoid[Cmd[F, Msg]] = new Monoid[Cmd[F, Msg]] {
-    def empty: Cmd[F, Msg]                                   = Cmd.Empty
+    def empty: Cmd[F, Msg]                                   = Cmd.None
     def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
   }
 

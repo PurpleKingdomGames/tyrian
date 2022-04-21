@@ -30,7 +30,7 @@ class CmdTests extends munit.CatsEffectSuite {
   }
 
   test("map - Empty") {
-    assertEquals(Cmd.Empty.map(_ => 10), Cmd.Empty)
+    assertEquals(Cmd.None.map(_ => 10), Cmd.None)
   }
 
   test("map - Run") {

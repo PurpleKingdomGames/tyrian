@@ -28,12 +28,12 @@ import scala.scalajs.js.annotation.*
 object Main extends TyrianApp[Msg, Model]:
 
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    (0, Cmd.Empty)
+    (0, Cmd.None)
 
   def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
-      case Msg.Increment => (model + 1, Cmd.Empty)
-      case Msg.Decrement => (model - 1, Cmd.Empty)
+      case Msg.Increment => (model + 1, Cmd.None)
+      case Msg.Decrement => (model - 1, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -43,7 +43,7 @@ object Main extends TyrianApp[Msg, Model]:
     )
 
   def subscriptions(model: Model): Sub[IO, Msg] =
-    Sub.Empty
+    Sub.None
 
 type Model = Int
 
@@ -95,7 +95,7 @@ type Model = Int
 
 ```scala mdoc:silent
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    (0, Cmd.Empty)
+    (0, Cmd.None)
 ```
 
 There's a few things going on here, the only bit we _really_ care about here is the `0` because that is going to be the starting value of our 'model'.
@@ -103,7 +103,7 @@ There's a few things going on here, the only bit we _really_ care about here is 
 Some of the other things you can see here:
 
 - `flags` - Flags can be passed into the app at launch time, think of them like command line arguments.
-- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.Empty`.
+- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.None`.
 
 #### Rendering the page
 
@@ -165,8 +165,8 @@ The final thing we need to do is react to the messages the view is sending, as f
 ```scala mdoc:silent
   def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
     msg match
-      case Msg.Increment => (model + 1, Cmd.Empty)
-      case Msg.Decrement => (model - 1, Cmd.Empty)
+      case Msg.Increment => (model + 1, Cmd.None)
+      case Msg.Decrement => (model - 1, Cmd.None)
 ```
 
 Recall that our 'model' is just a type alias for an `Int`, so all we do is match on the `Msg` enum type, and either increment or decrement the model - done!

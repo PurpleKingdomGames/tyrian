@@ -35,7 +35,7 @@ Subscriptions can be used on their own, or in conjunction with commands to form 
 
 ### Working with Subscriptions
 
-Subscriptions are Functors which means that you can `map` over them to change the resultant message. They are also Monoids which means that they have an empty representation `Sub.Empty` and that you can `combine` them together, using `combine` or the shorthand operator: `sub1 |+| sub2`.
+Subscriptions are Functors which means that you can `map` over them to change the resultant message. They are also Monoids which means that they have an empty representation `Sub.None` and that you can `combine` them together, using `combine` or the shorthand operator: `sub1 |+| sub2`.
 
 A common thing to need to do is batch multiple subs together into a single subscription, like this:
 
