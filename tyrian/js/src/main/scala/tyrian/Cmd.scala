@@ -72,5 +72,5 @@ object Cmd:
     def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
   }
 
-  def combineAll[F[_], A](list: List[Cmd[F, A]])(implicit M: Monoid[Cmd[F, A]]): Cmd[F, A] =
-    list.foldRight(M.empty)(M.combine)
+  def combineAll[F[_], A](list: List[Cmd[F, A]]): Cmd[F, A] =
+    Monoid[Cmd[F, A]].combineAll(list)
