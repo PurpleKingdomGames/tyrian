@@ -30,10 +30,9 @@ object Main extends TyrianApp[Msg, Model]:
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (0, Cmd.None)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
-    msg match
-      case Msg.Increment => (model + 1, Cmd.None)
-      case Msg.Decrement => (model - 1, Cmd.None)
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.Increment => (model + 1, Cmd.None)
+    case Msg.Decrement => (model - 1, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -163,10 +162,9 @@ enum Msg:
 The final thing we need to do is react to the messages the view is sending, as follows:
 
 ```scala mdoc:silent
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
-    msg match
-      case Msg.Increment => (model + 1, Cmd.None)
-      case Msg.Decrement => (model - 1, Cmd.None)
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.Increment => (model + 1, Cmd.None)
+    case Msg.Decrement => (model - 1, Cmd.None)
 ```
 
 Recall that our 'model' is just a type alias for an `Int`, so all we do is match on the `Msg` enum type, and either increment or decrement the model - done!
