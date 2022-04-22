@@ -8,12 +8,12 @@ Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.
 
 ThisBuild / versionScheme := Some("early-semver")
 
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.1.1"
+lazy val scala3Version      = "3.1.2"
 lazy val tyrianDocsVersion  = "0.3.2"
 lazy val scalaJsDocsVersion = "1.9.0"
 lazy val scalaDocsVersion   = "3.1.1"
