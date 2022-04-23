@@ -21,62 +21,61 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
-    msg match
-      case Msg.NewRandomInt(i) =>
-        (model.copy(randomNumber = i), Cmd.None)
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.NewRandomInt(i) =>
+      (model.copy(randomNumber = i), Cmd.None)
 
-      case Msg.NewContent(content) =>
-        val cmds: Cmd[IO, Msg] =
-          Logger.info[IO]("New content: " + content) |+|
-            model.bridge.publish(gameId1, content) |+|
-            model.bridge.publish(gameId2, content) |+|
-            Random.int[IO].map(next => Msg.NewRandomInt(next.value))
+    case Msg.NewContent(content) =>
+      val cmds: Cmd[IO, Msg] =
+        Logger.info[IO]("New content: " + content) |+|
+          model.bridge.publish(gameId1, content) |+|
+          model.bridge.publish(gameId2, content) |+|
+          Random.int[IO].map(next => Msg.NewRandomInt(next.value))
 
-        (model.copy(field = content), cmds)
+      (model.copy(field = content), cmds)
 
-      case Msg.Insert =>
-        (model.copy(components = Counter.init :: model.components), Cmd.None)
+    case Msg.Insert =>
+      (model.copy(components = Counter.init :: model.components), Cmd.None)
 
-      case Msg.Remove =>
-        val cs = model.components match
-          case Nil    => Nil
-          case _ :: t => t
+    case Msg.Remove =>
+      val cs = model.components match
+        case Nil    => Nil
+        case _ :: t => t
 
-        (model.copy(components = cs), Cmd.None)
+      (model.copy(components = cs), Cmd.None)
 
-      case Msg.Modify(id, m) =>
-        val cs = model.components.zipWithIndex.map { case (c, i) =>
-          if i == id then Counter.update(m, c) else c
-        }
+    case Msg.Modify(id, m) =>
+      val cs = model.components.zipWithIndex.map { case (c, i) =>
+        if i == id then Counter.update(m, c) else c
+      }
 
-        (model.copy(components = cs), Cmd.None)
+      (model.copy(components = cs), Cmd.None)
 
-      case Msg.StartIndigo =>
-        (
-          model,
-          Cmd.Batch(
-            Cmd.SideEffect {
-              MyAwesomeGame(model.bridge.subSystem(gameId1), true)
-                .launch(
-                  gameDivId1,
-                  "width"  -> "200",
-                  "height" -> "200"
-                )
-            },
-            Cmd.SideEffect {
-              MyAwesomeGame(model.bridge.subSystem(gameId2), false)
-                .launch(
-                  gameDivId2,
-                  "width"  -> "200",
-                  "height" -> "200"
-                )
-            }
-          )
+    case Msg.StartIndigo =>
+      (
+        model,
+        Cmd.Batch(
+          Cmd.SideEffect {
+            MyAwesomeGame(model.bridge.subSystem(gameId1), true)
+              .launch(
+                gameDivId1,
+                "width"  -> "200",
+                "height" -> "200"
+              )
+          },
+          Cmd.SideEffect {
+            MyAwesomeGame(model.bridge.subSystem(gameId2), false)
+              .launch(
+                gameDivId2,
+                "width"  -> "200",
+                "height" -> "200"
+              )
+          }
         )
+      )
 
-      case Msg.IndigoReceive(msg) =>
-        (model, Logger.consoleLog("(Tyrian) from indigo: " + msg))
+    case Msg.IndigoReceive(msg) =>
+      (model, Logger.consoleLog("(Tyrian) from indigo: " + msg))
 
   def view(model: Model): Html[Msg] =
     val counters = model.components.zipWithIndex.map { case (c, i) =>

@@ -37,120 +37,119 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     (Model.init, cmds)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
-    msg match
-      case Msg.Save(k, v) =>
-        val cmd: Cmd[IO, Msg] = LocalStorage.setItem(k, v) { _ =>
-          Msg.Log("Save successful")
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.Save(k, v) =>
+      val cmd: Cmd[IO, Msg] = LocalStorage.setItem(k, v) { _ =>
+        Msg.Log("Save successful")
+      }
+
+      (model, cmd)
+
+    case Msg.Load(k) =>
+      val cmd: Cmd[IO, Msg] = LocalStorage.getItem(k) {
+        case Left(e) => Msg.Log("Error loading: " + e.key)
+        case Right(found) =>
+          println("Loaded: " + found.data)
+          Msg.DataLoaded(found.data)
+      }
+
+      (model, cmd)
+
+    case Msg.ClearStorage(k) =>
+      val cmd: Cmd[IO, Msg] = LocalStorage.removeItem(k) { _ =>
+        Msg.Log("Item removed successfully")
+      }
+
+      (model.copy(saveData = None), cmd)
+
+    case Msg.DataLoaded(data) =>
+      (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.None)
+
+    case Msg.StageSaveData(content) =>
+      (model.copy(tmpSaveData = content), Cmd.None)
+
+    case Msg.JumpToHomePage =>
+      (model, Navigation.setLocationHash(Page.Page1.toHash))
+
+    case Msg.NavigateTo(page) =>
+      (model.copy(page = page), Cmd.None)
+
+    case Msg.TakeSnapshot =>
+      (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
+
+    case Msg.OverwriteModel(m) =>
+      (m, Cmd.None)
+
+    case Msg.Clear =>
+      (model.copy(field = ""), Cmd.None)
+
+    case Msg.Log(msg) =>
+      (model, Logger.info(msg))
+
+    case Msg.FocusOnInputField =>
+      val cmd: Cmd[IO, Msg] = Dom.focus("text-reverse-field") {
+        case Left(Dom.NotFound(id)) => Msg.Log("Element not found: " + id)
+        case _                      => Msg.Log("Focused on input field")
+      }
+      (model, cmd)
+
+    case Msg.NewContent(content) =>
+      (model.copy(field = content), Cmd.None)
+
+    case Msg.Insert =>
+      (model.copy(components = Counter.init :: model.components), Cmd.None)
+
+    case Msg.Remove =>
+      val cs = model.components match
+        case Nil    => Nil
+        case _ :: t => t
+
+      (model.copy(components = cs), Cmd.None)
+
+    case Msg.Modify(id, m) =>
+      val cs = model.components.zipWithIndex.map { case (c, i) =>
+        if i == id then Counter.update(m, c) else c
+      }
+
+      (model.copy(components = cs), Cmd.None)
+
+    case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
+      println(s"Failed to open WebSocket connection: $err")
+      (model.copy(error = Some(err)), Cmd.None)
+
+    case Msg.WebSocketStatus(Status.Connected(ws)) =>
+      println("WS connected")
+      (model.copy(echoSocket = Some(ws)), Cmd.None)
+
+    case Msg.WebSocketStatus(Status.Connecting) =>
+      println("Establishing WS connection")
+      (
+        model,
+        WebSocket.connect(
+          address = model.socketUrl,
+          onOpenMessage = "Connect me!",
+          keepAliveSettings = KeepAliveSettings.default
+        ) {
+          case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
+          case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
         }
+      )
 
-        (model, cmd)
+    case Msg.WebSocketStatus(Status.Disconnecting) =>
+      println("Graceful shutdown of WS connection")
+      (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.None))
 
-      case Msg.Load(k) =>
-        val cmd: Cmd[IO, Msg] = LocalStorage.getItem(k) {
-          case Left(e) => Msg.Log("Error loading: " + e.key)
-          case Right(found) =>
-            println("Loaded: " + found.data)
-            Msg.DataLoaded(found.data)
-        }
+    case Msg.WebSocketStatus(Status.Disconnected) =>
+      println("WebSocket not connected yet")
+      (model, Cmd.None)
 
-        (model, cmd)
+    case Msg.FromSocket(message) =>
+      println("Got: " + message)
+      (model.copy(log = message :: model.log), Cmd.None)
 
-      case Msg.ClearStorage(k) =>
-        val cmd: Cmd[IO, Msg] = LocalStorage.removeItem(k) { _ =>
-          Msg.Log("Item removed successfully")
-        }
-
-        (model.copy(saveData = None), cmd)
-
-      case Msg.DataLoaded(data) =>
-        (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.None)
-
-      case Msg.StageSaveData(content) =>
-        (model.copy(tmpSaveData = content), Cmd.None)
-
-      case Msg.JumpToHomePage =>
-        (model, Navigation.setLocationHash(Page.Page1.toHash))
-
-      case Msg.NavigateTo(page) =>
-        (model.copy(page = page), Cmd.None)
-
-      case Msg.TakeSnapshot =>
-        (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
-
-      case Msg.OverwriteModel(m) =>
-        (m, Cmd.None)
-
-      case Msg.Clear =>
-        (model.copy(field = ""), Cmd.None)
-
-      case Msg.Log(msg) =>
-        (model, Logger.info(msg))
-
-      case Msg.FocusOnInputField =>
-        val cmd: Cmd[IO, Msg] = Dom.focus("text-reverse-field") {
-          case Left(Dom.NotFound(id)) => Msg.Log("Element not found: " + id)
-          case _                      => Msg.Log("Focused on input field")
-        }
-        (model, cmd)
-
-      case Msg.NewContent(content) =>
-        (model.copy(field = content), Cmd.None)
-
-      case Msg.Insert =>
-        (model.copy(components = Counter.init :: model.components), Cmd.None)
-
-      case Msg.Remove =>
-        val cs = model.components match
-          case Nil    => Nil
-          case _ :: t => t
-
-        (model.copy(components = cs), Cmd.None)
-
-      case Msg.Modify(id, m) =>
-        val cs = model.components.zipWithIndex.map { case (c, i) =>
-          if i == id then Counter.update(m, c) else c
-        }
-
-        (model.copy(components = cs), Cmd.None)
-
-      case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
-        println(s"Failed to open WebSocket connection: $err")
-        (model.copy(error = Some(err)), Cmd.None)
-
-      case Msg.WebSocketStatus(Status.Connected(ws)) =>
-        println("WS connected")
-        (model.copy(echoSocket = Some(ws)), Cmd.None)
-
-      case Msg.WebSocketStatus(Status.Connecting) =>
-        println("Establishing WS connection")
-        (
-          model,
-          WebSocket.connect(
-            address = model.socketUrl,
-            onOpenMessage = "Connect me!",
-            keepAliveSettings = KeepAliveSettings.default
-          ) {
-            case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
-            case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
-          }
-        )
-
-      case Msg.WebSocketStatus(Status.Disconnecting) =>
-        println("Graceful shutdown of WS connection")
-        (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.None))
-
-      case Msg.WebSocketStatus(Status.Disconnected) =>
-        println("WebSocket not connected yet")
-        (model, Cmd.None)
-
-      case Msg.FromSocket(message) =>
-        println("Got: " + message)
-        (model.copy(log = message :: model.log), Cmd.None)
-
-      case Msg.ToSocket(message) =>
-        println("Sent: " + message)
-        (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.None))
+    case Msg.ToSocket(message) =>
+      println("Sent: " + message)
+      (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.None))
 
   def view(model: Model): Html[Msg] =
     val navItems =

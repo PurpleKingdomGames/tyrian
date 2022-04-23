@@ -28,7 +28,7 @@ import scala.scalajs.js.Dynamic.{literal => obj}
 
 final class TyrianRuntime[F[_]: Async, Model, Msg](
     init: (Model, Cmd[F, Msg]),
-    update: (Msg, Model) => (Model, Cmd[F, Msg]),
+    update: Model => Msg => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
     subscriptions: Model => Sub[F, Msg],
     node: Element,
@@ -60,7 +60,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     val res: F[Unit] =
       for {
         currentModel <- model.get
-        updated      <- Async[F].delay(update(msg, currentModel))
+        updated      <- Async[F].delay(update(currentModel)(msg))
         updatedState <- Async[F].delay(updated._1)
         cmd          <- Async[F].delay(updated._2)
         complete     <- completeUpdate(cmd, updatedState)
