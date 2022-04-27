@@ -33,7 +33,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     subscriptions: Model => Sub[F, Msg],
     node: Element,
     model: Ref[F, Model],
-    vnode: Ref[F, Option[VNode]],
+    vnode: Ref[F, Option[Element]],
     channel: => Channel[F, F[Unit]],
     dispatcher: => Dispatcher[F]
 ) extends SnabbdomSyntax:
@@ -74,9 +74,10 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         _ <- model.set(updatedState)
         n <- vnode.get
         _ <- vnode.set(n match {
-          case Some(existingNode) => Some(render(existingNode, updatedState))
-          case None               => Some(render(node, updatedState))
+          case Some(existingNode) => Some(render(node, existingNode, updatedState))
+          case None               => Some(render(node, node, updatedState))
         })
+        // _           <- Async[F].delay(render(node, updatedState))
         sideEffects <- gatherSideEffects(cmd, subscriptions(updatedState))
       } yield Stream.emits(sideEffects)
 
@@ -167,8 +168,8 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       js.Array(snabbdom.modules.props, snabbdom.modules.attributes, snabbdom.modules.eventlisteners)
     )
 
-  def render(oldNode: Element | VNode, model: Model): VNode =
-    patch(oldNode, toVNode(view(model)))
+  def render(container: Element, oldNode: Element, model: Model): Element =
+    DomRenderer.render(container, oldNode, model, view, onMsg)
 
   def start(): Unit =
     dispatcher.unsafeRunAndForget(

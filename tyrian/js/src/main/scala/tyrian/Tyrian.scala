@@ -51,7 +51,7 @@ object Tyrian:
       for {
         channel <- Channel.synchronous[F, F[Unit]]
         model   <- Async[F].ref(init._1)
-        vnode   <- Async[F].ref[Option[VNode]](None)
+        vnode   <- Async[F].ref[Option[Element]](None)
 
         runtime <- Async[F].delay {
           new TyrianRuntime(
