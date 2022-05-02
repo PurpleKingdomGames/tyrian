@@ -11,6 +11,8 @@ import tyrian.websocket.*
 import scala.concurrent.duration.*
 import scala.scalajs.js.annotation.*
 
+import scalajs.js
+
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianApp[Msg, Model]:
 
@@ -150,6 +152,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
     case Msg.ToSocket(message) =>
       println("Sent: " + message)
       (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.None))
+    
+    case Msg.NewTime(time) => 
+      (model.copy(currentTime = time), Cmd.None)
 
   def view(model: Model): Html[Msg] =
     val navItems =
@@ -209,6 +214,25 @@ object Sandbox extends TyrianApp[Msg, Model]:
             p(model.log.flatMap(msg => List(text(msg), br)))
           )
 
+        case Page.Page4 =>
+          val angle = model.currentTime.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
+          val handX = 50 + 40 * math.cos(angle)
+          val handY = 50 + 40 * math.sin(angle)
+          svg(attributes("viewBox" -> "0, 0, 100, 100", "width" -> "300px"))(
+            circle(
+              attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE")
+            ),
+            line(
+              attributes(
+                "x1"     -> "50",
+                "y1"     -> "50",
+                "x2"     -> handX.toString,
+                "y2"     -> handY.toString,
+                "stroke" -> "#023963"
+              )
+            )
+          )
+
     div(
       div(
         h3("Navigation:"),
@@ -253,10 +277,13 @@ object Sandbox extends TyrianApp[Msg, Model]:
       Sub.timeout[IO, Msg](2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log") |+|
         Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
 
+    val clockSub: Sub[IO, Msg] = Sub.every[IO](1.second, "clock-ticks").map(Msg.NewTime.apply)
+
     Sub.Batch(
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
-      simpleSubs
+      simpleSubs,
+      clockSub
     )
 
 enum Msg:
@@ -279,6 +306,7 @@ enum Msg:
   case JumpToHomePage
   case OverwriteModel(model: Model)
   case TakeSnapshot
+  case NewTime(time: js.Date)
 
 enum Status:
   case Connecting
@@ -319,23 +347,26 @@ final case class Model(
     log: List[String],
     error: Option[String],
     tmpSaveData: String,
-    saveData: Option[String]
+    saveData: Option[String],
+    currentTime: js.Date
 )
 
 enum Page:
-  case Page1, Page2, Page3
+  case Page1, Page2, Page3, Page4
 
   def toNavLabel: String =
     this match
       case Page1 => "Input fields"
       case Page2 => "Counters"
       case Page3 => "WebSockets"
+      case Page4 => "Clock"
 
   def toHash: String =
     this match
       case Page1 => "#page1"
       case Page2 => "#page2"
       case Page3 => "#page3"
+      case Page4 => "#page4"
 
 object Page:
   def fromString(pageString: String): Page =
@@ -344,6 +375,8 @@ object Page:
       case "page2"  => Page2
       case "#page3" => Page3
       case "page3"  => Page3
+      case "#page4" => Page4
+      case "page4"  => Page4
       case s        => Page1
 
 object Model:
@@ -351,10 +384,10 @@ object Model:
   val echoServer = "ws://localhost:8080/wsecho"
 
   val init: Model =
-    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None)
+    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None, new js.Date())
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field
   def decode: Option[String] => Either[String, Model] =
     case None       => Left("No snapshot found")
-    case Some(data) => Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None))
+    case Some(data) => Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None, new js.Date()))
