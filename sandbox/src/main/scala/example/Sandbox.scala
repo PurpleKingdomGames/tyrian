@@ -2,6 +2,7 @@ package example
 
 import cats.effect.IO
 import tyrian.Html.*
+import tyrian.SVG.*
 import tyrian.*
 import tyrian.cmds.Dom
 import tyrian.cmds.LocalStorage
