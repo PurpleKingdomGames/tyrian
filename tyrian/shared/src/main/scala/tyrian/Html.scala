@@ -63,6 +63,8 @@ object Html extends HtmlTags with HtmlAttributes:
 
 end Html
 
+object SVG extends SVGTags with SVGAttributes
+
 /** An HTML tag */
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
   def map[N](f: M => N): Tag[N] =

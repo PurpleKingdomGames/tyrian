@@ -219,18 +219,19 @@ object Sandbox extends TyrianApp[Msg, Model]:
           val angle = model.currentTime.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
           val handX = 50 + 40 * math.cos(angle)
           val handY = 50 + 40 * math.sin(angle)
-          svg(attributes("viewBox" -> "0, 0, 100, 100", "width" -> "300px"))(
+          svg(viewBox := "0, 0, 100, 100", width := "300px")(
             circle(
-              attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE")
+              cx   := "50",
+              cy   := "50",
+              r    := "45",
+              fill := "#0B79CE"
             ),
             line(
-              attributes(
-                "x1"     -> "50",
-                "y1"     -> "50",
-                "x2"     -> handX.toString,
-                "y2"     -> handY.toString,
-                "stroke" -> "#023963"
-              )
+              x1     := "50",
+              y1     := "50",
+              x2     := handX.toString,
+              y2     := handY.toString,
+              stroke := "#023963"
             )
           )
 
