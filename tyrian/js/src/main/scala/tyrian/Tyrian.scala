@@ -5,10 +5,10 @@ import cats.effect.kernel.Ref
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
 import cats.syntax.all._
+import com.github.buntec.snabbdom.VNode
 import fs2.Stream
 import fs2.concurrent.Channel
 import org.scalajs.dom.Element
-import snabbdom.VNode
 import tyrian.runtime.TyrianRuntime
 import tyrian.runtime.TyrianSSR
 

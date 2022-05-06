@@ -1,7 +1,6 @@
 package tyrian
 
 import org.scalajs.dom.document
-import snabbdom.VNode
 import tyrian.Html.*
 import tyrian.runtime.TyrianRuntime
 
