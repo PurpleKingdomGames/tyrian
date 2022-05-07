@@ -4,6 +4,8 @@ import scala.language.postfixOps
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots"
+
 ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
@@ -93,10 +95,10 @@ lazy val tyrian =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js"      %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
-        "org.typelevel"     %%% "cats-effect-kernel" % Dependancies.catsEffect,
-        "co.fs2"            %%% "fs2-core"           % Dependancies.fs2,
-        "com.github.buntec" %%% "scala-js-snabbdom"  % "0.0-29f78bf-SNAPSHOT"
+        "org.scala-js"     %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
+        "org.typelevel"    %%% "cats-effect-kernel" % Dependancies.catsEffect,
+        "co.fs2"           %%% "fs2-core"           % Dependancies.fs2,
+        "io.github.buntec" %%% "scala-js-snabbdom"  % "0.0-1c017a3-SNAPSHOT"
       )
     )
 

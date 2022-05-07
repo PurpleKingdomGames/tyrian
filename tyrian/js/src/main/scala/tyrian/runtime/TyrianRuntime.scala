@@ -4,12 +4,12 @@ import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
-import com.github.buntec.snabbdom._
-import com.github.buntec.snabbdom.modules._
 import fs2.Stream
 import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
+import snabbdom._
+import snabbdom.modules._
 import tyrian.Attr
 import tyrian.Attribute
 import tyrian.Cmd
@@ -147,9 +147,9 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         val props: List[(String, PropValue)] =
           attrs.collect { case Property(n, v) => (n, v) }
 
-        val events: List[(String, dom.Event => Unit)] =
+        val events: List[(String, EventHandler)] =
           attrs.collect { case Event(n, msg) =>
-            (n, (e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e)))
+            (n, EventHandler((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
           }
 
         val data: VNodeData =
@@ -168,7 +168,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         h(name, data, childrenElem)
 
   private lazy val patch: Patch =
-    com.github.buntec.snabbdom.init(
+    snabbdom.init(
       Seq(
         Attributes.module,
         Classes.module,
