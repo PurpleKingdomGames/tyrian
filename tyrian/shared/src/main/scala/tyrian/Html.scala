@@ -16,6 +16,18 @@ sealed trait Html[+M] extends Elem[M]:
 
 object Html extends HtmlTags with HtmlAttributes:
 
+  def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] =
+    Tag(name, attributes.toList, children.toList)
+  @targetName("tag-list-repeated")
+  def tag[M](name: String)(attributes: List[Attr[M]])(children: Elem[M]*): Html[M] =
+    Tag(name, attributes, children.toList)
+  @targetName("tag-repeated-list")
+  def tag[M](name: String)(attributes: Attr[M]*)(children: List[Elem[M]]): Html[M] =
+    Tag(name, attributes.toList, children)
+  @targetName("tag-list-list")
+  def tag[M](name: String)(attributes: List[Attr[M]])(children: List[Elem[M]]): Html[M] =
+    Tag(name, attributes, children)
+
   // Custom tag syntax
 
   def radio[M](name: String, checked: Boolean, attributes: Attr[M]*): Html[M] =
@@ -50,6 +62,8 @@ object Html extends HtmlTags with HtmlAttributes:
     Attribute("style", Style.combineAll(styles.map(p => Style(p._1, p._2)).toList).toString)
 
 end Html
+
+object SVG extends SVGTags with SVGAttributes
 
 /** An HTML tag */
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:

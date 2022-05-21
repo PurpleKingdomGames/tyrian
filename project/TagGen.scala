@@ -3,21 +3,6 @@ import scala.sys.process._
 
 object TagGen {
 
-  def genTagTag: String =
-    s"""  def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] =
-    |    Tag(name, attributes.toList, children.toList)
-    |  @targetName("tag-list-repeated")
-    |  def tag[M](name: String)(attributes: List[Attr[M]])(children: Elem[M]*): Html[M] =
-    |    Tag(name, attributes, children.toList)
-    |  @targetName("tag-repeated-list")
-    |  def tag[M](name: String)(attributes: Attr[M]*)(children: List[Elem[M]]): Html[M] =
-    |    Tag(name, attributes.toList, children)
-    |  @targetName("tag-list-list")
-    |  def tag[M](name: String)(attributes: List[Attr[M]])(children: List[Elem[M]]): Html[M] =
-    |    Tag(name, attributes, children)
-    |
-    |""".stripMargin
-
   def genTag(tag: TagType): String =
     tag match {
       case HasChildren(name, tag) => genTagHasChildren(name, tag)
@@ -80,30 +65,31 @@ object TagGen {
     |trait $moduleName {
     |
     |$contents
-    |
     |}
     """.stripMargin
 
-  def gen(moduleName: String, fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
+  def gen(fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
     println("Generating Html Tags")
 
-    val contents: String =
-      genTagTag + tagList.map(genTag).mkString
+    Seq(htmlTagList, svgTagList).map { case TagList(tags, name) =>
+      val contents: String =
+        tags.map(genTag).mkString
 
-    val file: File =
-      sourceManagedDir / (moduleName + ".scala")
+      val file: File =
+        sourceManagedDir / s"$name.scala"
 
-    val newContents: String =
-      template(moduleName, fullyQualifiedPath, contents)
+      val newContents: String =
+        template(name, fullyQualifiedPath, contents)
 
-    IO.write(file, newContents)
+      IO.write(file, newContents)
 
-    println("Written: " + file.getCanonicalPath)
+      println("Written: " + file.getCanonicalPath)
 
-    Seq(file)
+      file
+    }
   }
 
-  def tagList: List[TagType] =
+  def htmlTags: List[TagType] =
     List(
       HasChildren("a"),
       HasChildren("abbr"),
@@ -219,6 +205,70 @@ object TagGen {
       HasChildren("wbr")
     )
 
+    def svgTags: List[TagType] =
+      List(
+        NoChildren("animate"),
+        NoChildren("animateColor"),
+        NoChildren("animateMotion"),
+        NoChildren("animateTransform"),
+        NoChildren("circle"),
+        HasChildren("clipPath"),
+        HasChildren("defs"),
+        HasChildren("desc"),
+        NoChildren("ellipse"),
+        NoChildren("feBlend"),
+        NoChildren("feColorMatrix"),
+        HasChildren("feComponentTransfer"),
+        NoChildren("feComposite"),
+        NoChildren("feConvolveMatrix"),
+        HasChildren("feDiffuseLighting"),
+        NoChildren("feDisplacementMap"),
+        NoChildren("feDistantLight"),
+        NoChildren("feFlood"),
+        NoChildren("feFuncA"),
+        NoChildren("feFuncB"),
+        NoChildren("feFuncG"),
+        NoChildren("feFuncR"),
+        NoChildren("feGaussianBlur"),
+        NoChildren("feImage"),
+        HasChildren("feMerge"),
+        NoChildren("feMergeNode"),
+        NoChildren("feMorphology"),
+        NoChildren("feOffset"),
+        NoChildren("fePointLight"),
+        HasChildren("feSpecularLighting"),
+        NoChildren("feSpotLight"),
+        HasChildren("feTile"),
+        NoChildren("feTurbulence"),
+        HasChildren("filter"),
+        HasChildren("foreignObject"),
+        HasChildren("g"),
+        NoChildren("image"),
+        NoChildren("line"),
+        HasChildren("linearGradient"),
+        HasChildren("marker"),
+        HasChildren("mask"),
+        HasChildren("metadata"),
+        NoChildren("mpath"),
+        NoChildren("path"),
+        HasChildren("pattern"),
+        NoChildren("polygon"),
+        NoChildren("polyline"),
+        HasChildren("radialGradient"),
+        NoChildren("rect"),
+        NoChildren("set"),
+        NoChildren("stop"),
+        HasChildren("switch"),
+        HasChildren("symbol"),
+        HasChildren("textTag", "text"),
+        HasChildren("textPath"),
+        HasChildren("tspan"),
+        NoChildren("use"),
+        NoChildren("view")
+      )
+
+    def htmlTagList = TagList(htmlTags, "HtmlTags")
+    def svgTagList  = TagList(svgTags, "SVGTags")
 }
 
 sealed trait TagType
@@ -232,3 +282,5 @@ object NoChildren {
   def apply(name: String): NoChildren = NoChildren(name, None)
   def apply(name: String, tag: String): NoChildren = NoChildren(name, Some(tag))
 }
+
+final case class TagList(tags: List[TagType], namespace: String)

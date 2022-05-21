@@ -86,8 +86,8 @@ lazy val tyrian =
     .settings(
       name := "tyrian",
       commonSettings ++ publishSettings,
-      Compile / sourceGenerators += codeGen("HtmlTags", "tyrian", TagGen.gen).taskValue,
-      Compile / sourceGenerators += codeGen("HtmlAttributes", "tyrian", AttributeGen.gen).taskValue,
+      Compile / sourceGenerators += codeGen("tyrian", TagGen.gen).taskValue,
+      Compile / sourceGenerators += codeGen("tyrian", AttributeGen.gen).taskValue,
       Compile / sourceGenerators += codeGen("CSS", "tyrian", CSSGen.gen).taskValue
     )
     .jsSettings(
@@ -260,6 +260,9 @@ addCommandAlias(
   "localPublish",
   "+publishLocal"
 )
+
+def codeGen(path: String, makeFiles: (String, File) => Seq[File]) =
+  Def.task(makeFiles(path, (Compile / sourceManaged).value))
 
 def codeGen(moduleName: String, path: String, makeFiles: (String, String, File) => Seq[File]) =
   Def.task(makeFiles(moduleName, path, (Compile / sourceManaged).value))
