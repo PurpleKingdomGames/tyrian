@@ -2,16 +2,21 @@ package tyrian
 
 import cats.effect.kernel.Async
 import indigo.shared.Outcome
+import indigo.shared.collections.Batch
 import indigo.shared.events.FrameTick
 import indigo.shared.events.GlobalEvent
 import indigo.shared.scenegraph.SceneUpdateFragment
 import indigo.shared.subsystems.SubSystem
 import indigo.shared.subsystems.SubSystemFrameContext
+import indigo.shared.subsystems.SubSystemId
 
 import scala.collection.mutable
 
 final case class TyrianSubSystem[F[_]: Async, A](indigoGameId: Option[IndigoGameId], bridge: TyrianIndigoBridge[F, A])
     extends SubSystem:
+
+  val id: SubSystemId =
+    SubSystemId(indigoGameId.map(id => "[TyrianSubSystem] " + id).getOrElse("[TyrianSubSystem] " + hashCode.toString))
 
   type EventType      = GlobalEvent
   type SubSystemModel = Unit
@@ -47,7 +52,7 @@ final case class TyrianSubSystem[F[_]: Async, A](indigoGameId: Option[IndigoGame
       Outcome(model)
 
     case TyrianSubSystemEnqueue =>
-      Outcome(model).addGlobalEvents(eventQueue.dequeueAll(_ => true).toList)
+      Outcome(model, Batch.fromSeq(eventQueue.dequeueAll(_ => true)))
 
     case _ =>
       Outcome(model)
