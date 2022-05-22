@@ -98,7 +98,7 @@ lazy val tyrian =
         "org.scala-js"     %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
         "org.typelevel"    %%% "cats-effect-kernel" % Dependancies.catsEffect,
         "co.fs2"           %%% "fs2-core"           % Dependancies.fs2,
-        "io.github.buntec" %%% "scala-js-snabbdom"  % "0.0-1c017a3-SNAPSHOT"
+        "io.github.buntec" %%% "scala-js-snabbdom"  % "0.1.0-M2"
       )
     )
 
