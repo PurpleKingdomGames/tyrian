@@ -153,11 +153,11 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
           }
 
         val data: VNodeData =
-          VNodeData.builder
-            .withProps(props: _*)
-            .withAttrs(as: _*)
-            .withOn(events: _*)
-            .build
+          VNodeData.empty.copy(
+            props = props.toMap,
+            attrs = as.toMap,
+            on = events.toMap
+          )
 
         val childrenElem: Array[VNode] =
           children.toArray.map {
