@@ -8,9 +8,8 @@ import fs2.Stream
 import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
-import snabbdom.SnabbdomSyntax
-import snabbdom.VNode
-import snabbdom.VNodeParam
+import snabbdom._
+import snabbdom.modules._
 import tyrian.Attr
 import tyrian.Attribute
 import tyrian.Cmd
@@ -36,7 +35,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     vnode: Ref[F, Option[VNode]],
     channel: => Channel[F, F[Unit]],
     dispatcher: => Dispatcher[F]
-) extends SnabbdomSyntax:
+):
 
   // The currently live subs.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
@@ -139,36 +138,51 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   def toVNode(html: Html[Msg]): VNode =
     html match
       case Tag(name, attrs, children) =>
-        val as = js.Dictionary(
+        val as: List[(String, String)] =
           attrs.collect {
             case Attribute(n, v)   => (n, v)
             case NamedAttribute(n) => (n, "")
-          }: _*
-        )
-
-        val props =
-          js.Dictionary(attrs.collect { case Property(n, v) => (n, v) }: _*)
-
-        val events =
-          js.Dictionary(attrs.collect { case Event(n, msg) =>
-            (n, fun((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
-          }: _*)
-
-        val childrenElem: List[VNodeParam] =
-          children.map {
-            case t: Text            => VNodeParam.Text(t.value)
-            case subHtml: Html[Msg] => VNodeParam.Node(toVNode(subHtml))
           }
 
-        h(name, obj(props = props, attrs = as, on = events))(childrenElem: _*)
+        val props: List[(String, PropValue)] =
+          attrs.collect { case Property(n, v) => (n, v) }
 
-  private lazy val patch: (VNode | dom.Element, VNode) => VNode =
-    snabbdom.snabbdom.init(
-      js.Array(snabbdom.modules.props, snabbdom.modules.attributes, snabbdom.modules.eventlisteners)
+        val events: List[(String, EventHandler)] =
+          attrs.collect { case Event(n, msg) =>
+            (n, EventHandler((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
+          }
+
+        val data: VNodeData =
+          VNodeData.empty.copy(
+            props = props.toMap,
+            attrs = as.toMap,
+            on = events.toMap
+          )
+
+        val childrenElem: Array[VNode] =
+          children.toArray.map {
+            case t: Text            => VNode.text(t.value)
+            case subHtml: Html[Msg] => toVNode(subHtml)
+          }
+
+        h(name, data, childrenElem)
+
+  private lazy val patch: Patch =
+    snabbdom.init(
+      Seq(
+        Attributes.module,
+        Classes.module,
+        Props.module,
+        Styles.module,
+        EventListeners.module,
+        Dataset.module
+      )
     )
 
   def render(oldNode: Element | VNode, model: Model): VNode =
-    patch(oldNode, toVNode(view(model)))
+    oldNode match
+      case em: Element => patch(em, toVNode(view(model)))
+      case vn: VNode   => patch(vn, toVNode(view(model)))
 
   def start(): Unit =
     dispatcher.unsafeRunAndForget(
