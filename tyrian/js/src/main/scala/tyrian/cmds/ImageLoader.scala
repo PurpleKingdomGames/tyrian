@@ -1,9 +1,9 @@
 package tyrian.cmds
 
 import cats.effect.kernel.Async
+import org.scalajs.dom.Event
 import org.scalajs.dom.document
 import org.scalajs.dom.html
-import org.scalajs.dom.raw.Event
 import tyrian.Cmd
 
 import scala.concurrent.Promise

@@ -1,8 +1,8 @@
 package tyrian.cmds
 
 import cats.effect.kernel.Async
+import org.scalajs.dom.HTMLInputElement
 import org.scalajs.dom.document
-import org.scalajs.dom.raw.HTMLInputElement
 import tyrian.Cmd
 
 /** Dom utilities */

@@ -8,12 +8,12 @@ Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.
 
 ThisBuild / versionScheme := Some("early-semver")
 
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.1.1"
+lazy val scala3Version      = "3.1.2"
 lazy val tyrianDocsVersion  = "0.3.2"
 lazy val scalaJsDocsVersion = "1.9.0"
 lazy val scalaDocsVersion   = "3.1.1"
@@ -98,7 +98,7 @@ lazy val tyrian =
         "org.scala-js"     %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
         "org.typelevel"    %%% "cats-effect-kernel" % Dependancies.catsEffect,
         "co.fs2"           %%% "fs2-core"           % Dependancies.fs2,
-        "io.github.buntec" %%% "scala-js-snabbdom"  % "0.1.0"
+        "io.github.buntec" %%% "scala-js-snabbdom"  % Dependancies.scalajsSnabbdom
       )
     )
 
