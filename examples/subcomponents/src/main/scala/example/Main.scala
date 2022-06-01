@@ -1,5 +1,6 @@
 package example
 
+import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
 
@@ -8,25 +9,24 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    (Nil, Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+    (Nil, Cmd.None)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    msg match
-      case Msg.Insert =>
-        (Counter.init :: model, Cmd.Empty)
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.Insert =>
+      (Counter.init :: model, Cmd.None)
 
-      case Msg.Remove =>
-        model.toList match
-          case Nil    => (Nil, Cmd.Empty)
-          case _ :: t => (t, Cmd.Empty)
+    case Msg.Remove =>
+      model.toList match
+        case Nil    => (Nil, Cmd.None)
+        case _ :: t => (t, Cmd.None)
 
-      case Msg.Modify(id, m) =>
-        val updated = model.toList.zipWithIndex.map { case (c, i) =>
-          if i == id then Counter.update(m, c) else c
-        }
+    case Msg.Modify(id, m) =>
+      val updated = model.toList.zipWithIndex.map { case (c, i) =>
+        if i == id then Counter.update(m, c) else c
+      }
 
-        (updated, Cmd.Empty)
+      (updated, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     val counters = model.toList.zipWithIndex.map { case (c, i) =>
@@ -40,8 +40,8 @@ object Main extends TyrianApp[Msg, Model]:
 
     div()(elems: _*)
 
-  def subscriptions(model: Model): Sub[Msg] =
-    Sub.Empty
+  def subscriptions(model: Model): Sub[IO, Msg] =
+    Sub.None
 
 type Model = List[Counter.Model]
 

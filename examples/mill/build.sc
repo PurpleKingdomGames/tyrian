@@ -5,8 +5,8 @@ import mill.scalajslib._
 import mill.scalajslib.api._
 
 object counter extends ScalaJSModule {
-  def scalaVersion   = "3.1.1"
-  def scalaJSVersion = "1.8.0"
+  def scalaVersion   = "3.1.2"
+  def scalaJSVersion = "1.10.0"
 
   def buildSite() =
     T.command {
@@ -18,7 +18,7 @@ object counter extends ScalaJSModule {
 
   def ivyDeps =
     Agg(
-      ivy"io.indigoengine::tyrian::${TyrianVersion.getVersion}"
+      ivy"io.indigoengine::tyrian-io::${TyrianVersion.getVersion}"
     )
 
   def scalacOptions = super.scalacOptions() ++ ScalacOptions.compile

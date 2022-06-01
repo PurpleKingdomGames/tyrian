@@ -1,5 +1,6 @@
 package mario
 
+import cats.effect.IO
 import org.scalajs.dom.window
 import tyrian.Html.*
 import tyrian.Sub.*
@@ -10,39 +11,37 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Mario]:
 
-  def init(flags: Map[String, String]): (Mario, Cmd[Msg]) =
-    (Mario(0, 0, 0, 0, Direction.Right), Cmd.Empty)
+  def init(flags: Map[String, String]): (Mario, Cmd[IO, Msg]) =
+    (Mario(0, 0, 0, 0, Direction.Right), Cmd.None)
 
-  def update(msg: Msg, model: Mario): (Mario, Cmd[Msg]) =
-    import Mario.*
-    msg match
-      case Msg.ArrowUpPressed if model.y == 0.0 =>
-        val newModel = (jump andThen applyPhysics)(model)
-        (newModel, Effects.Cmd.playSound("resources/jump-c-07.mp3"))
+  def update(model: Mario): Msg => (Mario, Cmd[IO, Msg]) =
+    case Msg.ArrowUpPressed if model.y == 0.0 =>
+      val newModel = (Mario.jump andThen Mario.applyPhysics)(model)
+      (newModel, Effects.playSound("resources/jump-c-07.mp3"))
 
-      case Msg.ArrowLeftPressed =>
-        val newModel = (walkLeft andThen applyPhysics)(model)
-        (newModel, Cmd.Empty)
+    case Msg.ArrowLeftPressed =>
+      val newModel = (Mario.walkLeft andThen Mario.applyPhysics)(model)
+      (newModel, Cmd.None)
 
-      case Msg.ArrowRightPressed =>
-        val newModel = (walkRight andThen applyPhysics)(model)
-        (newModel, Cmd.Empty)
+    case Msg.ArrowRightPressed =>
+      val newModel = (Mario.walkRight andThen Mario.applyPhysics)(model)
+      (newModel, Cmd.None)
 
-      case Msg.ArrowLeftReleased if model.dir == Direction.Left =>
-        val newModel = model.copy(vx = 0.0)
-        (newModel, Cmd.Empty)
+    case Msg.ArrowLeftReleased if model.dir == Direction.Left =>
+      val newModel = model.copy(vx = 0.0)
+      (newModel, Cmd.None)
 
-      case Msg.ArrowRightReleased if model.dir == Direction.Right =>
-        val newModel = model.copy(vx = 0.0)
-        (newModel, Cmd.Empty)
+    case Msg.ArrowRightReleased if model.dir == Direction.Right =>
+      val newModel = model.copy(vx = 0.0)
+      (newModel, Cmd.None)
 
-      case Msg.PassageOfTime =>
-        (applyPhysics(model), Cmd.Empty)
+    case Msg.PassageOfTime =>
+      (Mario.applyPhysics(model), Cmd.None)
 
-      case _ =>
-        (model, Cmd.Empty)
+    case _ =>
+      (model, Cmd.None)
 
-  def subscriptions(model: Mario): Sub[Msg] =
+  def subscriptions(model: Mario): Sub[IO, Msg] =
     Sub.Batch(
       Effects.keyPressSub(37).map[Msg](_ => Msg.ArrowLeftPressed),
       Effects.keyPressSub(39).map(_ => Msg.ArrowRightPressed),

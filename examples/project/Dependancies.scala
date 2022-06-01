@@ -1,5 +1,5 @@
 object Dependancies {
 
-  val indigoVersion = "0.12.1"
+  val indigoVersion = "0.13.0"
 
 }

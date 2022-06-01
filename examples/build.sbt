@@ -8,7 +8,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.1.1"
+lazy val scala3Version = "3.1.2"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
@@ -18,7 +18,7 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
     "org.scalameta" %%% "munit" % "0.7.29" % Test
   ),
   libraryDependencies ++= Seq(
-    "io.indigoengine" %%% "tyrian" % tyrianVersion
+    "io.indigoengine" %%% "tyrian-io" % tyrianVersion
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
@@ -42,7 +42,6 @@ lazy val bundler =
     .settings(commonSettings: _*)
     .settings(name := "bundler")
     .settings(
-      Compile / npmDependencies += "snabbdom" -> "3.0.1",
       // Source maps seem to be broken with bundler
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
@@ -87,9 +86,9 @@ lazy val indigo =
       name := "indigo-bridge",
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianVersion,
-        "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
+        "io.indigoengine" %%% "indigo"               % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-extras"        % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-json-circe"    % Dependancies.indigoVersion
       )
     )
 
@@ -143,11 +142,12 @@ lazy val tyrianExamplesProject =
     .settings(
       logo := s"Tyrian Examples (v${version.value})",
       usefulTasks := Seq(
-        UsefulTask("a", "buildExamples", "Cleans and builds all examples"),
-        UsefulTask("b", "cleanAll", "Cleans all examples"),
-        UsefulTask("c", "compileAll", "Compiles all examples"),
-        UsefulTask("d", "fastOptAll", "Compiles all examples to JS"),
-        UsefulTask("e", "code", "Launch VSCode")
+        UsefulTask("", "buildExamples", "Cleans and builds all examples"),
+        UsefulTask("", "cleanAll", "Cleans all examples"),
+        UsefulTask("", "compileAll", "Compiles all examples"),
+        UsefulTask("", "testAll", "Tests all examples"),
+        UsefulTask("", "fastOptAll", "Compiles all examples to JS"),
+        UsefulTask("", "code", "Launch VSCode")
       ) ++ makeCmds(exampleProjects),
       logoColor        := scala.Console.MAGENTA,
       aliasColor       := scala.Console.BLUE,
@@ -194,6 +194,10 @@ addCommandAlias(
 addCommandAlias(
   "compileAll",
   applyToAll("compile")
+)
+addCommandAlias(
+  "testAll",
+  applyToAll("test")
 )
 addCommandAlias(
   "fastOptAll",

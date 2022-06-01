@@ -1,50 +1,51 @@
 package mario
 
+import cats.effect.IO
 import mario.Main.*
 import org.scalajs.dom
+import org.scalajs.dom.Event
+import org.scalajs.dom.HTMLAudioElement
 import org.scalajs.dom.KeyboardEvent
+import org.scalajs.dom.TouchEvent
 import org.scalajs.dom.document
-import org.scalajs.dom.raw.Event
-import org.scalajs.dom.raw.HTMLAudioElement
-import org.scalajs.dom.raw.TouchEvent
 import org.scalajs.dom.window
-import tyrian.Cmd
-import tyrian.Sub
-import tyrian.Sub.ofTotalObservable
-import tyrian.Task
+import tyrian.*
 
-object Effects {
+object Effects:
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  val requestAnimationFrameSub: Sub[Double] = ofTotalObservable[Double](
-    "requestAnimation",
-    { observer =>
+  val requestAnimationFrameSub: Sub[IO, Double] =
+    Sub.make[IO, Double, Double, Int]("requestAnimation") { callback =>
       var handle = 0
       def loop: Double => Unit = time => {
-        observer.onNext(time)
+        callback(Right(time))
         handle = dom.window.requestAnimationFrame(loop)
       }
       handle = dom.window.requestAnimationFrame(loop)
-      () => dom.window.cancelAnimationFrame(handle)
+      IO(handle)
+    } { handle =>
+      IO(dom.window.cancelAnimationFrame(handle))
+    } { t =>
+      Some(t)
     }
-  )
 
-  def keyPressSub(keyCode: Int): Sub[KeyboardEvent] =
-    Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keydown", dom.window) {
+  def keyPressSub(keyCode: Int): Sub[IO, KeyboardEvent] =
+    Sub.fromEvent[IO, KeyboardEvent, KeyboardEvent]("keydown", dom.window) {
       event =>
         if event.keyCode == keyCode then Some(event) else None
     }
 
-  def keyReleaseSub(keyCode: Int): Sub[KeyboardEvent] =
-    Sub.fromEvent[KeyboardEvent, KeyboardEvent]("keyup", dom.window) { event =>
-      if event.keyCode == keyCode then Some(event) else None
+  def keyReleaseSub(keyCode: Int): Sub[IO, KeyboardEvent] =
+    Sub.fromEvent[IO, KeyboardEvent, KeyboardEvent]("keyup", dom.window) {
+      event =>
+        if event.keyCode == keyCode then Some(event) else None
     }
 
   val UNDER_FRONT_MARIO  = (true, true)
   val UNDER_BEHIND_MARIO = (false, true)
 
-  def touchPressedSub(model: Mario): Sub[Msg] =
-    Sub.fromEvent[TouchEvent, Msg]("touchstart", dom.window) { event =>
+  def touchPressedSub(model: Mario): Sub[IO, Msg] =
+    Sub.fromEvent[IO, TouchEvent, Msg]("touchstart", dom.window) { event =>
       val (posX, posY) =
         modelPositionScreen(window.innerWidth, window.innerHeight, model)
 
@@ -55,8 +56,8 @@ object Effects {
         case _                  => Some(Msg.ArrowUpPressed)
     }
 
-  def touchReleasedSub(model: Mario): Sub[Msg] =
-    Sub.fromEvent[TouchEvent, Msg]("touchend", dom.window) { event =>
+  def touchReleasedSub(model: Mario): Sub[IO, Msg] =
+    Sub.fromEvent[IO, TouchEvent, Msg]("touchend", dom.window) { event =>
       val (posX, posY) =
         modelPositionScreen(window.innerWidth, window.innerHeight, model)
 
@@ -67,17 +68,10 @@ object Effects {
         case _                  => None
     }
 
-  object Cmd {
-    def playSound(url: String): Cmd[Nothing] =
-      Task
-        .RunObservable[Nothing, Nothing] { _ =>
-          val audio =
-            document.createElement("audio").asInstanceOf[HTMLAudioElement]
-          audio.src = url
-          audio.onloadeddata = (_: Event) => audio.play()
-          () => ()
-        }
-        .attempt(_.merge)
-  }
-
-}
+  def playSound(url: String): Cmd[IO, Nothing] =
+    Cmd.SideEffect {
+      val audio =
+        document.createElement("audio").asInstanceOf[HTMLAudioElement]
+      audio.src = url
+      audio.onloadeddata = (_: Event) => audio.play()
+    }

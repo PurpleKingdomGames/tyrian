@@ -1,5 +1,6 @@
 package example
 
+import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
 
@@ -8,11 +9,10 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) = ("", Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) = ("", Cmd.None)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    msg match
-      case Msg.NewContent(content) => (content, Cmd.Empty)
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.NewContent(content) => (content, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -33,8 +33,8 @@ object Main extends TyrianApp[Msg, Model]:
       "text-align" -> "center"
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
-    Sub.Empty
+  def subscriptions(model: Model): Sub[IO, Msg] =
+    Sub.None
 
 type Model = String
 

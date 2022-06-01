@@ -1,5 +1,6 @@
 package example
 
+import cats.effect.IO
 import example.game.MyAwesomeGame
 import tyrian.Html.*
 import tyrian.*
@@ -15,47 +16,46 @@ object Main extends TyrianApp[Msg, Model]:
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    msg match
-      case Msg.NewContent(content) =>
-        val cmds =
-          Cmd.Batch(
-            model.bridge.publish(gameId1, content),
-            model.bridge.publish(gameId2, content)
-          )
-        (model.copy(field = content), cmds)
-
-      case Msg.StartIndigo =>
-        (
-          model,
-          Cmd.Batch(
-            Cmd.SideEffect { () =>
-              MyAwesomeGame(model.bridge.subSystem(gameId1), true)
-                .launch(
-                  gameDivId1,
-                  "width"  -> "200",
-                  "height" -> "200"
-                )
-            },
-            Cmd.SideEffect { () =>
-              MyAwesomeGame(
-                model.bridge.subSystem(gameId2),
-                false
-              )
-                .launch(
-                  gameDivId2,
-                  "width"  -> "200",
-                  "height" -> "200"
-                )
-            }
-          )
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.NewContent(content) =>
+      val cmds =
+        Cmd.Batch(
+          model.bridge.publish(gameId1, content),
+          model.bridge.publish(gameId2, content)
         )
+      (model.copy(field = content), cmds)
 
-      case Msg.IndigoReceive(msg) =>
-        (model, Logger.consoleLog("(Tyrian) from indigo: " + msg))
+    case Msg.StartIndigo =>
+      (
+        model,
+        Cmd.Batch(
+          Cmd.SideEffect {
+            MyAwesomeGame(model.bridge.subSystem(gameId1), true)
+              .launch(
+                gameDivId1,
+                "width"  -> "200",
+                "height" -> "200"
+              )
+          },
+          Cmd.SideEffect {
+            MyAwesomeGame(
+              model.bridge.subSystem(gameId2),
+              false
+            )
+              .launch(
+                gameDivId2,
+                "width"  -> "200",
+                "height" -> "200"
+              )
+          }
+        )
+      )
+
+    case Msg.IndigoReceive(msg) =>
+      (model, Logger.consoleLog("(Tyrian) from indigo: " + msg))
 
   def view(model: Model): Html[Msg] =
     div(
@@ -75,7 +75,7 @@ object Main extends TyrianApp[Msg, Model]:
       )
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
+  def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.Batch(
       model.bridge.subscribe { case msg =>
         Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
@@ -102,7 +102,7 @@ enum Msg:
   case StartIndigo                 extends Msg
   case IndigoReceive(msg: String)  extends Msg
 
-final case class Model(bridge: TyrianIndigoBridge[String], field: String)
+final case class Model(bridge: TyrianIndigoBridge[IO, String], field: String)
 object Model:
   val init: Model =
     Model(TyrianIndigoBridge(), "")

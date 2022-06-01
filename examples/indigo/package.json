@@ -7,9 +7,6 @@
     "parcel": "^2.1.0",
     "parcel-reporter-static-files-copy": "^1.3.4"
   },
-  "dependencies": {
-    "snabbdom": "^3.0.1"
-  },
   "staticFiles": {
     "staticPath": "static"
   }

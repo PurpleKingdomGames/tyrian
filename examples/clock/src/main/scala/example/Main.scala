@@ -1,6 +1,8 @@
 package example
 
+import cats.effect.IO
 import tyrian.Html.*
+import tyrian.SVG.*
 import tyrian.*
 
 import scala.scalajs.js.annotation.*
@@ -11,34 +13,34 @@ import concurrent.duration.DurationInt
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    (new js.Date(), Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+    (new js.Date(), Cmd.None)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    (msg.newTime, Cmd.Empty)
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    msg => (msg.newTime, Cmd.None)
 
-  def view(model: Model): Html[Msg] = {
+  def view(model: Model): Html[Msg] =
     val angle = model.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
     val handX = 50 + 40 * math.cos(angle)
     val handY = 50 + 40 * math.sin(angle)
-    tag("svg")(attributes("viewBox" -> "0, 0, 100, 100", "width" -> "300px"))(
-      tag("circle")(
-        attributes("cx" -> "50", "cy" -> "50", "r" -> "45", "fill" -> "#0B79CE")
-      )(),
-      tag("line")(
-        attributes(
-          "x1"     -> "50",
-          "y1"     -> "50",
-          "x2"     -> handX.toString,
-          "y2"     -> handY.toString,
-          "stroke" -> "#023963"
-        )
-      )()
+    tag("svg")(viewBox := "0, 0, 100, 100", width := "300px")(
+      circle(
+        cx   := "50",
+        cy   := "50",
+        r    := "45",
+        fill := "#0B79CE"
+      ),
+      line(
+        x1     := "50",
+        y1     := "50",
+        x2     := handX.toString,
+        y2     := handY.toString,
+        stroke := "#023963"
+      )
     )
-  }
 
-  def subscriptions(model: Model): Sub[Msg] =
-    Sub.every(1.second, "clock-ticks").map(Msg.apply)
+  def subscriptions(model: Model): Sub[IO, Msg] =
+    Sub.every[IO](1.second, "clock-ticks").map(Msg.apply)
 
 type Model = js.Date
 

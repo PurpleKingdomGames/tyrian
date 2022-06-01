@@ -1,5 +1,6 @@
 package example
 
+import cats.effect.IO
 import org.scalajs.dom.document
 import tyrian.Html.*
 import tyrian.*
@@ -10,24 +11,23 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
-  def init(flags: Map[String, String]): (Model, Cmd[Msg]) =
-    (Model(""), Cmd.Empty)
+  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+    (Model(""), Cmd.None)
 
-  def update(msg: Msg, model: Model): (Model, Cmd[Msg]) =
-    msg match
-      case Msg.SendText =>
-        (model, HttpHelper.callSSR(model.text))
+  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.SendText =>
+      (model, HttpHelper.callSSR(model.text))
 
-      case Msg.SSRResponse(ssr) =>
-        val cmd =
-          Cmd.SideEffect { () =>
-            document.getElementById("results").innerHTML = ssr
-          }
+    case Msg.SSRResponse(ssr) =>
+      val cmd: Cmd[IO, Msg] =
+        Cmd.SideEffect {
+          document.getElementById("results").innerHTML = ssr
+        }
 
-        (model, cmd)
+      (model, cmd)
 
-      case Msg.NewContent(txt) =>
-        (model.copy(text = txt), Cmd.Empty)
+    case Msg.NewContent(txt) =>
+      (model.copy(text = txt), Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -40,8 +40,8 @@ object Main extends TyrianApp[Msg, Model]:
       div(id := "results")()
     )
 
-  def subscriptions(model: Model): Sub[Msg] =
-    Sub.Empty
+  def subscriptions(model: Model): Sub[IO, Msg] =
+    Sub.None
 
   def main(args: Array[String]): Unit =
     launch("myapp")
@@ -54,10 +54,12 @@ enum Msg:
 final case class Model(text: String)
 
 object HttpHelper:
-  def callSSR(text: String): Cmd[Msg] =
-    val toMsg: Either[HttpError, String] => Msg = {
-      case Left(e)     => Msg.SSRResponse(e.toString)
-      case Right(html) => Msg.SSRResponse(html)
-    }
 
-    Http.send(Request.get(s"/ssr/$text", Http.Decoder.asString), toMsg)
+  val decoder: Decoder[Msg] =
+    Decoder[Msg](
+      r => Msg.SSRResponse(r.body),
+      e => Msg.SSRResponse(e.toString)
+    )
+
+  def callSSR(text: String): Cmd[IO, Msg] =
+    Http.send(Request.get(s"/ssr/$text"), decoder)
