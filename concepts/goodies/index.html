@@ -12,22 +12,22 @@
     <title>Built-in Goodies - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1646493643" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1646493643" rel="stylesheet">
-    <link href="/css/hybrid.css?1646493643" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1646493643" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1646493643" rel="stylesheet">
-    <link href="/css/auto-complete.css?1646493643" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1646493643" rel="stylesheet">
-    <link href="/css/theme.css?1646493643" rel="stylesheet">
-    <link href="/css/tabs.css?1646493643" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1646493643" rel="stylesheet">
+    <link href="/css/nucleus.css?1654122369" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1654122369" rel="stylesheet">
+    <link href="/css/hybrid.css?1654122369" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1654122369" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1654122369" rel="stylesheet">
+    <link href="/css/auto-complete.css?1654122369" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1654122369" rel="stylesheet">
+    <link href="/css/theme.css?1654122369" rel="stylesheet">
+    <link href="/css/tabs.css?1654122369" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1654122369" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1646493643" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1654122369" rel="stylesheet">
     
-    <link href="/css/foo.css?1646493643" rel="stylesheet"><link href="/css/bar.css?1646493643" rel="stylesheet">
+    <link href="/css/foo.css?1654122369" rel="stylesheet"><link href="/css/bar.css?1654122369" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1646493643"></script>
+    <script src="/js/jquery-3.3.1.min.js?1654122369"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1646493643"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1646493643"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1654122369"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1654122369"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1646493643"></script>
+<script type="text/javascript" src="/js/search.js?1654122369"></script>
 
     
   </div>
@@ -541,7 +541,7 @@
 <p>Assuming two messages <code>Error</code> and <code>Empty</code>, we can attempt to focus a given ID.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">Dom</span><span style="color:#f92672">.</span>focus<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;my-id&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Left</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Dom</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NotFound</span><span style="color:#f92672">(</span>id<span style="color:#f92672">))</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Error</span><span style="color:#f92672">(</span><span style="color:#e6db74">s&#34;ID </span><span style="color:#e6db74">$id</span><span style="color:#e6db74"> not found&#34;</span><span style="color:#f92672">)</span>
     <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Right</span><span style="color:#f92672">(</span><span style="color:#66d9ef">_</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Empty</span>
@@ -552,7 +552,7 @@
 <p>Assuming two messages <code>Error</code> and <code>Read</code>, we can attempt to read the contents of a text file.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">FileReader</span><span style="color:#f92672">.</span>readText<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;my-file-input-field-id&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Left</span><span style="color:#f92672">(</span><span style="color:#a6e22e">FileReader</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Error</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">))</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Error</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">)</span>
     <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Right</span><span style="color:#f92672">(</span><span style="color:#a6e22e">FileReader</span><span style="color:#f92672">.</span><span style="color:#a6e22e">File</span><span style="color:#f92672">(</span>name<span style="color:#f92672">,</span> path<span style="color:#f92672">,</span> contents<span style="color:#f92672">))</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Read</span><span style="color:#f92672">(</span>contents<span style="color:#f92672">)</span>
@@ -563,7 +563,7 @@
 <p>Given a path, this cmd will load an image and create and return an <code>HTMLImageElement</code> for you to make use of.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">ImageLoader</span><span style="color:#f92672">.</span>load<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;path/to/img.png&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
     <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Left</span><span style="color:#f92672">(</span><span style="color:#a6e22e">ImageLoader</span><span style="color:#f92672">.</span><span style="color:#a6e22e">ImageLoadError</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">,</span> path<span style="color:#f92672">))</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Error</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">)</span>
     <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Right</span><span style="color:#f92672">(</span>imageElement<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">UseImage</span><span style="color:#f92672">(</span>imageElement<span style="color:#f92672">)</span>
@@ -572,7 +572,7 @@
 <p>A series of commands that mirror the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localstorage interface</a>.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Batch</span><span style="color:#f92672">(</span>
     <span style="color:#a6e22e">LocalStorage</span><span style="color:#f92672">.</span>setItem<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;key&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;value&#34;</span><span style="color:#f92672">)</span> <span style="color:#f92672">{</span>
       <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Right</span><span style="color:#f92672">(</span><span style="color:#66d9ef">_</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">NoOp</span>
@@ -603,12 +603,12 @@
 <p>Allows you to log to your browsers JavaScript console:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">Logger</span><span style="color:#f92672">.</span>info<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Log this!&#34;</span><span style="color:#f92672">)</span>
 </code></pre></div><p>If you&rsquo;re app is doing a lot of regular work, you can cut down the noise with the &lsquo;once&rsquo; versions:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">Logger</span><span style="color:#f92672">.</span>debugOnce<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Log this exact message only once!&#34;</span><span style="color:#f92672">)</span>
 </code></pre></div><h3 id="random"><code>Random</code></h3>
 <p>As you might expect, <code>Random</code> produces random values! Random works slightly differently from other commands, in that it doesn&rsquo;t except a conversion function to turn the result into a message. You do that by mapping over it.</p>
@@ -617,7 +617,7 @@
 
 <span style="color:#66d9ef">def</span> toMessage <span style="color:#66d9ef">=</span> <span style="color:#f92672">(</span>v<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">RandomValue</span><span style="color:#f92672">(</span>v<span style="color:#f92672">.</span>toString<span style="color:#f92672">)</span>
 
-<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">val</span> cmd<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Batch</span><span style="color:#f92672">(</span>
     <span style="color:#a6e22e">Random</span><span style="color:#f92672">.</span>int<span style="color:#f92672">.</span>map<span style="color:#f92672">(</span>toMessage<span style="color:#f92672">(</span><span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>toString<span style="color:#f92672">)),</span>
     <span style="color:#a6e22e">Random</span><span style="color:#f92672">.</span>shuffle<span style="color:#f92672">(</span><span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">,</span> <span style="color:#ae81ff">3</span><span style="color:#f92672">)).</span>map<span style="color:#f92672">(</span>toMessage<span style="color:#f92672">(</span><span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>toString<span style="color:#f92672">)),</span>
@@ -917,16 +917,16 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1646493643"></script>
-    <script src="/js/perfect-scrollbar.min.js?1646493643"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1646493643"></script>
-    <script src="/js/jquery.sticky.js?1646493643"></script>
-    <script src="/js/featherlight.min.js?1646493643"></script>
-    <script src="/js/highlight.pack.js?1646493643"></script>
+    <script src="/js/clipboard.min.js?1654122369"></script>
+    <script src="/js/perfect-scrollbar.min.js?1654122369"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1654122369"></script>
+    <script src="/js/jquery.sticky.js?1654122369"></script>
+    <script src="/js/featherlight.min.js?1654122369"></script>
+    <script src="/js/highlight.pack.js?1654122369"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1646493643"></script>
-    <script src="/js/learn.js?1646493643"></script>
-    <script src="/js/hugo-learn.js?1646493643"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1654122369"></script>
+    <script src="/js/learn.js?1654122369"></script>
+    <script src="/js/hugo-learn.js?1654122369"></script>
     
     
 

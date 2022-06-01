@@ -12,22 +12,22 @@
     <title>Subscriptions - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1646493643" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1646493643" rel="stylesheet">
-    <link href="/css/hybrid.css?1646493643" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1646493643" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1646493643" rel="stylesheet">
-    <link href="/css/auto-complete.css?1646493643" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1646493643" rel="stylesheet">
-    <link href="/css/theme.css?1646493643" rel="stylesheet">
-    <link href="/css/tabs.css?1646493643" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1646493643" rel="stylesheet">
+    <link href="/css/nucleus.css?1654122369" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1654122369" rel="stylesheet">
+    <link href="/css/hybrid.css?1654122369" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1654122369" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1654122369" rel="stylesheet">
+    <link href="/css/auto-complete.css?1654122369" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1654122369" rel="stylesheet">
+    <link href="/css/theme.css?1654122369" rel="stylesheet">
+    <link href="/css/tabs.css?1654122369" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1654122369" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1646493643" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1654122369" rel="stylesheet">
     
-    <link href="/css/foo.css?1646493643" rel="stylesheet"><link href="/css/bar.css?1646493643" rel="stylesheet">
+    <link href="/css/foo.css?1654122369" rel="stylesheet"><link href="/css/bar.css?1654122369" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1646493643"></script>
+    <script src="/js/jquery-3.3.1.min.js?1654122369"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1646493643"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1646493643"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1654122369"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1654122369"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1646493643"></script>
+<script type="text/javascript" src="/js/search.js?1654122369"></script>
 
     
   </div>
@@ -522,6 +522,7 @@
 <p>For example, we could chose to observe the mouse position, and emit a message every time the mouse moves, like this:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> org.scalajs.dom.document
 <span style="color:#66d9ef">import</span> org.scalajs.dom.MouseEvent
+<span style="color:#66d9ef">import</span> cats.effect.IO
 
 <span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
 
@@ -530,17 +531,17 @@
 enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
   <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">MouseMove</span><span style="color:#f92672">(</span><span style="color:#66d9ef">x:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">y:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">)</span>
 
-<span style="color:#66d9ef">val</span> mousePosition<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> 
+<span style="color:#66d9ef">val</span> mousePosition<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> 
   <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span>fromEvent<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;mousemove&#34;</span><span style="color:#f92672">,</span> document<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#66d9ef">case</span> e<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">MouseEvent</span>  <span style="color:#f92672">=&gt;</span>
     <span style="color:#a6e22e">Option</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">MouseMove</span><span style="color:#f92672">(</span>e<span style="color:#f92672">.</span>pageX<span style="color:#f92672">,</span> e<span style="color:#f92672">.</span>pageY<span style="color:#f92672">))</span>
   <span style="color:#f92672">}</span>
 
-<span style="color:#66d9ef">def</span> subscriptions<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+<span style="color:#66d9ef">def</span> subscriptions<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   mousePosition
 </code></pre></div><p>A change in mouse position will now result in a <code>MouseMove</code> message that will be piped back to your <code>updateModel</code> function.</p>
 <p>Subscriptions can be used on their own, or in conjunction with commands to form a pub/sub relationship with a resource, as is the case with web sockets and the tyrian-indigo bridge.</p>
 <h3 id="working-with-subscriptions">Working with Subscriptions</h3>
-<p>Subscriptions are Functors which means that you can <code>map</code> over them to change the resultant message. They are also Monoids which means that they have an empty representation <code>Sub.empty</code> and that you can <code>combine</code> them together, using <code>combine</code> or the shorthand operator: <code>sub1 |+| sub2</code>.</p>
+<p>Subscriptions are Functors which means that you can <code>map</code> over them to change the resultant message. They are also Monoids which means that they have an empty representation <code>Sub.None</code> and that you can <code>combine</code> them together, using <code>combine</code> or the shorthand operator: <code>sub1 |+| sub2</code>.</p>
 <p>A common thing to need to do is batch multiple subs together into a single subscription, like this:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> scala.concurrent.duration._
 
@@ -553,7 +554,7 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
   <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">MouseMove</span><span style="color:#f92672">(</span><span style="color:#66d9ef">x:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">y:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">)</span>
   <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">CurrentSeconds</span><span style="color:#f92672">(</span>seconds<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">)</span>
 
-<span style="color:#66d9ef">val</span> mousePosition<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> 
+<span style="color:#66d9ef">val</span> mousePosition<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> 
   <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span>fromEvent<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;mousemove&#34;</span><span style="color:#f92672">,</span> document<span style="color:#f92672">)</span> <span style="color:#f92672">{</span> <span style="color:#66d9ef">case</span> e<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">MouseEvent</span>  <span style="color:#f92672">=&gt;</span>
     <span style="color:#a6e22e">Option</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">MouseMove</span><span style="color:#f92672">(</span>e<span style="color:#f92672">.</span>pageX<span style="color:#f92672">,</span> e<span style="color:#f92672">.</span>pageY<span style="color:#f92672">))</span>
   <span style="color:#f92672">}</span>
@@ -562,8 +563,8 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
   <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span>every<span style="color:#f92672">(</span><span style="color:#ae81ff">1.</span>second<span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;tick&#34;</span><span style="color:#f92672">)</span>
     <span style="color:#f92672">.</span>map<span style="color:#f92672">(</span>date <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">CurrentSeconds</span><span style="color:#f92672">(</span>date<span style="color:#f92672">.</span>getSeconds<span style="color:#f92672">()))</span>
 
-<span style="color:#66d9ef">def</span> subscriptions<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-  <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Batch</span><span style="color:#f92672">(</span>
+<span style="color:#66d9ef">def</span> subscriptions<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+  <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Batch</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">](</span>
     mousePosition<span style="color:#f92672">,</span>
     tick
   <span style="color:#f92672">)</span>
@@ -849,16 +850,16 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1646493643"></script>
-    <script src="/js/perfect-scrollbar.min.js?1646493643"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1646493643"></script>
-    <script src="/js/jquery.sticky.js?1646493643"></script>
-    <script src="/js/featherlight.min.js?1646493643"></script>
-    <script src="/js/highlight.pack.js?1646493643"></script>
+    <script src="/js/clipboard.min.js?1654122369"></script>
+    <script src="/js/perfect-scrollbar.min.js?1654122369"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1654122369"></script>
+    <script src="/js/jquery.sticky.js?1654122369"></script>
+    <script src="/js/featherlight.min.js?1654122369"></script>
+    <script src="/js/highlight.pack.js?1654122369"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1646493643"></script>
-    <script src="/js/learn.js?1646493643"></script>
-    <script src="/js/hugo-learn.js?1646493643"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1654122369"></script>
+    <script src="/js/learn.js?1654122369"></script>
+    <script src="/js/hugo-learn.js?1654122369"></script>
     
     
 

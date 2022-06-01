@@ -12,22 +12,22 @@
     <title>Setup &amp; Configuration - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1646493643" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1646493643" rel="stylesheet">
-    <link href="/css/hybrid.css?1646493643" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1646493643" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1646493643" rel="stylesheet">
-    <link href="/css/auto-complete.css?1646493643" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1646493643" rel="stylesheet">
-    <link href="/css/theme.css?1646493643" rel="stylesheet">
-    <link href="/css/tabs.css?1646493643" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1646493643" rel="stylesheet">
+    <link href="/css/nucleus.css?1654122369" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1654122369" rel="stylesheet">
+    <link href="/css/hybrid.css?1654122369" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1654122369" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1654122369" rel="stylesheet">
+    <link href="/css/auto-complete.css?1654122369" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1654122369" rel="stylesheet">
+    <link href="/css/theme.css?1654122369" rel="stylesheet">
+    <link href="/css/tabs.css?1654122369" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1654122369" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1646493643" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1654122369" rel="stylesheet">
     
-    <link href="/css/foo.css?1646493643" rel="stylesheet"><link href="/css/bar.css?1646493643" rel="stylesheet">
+    <link href="/css/foo.css?1654122369" rel="stylesheet"><link href="/css/bar.css?1654122369" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1646493643"></script>
+    <script src="/js/jquery-3.3.1.min.js?1654122369"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1646493643"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1646493643"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1654122369"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1654122369"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1646493643"></script>
+<script type="text/javascript" src="/js/search.js?1654122369"></script>
 
     
   </div>
@@ -521,7 +521,7 @@
 </code></pre></div><p>Then follow the instructions in the README file.</p>
 <p>(* Probably, if you have sbt and npm/yarn already installed&hellip; 😅)</p>
 <h2 id="installation">Installation</h2>
-<p>Tyrian is a Scala 3 Web UI library, so please set your Scala version to <code>3.1.1</code> or higher.</p>
+<p>Tyrian is a Scala 3 Web UI library, so please set your Scala version to <code>3.1.2</code> or higher.</p>
 <blockquote>
 <p>You can use Tyrian with Scala 2 thanks to cross versions and the magic of TASTy.</p>
 </blockquote>
@@ -529,19 +529,22 @@
 <p>The <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">examples in the Tyrian repo</a> almost all use <a href="https://parceljs.org/">Parcel.js</a> as the bundler.</p>
 <h3 id="sbt">sbt</h3>
 <p>Add the <a href="https://www.scala-js.org/">Scala.js</a> plugin to your <code>project/plugins.sbt</code> file.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">addSbtPlugin<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.scala-js&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;sbt-scalajs&#34;</span>  <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;1.9.0&#34;</span><span style="color:#f92672">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">addSbtPlugin<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;org.scala-js&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;sbt-scalajs&#34;</span>  <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;1.10.0&#34;</span><span style="color:#f92672">)</span>
 </code></pre></div><p>Enable the plugin and add the Tyrian library to your <code>build.sbt</code> file.</p>
+<blockquote>
+<p>At the time of writing, only an implementation for Cats Effect 3&rsquo;s <code>IO</code> exists, only because no other compatible libs were available. In theory however, Tyrian will support any effectful monad that implements the CE3 typeclasses. If you&rsquo;d like to do that, take a look at the <a href="https://github.com/PurpleKingdomGames/tyrian/blob/main/tyrian-io/src/main/scala/tyrian/TyrianApp.scala">tiny implementation</a>, and import <code>tyrian</code> instead of <code>tyrian-io</code> shown below.</p>
+</blockquote>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">enablePlugins<span style="color:#f92672">(</span><span style="color:#a6e22e">ScalaJSPlugin</span><span style="color:#f92672">)</span>
 
 libraryDependencies <span style="color:#f92672">++=</span> <span style="color:#a6e22e">Seq</span><span style="color:#f92672">(</span>
-  <span style="color:#e6db74">&#34;io.indigoengine&#34;</span> <span style="color:#f92672">%%%</span> <span style="color:#e6db74">&#34;tyrian&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.3.2&#34;</span>
+  <span style="color:#e6db74">&#34;io.indigoengine&#34;</span> <span style="color:#f92672">%%%</span> <span style="color:#e6db74">&#34;tyrian-io&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.5.0&#34;</span>
 <span style="color:#f92672">)</span>
 
 scalaJSLinkerConfig <span style="color:#f92672">~=</span> <span style="color:#f92672">{</span> <span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>withModuleKind<span style="color:#f92672">(</span><span style="color:#a6e22e">ModuleKind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">CommonJSModule</span><span style="color:#f92672">)</span> <span style="color:#f92672">}</span>
 </code></pre></div><p>Optionally, you can also include the Tyrian/Indigo Bridge library if you plan to embed an Indigo game in your page:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">libraryDependencies <span style="color:#f92672">++=</span> <span style="color:#a6e22e">Seq</span><span style="color:#f92672">(</span>
   <span style="color:#f92672">...</span>
-  <span style="color:#e6db74">&#34;io.indigoengine&#34;</span> <span style="color:#f92672">%%%</span> <span style="color:#e6db74">&#34;tyrian-indigo-bridge&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.3.2&#34;</span>
+  <span style="color:#e6db74">&#34;io.indigoengine&#34;</span> <span style="color:#f92672">%%%</span> <span style="color:#e6db74">&#34;tyrian-indigo-bridge&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.5.0&#34;</span>
 <span style="color:#f92672">)</span>
 </code></pre></div><h3 id="mill">Mill</h3>
 <p>Below is a complete, basic Mill <code>build.sc</code> file including MUnit for testing.</p>
@@ -552,10 +555,10 @@ scalaJSLinkerConfig <span style="color:#f92672">~=</span> <span style="color:#f9
 <span style="color:#66d9ef">import</span> mill.scalajslib.api._
 
 <span style="color:#66d9ef">object</span> <span style="color:#a6e22e">counter</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">ScalaJSModule</span> <span style="color:#f92672">{</span>
-  <span style="color:#66d9ef">def</span> scalaVersion   <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;3.1.1&#34;</span>
-  <span style="color:#66d9ef">def</span> scalaJSVersion <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;1.9.0&#34;</span>
+  <span style="color:#66d9ef">def</span> scalaVersion   <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;3.1.2&#34;</span>
+  <span style="color:#66d9ef">def</span> scalaJSVersion <span style="color:#66d9ef">=</span> <span style="color:#e6db74">&#34;1.10.0&#34;</span>
 
-  <span style="color:#66d9ef">def</span> ivyDeps <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Agg</span><span style="color:#f92672">(</span>ivy<span style="color:#e6db74">&#34;io.indigoengine::tyrian::0.3.2&#34;</span><span style="color:#f92672">)</span>
+  <span style="color:#66d9ef">def</span> ivyDeps <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Agg</span><span style="color:#f92672">(</span>ivy<span style="color:#e6db74">&#34;io.indigoengine::tyrian::0.5.0&#34;</span><span style="color:#f92672">)</span>
 
   <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">def</span> moduleKind <span style="color:#66d9ef">=</span> T<span style="color:#f92672">(</span>mill<span style="color:#f92672">.</span>scalajslib<span style="color:#f92672">.</span>api<span style="color:#f92672">.</span><span style="color:#a6e22e">ModuleKind</span><span style="color:#f92672">.</span><span style="color:#a6e22e">CommonJSModule</span><span style="color:#f92672">)</span>
 
@@ -573,8 +576,8 @@ scalaJSLinkerConfig <span style="color:#f92672">~=</span> <span style="color:#f9
 <span style="color:#f92672">}</span>
 </code></pre></div><p>Optionally, you can also include the Tyrian/Indigo Bridge library if you plan to embed an Indigo game in your page:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">  <span style="color:#66d9ef">def</span> ivyDeps <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Agg</span><span style="color:#f92672">(</span>
-    ivy<span style="color:#e6db74">&#34;io.indigoengine::tyrian::0.3.2&#34;</span><span style="color:#f92672">,</span>
-    ivy<span style="color:#e6db74">&#34;io.indigoengine::tyrian-indigo-bridge::0.3.2&#34;</span>
+    ivy<span style="color:#e6db74">&#34;io.indigoengine::tyrian::0.5.0&#34;</span><span style="color:#f92672">,</span>
+    ivy<span style="color:#e6db74">&#34;io.indigoengine::tyrian-indigo-bridge::0.5.0&#34;</span>
   <span style="color:#f92672">)</span>
 </code></pre></div>
 
@@ -854,16 +857,16 @@ scalaJSLinkerConfig <span style="color:#f92672">~=</span> <span style="color:#f9
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1646493643"></script>
-    <script src="/js/perfect-scrollbar.min.js?1646493643"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1646493643"></script>
-    <script src="/js/jquery.sticky.js?1646493643"></script>
-    <script src="/js/featherlight.min.js?1646493643"></script>
-    <script src="/js/highlight.pack.js?1646493643"></script>
+    <script src="/js/clipboard.min.js?1654122369"></script>
+    <script src="/js/perfect-scrollbar.min.js?1654122369"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1654122369"></script>
+    <script src="/js/jquery.sticky.js?1654122369"></script>
+    <script src="/js/featherlight.min.js?1654122369"></script>
+    <script src="/js/highlight.pack.js?1654122369"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1646493643"></script>
-    <script src="/js/learn.js?1646493643"></script>
-    <script src="/js/hugo-learn.js?1646493643"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1654122369"></script>
+    <script src="/js/learn.js?1654122369"></script>
+    <script src="/js/hugo-learn.js?1654122369"></script>
     
     
 
