@@ -14,14 +14,6 @@ enum HttpError:
   /** A NetworkError means that there is a problem with the network. */
   case NetworkError extends HttpError
 
-  /** A BadPayload means that the body of the response could not be parsed correctly.
-    * @param decodingError
-    *   debugging message that explains what went wrong
-    * @param response
-    *   the response
-    */
-  case DecodingFailure(decodingError: String, response: Response[String]) extends HttpError
-
 /** An HTTP method */
 enum Method derives CanEqual:
   case Get, Post, Put, Patch, Delete, Options
@@ -73,11 +65,11 @@ final case class Header(name: String, value: String)
   * @tparam A
   *   type of the response body
   */
-final case class Response[A](
+final case class Response(
     url: String,
     status: Status,
     headers: Map[String, String],
-    body: A
+    body: String
 )
 
 /** The response status code

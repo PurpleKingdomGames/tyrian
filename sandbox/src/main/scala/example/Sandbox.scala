@@ -7,6 +7,7 @@ import tyrian.*
 import tyrian.cmds.Dom
 import tyrian.cmds.LocalStorage
 import tyrian.cmds.Logger
+import tyrian.http.*
 import tyrian.websocket.*
 
 import scala.concurrent.duration.*
@@ -41,6 +42,35 @@ object Sandbox extends TyrianApp[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.UpdateHttpDetails(newUrl) =>
+      (model.copy(http = model.http.copy(url = Option(newUrl))), Cmd.None)
+
+    case Msg.MakeHttpRequest =>
+      val cmd: Cmd[IO, Msg] =
+        model.http.url match
+          case None =>
+            Logger.info("No url entered, skipping Http request.")
+
+          case Some(url) =>
+            Cmd.Batch(
+              Logger.info("Making request to: " + url),
+              Http.send(
+                Request(Method.Get, url),
+                Decoder(
+                  Msg.GotHttpResult(_),
+                  e => Msg.GotHttpError(e.toString)
+                )
+              )
+            )
+
+      (model, cmd)
+
+    case Msg.GotHttpResult(res) =>
+      (model.copy(http = model.http.copy(response = Option(res), error = None)), Cmd.None)
+
+    case Msg.GotHttpError(message) =>
+      (model.copy(http = model.http.copy(response = None, error = Option(message))), Cmd.None)
+
     case Msg.Save(k, v) =>
       val cmd: Cmd[IO, Msg] = LocalStorage.setItem(k, v) { _ =>
         Msg.Log("Save successful")
@@ -153,8 +183,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
     case Msg.ToSocket(message) =>
       println("Sent: " + message)
       (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.None))
-    
-    case Msg.NewTime(time) => 
+
+    case Msg.NewTime(time) =>
       (model.copy(currentTime = time), Cmd.None)
 
   def view(model: Model): Html[Msg] =
@@ -235,6 +265,28 @@ object Sandbox extends TyrianApp[Msg, Model]:
             )
           )
 
+        case Page.Page5 =>
+          val status  = model.http.response.map(r => r.status.toString).getOrElse("..")
+          val headers = model.http.response.map(r => r.headers.toList.mkString("[", ", ", "]")).getOrElse("..")
+          val body    = model.http.response.map(r => r.body.take(30)).getOrElse("..")
+          val error   = model.http.error.map(e => "Error: " + e).getOrElse("Success!")
+
+          div(
+            input(
+              placeholder := "enter a url",
+              value       := model.http.url.getOrElse(""),
+              onInput(s => Msg.UpdateHttpDetails(s))
+            ),
+            p(button(onClick(Msg.MakeHttpRequest))("Fetch!")),
+            p("Our server says..."),
+            ul(
+              li("Status: " + status),
+              li("Headers: " + headers),
+              li("Body (first 30 chars): " + body),
+              li(error)
+            )
+          )
+
     div(
       div(
         h3("Navigation:"),
@@ -309,6 +361,10 @@ enum Msg:
   case OverwriteModel(model: Model)
   case TakeSnapshot
   case NewTime(time: js.Date)
+  case MakeHttpRequest
+  case GotHttpResult(response: Response)
+  case GotHttpError(message: String)
+  case UpdateHttpDetails(newUrl: String)
 
 enum Status:
   case Connecting
@@ -350,11 +406,12 @@ final case class Model(
     error: Option[String],
     tmpSaveData: String,
     saveData: Option[String],
-    currentTime: js.Date
+    currentTime: js.Date,
+    http: HttpDetails
 )
 
 enum Page:
-  case Page1, Page2, Page3, Page4
+  case Page1, Page2, Page3, Page4, Page5
 
   def toNavLabel: String =
     this match
@@ -362,6 +419,7 @@ enum Page:
       case Page2 => "Counters"
       case Page3 => "WebSockets"
       case Page4 => "Clock"
+      case Page5 => "Http"
 
   def toHash: String =
     this match
@@ -369,6 +427,7 @@ enum Page:
       case Page2 => "#page2"
       case Page3 => "#page3"
       case Page4 => "#page4"
+      case Page5 => "#page5"
 
 object Page:
   def fromString(pageString: String): Page =
@@ -379,6 +438,8 @@ object Page:
       case "page3"  => Page3
       case "#page4" => Page4
       case "page4"  => Page4
+      case "#page5" => Page5
+      case "page5"  => Page5
       case s        => Page1
 
 object Model:
@@ -386,10 +447,15 @@ object Model:
   val echoServer = "ws://localhost:8080/wsecho"
 
   val init: Model =
-    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None, new js.Date())
+    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None, new js.Date(), HttpDetails.initial)
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field
   def decode: Option[String] => Either[String, Model] =
-    case None       => Left("No snapshot found")
-    case Some(data) => Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None, new js.Date()))
+    case None => Left("No snapshot found")
+    case Some(data) =>
+      Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None, new js.Date(), HttpDetails.initial))
+
+final case class HttpDetails(url: Option[String], response: Option[Response], error: Option[String])
+object HttpDetails:
+  val initial: HttpDetails = HttpDetails(Option("http://127.0.0.1:3000/"), None, None)

@@ -80,7 +80,14 @@ lazy val tyrianProject =
         docs
       )
     )
-    .aggregate(tyrian.js, tyrian.jvm, tyrianIO.js, tyrianIndigoBridge.js, sandbox.js, indigoSandbox.js)
+    .aggregate(
+      tyrian.js,
+      tyrian.jvm,
+      tyrianIO.js,
+      tyrianIndigoBridge.js,
+      sandbox.js,
+      indigoSandbox.js
+    )
 
 lazy val tyrian =
   crossProject(JSPlatform, JVMPlatform)
@@ -95,7 +102,6 @@ lazy val tyrian =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js"     %%% "scalajs-dom"        % Dependancies.scalajsDomVersion,
         "org.typelevel"    %%% "cats-effect-kernel" % Dependancies.catsEffect,
         "co.fs2"           %%% "fs2-core"           % Dependancies.fs2,
         "io.github.buntec" %%% "scala-js-snabbdom"  % Dependancies.scalajsSnabbdom
