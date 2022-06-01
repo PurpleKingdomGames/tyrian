@@ -5,7 +5,7 @@ menuTitle: "Rendering HTML"
 
 ## HTML syntax
 
-In Tyrian, you describe your view in Scala and the VirtualDom implementation that powers Tyrian ([Snabbdom](https://github.com/snabbdom/snabbdom)) renders that description into HTML.
+In Tyrian, you describe your view in Scala and the VirtualDom implementation that powers Tyrian ([Scala.js Snabbdom](https://github.com/buntec/scala-js-snabbdom)) renders that description into HTML.
 
 Here is a simple made up example of the syntax to give you a flavor:
 
@@ -78,6 +78,22 @@ Styles are also baked in, albeit it in a slightly crude way, but you will get so
 
 ```scala
 p(CSS.`font-weight`("bold"))("Hello")
+```
+
+### SVG
+
+You can also pull in SVG tags and attributes using:
+
+```scala mdoc:silent
+import tyrian.SVG.*
+```
+
+### CSS
+
+Many standard CSS terms can be imported using:
+
+```scala mdoc:silent
+import tyrian.CSS.*
 ```
 
 ### Rolling your own

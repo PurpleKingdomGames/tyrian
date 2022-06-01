@@ -102,7 +102,7 @@ There's a few things going on here, the only bit we _really_ care about here is 
 Some of the other things you can see here:
 
 - `flags` - Flags can be passed into the app at launch time, think of them like command line arguments.
-- `Cmd[Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.None`.
+- `Cmd[IO, Msg]` - Commands aren't used in the example, but they allow you to capture and run side effects and emit resulting events. They are a requirement for the function signature, and here we satisfy that with `Cmd.None`.
 
 #### Rendering the page
 

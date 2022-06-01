@@ -54,14 +54,10 @@ And enable the plugin on the project in your `build.sbt` file:
 enablePlugins(ScalaJSBundlerPlugin)
 ```
 
-4. Include any NPM dependencies in your sbt build, at minimum, you'll need Snabbdom:
+4. Reference the right `js` file.
 
-`Compile / npmDependencies += "snabbdom" -> "3.0.1"`
+In the parcel.js examples, you'll see that we directly reference the normal Scala.js build output file in the `target` directory (or `out` directory in Mill examples), such as `target/@SCALA_VERSION@/tyrianapp-fastopt.js`. This is so that you can hot-reload on re-compile. However in scalajs-bundler, the output folder and file name you need to use will be slightly different, such as `target/@SCALA_VERSION@/scalajs-bundler/main/tyrianapp-fastopt-bundle.js`.
 
-5. Reference the right `js` file.
-
-In the parcel.js examples, you'll see that we directly reference the normal Scala.js build output file in the `target` directory (or `out` directory in Mill examples), such as `target/scala-3.1.1/tyrianapp-fastopt.js`. This is so that you can hot-reload on re-compile. However in scalajs-bundler, the output folder and file name you need to use will be slightly different, such as `target/scala-3.1.1/scalajs-bundler/main/tyrianapp-fastopt-bundle.js`.
-
-This is because scalajs-bundler is combining your code with all your other js dependencies (e.g. Snabbdom) into one big bundle, hence the name change.
+This is because scalajs-bundler is combining your code with all your other js dependencies into one big bundle, hence the name change.
 
 > Note: Behind the scenes, parcel.js does the same thing, it's just not as obvious and doesn't require you to do anything.

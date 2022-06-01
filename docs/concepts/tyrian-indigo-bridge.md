@@ -41,7 +41,7 @@ The Bridge is a JavaScript `EventTarget`, and both Indigo and Tyrian latch on. I
 
 ***Important:*** The key tools you need are now all on your bridge instance. Your bridge instance will give you the Indigo `SubSystem` for you, it also has the `publish` `Cmd` and the `subscribe` `Sub` that you need.
 
-### Publishing and Subscribing 
+### Publishing and Subscribing
 
 Note that Indigo uses the term 'event' and Tyrian uses 'message'. The behavior is slightly different between the two, but for our purposes here, they should be considered the same thing.
 
@@ -61,10 +61,10 @@ Outcome(..).addGlobalEvents(TyrianEvent.Send(myMessage))
 
 Tyrian by now has a reference to the bridge in your model.
 
-To listen for messages from Indigo, all you have to do is plumb in the `model.bridge.subscribe` `Sub[Msg]` into your app's `subscriptions` feed, and provide an extractor to tell it how to convert the events into messages.
+To listen for messages from Indigo, all you have to do is plumb in the `model.bridge.subscribe` `Sub[IO, Msg]` into your app's `subscriptions` feed, and provide an extractor to tell it how to convert the events into messages.
 
-To send message to Indigo, you call `bridge.send(myMsg)` which provides a `Cmd[Msg]` for you to plug into your `updateModel` result.
+To send message to Indigo, you call `bridge.send(myMsg)` which provides a `Cmd[IO, Msg]` for you to plug into your `updateModel` result.
 
-#### That's it!
+#### That's it
 
 In a nutshell, that is the whole set up. Happy web game building!

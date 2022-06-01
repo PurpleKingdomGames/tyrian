@@ -24,17 +24,17 @@ Luckily, Tyrian has a pretty elegant solution for this.
 
 The usual approach to handling effects (short for side effects) is to employ some sort of effect monad that captures your side effect as a lazy value.
 
-This is _exactly_ what a command (`Cmd`) does. While commands themselves are only Monoidal Functors*, they work using a Monadic `Task` implementation under the covers.
+This is _exactly_ what a command (`Cmd`) does. While commands themselves are only Monoidal Functors*, they work using Cats Effect 3 under the covers.
 
 (* Meaning you can `map` over them, they can be combined together, and have an empty state `Cmd.None`.)
 
-So far, this is sounding like effect handling as usual. But no. Primarily because you never (or rarely) actually see the underlying `Task`.
+So far, this is sounding like effect handling as usual. But no. Primarily because you rarely actually see the underlying effect type.
 
 ### Making things happen
 
-Commands take the form `Cmd[Msg]` which is to say that they represent some sort of side effect that can produce a message to be cleanly fed back into your single page application's `updateModel` function.
+Commands take the form `Cmd[IO, Msg]` (`IO` is used for illustrative purposes) which is to say that they represent some sort of side effect that can produce a message to be cleanly fed back into your single page application's `updateModel` function.
 
-Commands can be produced as part of a result of calling the `init` or `updateModel` functions, which both return a `(Model, Cmd[Msg])`.
+Commands can be produced as part of a result of calling the `init` or `updateModel` functions, which both return a `(Model, Cmd[IO, Msg])`.
 
 Here is an example in which, on receiving a message `Msg.LogThis`, we are not going to change the model, but we want to write to the browser's JavaScript console:
 
@@ -48,10 +48,9 @@ type Model = Int
 enum Msg:
   case LogThis(message: String)
 
-def update(msg: Msg, model: Model): (Model, Cmd[IO, Msg]) =
-  msg match
-    case Msg.LogThis(msg) =>
-      (model, Logger.consoleLog(msg))
+def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+  case Msg.LogThis(msg) =>
+    (model, Logger.consoleLog(msg))
 ```
 
 To achieve this, we use the `Logger` command that comes with Tyrian. The `Logger` command is in fact just a `Cmd.SideEffect` that captures a value or behavior as a zero argument function, known as a `thunk`, in this case a simplified implementation could just be:

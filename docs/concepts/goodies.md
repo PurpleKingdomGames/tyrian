@@ -24,7 +24,7 @@ Assuming two messages `Error` and `Empty`, we can attempt to focus a given ID.
 ```scala
 import tyrian.cmds.*
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   Dom.focus("my-id") {
     case Left(Dom.NotFound(id)) => Msg.Error(s"ID $id not found")
     case Right(_) => Msg.Empty
@@ -42,7 +42,7 @@ Assuming two messages `Error` and `Read`, we can attempt to read the contents of
 ```scala
 import tyrian.cmds.*
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   FileReader.readText("my-file-input-field-id") {
     case Left(FileReader.Error(msg)) => Msg.Error(msg)
     case Right(FileReader.File(name, path, contents)) => Msg.Read(contents)
@@ -60,7 +60,7 @@ Given a path, this cmd will load an image and create and return an `HTMLImageEle
 ```scala
 import tyrian.cmds.*
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   ImageLoader.load("path/to/img.png") {
     case Left(ImageLoader.ImageLoadError(msg, path)) => Msg.Error(msg)
     case Right(imageElement) => Msg.UseImage(imageElement)
@@ -74,7 +74,7 @@ A series of commands that mirror the [localstorage interface](https://developer.
 ```scala
 import tyrian.cmds.*
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   Cmd.Batch(
     LocalStorage.setItem("key", "value") {
       case Right(_) => Msg.NoOp
@@ -110,7 +110,7 @@ Allows you to log to your browsers JavaScript console:
 ```scala
 import tyrian.cmds.*
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   Logger.info("Log this!")
 ```
 
@@ -119,7 +119,7 @@ If you're app is doing a lot of regular work, you can cut down the noise with th
 ```scala
 import tyrian.cmds.*
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   Logger.debugOnce("Log this exact message only once!")
 ```
 
@@ -134,7 +134,7 @@ import tyrian.cmds.*
 
 def toMessage = (v: String) => Msg.RandomValue(v.toString)
 
-val cmd: Cmd[Msg] =
+val cmd: Cmd[IO, Msg] =
   Cmd.Batch(
     Random.int.map(toMessage(_.toString)),
     Random.shuffle(List(1, 2, 3)).map(toMessage(_.toString)),
