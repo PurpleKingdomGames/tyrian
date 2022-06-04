@@ -7,6 +7,7 @@ object TagGen {
     tag match {
       case HasChildren(name, tag) => genTagHasChildren(name, tag)
       case NoChildren(name, tag)  => genTagNoChildren(name, tag)
+      case OptionalChildren(name, tag) => genTagHasChildren(name, tag) + genTagNoChildren(name, tag)
     }
 
   def genTagHasChildren(tagName: String, tagRealName: Option[String]): String = {
@@ -105,7 +106,7 @@ object TagGen {
       HasChildren("blockquote"),
       HasChildren("body"),
       NoChildren("br"),
-      HasChildren("button"),
+      OptionalChildren("button"),
       HasChildren("canvas"),
       HasChildren("caption"),
       HasChildren("cite"),
@@ -282,5 +283,11 @@ object NoChildren {
   def apply(name: String): NoChildren = NoChildren(name, None)
   def apply(name: String, tag: String): NoChildren = NoChildren(name, Some(tag))
 }
+final case class OptionalChildren(name: String, tag: Option[String])  extends TagType
+object OptionalChildren {
+  def apply(name: String): OptionalChildren = OptionalChildren(name, None)
+  def apply(name: String, tag: String): OptionalChildren = OptionalChildren(name, Some(tag))
+}
+
 
 final case class TagList(tags: List[TagType], namespace: String)
