@@ -73,7 +73,7 @@ class TyrianSSRTests extends munit.FunSuite {
   test("Can render attributes") {
     val elems: List[Elem[Msg]] =
       List(
-        div(id := "my-div", hidden)(("some content"))
+        div(id := "my-div", hidden)("some content")
       )
 
     val actual =
@@ -88,7 +88,7 @@ class TyrianSSRTests extends munit.FunSuite {
   test("Can render attributes and exclude hidden ones") {
     val elems: List[Elem[Msg]] =
       List(
-        div(id := "my-div", hidden(false))(("some content"))
+        div(id := "my-div", hidden(false))("some content")
       )
 
     val actual =
@@ -116,6 +116,32 @@ class TyrianSSRTests extends munit.FunSuite {
 
     val expected =
       "<!DOCTYPE HTML><html><head><title>My Page</title></head><body><p>Hello, world!</p></body></html>"
+
+    assertEquals(actual, expected)
+  }
+
+  test("Can use all overrides of button") {
+    val elems: Elem[Msg] =
+      div(
+        button,
+        button(_class := "a"),
+        button(List(_class := "a")),
+        button(_class := "a")(),
+        button(_class := "a")("X"),
+        button(List(_class := "a"))("X"),
+        button(List(_class := "a"))(text("X")),
+        button(_class := "a")(List(text("X"))),
+        button(List(_class := "a"))(List(text("X"))),
+        button("X"),
+        button(text("X")),
+        button(List(text("X")))
+      )
+
+    val actual =
+      TyrianSSR.render(elems)
+
+    val expected =
+      """<div><button></button><button class="a"></button><button class="a"></button><button class="a"></button><button class="a">X</button><button class="a">X</button><button class="a">X</button><button class="a">X</button><button class="a">X</button><button>X</button><button>X</button><button>X</button></div>"""
 
     assertEquals(actual, expected)
   }
