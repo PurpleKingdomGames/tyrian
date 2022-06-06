@@ -60,6 +60,12 @@ lazy val counter =
     .settings(commonSettings: _*)
     .settings(name := "counter")
 
+lazy val sideemit =
+  (project in file("sideemit"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "sideemit")
+
 lazy val field =
   (project in file("field"))
     .enablePlugins(ScalaJSPlugin)
@@ -116,6 +122,7 @@ lazy val exampleProjects: List[String] =
     "bundler",
     "clock",
     "counter",
+    "sideemit",
     "field",
     "http",
     "indigo",
