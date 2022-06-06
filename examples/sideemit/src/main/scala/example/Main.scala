@@ -15,7 +15,7 @@ object Main extends TyrianApp[Msg, Model]:
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
     case Msg.Add(msg) =>
-      (msg :: model, Cmd.SideEffect(IO.sleep(5.seconds)).combine(Cmd.Emit(Msg.Remove(msg))))
+      (msg :: model, Cmd.Run(IO.sleep(5.seconds) *> IO(Msg.Remove(msg)), identity))
     case Msg.Remove(msg) =>
       (model.filterNot(_ == msg), Cmd.None)
 
