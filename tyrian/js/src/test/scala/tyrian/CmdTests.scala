@@ -115,6 +115,8 @@ class CmdTests extends munit.CatsEffectSuite {
 
     val expected =
       Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20))
+
+    assertEquals(actual, expected)
   }
 
   test("Batch prepend") {
@@ -123,6 +125,8 @@ class CmdTests extends munit.CatsEffectSuite {
 
     val expected =
       Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20))
+
+    assertEquals(actual, expected)
   }
 
   test("Batch append") {
@@ -131,6 +135,8 @@ class CmdTests extends munit.CatsEffectSuite {
 
     val expected =
       Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20))
+
+    assertEquals(actual, expected)
   }
 
   test("Batch concat") {
@@ -139,6 +145,8 @@ class CmdTests extends munit.CatsEffectSuite {
 
     val expected =
       Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20), Cmd.Emit(30), Cmd.Emit(40))
+
+    assertEquals(actual, expected)
   }
 
 }
