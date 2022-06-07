@@ -227,7 +227,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
               value       := model.field,
               placeholder := "Text to reverse",
               onInput(s => Msg.NewContent(s)),
-              myStyle
+              myStyle,
+              autofocus
             ),
             div(myStyle)(text(model.field.reverse)),
             button(onClick(Msg.TakeSnapshot))("Snapshot"),
