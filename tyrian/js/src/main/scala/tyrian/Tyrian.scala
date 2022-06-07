@@ -52,16 +52,18 @@ object Tyrian:
     Dispatcher[F].evalMap { dispatcher =>
       for {
         queue <- Queue.unbounded[F, F[Unit]]
-        model <- Async[F].ref(ModelHolder[Model](init._1, true))
-        vnode <- Async[F].ref[Option[VNode]](None)
+
+        (initialModel, initialCmd) = init
+
+        model <- Async[F].ref(ModelHolder[Model](initialModel, true))
+        vnode <- Async[F].ref[Element | VNode](node)
 
         runtime <- Async[F].delay {
           new TyrianRuntime(
-            init._2,
+            initialCmd,
             update,
             view,
             subscriptions,
-            node,
             model,
             vnode,
             queue,
