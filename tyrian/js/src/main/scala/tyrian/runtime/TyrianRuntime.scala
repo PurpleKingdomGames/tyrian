@@ -31,7 +31,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     view: Model => Html[Msg],
     subscriptions: Model => Sub[F, Msg],
     node: Element,
-    model: Ref[F, Model],
+    model: Ref[F, ModelHolder[Model]],
     vnode: Ref[F, Option[VNode]],
     channel: => Channel[F, F[Unit]],
     dispatcher: => Dispatcher[F]
@@ -46,36 +46,34 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var aboutToRunSubscriptions: Set[String] = Set.empty
 
-  def initialise(cmd: Cmd[F, Msg]): Unit =
+  // Initialisation
+
+  private def initialise(cmd: Cmd[F, Msg]): Unit =
     val res: F[Unit] =
       for {
         currentModel <- model.get
-        complete     <- completeUpdate(cmd, currentModel)
+        _            <- Async[F].delay(renderLoop(0)) // Do first render before first cmds are run
+        _            <- completeUpdate(cmd, currentModel.model)
+      } yield ()
+
+    dispatcher.unsafeRunAndForget(res)
+
+  // Update
+
+  private def onMsg(msg: Msg): Unit =
+    val res: F[Unit] =
+      for {
+        currentModel <- model.get
+        (updatedState, cmd) = update(currentModel.model)(msg)
+        complete <- completeUpdate(cmd, updatedState)
       } yield complete
 
     dispatcher.unsafeRunAndForget(res)
 
-  def onMsg(msg: Msg): Unit =
-    val res: F[Unit] =
-      for {
-        currentModel <- model.get
-        updated      <- Async[F].delay(update(currentModel)(msg))
-        updatedState <- Async[F].delay(updated._1)
-        cmd          <- Async[F].delay(updated._2)
-        complete     <- completeUpdate(cmd, updatedState)
-      } yield complete
-
-    dispatcher.unsafeRunAndForget(res)
-
-  def completeUpdate(cmd: Cmd[F, Msg], updatedState: Model): F[Unit] =
+  private def completeUpdate(cmd: Cmd[F, Msg], updatedState: Model): F[Unit] =
     val results: F[Stream[F, F[Unit]]] =
       for {
-        _ <- model.set(updatedState)
-        n <- vnode.get
-        _ <- vnode.set(n match {
-          case Some(existingNode) => Some(render(existingNode, updatedState))
-          case None               => Some(render(node, updatedState))
-        })
+        _           <- model.set(ModelHolder(updatedState, true))
         sideEffects <- gatherSideEffects(cmd, subscriptions(updatedState))
       } yield Stream.emits(sideEffects)
 
@@ -83,9 +81,9 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       stream.foreach(channel.send(_).void).compile.drain
     }
 
-  given CanEqual[Option[_], Option[_]] = CanEqual.derived
+  private given CanEqual[Option[_], Option[_]] = CanEqual.derived
 
-  def gatherSideEffects(
+  private def gatherSideEffects(
       cmd: Cmd[F, Msg],
       sub: Sub[F, Msg]
   ): F[List[F[Unit]]] =
@@ -135,7 +133,9 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       }
     }
 
-  def toVNode(html: Html[Msg]): VNode =
+  // Render
+
+  private def toVNode(html: Html[Msg]): VNode =
     html match
       case Tag(name, attrs, children) =>
         val as: List[(String, String)] =
@@ -179,10 +179,32 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       )
     )
 
-  def render(oldNode: Element | VNode, model: Model): VNode =
+  private def render(oldNode: Element | VNode, model: Model): VNode =
     oldNode match
       case em: Element => patch(em, toVNode(view(model)))
       case vn: VNode   => patch(vn, toVNode(view(model)))
+
+  private def renderLoop(time: Double): Unit =
+    def res: F[Unit] =
+      Async[F].flatMap(model.get) { m =>
+        if m.updated then
+          for {
+            n <- vnode.get
+            _ <- vnode.set(n match {
+              case Some(existingNode) => Some(render(existingNode, m.model))
+              case None               => Some(render(node, m.model))
+            })
+            _ <- model.set(ModelHolder(m.model, false))
+          } yield ()
+        else Async[F].unit
+      }
+
+    dom.window.requestAnimationFrame { t =>
+      dispatcher.unsafeRunAndForget(res)
+      renderLoop(t)
+    }
+
+  // Start up
 
   def start(): Unit =
     dispatcher.unsafeRunAndForget(
@@ -190,3 +212,5 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         initialise(init._2)
       }
     )
+
+final class ModelHolder[Model](val model: Model, val updated: Boolean)

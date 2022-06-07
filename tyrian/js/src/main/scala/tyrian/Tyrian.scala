@@ -9,6 +9,7 @@ import fs2.Stream
 import fs2.concurrent.Channel
 import org.scalajs.dom.Element
 import snabbdom.VNode
+import tyrian.runtime.ModelHolder
 import tyrian.runtime.TyrianRuntime
 import tyrian.runtime.TyrianSSR
 
@@ -50,7 +51,7 @@ object Tyrian:
     Dispatcher[F].evalMap { dispatcher =>
       for {
         channel <- Channel.synchronous[F, F[Unit]]
-        model   <- Async[F].ref(init._1)
+        model   <- Async[F].ref(ModelHolder[Model](init._1, true))
         vnode   <- Async[F].ref[Option[VNode]](None)
 
         runtime <- Async[F].delay {
