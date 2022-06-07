@@ -2,6 +2,8 @@ package tyrian
 
 import cats.effect.IO
 
+import scala.concurrent.duration.*
+
 @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
 class CmdTests extends munit.CatsEffectSuite {
 
@@ -31,6 +33,16 @@ class CmdTests extends munit.CatsEffectSuite {
 
   test("map - Empty") {
     assertEquals(Cmd.None.map(_ => 10), Cmd.None)
+  }
+
+  test("Emit") {
+    val cmd: Cmd[IO, Int] =
+      Cmd.Emit(10).delayBy(1.seconds)
+
+    val actual: IO[Int] =
+      cmd.run
+
+    actual.assertEquals(10)
   }
 
   test("map - Run") {

@@ -4,6 +4,8 @@ import cats.effect.kernel.Sync
 import cats.kernel.Monoid
 
 import scala.annotation.targetName
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.*
 
 /** A command describes some side-effect to perform.
   */
@@ -30,6 +32,9 @@ object Cmd:
       case (c1, c2)             => Cmd.Combine[F, LubMsg](c1, c2)
     }
 
+  def emitAfterDelay[Msg](msg: Msg, delay: FiniteDuration): Emit[Msg] =
+    Emit(msg, delay)
+
   /** The empty command represents the absence of any command to perform */
   case object None extends Cmd[Nothing, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): None.type = this
@@ -42,8 +47,12 @@ object Cmd:
       SideEffect(Sync[F].delay(thunk))
 
   /** Simply produces a message that will then be actioned. */
-  final case class Emit[Msg](msg: Msg) extends Cmd[Nothing, Msg]:
-    def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg))
+  final case class Emit[Msg](msg: Msg, afterDelay: FiniteDuration) extends Cmd[Nothing, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg), afterDelay)
+    def delayBy(amount: FiniteDuration): Emit[Msg] = this.copy(afterDelay = amount)
+  object Emit:
+    def apply[Msg](msg: Msg): Emit[Msg] =
+      Emit(msg, 0.seconds)
 
   /** Represents runnable concurrent task that produces a message */
   final case class Run[F[_], A, Msg](

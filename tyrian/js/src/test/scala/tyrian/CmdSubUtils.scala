@@ -12,7 +12,7 @@ object CmdSubUtils:
       case c: Cmd.Run[IO, _, _] =>
         c.task.map(c.toMsg)
 
-      case Cmd.Emit(msg) =>
+      case Cmd.Emit(msg, delay) =>
         IO(msg)
 
       case _ =>
