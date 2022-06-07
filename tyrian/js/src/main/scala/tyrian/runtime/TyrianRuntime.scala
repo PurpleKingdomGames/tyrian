@@ -26,7 +26,7 @@ import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj}
 
 final class TyrianRuntime[F[_]: Async, Model, Msg](
-    init: (Model, Cmd[F, Msg]),
+    initCmd: Cmd[F, Msg],
     update: Model => Msg => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
     subscriptions: Model => Sub[F, Msg],
@@ -45,18 +45,6 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   // you would have run all the subs between events.
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   private var aboutToRunSubscriptions: Set[String] = Set.empty
-
-  // Initialisation
-
-  private def initialise(cmd: Cmd[F, Msg]): Unit =
-    val res: F[Unit] =
-      for {
-        currentModel <- model.get
-        _            <- Async[F].delay(renderLoop(0)) // Do first render before first cmds are run
-        _            <- completeUpdate(cmd, currentModel.model)
-      } yield ()
-
-    dispatcher.unsafeRunAndForget(res)
 
   // Update
 
@@ -207,9 +195,10 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   // Start up
 
   def start(): Unit =
+    renderLoop(0)
     dispatcher.unsafeRunAndForget(
-      model.get.map { currentState =>
-        initialise(init._2)
+      model.get.flatMap { m =>
+        completeUpdate(initCmd, m.model)
       }
     )
 

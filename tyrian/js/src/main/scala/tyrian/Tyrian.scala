@@ -57,7 +57,7 @@ object Tyrian:
 
         runtime <- Async[F].delay {
           new TyrianRuntime(
-            init,
+            init._2,
             update,
             view,
             subscriptions,
