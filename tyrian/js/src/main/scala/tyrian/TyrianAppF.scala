@@ -12,6 +12,8 @@ import scala.scalajs.js.annotation._
   */
 trait TyrianAppF[F[_]: Async, Msg, Model]:
 
+  def MaxConcurrentMessages: Int = 1024
+
   val run: Resource[F, TyrianRuntime[F, Model, Msg]] => Unit
 
   /** Used to initialise your app. Accepts simple flags and produces the initial model state, along with any commands to
@@ -59,6 +61,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
         init(flags),
         update,
         view,
-        subscriptions
+        subscriptions,
+        MaxConcurrentMessages
       )
     )
