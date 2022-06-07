@@ -4,9 +4,9 @@ import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
 import cats.syntax.all._
 import fs2.Stream
-import fs2.concurrent.Channel
 import org.scalajs.dom.Element
 import snabbdom.VNode
 import tyrian.runtime.ModelHolder
@@ -50,9 +50,9 @@ object Tyrian:
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
     Dispatcher[F].evalMap { dispatcher =>
       for {
-        channel <- Channel.synchronous[F, F[Unit]]
-        model   <- Async[F].ref(ModelHolder[Model](init._1, true))
-        vnode   <- Async[F].ref[Option[VNode]](None)
+        queue <- Queue.unbounded[F, F[Unit]]
+        model <- Async[F].ref(ModelHolder[Model](init._1, true))
+        vnode <- Async[F].ref[Option[VNode]](None)
 
         runtime <- Async[F].delay {
           new TyrianRuntime(
@@ -63,14 +63,14 @@ object Tyrian:
             node,
             model,
             vnode,
-            channel,
+            queue,
             dispatcher
           )
         }
 
       } yield Stream
         .emit(runtime)
-        .concurrently(channel.stream.flatMap(Stream.eval))
+        .concurrently(Stream.fromQueueUnterminated(queue).flatMap(Stream.eval))
         .compile
         .resource
         .lastOrError
