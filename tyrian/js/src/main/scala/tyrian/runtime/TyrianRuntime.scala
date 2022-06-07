@@ -3,9 +3,9 @@ package tyrian.runtime
 import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
 import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
-import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom._
@@ -33,7 +33,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     node: Element,
     model: Ref[F, ModelHolder[Model]],
     vnode: Ref[F, Option[VNode]],
-    channel: => Channel[F, F[Unit]],
+    queue: => Queue[F, F[Unit]],
     dispatcher: => Dispatcher[F]
 ):
 
@@ -78,7 +78,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       } yield Stream.emits(sideEffects)
 
     Async[F].flatMap(results) { (stream: Stream[F, F[Unit]]) =>
-      stream.foreach(channel.send(_).void).compile.drain
+      stream.foreach(queue.offer).compile.drain
     }
 
   private given CanEqual[Option[_], Option[_]] = CanEqual.derived
