@@ -1,9 +1,11 @@
 package tyrian
 
 import cats.effect.kernel.Sync
+import cats.effect.kernel.Temporal
 import cats.kernel.Monoid
 
 import scala.annotation.targetName
+import scala.concurrent.duration.FiniteDuration
 
 /** A command describes some side-effect to perform.
   */
@@ -29,6 +31,12 @@ object Cmd:
       case (c1, Cmd.None)       => c1
       case (c1, c2)             => Cmd.Combine[F, LubMsg](c1, c2)
     }
+
+  def emit[Msg](msg: Msg): Cmd[Nothing, Msg] =
+    Cmd.Emit(msg)
+
+  def emitAfterDelay[F[_]: Temporal, Msg](msg: Msg, delay: FiniteDuration): Cmd[F, Msg] =
+    Cmd.Run(Temporal[F].delayBy(Temporal[F].pure(msg), delay), identity)
 
   /** The empty command represents the absence of any command to perform */
   case object None extends Cmd[Nothing, Nothing]:

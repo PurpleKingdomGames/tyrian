@@ -2,6 +2,8 @@ package tyrian
 
 import cats.effect.IO
 
+import scala.concurrent.duration.*
+
 @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
 class CmdTests extends munit.CatsEffectSuite {
 
@@ -147,6 +149,16 @@ class CmdTests extends munit.CatsEffectSuite {
       Cmd.Batch(Cmd.Emit(10), Cmd.Emit(20), Cmd.Emit(30), Cmd.Emit(40))
 
     assertEquals(actual, expected)
+  }
+
+  test("emitAfterDelay") {
+    val cmd: Cmd[IO, Int] =
+      Cmd.emitAfterDelay(10, 1.seconds)
+
+    val actual: IO[Int] =
+      cmd.run
+
+    actual.assertEquals(10)
   }
 
 }

@@ -36,7 +36,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
           case LocalStorage.Result.Key(key) => Msg.Log("Found local storage key: " + key)
           case _                            => Msg.Log("No local storage enties found.")
         },
-        LocalStorage.length(l => Msg.Log("Number of local storage entries: " + l.length))
+        LocalStorage.length(l => Msg.Log("Number of local storage entries: " + l.length)),
+        Cmd.emit(Msg.Log("Delayed by 0 seconds")),
+        Cmd.emitAfterDelay(Msg.Log("Delayed by 10 seconds"), 10.seconds)
       )
 
     (Model.init, cmds)
