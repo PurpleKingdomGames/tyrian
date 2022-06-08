@@ -60,6 +60,12 @@ lazy val counter =
     .settings(commonSettings: _*)
     .settings(name := "counter")
 
+lazy val electron =
+  (project in file("electron"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "electron")
+
 lazy val field =
   (project in file("field"))
     .enablePlugins(ScalaJSPlugin)
@@ -116,6 +122,7 @@ lazy val exampleProjects: List[String] =
     "bundler",
     "clock",
     "counter",
+    "electron",
     "field",
     "http",
     "indigo",

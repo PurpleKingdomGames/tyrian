@@ -1,0 +1,15 @@
+{
+  "name": "tyrian-electron",
+  "version": "1.0.0",
+  "description": "Tyrian Electron App",
+  "main": "main.js",
+  "scripts": {
+    "start": "npx electron ."
+  },
+  "repository": "",
+  "author": "Purple Kingdom Games",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^19.0.3"
+  }
+}
