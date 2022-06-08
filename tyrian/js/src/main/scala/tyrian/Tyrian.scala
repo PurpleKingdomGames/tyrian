@@ -47,7 +47,7 @@ object Tyrian:
       update: Model => Msg => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg],
-      maxConcurrentMessages: Int
+      maxConcurrentTasks: Int
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
     Dispatcher[F].evalMap { dispatcher =>
       for {
@@ -73,7 +73,7 @@ object Tyrian:
 
       } yield Stream
         .emit(runtime)
-        .concurrently(Stream.fromQueueUnterminated(queue).parEvalMap(maxConcurrentMessages)(identity))
+        .concurrently(Stream.fromQueueUnterminated(queue).parEvalMap(maxConcurrentTasks)(identity))
         .compile
         .resource
         .lastOrError
