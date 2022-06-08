@@ -1,5 +1,11 @@
 name: CI
-on: [workflow_dispatch, push, pull_request]
+on:
+  workflow_dispatch:
+    branches:
+      - 'main'
+  push:
+    branches:
+      - 'main'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -10,11 +16,11 @@ jobs:
         java-version: adopt@1.11
     - uses: jodersky/setup-mill@master
       with:
-        mill-version: 0.10.0
+        mill-version: 0.10.4
     - uses: actions/setup-node@v2
       with:
         node-version: '17'
-    - name: Install snabbdom
+    - name: Install npm deps
       run: npm install
     - name: Tyrian Compile & Test
       run: sbt compile test +publishLocal gendocs

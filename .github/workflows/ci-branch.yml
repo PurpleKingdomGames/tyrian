@@ -1,0 +1,31 @@
+name: CI-Branch
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+      - '!main'
+  push:
+    branches:
+      - '*'
+      - '!main'
+  pull_request:
+    types: [opened, reopened, converted_to_draft, ready_for_review]
+    branches:
+      - '*'
+      - '!main'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: olafurpg/setup-scala@v11
+      with:
+        java-version: adopt@1.11
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '17'
+    - name: Install npm deps
+      run: npm install
+    - name: Tyrian Compile & Test
+      run: sbt compile test gendocs
+
