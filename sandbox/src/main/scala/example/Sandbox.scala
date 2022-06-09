@@ -290,6 +290,24 @@ object Sandbox extends TyrianApp[Msg, Model]:
             )
           )
 
+        case Page.Page6 =>
+          // Example of how to use preventDefault to avoid a page refesh on form submit.
+          val submitMyForm =
+            Html.onEvent(
+              "submit",
+              { (e: Tyrian.Event) =>
+                e.preventDefault()
+                Msg.Log("submitted")
+              }
+            )
+
+          div(
+            // form(onSubmit(Msg.Log("submitted")))( // Refreshes the page
+            form(submitMyForm)(
+              input(_type := "submit", name := "submit", value := "submit")
+            )
+          )
+
     div(
       div(
         h3("Navigation:"),
@@ -414,7 +432,7 @@ final case class Model(
 )
 
 enum Page:
-  case Page1, Page2, Page3, Page4, Page5
+  case Page1, Page2, Page3, Page4, Page5, Page6
 
   def toNavLabel: String =
     this match
@@ -423,6 +441,7 @@ enum Page:
       case Page3 => "WebSockets"
       case Page4 => "Clock"
       case Page5 => "Http"
+      case Page6 => "Form"
 
   def toHash: String =
     this match
@@ -431,6 +450,7 @@ enum Page:
       case Page3 => "#page3"
       case Page4 => "#page4"
       case Page5 => "#page5"
+      case Page6 => "#page6"
 
 object Page:
   def fromString(pageString: String): Page =
@@ -443,6 +463,8 @@ object Page:
       case "page4"  => Page4
       case "#page5" => Page5
       case "page5"  => Page5
+      case "#page6" => Page6
+      case "page6"  => Page6
       case s        => Page1
 
 object Model:
