@@ -10,8 +10,13 @@ sbt clean update compile test +publishLocal gendocs
 
 cd examples
 sbt buildExamples
+cd $PROJECT_ROOT
 
-cd server-examples
+cd examples/mill
+mill counter.compile
+mill counter.test
+cd $PROJECT_ROOT
+
+cd examples/server-examples
 sbt buildAll
-
 cd $PROJECT_ROOT

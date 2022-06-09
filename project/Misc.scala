@@ -24,10 +24,10 @@ object Misc {
 
   def copyApiDocsTaskDefinition(file: File): Unit = {
 
-    println("Copy docs from 'target/scala-3.1.1/unidoc' to 'target/scala-3.1.1/site-docs/api'")
+    println("Copy docs from 'target/scala-3.1.2/unidoc' to 'target/scala-3.1.2/site-docs/api'")
 
-    val src = file / "scala-3.1.1" / "unidoc"
-    val dst = file / "scala-3.1.1" / "site-docs" / "api"
+    val src = file / "scala-3.1.2" / "unidoc"
+    val dst = file / "scala-3.1.2" / "site-docs" / "api"
 
     IO.copyDirectory(src, dst)
   }
