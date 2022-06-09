@@ -104,6 +104,15 @@ lazy val mario =
     .settings(commonSettings: _*)
     .settings(name := "mario")
 
+lazy val nonpm =
+  (project in file("no-npm"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      name := "No NPM",
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.NoModule) }
+    )
+
 lazy val subcomponents =
   (project in file("subcomponents"))
     .enablePlugins(ScalaJSPlugin)
@@ -127,6 +136,7 @@ lazy val exampleProjects: List[String] =
     "http",
     "indigo",
     "mario",
+    "nonpm",
     "subcomponents",
     "websocket"
   )
