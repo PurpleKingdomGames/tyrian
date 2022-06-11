@@ -1,11 +1,5 @@
 name: CI
-on:
-  workflow_dispatch:
-    branches:
-      - 'main'
-  push:
-    branches:
-      - 'main'
+on: [workflow_dispatch, push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,31 +8,11 @@ jobs:
     - uses: olafurpg/setup-scala@v11
       with:
         java-version: adopt@1.11
-    - uses: jodersky/setup-mill@master
-      with:
-        mill-version: 0.10.4
     - uses: actions/setup-node@v2
       with:
         node-version: '17'
     - name: Install npm deps
       run: npm install
     - name: Tyrian Compile & Test
-      run: sbt compile test +publishLocal gendocs
-    - name: Build SBT Examples
-      run: |
-        pwd
-        cd examples
-        sbt buildExamples
-    - name: Build Mill Examples
-      run: |
-        pwd
-        cd examples/mill
-        mill counter.compile
-        mill counter.test
-    - name: Build Server Examples
-      run: |
-        pwd
-        cd examples/server-examples
-        export NODE_OPTIONS=--openssl-legacy-provider
-        sbt buildAll
+      run: sbt clean compile test
 
