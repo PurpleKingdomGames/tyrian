@@ -35,8 +35,6 @@ object Http:
         val xhr = new XMLHttpRequest
 
         try {
-          request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
-
           xhr.timeout = request.timeout.toMillis.toDouble
           xhr.withCredentials = request.withCredentials
           xhr.open(request.method.asString, request.url)
@@ -44,6 +42,7 @@ object Http:
           xhr.onerror = _ => callback(Right(Connection.Error(HttpError.NetworkError)))
           xhr.ontimeout = _ => callback(Right(Connection.Error(HttpError.Timeout)))
 
+          request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
           request.body match
             case Body.Empty =>
               xhr.send(null)
