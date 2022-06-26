@@ -17,14 +17,14 @@ The example is comprised of two buttons, `+` and `-`, and some text that shows a
 
 The version of this in the [examples](https://github.com/PurpleKingdomGames/tyrian/tree/main/examples) is already quite lean, but the version below has been stripped back to the minimum.
 
-```scala mdoc:silent
+```scala mdoc:js
 import tyrian.Html.*
 import tyrian.*
 import cats.effect.IO
 
 import scala.scalajs.js.annotation.*
 
-@JSExportTopLevel("TyrianApp")
+// @JSExportTopLevel("TyrianApp") // Commented out to appease mdoc..
 object Main extends TyrianApp[Msg, Model]:
 
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
@@ -43,7 +43,7 @@ object Main extends TyrianApp[Msg, Model]:
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
-
+    
 type Model = Int
 
 enum Msg:
@@ -54,17 +54,7 @@ Lets go through it...
 
 #### `TyrianApp`
 
-```scala
-import tyrian.Html.*
-import tyrian.*
-
-import scala.scalajs.js.annotation.*
-
-@JSExportTopLevel("TyrianApp")
-object Main extends TyrianApp[Msg, Model]:
-```
-
-Here we have the most common imports that bring in all the basics you'll need to build your SPA.
+Starting at the top, we have the most common imports that bring in all the basics you'll need to build your SPA.
 
 All Tyrian SPAs must extend `TyrianApp` which is parameterized by a message type and a model type. These types can be anything you like, but typically `Msg` is an enum or ADT, and `Model` is probably a case class (in our case we're just using an `Int`, but we'll come back to that).
 
@@ -74,7 +64,7 @@ The other thing you must do is export the app using Scala.js's `@JSExportTopLeve
 
 #### The model
 
-```scala
+```scala mdoc:js
 type Model = Int
 ```
 
@@ -84,15 +74,15 @@ Our app is a counter, so we need a number we can increment and decrement. In thi
 
 To use our model, we're going to have to initialize it!
 
-```scala mdoc:reset:invisible
-import tyrian.Html.*
+```scala mdoc:js:shared
 import tyrian.*
+import tyrian.Html.*
 import cats.effect.IO
 
 type Model = Int
 ```
 
-```scala mdoc:silent
+```scala mdoc:js
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (0, Cmd.None)
 ```
@@ -110,7 +100,7 @@ Let's draw the page. All the functions in Tyrian are encouraged to be pure, whic
 
 The `view` takes the latest immutable (read-only) model, and produces some HTML in the form of `Html[Msg]`.
 
-```scala mdoc:silent
+```scala mdoc:js
   def view(model: Model): Html[Msg] =
     div(
       button("-"),
@@ -123,30 +113,25 @@ Here we make a div, add a `-` button, the another div containing the count (i.e.
 
 If you wanted to add an `id` attribute to the div, you would do so like this:
 
-```scala
-div(id := "my container")(...)
+```scala mdoc:js
+  def view(model: Model): Html[Msg] =
+    div(id := "my container")(
+      button("-"),
+      div(model.toString),
+      button("+")
+    )
 ```
 
 Of course a button isn't much use unless it does something, and what we can do is emit an event, called a message, when the button is clicked. For that we need to declare our message type which we'll do as a simple enum that represents the two actions we want to perform:
 
-```scala mdoc:silent
+```scala mdoc:js:shared
 enum Msg:
   case Increment, Decrement
 ```
 
 ...and add our click events:
 
-```scala mdoc:reset:invisible
-import tyrian.Html.*
-import tyrian.*
-import cats.effect.IO
-
-type Model = Int
-enum Msg:
-  case Increment, Decrement
-```
-
-```scala mdoc:silent
+```scala mdoc:js
   def view(model: Model): Html[Msg] =
     div(
       button(onClick(Msg.Decrement))("-"),
@@ -161,7 +146,7 @@ enum Msg:
 
 The final thing we need to do is react to the messages the view is sending, as follows:
 
-```scala mdoc:silent
+```scala mdoc:js
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
     case Msg.Increment => (model + 1, Cmd.None)
     case Msg.Decrement => (model - 1, Cmd.None)

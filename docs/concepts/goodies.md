@@ -17,11 +17,27 @@ These nuggets of functionality are used as commands.
 - `Logger` - A simple logger that logs to the Browsers console with a few standard headers and the log message.
 - `Random` - A Cmd to generate random values.
 
+In the examples below, we will be using this catch-all ADT, here it is for reference.
+
+```scala mdoc:js:shared
+import org.scalajs.dom.html
+
+enum Msg:
+  case Read(contents: String)
+  case UseImage(img: html.Image)
+  case RandomValue(value: String)
+  case Error(message: String)
+  case Empty
+  case NoOp
+```
+
 ### `Dom`
 
 Assuming two messages `Error` and `Empty`, we can attempt to focus a given ID.
 
-```scala
+```scala mdoc:js:shared
+import cats.effect.IO
+import tyrian.*
 import tyrian.cmds.*
 
 val cmd: Cmd[IO, Msg] =
@@ -39,13 +55,13 @@ Will read any file data, with build in support for text and images.
 
 Assuming two messages `Error` and `Read`, we can attempt to read the contents of a text file.
 
-```scala
+```scala mdoc:js
 import tyrian.cmds.*
 
 val cmd: Cmd[IO, Msg] =
   FileReader.readText("my-file-input-field-id") {
-    case Left(FileReader.Error(msg)) => Msg.Error(msg)
-    case Right(FileReader.File(name, path, contents)) => Msg.Read(contents)
+    case FileReader.Result.Error(msg) => Msg.Error(msg)
+    case FileReader.Result.File(name, path, contents) => Msg.Read(contents)
   }
 ```
 
@@ -57,13 +73,13 @@ Please see the [http example](https://github.com/PurpleKingdomGames/tyrian/tree/
 
 Given a path, this cmd will load an image and create and return an `HTMLImageElement` for you to make use of.
 
-```scala
+```scala mdoc:js
 import tyrian.cmds.*
 
 val cmd: Cmd[IO, Msg] =
   ImageLoader.load("path/to/img.png") {
-    case Left(ImageLoader.ImageLoadError(msg, path)) => Msg.Error(msg)
-    case Right(imageElement) => Msg.UseImage(imageElement)
+    case ImageLoader.Result.ImageLoadError(msg, path) => Msg.Error(msg)
+    case ImageLoader.Result.Image(imageElement) => Msg.UseImage(imageElement)
   }
 ```
 
@@ -71,34 +87,34 @@ val cmd: Cmd[IO, Msg] =
 
 A series of commands that mirror the [localstorage interface](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
 
-```scala
+```scala mdoc:js
 import tyrian.cmds.*
 
 val cmd: Cmd[IO, Msg] =
-  Cmd.Batch(
+  Cmd.Batch[IO, Msg](
     LocalStorage.setItem("key", "value") {
-      case Right(_) => Msg.NoOp
-      case Left(e) => Msg.Error(e.toString)
+      case LocalStorage.Result.Success => Msg.NoOp
+      case e => Msg.Error(e.toString)
     },
     LocalStorage.getItem("key") {
-      case Right(value) => Msg.Read(value)
-      case Left(e) => Msg.Error(e.toString)
+      case Right(LocalStorage.Result.Found(value)) => Msg.Read(value)
+      case Left(LocalStorage.Result.NotFound(e)) => Msg.Error(e.toString)
     },
     LocalStorage.removeItem("key") {
-      case Right(_) => Msg.NoOp
-      case Left(e) => Msg.Error(e.toString)
+      case LocalStorage.Result.Success => Msg.NoOp
+      case e => Msg.Error(e.toString)
     },
     LocalStorage.clear {
-      case Right(_) => Msg.NoOp
-      case Left(e) => Msg.Error(e.toString)
+      case LocalStorage.Result.Success => Msg.NoOp
+      case e => Msg.Error(e.toString)
     },
     LocalStorage.key(0) {
-      case Right(keyAtIndex0) => Msg.Read(keyAtIndex0)
-      case Left(e) => Msg.Error(e.toString)
+      case LocalStorage.Result.Key(keyAtIndex0) => Msg.Read(keyAtIndex0)
+      case LocalStorage.Result.NotFound(e) => Msg.Error(e.toString)
+      case e => Msg.Error(e.toString)
     },
     LocalStorage.length {
-      case Right(value) => Msg.Read(value)
-      case Left(e) => Msg.Error(e.toString)
+      case LocalStorage.Result.Length(value) => Msg.Read(value.toString)
     }
   )
 ```
@@ -107,7 +123,7 @@ val cmd: Cmd[IO, Msg] =
 
 Allows you to log to your browsers JavaScript console:
 
-```scala
+```scala mdoc:js
 import tyrian.cmds.*
 
 val cmd: Cmd[IO, Msg] =
@@ -116,7 +132,7 @@ val cmd: Cmd[IO, Msg] =
 
 If you're app is doing a lot of regular work, you can cut down the noise with the 'once' versions:
 
-```scala
+```scala mdoc:js
 import tyrian.cmds.*
 
 val cmd: Cmd[IO, Msg] =
@@ -129,16 +145,16 @@ As you might expect, `Random` produces random values! Random works slightly diff
 
 Assuming a message `RandomValue`, here are a few examples:
 
-```scala
+```scala mdoc:js
 import tyrian.cmds.*
 
-def toMessage = (v: String) => Msg.RandomValue(v.toString)
+val toMessage = (v: String) => Msg.RandomValue(v)
 
 val cmd: Cmd[IO, Msg] =
   Cmd.Batch(
-    Random.int.map(toMessage(_.toString)),
-    Random.shuffle(List(1, 2, 3)).map(toMessage(_.toString)),
-    Random.Seeded(12l).alphaNumeric(5).map(toMessage)
+    Random.int[IO].map(i => toMessage(i.value.toString)),
+    Random.shuffle[IO, Int](List(1, 2, 3)).map(l => toMessage(l.value.toString)),
+    Random.Seeded(12l).alphaNumeric[IO](5).map(a => toMessage(a.value.mkString))
   )
 ```
 

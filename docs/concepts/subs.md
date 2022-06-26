@@ -8,14 +8,14 @@ Subscriptions (`Sub`s) are used to observe something that changes over time, and
 
 For example, we could chose to observe the mouse position, and emit a message every time the mouse moves, like this:
 
-```scala
+```scala mdoc:js:shared
 import org.scalajs.dom.document
 import org.scalajs.dom.MouseEvent
 import cats.effect.IO
 
 import tyrian.*
 
-type Model = ???
+type Model = Int
 
 enum Msg:
   case MouseMove(x: Double, y: Double)
@@ -39,7 +39,7 @@ Subscriptions are Functors which means that you can `map` over them to change th
 
 A common thing to need to do is batch multiple subs together into a single subscription, like this:
 
-```scala
+```scala mdoc:js
 import scala.concurrent.duration._
 
 import org.scalajs.dom.document
@@ -57,7 +57,7 @@ val mousePosition: Sub[IO, Msg] =
   }
 
 val tick =
-  Sub.every(1.second, "tick")
+  Sub.every[IO](1.second, "tick")
     .map(date => Msg.CurrentSeconds(date.getSeconds()))
 
 def subscriptions(model: Model): Sub[IO, Msg] =

@@ -53,9 +53,20 @@ To listen for messages from Tyrian, you simply match on the `TyrianEvent.Receive
 
 To send a message to Tyrian, you emit a message as normal, e.g.:
 
-```scala
-Outcome(..).addGlobalEvents(TyrianEvent.Send(myMessage))
+```scala mdoc:js
+import indigo.*
+import tyrian.*
+import cats.effect.IO
+
+val bridge: TyrianIndigoBridge[IO, String] = TyrianIndigoBridge()
+val subsystem: TyrianSubSystem[IO, String] = TyrianSubSystem(bridge)
+val model: Int = 10
+
+// Sending a string here, but could be anything.
+Outcome(model).addGlobalEvents(subsystem.TyrianEvent.Send("My message"))
 ```
+
+Please note that the example above is rather contrived to try and show you the code, it's better to look at [a real example](https://github.com/PurpleKingdomGames/tyrian/blob/main/examples/indigo/src/main/scala/example/game/MyAwesomeGame.scala#L58).
 
 #### In Tyrian
 

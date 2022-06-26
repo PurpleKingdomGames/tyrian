@@ -15,7 +15,7 @@ This arrangement has come back into fashion, and now has the fancy name "server-
 
 Below is a simple example of SRR with Tyrian:
 
-```scala mdoc:silent
+```scala mdoc:js
 import tyrian.*
 import tyrian.Html.*
 

@@ -38,7 +38,7 @@ Commands can be produced as part of a result of calling the `init` or `updateMod
 
 Here is an example in which, on receiving a message `Msg.LogThis`, we are not going to change the model, but we want to write to the browser's JavaScript console:
 
-```scala mdoc:silent
+```scala mdoc:js:shared
 import tyrian.*
 import tyrian.cmds.*
 import cats.effect.IO
@@ -55,7 +55,7 @@ def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
 
 To achieve this, we use the `Logger` command that comes with Tyrian. The `Logger` command is in fact just a `Cmd.SideEffect` that captures a value or behavior as a zero argument function, known as a `thunk`, in this case a simplified implementation could just be:
 
-```scala mdoc:silent
+```scala mdoc:js
 def consoleLog(msg: String): Cmd[IO, Nothing] =
   Cmd.SideEffect {
     println(msg)
@@ -64,17 +64,17 @@ def consoleLog(msg: String): Cmd[IO, Nothing] =
 
 But commands can also return values in the form of messages. The `Random` command looks like this:
 
-```scala
-Random.double
+```scala mdoc:js
+Random.double[IO]
 ```
 
 ...and produces an instance of `RandomValue`, but this leads to a problem since `RandomValue` is almost certainly not your app's `Msg` type, and so we must map over the result:
 
-```scala
+```scala mdoc:js
 enum MyMsg:
   case MyRandom(d: Double) extends MyMsg
 
-Random.double.map(next => MyMsg.MyRandom(next.value))
+Random.double[IO].map(next => MyMsg.MyRandom(next.value))
 ```
 
 These are simple examples, but there are much more complicated uses for commands. One great use of commands is for making [HTTP requests where the response is decoded into a `Msg`.](https://github.com/PurpleKingdomGames/tyrian/tree/main/examples)

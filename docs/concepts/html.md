@@ -9,18 +9,19 @@ In Tyrian, you describe your view in Scala and the VirtualDom implementation tha
 
 Here is a simple made up example of the syntax to give you a flavor:
 
-```scala mdoc:silent
+```scala mdoc:js:shared
 import tyrian.*
 import tyrian.Html.*
+import tyrian.CSS
 
 enum Msg:
   case Greet
 
-val styles  = style(CSS.`font-family`("Arial, Helvetica, sans-serif"))
+val myStyles  = style(CSS.`font-family`("Arial, Helvetica, sans-serif"))
 val topLine = p(b(text("This is some HTML in bold.")))
 
 div(id := "my-container")(
-  div(styles)(
+  div(myStyles)(
     topLine,
     p("Hello, world!"),
     button(onClick(Msg.Greet))("Say hello!")
@@ -38,7 +39,7 @@ The arrangement of tags follows similar approaches by other compiled languages t
 
 For example, here we have a `span` with an attribute and a child element:
 
-```scala
+```scala mdoc:js
 span(`class` := "green-box")(
   p("This is some text.")
 )
@@ -46,7 +47,7 @@ span(`class` := "green-box")(
 
 You can omit the attributes and the syntax is valid:
 
-```scala
+```scala mdoc:js
 span(
   p("This is some text.")
 )
@@ -54,14 +55,14 @@ span(
 
 Note that plain text can be declare as `text` or just omitted, in other words these are equivalent:
 
-```scala
+```scala mdoc:js
 p("some text")
 p(text("some text"))
 ```
 
 To distinguish them from similarly named tags (e.g. the `title` attribute and the `title` tag...), attributes are declared as `attribute-name := attribute-value`, e.g.:
 
-```scala
+```scala mdoc:js
 id := "my-container"
 ```
 
@@ -76,15 +77,15 @@ _class
 
 Styles are also baked in, albeit it in a slightly crude way, but you will get some IDE support. You can do things like the following:
 
-```scala
-p(CSS.`font-weight`("bold"))("Hello")
+```scala mdoc:js
+p(style(CSS.`font-weight`("bold")))("Hello")
 ```
 
 ### SVG
 
 You can also pull in SVG tags and attributes using:
 
-```scala mdoc:silent
+```scala mdoc:js
 import tyrian.SVG.*
 ```
 
@@ -92,7 +93,7 @@ import tyrian.SVG.*
 
 Many standard CSS terms can be imported using:
 
-```scala mdoc:silent
+```scala mdoc:js
 import tyrian.CSS.*
 ```
 
@@ -100,9 +101,11 @@ import tyrian.CSS.*
 
 If you find we've missed a tag or attribute or something, [please raise an issue](https://github.com/PurpleKingdomGames/tyrian/issues). In the meantime, you can always make your own. Here are just a few made up examples, each of these has numerous constructors for you to explore:
 
-```scala
+```scala mdoc:js
 // A 'canvas' tag
-tag("canvas", List(id := "an-id"), Nil)
+tag("canvas")(id := "an-id")(Nil)
+// or
+Tag("canvas", List(id := "an-id"), Nil)
 
 // An attribute
 attribute("my-attribute", "its-value")
@@ -115,7 +118,7 @@ style("width", "100px")
 styles("width" -> "100px", "height" -> "50px")
 
 // An event-type attribute
-onEvent("click", (evt: Tyrian.Event) => Msg.DoSomething)
+onEvent("click", (evt: Tyrian.Event) => Msg.Greet)
 ```
 
 > Note that everything is stringly typed, and that's because in HTML everything is stringly typed too! In the generated tags, we've added support for things like attributes accepting `Int`s and `Boolean`s and so on where they have known acceptable input types.
