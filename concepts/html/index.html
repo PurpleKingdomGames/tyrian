@@ -12,22 +12,22 @@
     <title>Rendering HTML - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1654818888" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1654818888" rel="stylesheet">
-    <link href="/css/hybrid.css?1654818888" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1654818888" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1654818888" rel="stylesheet">
-    <link href="/css/auto-complete.css?1654818888" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1654818888" rel="stylesheet">
-    <link href="/css/theme.css?1654818888" rel="stylesheet">
-    <link href="/css/tabs.css?1654818888" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1654818888" rel="stylesheet">
+    <link href="/css/nucleus.css?1656279525" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1656279525" rel="stylesheet">
+    <link href="/css/hybrid.css?1656279525" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1656279525" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1656279525" rel="stylesheet">
+    <link href="/css/auto-complete.css?1656279525" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1656279525" rel="stylesheet">
+    <link href="/css/theme.css?1656279525" rel="stylesheet">
+    <link href="/css/tabs.css?1656279525" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1656279525" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1654818888" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1656279525" rel="stylesheet">
     
-    <link href="/css/foo.css?1654818888" rel="stylesheet"><link href="/css/bar.css?1654818888" rel="stylesheet">
+    <link href="/css/foo.css?1656279525" rel="stylesheet"><link href="/css/bar.css?1656279525" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1654818888"></script>
+    <script src="/js/jquery-3.3.1.min.js?1656279525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1654818888"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1654818888"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1656279525"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1656279525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1654818888"></script>
+<script type="text/javascript" src="/js/search.js?1656279525"></script>
 
     
   </div>
@@ -525,15 +525,16 @@
 <p>Here is a simple made up example of the syntax to give you a flavor:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
 <span style="color:#66d9ef">import</span> tyrian.Html.<span style="color:#f92672">*</span>
+<span style="color:#66d9ef">import</span> tyrian.CSS
 
 enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
   <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">Greet</span>
 
-<span style="color:#66d9ef">val</span> styles  <span style="color:#66d9ef">=</span> style<span style="color:#f92672">(</span><span style="color:#a6e22e">CSS</span><span style="color:#f92672">.</span>`font-family`<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Arial, Helvetica, sans-serif&#34;</span><span style="color:#f92672">))</span>
+<span style="color:#66d9ef">val</span> myStyles  <span style="color:#66d9ef">=</span> style<span style="color:#f92672">(</span><span style="color:#a6e22e">CSS</span><span style="color:#f92672">.</span>`font-family`<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Arial, Helvetica, sans-serif&#34;</span><span style="color:#f92672">))</span>
 <span style="color:#66d9ef">val</span> topLine <span style="color:#66d9ef">=</span> p<span style="color:#f92672">(</span>b<span style="color:#f92672">(</span>text<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;This is some HTML in bold.&#34;</span><span style="color:#f92672">)))</span>
 
 div<span style="color:#f92672">(</span>id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;my-container&#34;</span><span style="color:#f92672">)(</span>
-  div<span style="color:#f92672">(</span>styles<span style="color:#f92672">)(</span>
+  div<span style="color:#f92672">(</span>myStyles<span style="color:#f92672">)(</span>
     topLine<span style="color:#f92672">,</span>
     p<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Hello, world!&#34;</span><span style="color:#f92672">),</span>
     button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Greet</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;Say hello!&#34;</span><span style="color:#f92672">)</span>
@@ -547,32 +548,41 @@ div<span style="color:#f92672">(</span>id <span style="color:#66d9ef">:</span><s
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">span<span style="color:#f92672">(</span>`class` <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;green-box&#34;</span><span style="color:#f92672">)(</span>
   p<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;This is some text.&#34;</span><span style="color:#f92672">)</span>
 <span style="color:#f92672">)</span>
-</code></pre></div><p>You can omit the attributes and the syntax is valid:</p>
+</code></pre></div><!-- raw HTML omitted -->
+<p>You can omit the attributes and the syntax is valid:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">span<span style="color:#f92672">(</span>
   p<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;This is some text.&#34;</span><span style="color:#f92672">)</span>
 <span style="color:#f92672">)</span>
-</code></pre></div><p>Note that plain text can be declare as <code>text</code> or just omitted, in other words these are equivalent:</p>
+</code></pre></div><!-- raw HTML omitted -->
+<p>Note that plain text can be declare as <code>text</code> or just omitted, in other words these are equivalent:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">p<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;some text&#34;</span><span style="color:#f92672">)</span>
 p<span style="color:#f92672">(</span>text<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;some text&#34;</span><span style="color:#f92672">))</span>
-</code></pre></div><p>To distinguish them from similarly named tags (e.g. the <code>title</code> attribute and the <code>title</code> tag&hellip;), attributes are declared as <code>attribute-name := attribute-value</code>, e.g.:</p>
+</code></pre></div><!-- raw HTML omitted -->
+<p>To distinguish them from similarly named tags (e.g. the <code>title</code> attribute and the <code>title</code> tag&hellip;), attributes are declared as <code>attribute-name := attribute-value</code>, e.g.:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;my-container&#34;</span>
-</code></pre></div><p>Some HTML attributes / properties use Scala reserved words, and so have a variety of encodings to suit all tastes. For example <code>class</code> is a Scala reserved word and you cannot use it directly, but you can use any of these instead:</p>
+</code></pre></div><!-- raw HTML omitted -->
+<p>Some HTML attributes / properties use Scala reserved words, and so have a variety of encodings to suit all tastes. For example <code>class</code> is a Scala reserved word and you cannot use it directly, but you can use any of these instead:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">`class`
 cls
 className
 _class
 </code></pre></div><p>Styles are also baked in, albeit it in a slightly crude way, but you will get some IDE support. You can do things like the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">p<span style="color:#f92672">(</span><span style="color:#a6e22e">CSS</span><span style="color:#f92672">.</span>`font-weight`<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;bold&#34;</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">)</span>
-</code></pre></div><h3 id="svg">SVG</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">p<span style="color:#f92672">(</span>style<span style="color:#f92672">(</span><span style="color:#a6e22e">CSS</span><span style="color:#f92672">.</span>`font-weight`<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;bold&#34;</span><span style="color:#f92672">)))(</span><span style="color:#e6db74">&#34;Hello&#34;</span><span style="color:#f92672">)</span>
+</code></pre></div><!-- raw HTML omitted -->
+<h3 id="svg">SVG</h3>
 <p>You can also pull in SVG tags and attributes using:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.SVG.<span style="color:#f92672">*</span>
-</code></pre></div><h3 id="css">CSS</h3>
+</code></pre></div><!-- raw HTML omitted -->
+<h3 id="css">CSS</h3>
 <p>Many standard CSS terms can be imported using:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.CSS.<span style="color:#f92672">*</span>
-</code></pre></div><h3 id="rolling-your-own">Rolling your own</h3>
+</code></pre></div><!-- raw HTML omitted -->
+<h3 id="rolling-your-own">Rolling your own</h3>
 <p>If you find we&rsquo;ve missed a tag or attribute or something, <a href="https://github.com/PurpleKingdomGames/tyrian/issues">please raise an issue</a>. In the meantime, you can always make your own. Here are just a few made up examples, each of these has numerous constructors for you to explore:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#75715e">// A &#39;canvas&#39; tag
-</span><span style="color:#75715e"></span>tag<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;canvas&#34;</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;an-id&#34;</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">Nil</span><span style="color:#f92672">)</span>
+</span><span style="color:#75715e"></span>tag<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;canvas&#34;</span><span style="color:#f92672">)(</span>id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;an-id&#34;</span><span style="color:#f92672">)(</span><span style="color:#a6e22e">Nil</span><span style="color:#f92672">)</span>
+<span style="color:#75715e">// or
+</span><span style="color:#75715e"></span><span style="color:#a6e22e">Tag</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;canvas&#34;</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;an-id&#34;</span><span style="color:#f92672">),</span> <span style="color:#a6e22e">Nil</span><span style="color:#f92672">)</span>
 
 <span style="color:#75715e">// An attribute
 </span><span style="color:#75715e"></span>attribute<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;my-attribute&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;its-value&#34;</span><span style="color:#f92672">)</span>
@@ -585,14 +595,17 @@ _class
 styles<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;width&#34;</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;100px&#34;</span><span style="color:#f92672">,</span> <span style="color:#e6db74">&#34;height&#34;</span> <span style="color:#f92672">-&gt;</span> <span style="color:#e6db74">&#34;50px&#34;</span><span style="color:#f92672">)</span>
 
 <span style="color:#75715e">// An event-type attribute
-</span><span style="color:#75715e"></span>onEvent<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;click&#34;</span><span style="color:#f92672">,</span> <span style="color:#f92672">(</span>evt<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Tyrian.Event</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">DoSomething</span><span style="color:#f92672">)</span>
-</code></pre></div><blockquote>
+</span><span style="color:#75715e"></span>onEvent<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;click&#34;</span><span style="color:#f92672">,</span> <span style="color:#f92672">(</span>evt<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Tyrian.Event</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Greet</span><span style="color:#f92672">)</span>
+</code></pre></div><!-- raw HTML omitted -->
+<blockquote>
 <p>Note that everything is stringly typed, and that&rsquo;s because in HTML everything is stringly typed too! In the generated tags, we&rsquo;ve added support for things like attributes accepting <code>Int</code>s and <code>Boolean</code>s and so on where they have known acceptable input types.</p>
 </blockquote>
 <h4 id="known-gotcha-attributes-vs-properties">Known Gotcha: Attributes vs. Properties</h4>
 <p>One occasion where you may need to make your own tags or attributes etc., is when Tyrian has an incorrectly declared definition of something or other.</p>
 <p>A previous case of this was where the input field <code>value</code> <code>property</code> was incorrectly declared as an <code>attribute</code>, and so the value wasn&rsquo;t changed as expected based on model updates.</p>
 <p>Effort has gone in to getting these things right, but if you come across any issues, <a href="https://github.com/PurpleKingdomGames/tyrian/issues">please report them</a>, and the workaround is to re-declare it yourself as above while a fix is produced.</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
 
 
 <footer class="footline">
@@ -875,16 +888,16 @@ styles<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;width
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1654818888"></script>
-    <script src="/js/perfect-scrollbar.min.js?1654818888"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1654818888"></script>
-    <script src="/js/jquery.sticky.js?1654818888"></script>
-    <script src="/js/featherlight.min.js?1654818888"></script>
-    <script src="/js/highlight.pack.js?1654818888"></script>
+    <script src="/js/clipboard.min.js?1656279525"></script>
+    <script src="/js/perfect-scrollbar.min.js?1656279525"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1656279525"></script>
+    <script src="/js/jquery.sticky.js?1656279525"></script>
+    <script src="/js/featherlight.min.js?1656279525"></script>
+    <script src="/js/highlight.pack.js?1656279525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1654818888"></script>
-    <script src="/js/learn.js?1654818888"></script>
-    <script src="/js/hugo-learn.js?1654818888"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1656279525"></script>
+    <script src="/js/learn.js?1656279525"></script>
+    <script src="/js/hugo-learn.js?1656279525"></script>
     
     
 

@@ -68,7 +68,7 @@ It should be said that both implementations are quite primitive at the time of w
       <guid>https://tyrian.indigoengine.io/concepts/html/</guid>
       <description>HTML syntax In Tyrian, you describe your view in Scala and the VirtualDom implementation that powers Tyrian (Scala.js Snabbdom) renders that description into HTML.
 Here is a simple made up example of the syntax to give you a flavor:
-import tyrian.* import tyrian.Html.* enum Msg: case Greet val styles = style(CSS.`font-family`(&amp;#34;Arial, Helvetica, sans-serif&amp;#34;)) val topLine = p(b(text(&amp;#34;This is some HTML in bold.&amp;#34;))) div(id := &amp;#34;my-container&amp;#34;)( div(styles)( topLine, p(&amp;#34;Hello, world!&amp;#34;), button(onClick(Msg.Greet))(&amp;#34;Say hello!</description>
+import tyrian.* import tyrian.Html.* import tyrian.CSS enum Msg: case Greet val myStyles = style(CSS.`font-family`(&amp;#34;Arial, Helvetica, sans-serif&amp;#34;)) val topLine = p(b(text(&amp;#34;This is some HTML in bold.&amp;#34;))) div(id := &amp;#34;my-container&amp;#34;)( div(myStyles)( topLine, p(&amp;#34;Hello, world!</description>
     </item>
     
     <item>
@@ -89,7 +89,7 @@ Back in the days when Perl dominated the world of server side technology and ASP
       <guid>https://tyrian.indigoengine.io/concepts/subs/</guid>
       <description>Subscriptions: A notification of change Subscriptions (Subs) are used to observe something that changes over time, and to emit discrete messages when something happens.
 For example, we could chose to observe the mouse position, and emit a message every time the mouse moves, like this:
-import org.scalajs.dom.document import org.scalajs.dom.MouseEvent import cats.effect.IO import tyrian.* type Model = ??? enum Msg: case MouseMove(x: Double, y: Double) val mousePosition: Sub[IO, Msg] = Sub.fromEvent(&amp;#34;mousemove&amp;#34;, document) { case e: MouseEvent =&amp;gt; Option(Msg.</description>
+import org.scalajs.dom.document import org.scalajs.dom.MouseEvent import cats.effect.IO import tyrian.* type Model = Int enum Msg: case MouseMove(x: Double, y: Double) val mousePosition: Sub[IO, Msg] = Sub.fromEvent(&amp;#34;mousemove&amp;#34;, document) { case e: MouseEvent =&amp;gt; Option(Msg.</description>
     </item>
     
     <item>
