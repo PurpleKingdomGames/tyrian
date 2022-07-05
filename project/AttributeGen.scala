@@ -4,7 +4,7 @@ import scala.sys.process._
 object AttributeGen {
 
   def generateAttributeNameTypes: String =
-    List("String", "Int", "Double", "Boolean").map { typ =>
+    List("String", "Int", "Double", "Boolean", "Style").map { typ =>
       s"""  final class AttributeName$typ(name: String):
       |    def :=(value: $typ): Attribute = Attribute(name.toString, ${if (typ == "String") "value"
       else "value.toString"})
@@ -291,7 +291,7 @@ object AttributeGen {
       Normal("srcset"),
       Normal("start").withTypes("String", "Int"),
       Normal("step").withTypes("String", "Int"),
-      Normal("style"),
+      Normal("style").withTypes("String", "Style"),
       Normal("tabIndex").withTypes("String", "Int"),
       Normal("tabindex").withTypes("String", "Int"),
       Normal("target"),

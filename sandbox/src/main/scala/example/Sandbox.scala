@@ -192,8 +192,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
   def view(model: Model): Html[Msg] =
     val navItems =
       Page.values.toList.map { pg =>
-        if pg == model.page then li(pg.toNavLabel)
-        else li(a(href := pg.toHash)(pg.toNavLabel))
+        if pg == model.page then li(style := CSS.`font-family`("sans-serif"))(pg.toNavLabel)
+        else li(style := CSS.`font-family`("sans-serif"))(a(href := pg.toHash)(pg.toNavLabel))
       }
 
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -310,7 +310,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     div(
       div(
-        h3("Navigation:"),
+        h3(style := CSS.`font-family`("sans-serif"))("Navigation:"),
         ol(navItems),
         button(onClick(Msg.JumpToHomePage))("Jump to homepage")
       ),
