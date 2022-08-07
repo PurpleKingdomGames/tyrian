@@ -13,7 +13,7 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.1.2"
+lazy val scala3Version      = "3.1.3"
 lazy val tyrianDocsVersion  = "0.5.1"
 lazy val scalaJsDocsVersion = "1.10.0"
 lazy val scalaDocsVersion   = "3.1.2"
