@@ -42,9 +42,10 @@ enum Body derives CanEqual:
   case PlainText(contentType: String, body: String) extends Body
 
 object Body:
-  def html(body: String): Body = Body.PlainText("text/html", body)
-  def json(body: String): Body = Body.PlainText("application/json", body)
-  def xml(body: String): Body  = Body.PlainText("application/xml", body)
+  def html(body: String): Body      = Body.PlainText("text/html", body)
+  def json(body: String): Body      = Body.PlainText("application/json", body)
+  def xml(body: String): Body       = Body.PlainText("application/xml", body)
+  def plainText(body: String): Body = Body.PlainText("text/plain", body)
 
 /** A request header
   * @param name
