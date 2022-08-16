@@ -43,7 +43,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     */
   @JSExport
   def launch(containerId: String): Unit =
-    ready(document.getElementById(containerId), Map[String, String]())
+    runReadyOrError(containerId, Map[String, String]())
 
   /** Launch the app and attach it to the given element. Can be called from Scala or JavaScript.
     */
@@ -56,7 +56,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     */
   @JSExport
   def launch(containerId: String, flags: scala.scalajs.js.Dictionary[String]): Unit =
-    ready(document.getElementById(containerId), flags.toMap)
+    runReadyOrError(containerId, flags.toMap)
 
   /** Launch the app and attach it to the given element, with the supplied simple flags. Can be called from Scala or
     * JavaScript.
@@ -69,7 +69,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     * from Scala.
     */
   def launch(containerId: String, flags: Map[String, String]): Unit =
-    ready(document.getElementById(containerId), flags)
+    runReadyOrError(containerId, flags)
 
   /** Launch the app and attach it to the given element, with the supplied simple flags. Can only be called from Scala.
     */
@@ -87,3 +87,12 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
         MaxConcurrentTasks
       )
     )
+
+  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
+  private def runReadyOrError(containerId: String, flags: Map[String, String]): Unit =
+    Option(document.getElementById(containerId)) match
+      case Some(e) =>
+        ready(e, Map[String, String]())
+
+      case None =>
+        throw new Exception(s"Missing Element! Could not find an element with id '$containerId' on the page.")
