@@ -155,6 +155,7 @@ object AttributeGen {
       Normal("encType"),
       Normal("enctype"),
       Normal("_for", "for"),
+      Normal("`for`", "for"),
       Normal("forId", "for"),
       Normal("htmlFor", "for"),
       Normal("form"),
