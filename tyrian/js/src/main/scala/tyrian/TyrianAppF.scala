@@ -2,6 +2,7 @@ package tyrian
 
 import cats.effect.kernel.Async
 import cats.effect.kernel.Resource
+import org.scalajs.dom.Element
 import org.scalajs.dom.document
 import tyrian.runtime.TyrianRuntime
 
@@ -42,25 +43,43 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     */
   @JSExport
   def launch(containerId: String): Unit =
-    ready(containerId, Map[String, String]())
+    ready(document.getElementById(containerId), Map[String, String]())
+
+  /** Launch the app and attach it to the given element. Can be called from Scala or JavaScript.
+    */
+  @JSExport
+  def launch(node: Element): Unit =
+    ready(node, Map[String, String]())
 
   /** Launch the app and attach it to an element with the given id, with the supplied simple flags. Can be called from
     * Scala or JavaScript.
     */
   @JSExport
   def launch(containerId: String, flags: scala.scalajs.js.Dictionary[String]): Unit =
-    ready(containerId, flags.toMap)
+    ready(document.getElementById(containerId), flags.toMap)
+
+  /** Launch the app and attach it to the given element, with the supplied simple flags. Can be called from Scala or
+    * JavaScript.
+    */
+  @JSExport
+  def launch(node: Element, flags: scala.scalajs.js.Dictionary[String]): Unit =
+    ready(node, flags.toMap)
 
   /** Launch the app and attach it to an element with the given id, with the supplied simple flags. Can only be called
     * from Scala.
     */
   def launch(containerId: String, flags: Map[String, String]): Unit =
-    ready(containerId, flags)
+    ready(document.getElementById(containerId), flags)
 
-  def ready(parentElementId: String, flags: Map[String, String]): Unit =
+  /** Launch the app and attach it to the given element, with the supplied simple flags. Can only be called from Scala.
+    */
+  def launch(node: Element, flags: Map[String, String]): Unit =
+    ready(node, flags)
+
+  def ready(node: Element, flags: Map[String, String]): Unit =
     run(
       Tyrian.start(
-        document.getElementById(parentElementId),
+        node,
         init(flags),
         update,
         view,
