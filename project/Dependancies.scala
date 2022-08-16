@@ -6,5 +6,6 @@ object Dependancies {
   val scalajsDomVersion = "2.2.0"
   val munitCatsEffect3  = "1.0.7"
   val scalajsSnabbdom   = "0.1.0"
+  val zioInteropCats    = "3.3.0"
 
 }

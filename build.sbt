@@ -85,6 +85,7 @@ lazy val tyrianProject =
       tyrian.js,
       tyrian.jvm,
       tyrianIO.js,
+      tyrianZIO.js,
       tyrianIndigoBridge.js,
       sandbox.js,
       indigoSandbox.js
@@ -123,6 +124,24 @@ lazy val tyrianIO =
       libraryDependencies ++= Seq(
         "org.scala-js"  %%% "scalajs-dom" % Dependancies.scalajsDomVersion,
         "org.typelevel" %%% "cats-effect" % Dependancies.catsEffect
+      )
+    )
+    .dependsOn(tyrian)
+
+lazy val tyrianZIO =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-zio"))
+    .settings(
+      name := "tyrian-zio",
+      commonSettings ++ publishSettings
+    )
+    .jsSettings(
+      commonJsSettings,
+      libraryDependencies ++= Seq(
+        "org.scala-js" %%% "scalajs-dom"      % Dependancies.scalajsDomVersion,
+        "dev.zio"      %%% "zio-interop-cats" % Dependancies.zioInteropCats
       )
     )
     .dependsOn(tyrian)
@@ -238,6 +257,7 @@ addCommandAlias(
     "tyrianJS/clean",
     "tyrianJVM/clean",
     "tyrianIO/clean",
+    "tyrianZIO/clean",
     "tyrianIndigoBridge/clean",
     "sandbox/clean",
     "indigoSandbox/clean"
@@ -250,6 +270,7 @@ addCommandAlias(
     "tyrianJS/compile",
     "tyrianJVM/compile",
     "tyrianIO/compile",
+    "tyrianZIO/compile",
     "tyrianIndigoBridge/compile",
     "sandbox/compile",
     "indigoSandbox/compile"
@@ -262,6 +283,7 @@ addCommandAlias(
     "tyrianJS/test",
     "tyrianJVM/test",
     "tyrianIO/test",
+    "tyrianZIO/test",
     "tyrianIndigoBridge/test",
     "sandbox/test",
     "indigoSandbox/test"
