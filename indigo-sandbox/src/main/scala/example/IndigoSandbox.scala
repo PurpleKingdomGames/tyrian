@@ -14,8 +14,6 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object IndigoSandbox extends TyrianApp[Msg, Model]:
 
-  type Task[A] = ZIO[Any, Throwable, A]
-
   val gameDivId1: String    = "my-game-1"
   val gameDivId2: String    = "my-game-2"
   val gameId1: IndigoGameId = IndigoGameId("reverse")

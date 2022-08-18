@@ -14,15 +14,12 @@ import scala.scalajs.js.annotation._
 /** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
-trait TyrianApp[Msg, Model] extends TyrianAppF[Z.Task, Msg, Model]:
+trait TyrianApp[Msg, Model] extends TyrianAppF[Task, Msg, Model]:
 
-  val run: Resource[Z.Task, TyrianRuntime[Z.Task, Model, Msg]] => Unit = res =>
+  val run: Resource[Task, TyrianRuntime[Task, Model, Msg]] => Unit = res =>
     val runtime  = Runtime.default
     val runnable = res.map(_.start()).useForever
 
     Unsafe.unsafe { implicit unsafe =>
       runtime.unsafe.run(runnable).getOrThrowFiberFailure()
     }
-
-private[tyrian] object Z:
-  type Task[A] = ZIO[Any, Throwable, A]
