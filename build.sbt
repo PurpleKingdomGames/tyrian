@@ -141,6 +141,7 @@ lazy val tyrianZIO =
       commonJsSettings,
       libraryDependencies ++= Seq(
         "org.scala-js" %%% "scalajs-dom"      % Dependancies.scalajsDomVersion,
+        "dev.zio"      %%% "zio"              % Dependancies.zio,
         "dev.zio"      %%% "zio-interop-cats" % Dependancies.zioInteropCats
       )
     )
@@ -180,7 +181,7 @@ lazy val indigoSandbox =
     .withoutSuffixFor(JSPlatform)
     .in(file("indigo-sandbox"))
     .dependsOn(tyrianIndigoBridge)
-    .dependsOn(tyrianIO)
+    .dependsOn(tyrianZIO)
     .settings(
       neverPublish,
       commonSettings,
