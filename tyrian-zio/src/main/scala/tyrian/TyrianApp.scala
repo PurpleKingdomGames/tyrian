@@ -7,6 +7,7 @@ import tyrian.TyrianAppF
 import tyrian.runtime.TyrianRuntime
 import zio.*
 import zio.interop.catz.*
+import zio.interop.catz.implicits.*
 
 import scala.scalajs.js.annotation._
 
@@ -15,14 +16,13 @@ import scala.scalajs.js.annotation._
   */
 trait TyrianApp[Msg, Model] extends TyrianAppF[Z.Task, Msg, Model]:
 
-  val run: Resource[Z.Task, TyrianRuntime[Z.Task, Model, Msg]] => Unit = resource =>
-    val runtime = Runtime.default
-    
-    val t = ZIO.runtime.flatMap { implicit r: Runtime[Any] =>
-      resource.map(_.start()).useForever
-    }
+  val run: Resource[Z.Task, TyrianRuntime[Z.Task, Model, Msg]] => Unit = res =>
+    val runtime  = Runtime.default
+    val runnable = res.map(_.start()).useForever
 
-    runtime.run(t)
+    Unsafe.unsafe { implicit unsafe =>
+      runtime.unsafe.run(runnable).getOrThrowFiberFailure()
+    }
 
 object Z:
   type Task[A] = ZIO[Any, Throwable, A]
