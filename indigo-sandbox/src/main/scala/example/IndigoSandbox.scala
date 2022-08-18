@@ -14,24 +14,26 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object IndigoSandbox extends TyrianApp[Msg, Model]:
 
+  type Task[A] = ZIO[Any, Throwable, A]
+
   val gameDivId1: String    = "my-game-1"
   val gameDivId2: String    = "my-game-2"
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
-  def init(flags: Map[String, String]): (Model, Cmd[Z.Task, Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Task, Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
-  def update(model: Model): Msg => (Model, Cmd[Z.Task, Msg]) =
+  def update(model: Model): Msg => (Model, Cmd[Task, Msg]) =
     case Msg.NewRandomInt(i) =>
       (model.copy(randomNumber = i), Cmd.None)
 
     case Msg.NewContent(content) =>
-      val cmds: Cmd[Z.Task, Msg] =
-        Logger.info[Z.Task]("New content: " + content) |+|
+      val cmds: Cmd[Task, Msg] =
+        Logger.info[Task]("New content: " + content) |+|
           model.bridge.publish(gameId1, content) |+|
           model.bridge.publish(gameId2, content) |+|
-          Random.int[Z.Task].map(next => Msg.NewRandomInt(next.value))
+          Random.int[Task].map(next => Msg.NewRandomInt(next.value))
 
       (model.copy(field = content), cmds)
 
@@ -99,7 +101,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
       div(elems)
     )
 
-  def subscriptions(model: Model): Sub[Z.Task, Msg] =
+  def subscriptions(model: Model): Sub[Task, Msg] =
     Sub.Batch(
       model.bridge.subscribe { case msg =>
         Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
@@ -152,7 +154,7 @@ object Counter:
       case Msg.Decrement => model - 1
 
 final case class Model(
-    bridge: TyrianIndigoBridge[Z.Task, String],
+    bridge: TyrianIndigoBridge[Task, String],
     field: String,
     components: List[Counter.Model],
     randomNumber: Int
