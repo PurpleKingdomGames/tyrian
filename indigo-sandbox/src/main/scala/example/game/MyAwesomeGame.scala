@@ -1,9 +1,9 @@
 package example.game
 
-import example.IndigoSandbox.Task
 import indigo._
 import indigo.scenes._
 import tyrian.TyrianSubSystem
+import zio.Task
 
 final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[Task, String], clockwise: Boolean)
     extends IndigoGame[Unit, Unit, Unit, Unit]:
