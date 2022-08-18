@@ -1,12 +1,13 @@
 package example
 
-import cats.effect.IO
 import example.game.MyAwesomeGame
 import org.scalajs.dom.document
 import tyrian.Html.*
 import tyrian.*
 import tyrian.cmds.Logger
 import tyrian.cmds.Random
+import zio._
+import zio.interop.catz._
 
 import scala.scalajs.js.annotation.*
 
@@ -18,19 +19,19 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
-  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
+  def init(flags: Map[String, String]): (Model, Cmd[Z.Task, Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
-  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+  def update(model: Model): Msg => (Model, Cmd[Z.Task, Msg]) =
     case Msg.NewRandomInt(i) =>
       (model.copy(randomNumber = i), Cmd.None)
 
     case Msg.NewContent(content) =>
-      val cmds: Cmd[IO, Msg] =
-        Logger.info[IO]("New content: " + content) |+|
+      val cmds: Cmd[Z.Task, Msg] =
+        Logger.info[Z.Task]("New content: " + content) |+|
           model.bridge.publish(gameId1, content) |+|
           model.bridge.publish(gameId2, content) |+|
-          Random.int[IO].map(next => Msg.NewRandomInt(next.value))
+          Random.int[Z.Task].map(next => Msg.NewRandomInt(next.value))
 
       (model.copy(field = content), cmds)
 
@@ -98,7 +99,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
       div(elems)
     )
 
-  def subscriptions(model: Model): Sub[IO, Msg] =
+  def subscriptions(model: Model): Sub[Z.Task, Msg] =
     Sub.Batch(
       model.bridge.subscribe { case msg =>
         Some(Msg.IndigoReceive(s"[Any game!] ${msg}"))
@@ -151,7 +152,7 @@ object Counter:
       case Msg.Decrement => model - 1
 
 final case class Model(
-    bridge: TyrianIndigoBridge[IO, String],
+    bridge: TyrianIndigoBridge[Z.Task, String],
     field: String,
     components: List[Counter.Model],
     randomNumber: Int
