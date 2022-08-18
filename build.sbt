@@ -140,9 +140,10 @@ lazy val tyrianZIO =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js" %%% "scalajs-dom"      % Dependancies.scalajsDomVersion,
-        "dev.zio"      %%% "zio"              % Dependancies.zio,
-        "dev.zio"      %%% "zio-interop-cats" % Dependancies.zioInteropCats
+        "org.scala-js"      %%% "scalajs-dom"      % Dependancies.scalajsDomVersion,
+        "io.github.cquiroz" %%% "scala-java-time"  % Dependancies.scalaJavaTime,
+        "dev.zio"           %%% "zio"              % Dependancies.zio,
+        "dev.zio"           %%% "zio-interop-cats" % Dependancies.zioInteropCats
       )
     )
     .dependsOn(tyrian)

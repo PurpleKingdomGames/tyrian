@@ -6,7 +6,8 @@ object Dependancies {
   val scalajsDomVersion = "2.2.0"
   val munitCatsEffect3  = "1.0.7"
   val scalajsSnabbdom   = "0.1.0"
-  val zio               = "2.0.0"
-  val zioInteropCats    = "0.0.0+285-75407bf4+20220817-0832-SNAPSHOT" // "3.3.0"
+  val zio               = "2.0.1"
+  val zioInteropCats    = "0.0.0+285-75407bf4+20220818-2154-SNAPSHOT"
+  val scalaJavaTime     = "2.3.0"
 
 }
