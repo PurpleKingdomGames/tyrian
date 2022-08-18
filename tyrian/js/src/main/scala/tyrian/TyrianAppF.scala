@@ -92,7 +92,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
   private def runReadyOrError(containerId: String, flags: Map[String, String]): Unit =
     Option(document.getElementById(containerId)) match
       case Some(e) =>
-        ready(e, Map[String, String]())
+        ready(e, flags)
 
       case None =>
         throw new Exception(s"Missing Element! Could not find an element with id '$containerId' on the page.")
