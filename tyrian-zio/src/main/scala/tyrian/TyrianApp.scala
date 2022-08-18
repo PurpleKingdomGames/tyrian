@@ -24,5 +24,5 @@ trait TyrianApp[Msg, Model] extends TyrianAppF[Z.Task, Msg, Model]:
       runtime.unsafe.run(runnable).getOrThrowFiberFailure()
     }
 
-object Z:
+private[tyrian] object Z:
   type Task[A] = ZIO[Any, Throwable, A]

@@ -1,11 +1,11 @@
 package example.game
 
+import example.IndigoSandbox.Task
 import indigo._
 import indigo.scenes._
 import tyrian.TyrianSubSystem
-import tyrian.Z
 
-final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[Z.Task, String], clockwise: Boolean)
+final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[Task, String], clockwise: Boolean)
     extends IndigoGame[Unit, Unit, Unit, Unit]:
 
   def initialScene(bootData: Unit): Option[SceneName] =
