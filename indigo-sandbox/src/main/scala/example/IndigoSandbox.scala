@@ -6,8 +6,8 @@ import tyrian.Html.*
 import tyrian.*
 import tyrian.cmds.Logger
 import tyrian.cmds.Random
-import zio._
-import zio.interop.catz._
+import zio.*
+import zio.interop.catz.*
 
 import scala.scalajs.js.annotation.*
 
