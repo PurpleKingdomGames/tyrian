@@ -10,8 +10,8 @@ object Style:
       def empty: Style =
         Style.empty
 
-      def combine(x: Style, y: Style): Style =
-        Style.combine(x, y)
+      def combine(a: Style, b: Style): Style =
+        Style.combine(a, b)
     }
 
   def fromTuple(t: (String, String)): Style =

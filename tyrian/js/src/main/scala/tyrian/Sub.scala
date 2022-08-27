@@ -44,8 +44,8 @@ object Sub:
       def empty: Sub[F, Msg] =
         Sub.None
 
-      def combine(x: Sub[F, Msg], y: Sub[F, Msg]): Sub[F, Msg] =
-        Sub.merge(x, y)
+      def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] =
+        Sub.merge(a, b)
     }
 
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
