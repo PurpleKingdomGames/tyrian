@@ -144,10 +144,9 @@ lazy val tyrianZIO =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js"      %%% "scalajs-dom"      % Dependancies.scalajsDomVersion,
-        "io.github.cquiroz" %%% "scala-java-time"  % Dependancies.scalaJavaTime,
-        "dev.zio"           %%% "zio"              % Dependancies.zio,
-        "dev.zio"           %%% "zio-interop-cats" % Dependancies.zioInteropCats
+        "org.scala-js"      %%% "scalajs-dom"     % Dependancies.scalajsDomVersion,
+        "io.github.cquiroz" %%% "scala-java-time" % Dependancies.scalaJavaTime,
+        "dev.zio"           %%% "zio"             % Dependancies.zio
       )
     )
     .dependsOn(tyrian)
@@ -195,7 +194,8 @@ lazy val indigoSandbox =
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
         "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
+        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion,
+        "dev.zio"         %%% "zio-interop-cats"  % Dependancies.zioInteropCats
       ),
       scalacOptions -= "-language:strictEquality"
     )
