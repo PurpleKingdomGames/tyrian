@@ -39,6 +39,15 @@ sealed trait Sub[+F[_], +Msg]:
 
 object Sub:
 
+  given [F[_], Msg]: Monoid[Sub[F, Msg]] =
+    new Monoid[Sub[F, Msg]] {
+      def empty: Sub[F, Msg] =
+        Sub.None
+
+      def combine(x: Sub[F, Msg], y: Sub[F, Msg]): Sub[F, Msg] =
+        Sub.merge(x, y)
+    }
+
   given CanEqual[Option[_], Option[_]] = CanEqual.derived
   given CanEqual[Sub[_, _], Sub[_, _]] = CanEqual.derived
 
@@ -210,11 +219,6 @@ object Sub:
     } { listener =>
       Sync[F].delay(target.removeEventListener(name, listener))
     }(extract)
-
-  given [F[_], Msg]: Monoid[Sub[F, Msg]] = new Monoid[Sub[F, Msg]] {
-    def empty: Sub[F, Msg]                                   = Sub.None
-    def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
-  }
 
   def combineAll[F[_], A](list: List[Sub[F, A]]): Sub[F, A] =
     Monoid[Sub[F, A]].combineAll(list)

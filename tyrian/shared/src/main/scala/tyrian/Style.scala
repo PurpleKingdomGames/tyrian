@@ -1,7 +1,18 @@
 package tyrian
 
+import cats.Monoid
+
 opaque type Style = String
 object Style:
+
+  given Monoid[Style] =
+    new Monoid[Style] {
+      def empty: Style =
+        Style.empty
+
+      def combine(x: Style, y: Style): Style =
+        Style.combine(x, y)
+    }
 
   def fromTuple(t: (String, String)): Style =
     t match

@@ -22,6 +22,16 @@ sealed trait Cmd[+F[_], +Msg]:
     Cmd.merge(this, other)
 
 object Cmd:
+
+  given [F[_], Msg]: Monoid[Cmd[F, Msg]] =
+    new Monoid[Cmd[F, Msg]] {
+      def empty: Cmd[F, Msg] =
+        Cmd.None
+
+      def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] =
+        Cmd.merge(a, b)
+    }
+
   given CanEqual[Cmd[_, _], Cmd[_, _]] = CanEqual.derived
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
@@ -80,11 +90,6 @@ object Cmd:
   object Batch:
     def apply[F[_], Msg](cmds: Cmd[F, Msg]*): Batch[F, Msg] =
       Batch(cmds.toList)
-
-  given [F[_], Msg]: Monoid[Cmd[F, Msg]] = new Monoid[Cmd[F, Msg]] {
-    def empty: Cmd[F, Msg]                                   = Cmd.None
-    def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
-  }
 
   def combineAll[F[_], A](list: List[Cmd[F, A]]): Cmd[F, A] =
     Monoid[Cmd[F, A]].combineAll(list)
