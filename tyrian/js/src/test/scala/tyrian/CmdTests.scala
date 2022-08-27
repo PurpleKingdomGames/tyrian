@@ -31,6 +31,30 @@ class CmdTests extends munit.CatsEffectSuite {
     assertEquals(actual, expected)
   }
 
+  test("cmd is a monoid using cats") {
+    import cats.*
+
+    val cmds = List(
+      Cmd.Emit(10),
+      Cmd.Emit(20),
+      Cmd.Emit(30)
+    )
+
+    val actual =
+      Monoid[Cmd[IO, Int]].combineAll(cmds)
+
+    val expected =
+      Cmd.Combine(
+        Cmd.Combine(
+          Cmd.Emit(10),
+          Cmd.Emit(20)
+        ),
+        Cmd.Emit(30)
+      )
+
+    assertEquals(actual, expected)
+  }
+
   test("map - Empty") {
     assertEquals(Cmd.None.map(_ => 10), Cmd.None)
   }

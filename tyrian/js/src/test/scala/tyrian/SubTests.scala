@@ -51,6 +51,50 @@ class SubTests extends munit.CatsEffectSuite {
     }
   }
 
+  test("sub is a monoid using cats") {
+    import cats.*
+
+    var state = 0
+
+    val callback: Either[Throwable, Int] => Unit = {
+      case Right(i) => state = i; ()
+      case Left(_)  => throw new Exception("failed")
+    }
+
+    val observable: Int => Obs[Int] = i =>
+      IO.delay { cb =>
+        cb(Right(i))
+        IO(Option(IO(())))
+      }
+
+    val subs = List(
+      Sub.Observe[IO, Int]("sub1", observable(10)),
+      Sub.Observe[IO, Int]("sub2", observable(20)),
+      Sub.Observe[IO, Int]("sub3", observable(30))
+    )
+
+    val result =
+      Monoid[Sub[IO, Int]].combineAll(subs)
+
+    result match {
+      case Sub.Combine(combo, sub3) =>
+        IO.both(
+          combo match {
+            case Sub.Combine(sub1, sub2) =>
+              IO.both(
+                sub1.run(callback).map(_ => state == 10).assert,
+                sub2.run(callback).map(_ => state == 20).assert
+              )
+
+            case _ => throw new Exception("failed")
+          },
+          sub3.run(callback).map(_ => state == 30).assert
+        )
+
+      case _ => throw new Exception("failed")
+    }
+  }
+
   test("map - Empty") {
     assertEquals(Sub.None.map(_ => 10), Sub.None)
   }

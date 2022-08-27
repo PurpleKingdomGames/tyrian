@@ -25,4 +25,13 @@ class StyleTests extends munit.FunSuite {
     assertEquals(Style.combineAll(List(styleA, styleB)).toString, "align:left;display:block;")
   }
 
+  test("styles combineAll as cats monoid") {
+    import cats.*
+
+    val styleA = Style("align", "left")
+    val styleB = Style("display", "block")
+
+    assertEquals(Monoid[Style].combineAll(List(styleA, styleB)).toString, "align:left;display:block;")
+  }
+
 }
