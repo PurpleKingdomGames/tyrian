@@ -1,5 +1,6 @@
 object Dependancies {
 
+  val cats              = "2.8.0"
   val catsEffect        = "3.3.14"
   val fs2               = "3.2.11"
   val indigoVersion     = "0.13.0"

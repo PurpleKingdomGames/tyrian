@@ -104,9 +104,15 @@ lazy val tyrian =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
+        "org.typelevel"    %%% "cats-core"          % Dependancies.cats,
         "org.typelevel"    %%% "cats-effect-kernel" % Dependancies.catsEffect,
         "co.fs2"           %%% "fs2-core"           % Dependancies.fs2,
         "io.github.buntec" %%% "scala-js-snabbdom"  % Dependancies.scalajsSnabbdom
+      )
+    )
+    .jvmSettings(
+      libraryDependencies ++= Seq(
+        "org.typelevel" %% "cats-core" % Dependancies.cats
       )
     )
 
