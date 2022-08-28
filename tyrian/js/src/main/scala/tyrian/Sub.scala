@@ -1,10 +1,13 @@
 package tyrian
 
 import cats.data.Kleisli
+import cats.effect.kernel.Async
 import cats.effect.kernel.Concurrent
+import cats.effect.kernel.Fiber
 import cats.effect.kernel.Sync
 import cats.kernel.Monoid
 import cats.syntax.all.*
+import fs2.Stream
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import util.Functions
@@ -117,6 +120,11 @@ object Sub:
       release: R => F[Unit]
   ): Sub[F, A] =
     make[F, A, A, R](id)(acquire)(release)(Option.apply)
+
+  def make[F[_]: Async, A](id: String, stream: Stream[F, A]): Sub[F, A] =
+    make[F, A, Fiber[F, Throwable, Unit]](id) { cb =>
+      Async[F].start(stream.attempt.foreach(result => Async[F].delay(cb(result))).compile.drain)
+    }(_.cancel)
 
   private def _forget[F[_]: Sync]: Unit => F[Option[F[Unit]]] =
     (_: Unit) => Sync[F].delay(Option(Sync[F].delay(())))
