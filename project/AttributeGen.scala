@@ -6,11 +6,15 @@ object AttributeGen {
   def generateAttributeNameTypes: String =
     List("String", "Int", "Double", "Boolean", "Style").map { typ =>
       s"""  final class AttributeName$typ(name: String):
-      |    def :=(value: $typ): Attribute = Attribute(name.toString, ${if (typ == "String") "value"
-      else "value.toString"})
+      |    def :=(value: $typ): Attribute = Attribute(name.toString, ${
+          if (typ == "String") "value"
+          else "value.toString"
+        })
       |
       |  final class PropertyName$typ(name: String):
-      |    def :=(value: $typ): Property = Property(name.toString, ${if (typ == "String") "value" else "value.toString"})
+      |    def :=(value: $typ): Property = Property(name.toString, ${
+          if (typ == "String") "value" else "value.toString"
+        })
       |
       |""".stripMargin
     }.mkString
@@ -89,26 +93,29 @@ object AttributeGen {
     """.stripMargin
 
   def gen(fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
-    println("Generating Html Attributes")
 
     Seq(htmlAttrsList, svgAttrsList).map { case AttributesList(attrs, props, name) =>
-      val contents: String =
-        generateAttributeNameTypes +
-          genAttributesAndProperties +
-          "\n\n  // Attributes\n\n" +
-          attrs.map(a => genAttr(a, true)).mkString +
-          "\n\n  // Properties\n\n" +
-          props.map(p => genAttr(p, false)).mkString
-
       val file: File =
         sourceManagedDir / s"$name.scala"
 
-      val newContents: String =
-        template(name, fullyQualifiedPath, contents)
+      if (!file.exists()) {
+        println("Generating Html Attributes")
 
-      IO.write(file, newContents)
+        val contents: String =
+          generateAttributeNameTypes +
+            genAttributesAndProperties +
+            "\n\n  // Attributes\n\n" +
+            attrs.map(a => genAttr(a, true)).mkString +
+            "\n\n  // Properties\n\n" +
+            props.map(p => genAttr(p, false)).mkString
 
-      println("Written: " + file.getCanonicalPath)
+        val newContents: String =
+          template(name, fullyQualifiedPath, contents)
+
+        IO.write(file, newContents)
+
+        println("Written: " + file.getCanonicalPath)
+      }
 
       file
     }

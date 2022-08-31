@@ -20,20 +20,22 @@ object CSSGen {
     """.stripMargin
 
   def gen(moduleName: String, fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
-    println("Generating CSS Properties")
-
-    val contents: String =
-      cssPropertyList.map(genCssProp).mkString("\n")
-
     val file: File =
       sourceManagedDir / (moduleName + ".scala")
 
-    val newContents: String =
-      template(moduleName, fullyQualifiedPath, contents)
+    if (!file.exists()) {
+      println("Generating CSS Properties")
 
-    IO.write(file, newContents)
+      val contents: String =
+        cssPropertyList.map(genCssProp).mkString("\n")
 
-    println("Written: " + file.getCanonicalPath)
+      val newContents: String =
+        template(moduleName, fullyQualifiedPath, contents)
+
+      IO.write(file, newContents)
+
+      println("Written: " + file.getCanonicalPath)
+    }
 
     Seq(file)
   }

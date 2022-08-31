@@ -5,8 +5,8 @@ object TagGen {
 
   def genTag(tag: TagType): String =
     tag match {
-      case HasChildren(name, tag) => genTagHasChildren(name, tag)
-      case NoChildren(name, tag)  => genTagNoChildren(name, tag)
+      case HasChildren(name, tag)      => genTagHasChildren(name, tag)
+      case NoChildren(name, tag)       => genTagNoChildren(name, tag)
       case OptionalChildren(name, tag) => genTagHasChildren(name, tag) + genTagNoChildren(name, tag)
     }
 
@@ -69,26 +69,27 @@ object TagGen {
     |}
     """.stripMargin
 
-  def gen(fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
-    println("Generating Html Tags")
-
+  def gen(fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] =
     Seq(htmlTagList, svgTagList).map { case TagList(tags, name) =>
-      val contents: String =
-        tags.map(genTag).mkString
-
       val file: File =
         sourceManagedDir / s"$name.scala"
 
-      val newContents: String =
-        template(name, fullyQualifiedPath, contents)
+      if (!file.exists()) {
+        println("Generating Html Tags")
 
-      IO.write(file, newContents)
+        val contents: String =
+          tags.map(genTag).mkString
 
-      println("Written: " + file.getCanonicalPath)
+        val newContents: String =
+          template(name, fullyQualifiedPath, contents)
+
+        IO.write(file, newContents)
+
+        println("Written: " + file.getCanonicalPath)
+      }
 
       file
     }
-  }
 
   def htmlTags: List[TagType] =
     List(
@@ -275,19 +276,18 @@ object TagGen {
 sealed trait TagType
 final case class HasChildren(name: String, tag: Option[String]) extends TagType
 object HasChildren {
-  def apply(name: String): HasChildren = HasChildren(name, None)
+  def apply(name: String): HasChildren              = HasChildren(name, None)
   def apply(name: String, tag: String): HasChildren = HasChildren(name, Some(tag))
 }
-final case class NoChildren(name: String, tag: Option[String])  extends TagType
+final case class NoChildren(name: String, tag: Option[String]) extends TagType
 object NoChildren {
-  def apply(name: String): NoChildren = NoChildren(name, None)
+  def apply(name: String): NoChildren              = NoChildren(name, None)
   def apply(name: String, tag: String): NoChildren = NoChildren(name, Some(tag))
 }
-final case class OptionalChildren(name: String, tag: Option[String])  extends TagType
+final case class OptionalChildren(name: String, tag: Option[String]) extends TagType
 object OptionalChildren {
-  def apply(name: String): OptionalChildren = OptionalChildren(name, None)
+  def apply(name: String): OptionalChildren              = OptionalChildren(name, None)
   def apply(name: String, tag: String): OptionalChildren = OptionalChildren(name, Some(tag))
 }
-
 
 final case class TagList(tags: List[TagType], namespace: String)
