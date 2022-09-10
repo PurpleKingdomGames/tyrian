@@ -81,7 +81,26 @@ lazy val http =
       libraryDependencies ++= Seq(
         "io.circe" %%% "circe-core",
         "io.circe" %%% "circe-parser"
-      ).map(_ % "0.14.0-M7")
+      ).map(_ % "0.14.2")
+    )
+
+lazy val http4sdom =
+  (project in file("http4s-dom"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      name := "http4s-dom",
+      libraryDependencies ++= Seq(
+        "io.circe" %%% "circe-core",
+        "io.circe" %%% "circe-parser",
+        "io.circe" %%% "circe-generic"
+      ).map(_ % "0.14.2")
+    )
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.http4s" %%% "http4s-dom" % "0.2.3",
+        "org.http4s" %%% "http4s-circe" % "0.23.15"
+      )
     )
 
 lazy val indigo =
@@ -134,6 +153,7 @@ lazy val exampleProjects: List[String] =
     "electron",
     "field",
     "http",
+    "http4sdom",
     "indigo",
     "mario",
     "nonpm",
