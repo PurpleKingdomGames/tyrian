@@ -8,6 +8,7 @@ import tyrian.cmds.Dom
 import tyrian.cmds.LocalStorage
 import tyrian.cmds.Logger
 import tyrian.http.*
+import tyrian.syntax.*
 import tyrian.websocket.*
 
 import scala.concurrent.duration.*
@@ -84,7 +85,6 @@ object Sandbox extends TyrianApp[Msg, Model]:
       val cmd: Cmd[IO, Msg] = LocalStorage.getItem(k) {
         case Left(e) => Msg.Log("Error loading: " + e.key)
         case Right(found) =>
-          println("Loaded: " + found.data)
           Msg.DataLoaded(found.data)
       }
 
@@ -98,7 +98,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
       (model.copy(saveData = None), cmd)
 
     case Msg.DataLoaded(data) =>
-      (model.copy(tmpSaveData = data, saveData = Option(data)), Cmd.None)
+      val cmd = IO("Loaded: " + data).toCmd.map(Msg.Log.apply)
+      (model.copy(tmpSaveData = data, saveData = Option(data)), cmd)
 
     case Msg.StageSaveData(content) =>
       (model.copy(tmpSaveData = content), Cmd.None)
@@ -149,42 +150,57 @@ object Sandbox extends TyrianApp[Msg, Model]:
       (model.copy(components = cs), Cmd.None)
 
     case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
-      println(s"Failed to open WebSocket connection: $err")
-      (model.copy(error = Some(err)), Cmd.None)
+      val log = IO.println(s"Failed to open WebSocket connection: $err").toCmd
+      (model.copy(error = Some(err)), log)
 
     case Msg.WebSocketStatus(Status.Connected(ws)) =>
-      println("WS connected")
-      (model.copy(echoSocket = Some(ws)), Cmd.None)
+      val log = IO.println("WS connected").toCmd
+      (model.copy(echoSocket = Some(ws)), log)
 
     case Msg.WebSocketStatus(Status.Connecting) =>
-      println("Establishing WS connection")
+      val log = IO.println("Establishing WS connection").toCmd
       (
         model,
-        WebSocket.connect(
-          address = model.socketUrl,
-          onOpenMessage = "Connect me!",
-          keepAliveSettings = KeepAliveSettings.default
-        ) {
-          case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
-          case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
-        }
+        Cmd.Batch(
+          log,
+          WebSocket.connect(
+            address = model.socketUrl,
+            onOpenMessage = "Connect me!",
+            keepAliveSettings = KeepAliveSettings.default
+          ) {
+            case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
+            case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
+          }
+        )
       )
 
     case Msg.WebSocketStatus(Status.Disconnecting) =>
-      println("Graceful shutdown of WS connection")
-      (model.copy(echoSocket = None), model.echoSocket.map(_.disconnect).getOrElse(Cmd.None))
+      val log = IO.println("Graceful shutdown of WS connection").toCmd
+      (
+        model.copy(echoSocket = None),
+        Cmd.Batch(
+          log,
+          model.echoSocket.map(_.disconnect).getOrElse(Cmd.None)
+        )
+      )
 
     case Msg.WebSocketStatus(Status.Disconnected) =>
-      println("WebSocket not connected yet")
-      (model, Cmd.None)
+      val log = IO.println("WebSocket not connected yet").toCmd
+      (model, log)
 
     case Msg.FromSocket(message) =>
-      println("Got: " + message)
-      (model.copy(log = message :: model.log), Cmd.None)
+      val log = IO.println("Got: " + message).toCmd
+      (model.copy(log = message :: model.log), log)
 
     case Msg.ToSocket(message) =>
-      println("Sent: " + message)
-      (model, model.echoSocket.map(_.publish(message)).getOrElse(Cmd.None))
+      val log = IO.println("Sent: " + message).toCmd
+      (
+        model,
+        Cmd.Batch(
+          log,
+          model.echoSocket.map(_.publish(message)).getOrElse(Cmd.None)
+        )
+      )
 
     case Msg.NewTime(time) =>
       (model.copy(currentTime = time), Cmd.None)
@@ -348,9 +364,15 @@ object Sandbox extends TyrianApp[Msg, Model]:
         }
       }
 
+    val stream =
+      fs2.Stream
+        .awakeEvery[IO](30.seconds)
+        .map(t => Msg.Log("30 second pulse at " + t.toString))
+
     val simpleSubs: Sub[IO, Msg] =
       Sub.timeout[IO, Msg](2.seconds, Msg.Log("Logged this after 2 seconds"), "delayed log") |+|
-        Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot)
+        Sub.every[IO](1.second, hotReloadKey).map(_ => Msg.TakeSnapshot) |+|
+        stream.toSub("pulse")
 
     val clockSub: Sub[IO, Msg] = Sub.every[IO](1.second, "clock-ticks").map(Msg.NewTime.apply)
 
