@@ -71,7 +71,7 @@ lazy val tyrianProject =
       commonSettings,
       name        := "Tyrian",
       code        := codeTaskDefinition,
-      copyApiDocs := copyApiDocsTaskDefinition((Compile / target).value),
+      copyApiDocs := copyApiDocsTaskDefinition(scala3Version, (Compile / target).value),
       usefulTasks := customTasksAliases,
       logoSettings(version),
       ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
