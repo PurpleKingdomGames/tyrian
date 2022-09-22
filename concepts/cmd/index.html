@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.89.4" />
+    <meta name="generator" content="Hugo 0.103.0" />
     <meta name="description" content="Elm inspired Scala Web Framework">
 <meta name="author" content="Dave Smith">
 
@@ -12,22 +12,22 @@
     <title>Commands &amp; Effects - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1656279525" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1656279525" rel="stylesheet">
-    <link href="/css/hybrid.css?1656279525" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1656279525" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1656279525" rel="stylesheet">
-    <link href="/css/auto-complete.css?1656279525" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1656279525" rel="stylesheet">
-    <link href="/css/theme.css?1656279525" rel="stylesheet">
-    <link href="/css/tabs.css?1656279525" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1656279525" rel="stylesheet">
+    <link href="/css/nucleus.css?1663832795" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1663832795" rel="stylesheet">
+    <link href="/css/hybrid.css?1663832795" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1663832795" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1663832795" rel="stylesheet">
+    <link href="/css/auto-complete.css?1663832795" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1663832795" rel="stylesheet">
+    <link href="/css/theme.css?1663832795" rel="stylesheet">
+    <link href="/css/tabs.css?1663832795" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1663832795" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1656279525" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1663832795" rel="stylesheet">
     
-    <link href="/css/foo.css?1656279525" rel="stylesheet"><link href="/css/bar.css?1656279525" rel="stylesheet">
+    <link href="/css/foo.css?1663832795" rel="stylesheet"><link href="/css/bar.css?1663832795" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1656279525"></script>
+    <script src="/js/jquery-3.3.1.min.js?1663832795"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1656279525"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1656279525"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1663832795"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1663832795"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1656279525"></script>
+<script type="text/javascript" src="/js/search.js?1663832795"></script>
 
     
   </div>
@@ -541,33 +541,33 @@
 <p>Commands take the form <code>Cmd[IO, Msg]</code> (<code>IO</code> is used for illustrative purposes) which is to say that they represent some sort of side effect that can produce a message to be cleanly fed back into your single page application&rsquo;s <code>updateModel</code> function.</p>
 <p>Commands can be produced as part of a result of calling the <code>init</code> or <code>updateModel</code> functions, which both return a <code>(Model, Cmd[IO, Msg])</code>.</p>
 <p>Here is an example in which, on receiving a message <code>Msg.LogThis</code>, we are not going to change the model, but we want to write to the browser&rsquo;s JavaScript console:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
-<span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
-<span style="color:#66d9ef">import</span> cats.effect.IO
-
-<span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
-
-enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
-  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">LogThis</span><span style="color:#f92672">(</span><span style="color:#66d9ef">message:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span>
-
-<span style="color:#66d9ef">def</span> <span style="color:#66d9ef">update</span><span style="color:#f92672">(</span><span style="color:#66d9ef">model:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Msg</span> <span style="color:#f92672">=&gt;</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">Model</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
-  <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">LogThis</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span>
-    <span style="color:#f92672">(</span>model<span style="color:#f92672">,</span> <span style="color:#a6e22e">Logger</span><span style="color:#f92672">.</span>consoleLog<span style="color:#f92672">(</span>msg<span style="color:#f92672">))</span>
-</code></pre></div><p>To achieve this, we use the <code>Logger</code> command that comes with Tyrian. The <code>Logger</code> command is in fact just a <code>Cmd.SideEffect</code> that captures a value or behavior as a zero argument function, known as a <code>thunk</code>, in this case a simplified implementation could just be:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">def</span> consoleLog<span style="color:#f92672">(</span>msg<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Nothing</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-  <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">SideEffect</span> <span style="color:#f92672">{</span>
-    println<span style="color:#f92672">(</span>msg<span style="color:#f92672">)</span>
-  <span style="color:#f92672">}</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> tyrian.cmds.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> cats.effect.IO
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">LogThis</span><span style="color:#f92672">(</span><span style="color:#66d9ef">message:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#66d9ef">update</span><span style="color:#f92672">(</span><span style="color:#66d9ef">model:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Msg</span> <span style="color:#f92672">=&gt;</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">Model</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">LogThis</span><span style="color:#f92672">(</span>msg<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span>model<span style="color:#f92672">,</span> <span style="color:#a6e22e">Logger</span><span style="color:#f92672">.</span>consoleLog<span style="color:#f92672">(</span>msg<span style="color:#f92672">))</span>
+</span></span></code></pre></div><p>To achieve this, we use the <code>Logger</code> command that comes with Tyrian. The <code>Logger</code> command is in fact just a <code>Cmd.SideEffect</code> that captures a value or behavior as a zero argument function, known as a <code>thunk</code>, in this case a simplified implementation could just be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> consoleLog<span style="color:#f92672">(</span>msg<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Nothing</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">SideEffect</span> <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    println<span style="color:#f92672">(</span>msg<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">}</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>But commands can also return values in the form of messages. The <code>Random</code> command looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#a6e22e">Random</span><span style="color:#f92672">.</span>double<span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span><span style="color:#f92672">]</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#a6e22e">Random</span><span style="color:#f92672">.</span>double<span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span><span style="color:#f92672">]</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>&hellip;and produces an instance of <code>RandomValue</code>, but this leads to a problem since <code>RandomValue</code> is almost certainly not your app&rsquo;s <code>Msg</code> type, and so we must map over the result:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">enum <span style="color:#a6e22e">MyMsg</span><span style="color:#66d9ef">:</span>
-  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">MyRandom</span><span style="color:#f92672">(</span><span style="color:#66d9ef">d:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">extends</span> <span style="color:#66d9ef">MyMsg</span>
-
-<span style="color:#a6e22e">Random</span><span style="color:#f92672">.</span>double<span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span><span style="color:#f92672">].</span>map<span style="color:#f92672">(</span>next <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">MyMsg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">MyRandom</span><span style="color:#f92672">(</span>next<span style="color:#f92672">.</span>value<span style="color:#f92672">))</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>enum <span style="color:#a6e22e">MyMsg</span><span style="color:#66d9ef">:</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">MyRandom</span><span style="color:#f92672">(</span><span style="color:#66d9ef">d:</span> <span style="color:#66d9ef">Double</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">extends</span> <span style="color:#66d9ef">MyMsg</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Random</span><span style="color:#f92672">.</span>double<span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span><span style="color:#f92672">].</span>map<span style="color:#f92672">(</span>next <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">MyMsg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">MyRandom</span><span style="color:#f92672">(</span>next<span style="color:#f92672">.</span>value<span style="color:#f92672">))</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>These are simple examples, but there are much more complicated uses for commands. One great use of commands is for making <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">HTTP requests where the response is decoded into a <code>Msg</code>.</a></p>
 <!-- raw HTML omitted -->
 <!-- raw HTML omitted -->
@@ -853,16 +853,16 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1656279525"></script>
-    <script src="/js/perfect-scrollbar.min.js?1656279525"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1656279525"></script>
-    <script src="/js/jquery.sticky.js?1656279525"></script>
-    <script src="/js/featherlight.min.js?1656279525"></script>
-    <script src="/js/highlight.pack.js?1656279525"></script>
+    <script src="/js/clipboard.min.js?1663832795"></script>
+    <script src="/js/perfect-scrollbar.min.js?1663832795"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1663832795"></script>
+    <script src="/js/jquery.sticky.js?1663832795"></script>
+    <script src="/js/featherlight.min.js?1663832795"></script>
+    <script src="/js/highlight.pack.js?1663832795"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1656279525"></script>
-    <script src="/js/learn.js?1656279525"></script>
-    <script src="/js/hugo-learn.js?1656279525"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1663832795"></script>
+    <script src="/js/learn.js?1663832795"></script>
+    <script src="/js/hugo-learn.js?1663832795"></script>
     
     
 

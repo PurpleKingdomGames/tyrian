@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.89.4" />
+    <meta name="generator" content="Hugo 0.103.0" />
     <meta name="description" content="Elm inspired Scala Web Framework">
 <meta name="author" content="Dave Smith">
 
@@ -12,22 +12,22 @@
     <title>Building &amp; Bundling - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1656279525" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1656279525" rel="stylesheet">
-    <link href="/css/hybrid.css?1656279525" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1656279525" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1656279525" rel="stylesheet">
-    <link href="/css/auto-complete.css?1656279525" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1656279525" rel="stylesheet">
-    <link href="/css/theme.css?1656279525" rel="stylesheet">
-    <link href="/css/tabs.css?1656279525" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1656279525" rel="stylesheet">
+    <link href="/css/nucleus.css?1663832795" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1663832795" rel="stylesheet">
+    <link href="/css/hybrid.css?1663832795" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1663832795" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1663832795" rel="stylesheet">
+    <link href="/css/auto-complete.css?1663832795" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1663832795" rel="stylesheet">
+    <link href="/css/theme.css?1663832795" rel="stylesheet">
+    <link href="/css/tabs.css?1663832795" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1663832795" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1656279525" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1663832795" rel="stylesheet">
     
-    <link href="/css/foo.css?1656279525" rel="stylesheet"><link href="/css/bar.css?1656279525" rel="stylesheet">
+    <link href="/css/foo.css?1663832795" rel="stylesheet"><link href="/css/bar.css?1663832795" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1656279525"></script>
+    <script src="/js/jquery-3.3.1.min.js?1663832795"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1656279525"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1656279525"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1663832795"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1663832795"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1656279525"></script>
+<script type="text/javascript" src="/js/search.js?1663832795"></script>
 
     
   </div>
@@ -538,16 +538,16 @@
 <li>&hellip;and so you&rsquo;ll need a <code>main</code> method!</li>
 </ol>
 <p>To do that we just call one of the underlying <code>launch</code> methods on the <code>TyrianApp</code> trait. (These are the same methods we would have called from JavaScript to launch the app via Parcel.js.)</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">def</span> main<span style="color:#f92672">(</span>args<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Array</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Unit</span> <span style="color:#f92672">=</span>
-  launch<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;myapp&#34;</span><span style="color:#f92672">)</span>
-</code></pre></div><ol start="3">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> main<span style="color:#f92672">(</span>args<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Array</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Unit</span> <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  launch<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;myapp&#34;</span><span style="color:#f92672">)</span>
+</span></span></code></pre></div><ol start="3">
 <li>Add the scalajs-bundler plugin.</li>
 </ol>
 <p>Add the following to <code>project/plugins.sbt</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">addSbtPlugin<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ch.epfl.scala&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;sbt-scalajs-bundler&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.20.0&#34;</span><span style="color:#f92672">)</span>
-</code></pre></div><p>And enable the plugin on the project in your <code>build.sbt</code> file:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">enablePlugins<span style="color:#f92672">(</span><span style="color:#a6e22e">ScalaJSBundlerPlugin</span><span style="color:#f92672">)</span>
-</code></pre></div><ol start="4">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>addSbtPlugin<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;ch.epfl.scala&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;sbt-scalajs-bundler&#34;</span> <span style="color:#f92672">%</span> <span style="color:#e6db74">&#34;0.20.0&#34;</span><span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>And enable the plugin on the project in your <code>build.sbt</code> file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>enablePlugins<span style="color:#f92672">(</span><span style="color:#a6e22e">ScalaJSBundlerPlugin</span><span style="color:#f92672">)</span>
+</span></span></code></pre></div><ol start="4">
 <li>Reference the right <code>js</code> file.</li>
 </ol>
 <p>In the parcel.js examples, you&rsquo;ll see that we directly reference the normal Scala.js build output file in the <code>target</code> directory (or <code>out</code> directory in Mill examples), such as <code>target/3.1.2/tyrianapp-fastopt.js</code>. This is so that you can hot-reload on re-compile. However in scalajs-bundler, the output folder and file name you need to use will be slightly different, such as <code>target/3.1.2/scalajs-bundler/main/tyrianapp-fastopt-bundle.js</code>.</p>
@@ -837,16 +837,16 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1656279525"></script>
-    <script src="/js/perfect-scrollbar.min.js?1656279525"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1656279525"></script>
-    <script src="/js/jquery.sticky.js?1656279525"></script>
-    <script src="/js/featherlight.min.js?1656279525"></script>
-    <script src="/js/highlight.pack.js?1656279525"></script>
+    <script src="/js/clipboard.min.js?1663832795"></script>
+    <script src="/js/perfect-scrollbar.min.js?1663832795"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1663832795"></script>
+    <script src="/js/jquery.sticky.js?1663832795"></script>
+    <script src="/js/featherlight.min.js?1663832795"></script>
+    <script src="/js/highlight.pack.js?1663832795"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1656279525"></script>
-    <script src="/js/learn.js?1656279525"></script>
-    <script src="/js/hugo-learn.js?1656279525"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1663832795"></script>
+    <script src="/js/learn.js?1663832795"></script>
+    <script src="/js/hugo-learn.js?1663832795"></script>
     
     
 

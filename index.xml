@@ -36,7 +36,7 @@ Tyrian needs bundlers too. We could probably manage without them for our raw app
       <guid>https://tyrian.indigoengine.io/concepts/goodies/</guid>
       <description>Tyrian comes with a number of handy functions built-in that you can make use of and explore:
 Built-in Cmd goodies These nuggets of functionality are used as commands.
- Dom - A few methods such as focus and blur to manipulate the DOM. Inspired by the Elm Browser.Dom package. FileReader - Given the id of a file input field that has had a file selected, this Cmd will read either an image or text file to return an HTMLImageElement or String respectively.</description>
+Dom - A few methods such as focus and blur to manipulate the DOM. Inspired by the Elm Browser.Dom package. FileReader - Given the id of a file input field that has had a file selected, this Cmd will read either an image or text file to return an HTMLImageElement or String respectively.</description>
     </item>
     
     <item>
@@ -47,7 +47,7 @@ Built-in Cmd goodies These nuggets of functionality are used as commands.
       <guid>https://tyrian.indigoengine.io/concepts/cmd/</guid>
       <description>Commands Using Tyrian, you can get a long way with nothing more than a model, a view, and some messages being pumped around their endless one-way circuit.
 However, sooner or later you are going to want to do something that appears to break the loop, for instance:
- Make an HTTP call Log a message to the console Invoke a download Draw to a canvas  These kinds of actions are called &amp;lsquo;side-effects&amp;rsquo;, and are an extremely popular talking point with functional programmers, because they represent the very moment that all their beautiful functional purity goes right out the window.</description>
+Make an HTTP call Log a message to the console Invoke a download Draw to a canvas These kinds of actions are called &amp;lsquo;side-effects&amp;rsquo;, and are an extremely popular talking point with functional programmers, because they represent the very moment that all their beautiful functional purity goes right out the window.</description>
     </item>
     
     <item>

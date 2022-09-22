@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.89.4" />
+    <meta name="generator" content="Hugo 0.103.0" />
     <meta name="description" content="Elm inspired Scala Web Framework">
 <meta name="author" content="Dave Smith">
 
@@ -12,22 +12,22 @@
     <title>A Guided Example - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1656279525" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1656279525" rel="stylesheet">
-    <link href="/css/hybrid.css?1656279525" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1656279525" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1656279525" rel="stylesheet">
-    <link href="/css/auto-complete.css?1656279525" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1656279525" rel="stylesheet">
-    <link href="/css/theme.css?1656279525" rel="stylesheet">
-    <link href="/css/tabs.css?1656279525" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1656279525" rel="stylesheet">
+    <link href="/css/nucleus.css?1663832795" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1663832795" rel="stylesheet">
+    <link href="/css/hybrid.css?1663832795" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1663832795" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1663832795" rel="stylesheet">
+    <link href="/css/auto-complete.css?1663832795" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1663832795" rel="stylesheet">
+    <link href="/css/theme.css?1663832795" rel="stylesheet">
+    <link href="/css/tabs.css?1663832795" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1663832795" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1656279525" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1663832795" rel="stylesheet">
     
-    <link href="/css/foo.css?1656279525" rel="stylesheet"><link href="/css/bar.css?1656279525" rel="stylesheet">
+    <link href="/css/foo.css?1663832795" rel="stylesheet"><link href="/css/bar.css?1663832795" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1656279525"></script>
+    <script src="/js/jquery-3.3.1.min.js?1663832795"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1656279525"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1656279525"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1663832795"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1663832795"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1656279525"></script>
+<script type="text/javascript" src="/js/search.js?1663832795"></script>
 
     
   </div>
@@ -524,37 +524,37 @@
 <p>The example is comprised of two buttons, <code>+</code> and <code>-</code>, and some text that shows a count that goes up and dow when you press the buttons.</p>
 <h3 id="counter-code">Counter Code</h3>
 <p>The version of this in the <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">examples</a> is already quite lean, but the version below has been stripped back to the minimum.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.Html.<span style="color:#f92672">*</span>
-<span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
-<span style="color:#66d9ef">import</span> cats.effect.IO
-
-<span style="color:#66d9ef">import</span> scala.scalajs.js.annotation.<span style="color:#f92672">*</span>
-
-<span style="color:#75715e">// @JSExportTopLevel(&#34;TyrianApp&#34;) // Commented out to appease mdoc..
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">object</span> <span style="color:#a6e22e">Main</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">TyrianApp</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span>, <span style="color:#66d9ef">Model</span><span style="color:#f92672">]</span><span style="color:#66d9ef">:</span>
-
-  <span style="color:#66d9ef">def</span> <span style="color:#66d9ef">init</span><span style="color:#f92672">(</span><span style="color:#66d9ef">flags:</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span>, <span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">Model</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
-    <span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
-
-  <span style="color:#66d9ef">def</span> update<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Msg</span> <span style="color:#f92672">=&gt;</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">Model</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
-    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
-
-  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-    div<span style="color:#f92672">()(</span>
-      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
-      div<span style="color:#f92672">()(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
-      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#f92672">)</span>
-
-  <span style="color:#66d9ef">def</span> subscriptions<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-    <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span>
-    
-<span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
-
-enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
-  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">Increment</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Decrement</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> tyrian.Html.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> cats.effect.IO
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> scala.scalajs.js.annotation.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// @JSExportTopLevel(&#34;TyrianApp&#34;) // Commented out to appease mdoc..
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">object</span> <span style="color:#a6e22e">Main</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">TyrianApp</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span>, <span style="color:#66d9ef">Model</span><span style="color:#f92672">]</span><span style="color:#66d9ef">:</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> <span style="color:#66d9ef">init</span><span style="color:#f92672">(</span><span style="color:#66d9ef">flags:</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span>, <span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">Model</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> update<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Msg</span> <span style="color:#f92672">=&gt;</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">Model</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    div<span style="color:#f92672">()(</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      div<span style="color:#f92672">()(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> subscriptions<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Sub</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Sub</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">Increment</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Decrement</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>Lets go through it&hellip;</p>
 <h4 id="tyrianapp"><code>TyrianApp</code></h4>
 <p>Starting at the top, we have the most common imports that bring in all the basics you&rsquo;ll need to build your SPA.</p>
@@ -562,21 +562,21 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
 <p>Extending <code>TyrianApp[Msg, Model]</code> will produce helpful compile errors that will tell you all the functions you need to implement, i.e. <code>init</code>, <code>update</code>, <code>view</code> and <code>subscriptions</code>.</p>
 <p>The other thing you must do is export the app using Scala.js&rsquo;s <code>@JSExportTopLevel(&quot;TyrianApp&quot;)</code>. You can call it anything you like, but all the examples expect the name &ldquo;TyrianApp&rdquo;.</p>
 <h4 id="the-model">The model</h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>Our app is a counter, so we need a number we can increment and decrement. In this super simple example, an <code>Int</code> is all that we need for our whole model. Normally you&rsquo;d probably have a <code>case class</code> or something instead. To make it fit nicely, we&rsquo;ve allocated our <code>Int</code> to a <code>Model</code> type alias.</p>
 <blockquote>
 <p>The version in the examples uses an opaque type, but here we&rsquo;ve reduced it to a type alias.</p>
 </blockquote>
 <p>To use our model, we&rsquo;re going to have to initialize it!</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
-<span style="color:#66d9ef">import</span> tyrian.Html.<span style="color:#f92672">*</span>
-<span style="color:#66d9ef">import</span> cats.effect.IO
-
-<span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
-</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">  <span style="color:#66d9ef">def</span> init<span style="color:#f92672">(</span>flags<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span>, <span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">Model</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
-    <span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> tyrian.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> tyrian.Html.<span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">import</span> cats.effect.IO
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#66d9ef">Model</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Int</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> init<span style="color:#f92672">(</span>flags<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Map</span><span style="color:#f92672">[</span><span style="color:#66d9ef">String</span>, <span style="color:#66d9ef">String</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#f92672">(</span><span style="color:#66d9ef">Model</span><span style="color:#f92672">,</span> <span style="color:#66d9ef">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>There&rsquo;s a few things going on here, the only bit we <em>really</em> care about here is the <code>0</code> because that is going to be the starting value of our &lsquo;model&rsquo;.</p>
 <p>Some of the other things you can see here:</p>
 <ul>
@@ -586,42 +586,42 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
 <h4 id="rendering-the-page">Rendering the page</h4>
 <p>Let&rsquo;s draw the page. All the functions in Tyrian are encouraged to be pure, which means they operate solely on their arguments to produce a value.</p>
 <p>The <code>view</code> takes the latest immutable (read-only) model, and produces some HTML in the form of <code>Html[Msg]</code>.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-    div<span style="color:#f92672">(</span>
-      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
-      div<span style="color:#f92672">(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
-      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    div<span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      div<span style="color:#f92672">(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">)</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>Here we make a div, add a <code>-</code> button, the another div containing the count (i.e. the model) as plain text, and finally another <code>+</code> button. If you&rsquo;re familiar with HTML this should all look pretty familiar.</p>
 <p>If you wanted to add an <code>id</code> attribute to the div, you would do so like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-    div<span style="color:#f92672">(</span>id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;my container&#34;</span><span style="color:#f92672">)(</span>
-      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
-      div<span style="color:#f92672">(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
-      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    div<span style="color:#f92672">(</span>id <span style="color:#66d9ef">:</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;my container&#34;</span><span style="color:#f92672">)(</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      div<span style="color:#f92672">(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">)</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>Of course a button isn&rsquo;t much use unless it does something, and what we can do is emit an event, called a message, when the button is clicked. For that we need to declare our message type which we&rsquo;ll do as a simple enum that represents the two actions we want to perform:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
-  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">Increment</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Decrement</span>
-</code></pre></div><p>&hellip;and add our click events:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
-    div<span style="color:#f92672">(</span>
-      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
-      div<span style="color:#f92672">(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
-      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
-    <span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">Increment</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Decrement</span>
+</span></span></code></pre></div><p>&hellip;and add our click events:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> view<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Html</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Msg</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    div<span style="color:#f92672">(</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;-&#34;</span><span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      div<span style="color:#f92672">(</span>model<span style="color:#f92672">.</span>toString<span style="color:#f92672">),</span>
+</span></span><span style="display:flex;"><span>      button<span style="color:#f92672">(</span>onClick<span style="color:#f92672">(</span><span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span><span style="color:#f92672">))(</span><span style="color:#e6db74">&#34;+&#34;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">)</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <blockquote>
 <p>Note the return type of view is <code>Html[Msg]</code>. This is because unlike normal JavaScript, the <code>onClick</code> is not directly instigating a normal callback, the HTML elements are mapped through and produce messages as values that are passed back to Tyrian.</p>
 </blockquote>
 <h4 id="updating-the-counters-value">Updating the counter&rsquo;s value</h4>
 <p>The final thing we need to do is react to the messages the view is sending, as follows:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">  <span style="color:#66d9ef">def</span> update<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Msg</span> <span style="color:#f92672">=&gt;</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">Model</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
-    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
-    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
-</code></pre></div><!-- raw HTML omitted -->
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-scala" data-lang="scala"><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> update<span style="color:#f92672">(</span>model<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Model</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Msg</span> <span style="color:#f92672">=&gt;</span> <span style="color:#f92672">(</span><span style="color:#a6e22e">Model</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">[</span><span style="color:#66d9ef">IO</span>, <span style="color:#66d9ef">Msg</span><span style="color:#f92672">])</span> <span style="color:#66d9ef">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Increment</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Msg</span><span style="color:#f92672">.</span><span style="color:#a6e22e">Decrement</span> <span style="color:#66d9ef">=&gt;</span> <span style="color:#f92672">(</span>model <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Cmd</span><span style="color:#f92672">.</span><span style="color:#a6e22e">None</span><span style="color:#f92672">)</span>
+</span></span></code></pre></div><!-- raw HTML omitted -->
 <p>Recall that our &lsquo;model&rsquo; is just a type alias for an <code>Int</code>, so all we do is match on the <code>Msg</code> enum type, and either increment or decrement the model - done!</p>
 <h4 id="subscriptions">Subscriptions</h4>
 <p>Subscriptions are part of the standard requirements, but this example doesn&rsquo;t use them for anything. They allow you to &ldquo;subscribe&rdquo; to processes that emit events over time.</p>
@@ -906,16 +906,16 @@ enum <span style="color:#a6e22e">Msg</span><span style="color:#66d9ef">:</span>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1656279525"></script>
-    <script src="/js/perfect-scrollbar.min.js?1656279525"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1656279525"></script>
-    <script src="/js/jquery.sticky.js?1656279525"></script>
-    <script src="/js/featherlight.min.js?1656279525"></script>
-    <script src="/js/highlight.pack.js?1656279525"></script>
+    <script src="/js/clipboard.min.js?1663832795"></script>
+    <script src="/js/perfect-scrollbar.min.js?1663832795"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1663832795"></script>
+    <script src="/js/jquery.sticky.js?1663832795"></script>
+    <script src="/js/featherlight.min.js?1663832795"></script>
+    <script src="/js/highlight.pack.js?1663832795"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1656279525"></script>
-    <script src="/js/learn.js?1656279525"></script>
-    <script src="/js/hugo-learn.js?1656279525"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1663832795"></script>
+    <script src="/js/learn.js?1663832795"></script>
+    <script src="/js/hugo-learn.js?1663832795"></script>
     
     
 
