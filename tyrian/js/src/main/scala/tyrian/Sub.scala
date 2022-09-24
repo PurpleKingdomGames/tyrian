@@ -219,6 +219,25 @@ object Sub:
       Sync[F].delay(target.removeEventListener(name, listener))
     }(extract)
 
+  /** A subscription that emits a `msg` whenever the browser renders an animation frame. */
+  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
+  def animationFrameTick[F[_]: Sync, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
+    Sub.make[F, Double, Msg, Int](id) { callback =>
+      var handle = 0
+      def loop: Double => Unit = time => {
+        callback(Right(time))
+        handle = dom.window.requestAnimationFrame(loop)
+      }
+      handle = dom.window.requestAnimationFrame(loop)
+      Sync[F].delay(handle)
+    } { handle =>
+      Sync[F].delay(dom.window.cancelAnimationFrame(handle))
+    } { t =>
+      Some(toMsg(t))
+    }
+
+  // Monoid
+
   given [F[_], Msg]: Monoid[Sub[F, Msg]] = new Monoid[Sub[F, Msg]] {
     def empty: Sub[F, Msg]                                   = Sub.None
     def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)

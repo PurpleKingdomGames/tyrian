@@ -205,6 +205,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
     case Msg.NewTime(time) =>
       (model.copy(currentTime = time), Cmd.None)
 
+    case Msg.FrameTick(time) =>
+      (model.copy(runningTime = time), Cmd.None)
+
   def view(model: Model): Html[Msg] =
     val navItems =
       Page.values.toList.map { pg =>
@@ -268,6 +271,16 @@ object Sandbox extends TyrianApp[Msg, Model]:
           val angle = model.currentTime.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
           val handX = 50 + 40 * math.cos(angle)
           val handY = 50 + 40 * math.sin(angle)
+
+          def orbit(t: Double, cx: Double, cy: Double, distance: Double): Vector2 =
+            val angle = (Math.PI * 2) * (t % 1.0d)
+            Vector2(
+              (Math.sin(angle) * distance) + cx,
+              (Math.cos(angle) * distance) + cy
+            )
+
+          val p = orbit(model.runningTime * 0.0001, 50, 50, 45)
+
           svg(viewBox := "0, 0, 100, 100", width := "300px")(
             circle(
               cx   := "50",
@@ -281,6 +294,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
               x2     := handX.toString,
               y2     := handY.toString,
               stroke := "#023963"
+            ),
+            circle(
+              cx   := p.x.toString,
+              cy   := p.y.toString,
+              r    := "5",
+              fill := "#FF0000"
             )
           )
 
@@ -380,7 +399,10 @@ object Sandbox extends TyrianApp[Msg, Model]:
       webSocketSubs,
       Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
       simpleSubs,
-      clockSub
+      clockSub,
+      Sub.animationFrameTick("frametick") { t =>
+        Msg.FrameTick(t)
+      }
     )
 
 enum Msg:
@@ -408,6 +430,7 @@ enum Msg:
   case GotHttpResult(response: Response)
   case GotHttpError(message: String)
   case UpdateHttpDetails(newUrl: String)
+  case FrameTick(time: Double)
 
 enum Status:
   case Connecting
@@ -450,7 +473,8 @@ final case class Model(
     tmpSaveData: String,
     saveData: Option[String],
     currentTime: js.Date,
-    http: HttpDetails
+    http: HttpDetails,
+    runningTime: Double
 )
 
 enum Page:
@@ -494,15 +518,17 @@ object Model:
   val echoServer = "ws://localhost:8080/wsecho"
 
   val init: Model =
-    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None, new js.Date(), HttpDetails.initial)
+    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None, new js.Date(), HttpDetails.initial, 0.0d)
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field
   def decode: Option[String] => Either[String, Model] =
     case None => Left("No snapshot found")
     case Some(data) =>
-      Right(Model(Page.Page1, None, echoServer, data, Nil, Nil, None, "", None, new js.Date(), HttpDetails.initial))
+      Right(Model.init.copy(field = data))
 
 final case class HttpDetails(url: Option[String], response: Option[Response], error: Option[String])
 object HttpDetails:
   val initial: HttpDetails = HttpDetails(Option("http://127.0.0.1:3000/"), None, None)
+
+final case class Vector2(x: Double, y: Double)
