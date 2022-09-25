@@ -72,6 +72,12 @@ lazy val field =
     .settings(commonSettings: _*)
     .settings(name := "field")
 
+lazy val fs2 =
+  (project in file("fs2"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "fs2")
+
 lazy val http =
   (project in file("http"))
     .enablePlugins(ScalaJSPlugin)
@@ -181,6 +187,7 @@ lazy val exampleProjects: List[String] =
     "counter",
     "electron",
     "field",
+    "fs2",
     "http",
     "http4sdom",
     "indigo",
