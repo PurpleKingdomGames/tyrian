@@ -92,9 +92,8 @@ object AttributeGen {
     |}
     """.stripMargin
 
-  def gen(fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] = {
-
-    Seq(htmlAttrsList, svgAttrsList).map { case AttributesList(attrs, props, name) =>
+  def gen(fullyQualifiedPath: String, sourceManagedDir: File): Seq[File] =
+    Seq(htmlAttrsList, svgAttrsList, ariaAttrsList).map { case AttributesList(attrs, props, name) =>
       val file: File =
         sourceManagedDir / s"$name.scala"
 
@@ -119,7 +118,6 @@ object AttributeGen {
 
       file
     }
-  }
 
   def htmlAttrs: List[AttributeType] =
     List(
@@ -341,8 +339,58 @@ object AttributeGen {
     Normal("y2")
   )
 
+  def ariaAttrs: List[AttributeType] = List(
+    Normal("ariaAutocomplete", "aria-autocomplete"),
+    Normal("ariaChecked", "aria-checked"),
+    Normal("ariaDisabled", "aria-disabled"),
+    Normal("ariaErrorMessage", "aria-errormessage"),
+    Normal("ariaExpanded", "aria-expanded"),
+    Normal("ariaHasPopup", "aria-haspopup"),
+    Normal("ariaHidden", "aria-hidden"),
+    Normal("ariaInvalid", "aria-invalid"),
+    Normal("ariaLabel", "aria-label"),
+    Normal("ariaLevel", "aria-level"),
+    Normal("ariaModal", "aria-modal"),
+    Normal("ariaMultiline", "aria-multiline"),
+    Normal("ariaMultiselectable", "aria-multiselectable"),
+    Normal("ariaOrientation", "aria-orientation"),
+    Normal("ariaPlaceholder", "aria-placeholder"),
+    Normal("ariaPressed", "aria-pressed"),
+    Normal("ariaReadOnly", "aria-readonly"),
+    Normal("ariaRequired", "aria-required"),
+    Normal("ariaSelected", "aria-selected"),
+    Normal("ariaSort", "aria-sort"),
+    Normal("ariaValueMax", "aria-valuemax"),
+    Normal("ariaValueMin", "aria-valuemin"),
+    Normal("ariaValueNow", "aria-valuenow"),
+    Normal("ariaValueText", "aria-valuetext"),
+    Normal("ariaBusy", "aria-busy"),
+    Normal("ariaLive", "aria-live"),
+    Normal("ariaRelevant", "aria-relevant"),
+    Normal("ariaAtomic", "aria-atomic"),
+    Normal("ariaDropEffect", "aria-dropeffect"),
+    Normal("ariaGrabbed", "aria-grabbed"),
+    Normal("ariaActiveDescendant", "aria-activedescendant"),
+    Normal("ariaColCount", "aria-colcount"),
+    Normal("ariaColIndex", "aria-colindex"),
+    Normal("ariaColSpan", "aria-colspan"),
+    Normal("ariaControls", "aria-controls"),
+    Normal("ariaDescribedBy", "aria-describedby"),
+    Normal("ariaDescription", "aria-description"),
+    Normal("ariaDetails", "aria-details"),
+    Normal("ariaFlowTo", "aria-flowto"),
+    Normal("ariaLabelledBy", "aria-labelledby"),
+    Normal("ariaOwns", "aria-owns"),
+    Normal("ariaPosInset", "aria-posinset"),
+    Normal("ariaRowCount", "aria-rowcount"),
+    Normal("ariaRowIndex", "aria-rowindex"),
+    Normal("ariaRowSpan", "aria-rowspan"),
+    Normal("ariaSetSize", "aria-setsize")
+  )
+
   def htmlAttrsList: AttributesList = AttributesList(htmlAttrs, htmlProps, "HtmlAttributes")
   def svgAttrsList: AttributesList  = AttributesList(svgAttrs, List(), "SVGAttributes")
+  def ariaAttrsList: AttributesList = AttributesList(ariaAttrs, List(), "AriaAttributes")
 
 }
 

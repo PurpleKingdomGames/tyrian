@@ -14,6 +14,8 @@ final case class Text(value: String) extends Elem[Nothing]:
 sealed trait Html[+M] extends Elem[M]:
   def map[N](f: M => N): Html[N]
 
+/** Object used to provide Html syntax `import tyrian.Html.*`
+  */
 object Html extends HtmlTags with HtmlAttributes:
 
   def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] =
@@ -46,7 +48,7 @@ object Html extends HtmlTags with HtmlAttributes:
 
   // Custom attribute syntax
 
-  def dataAttr(name: String, value: String): Attr[Nothing]        = Attribute("data-" + name, value)
+  def dataAttr(name: String, value: String): Attr[Nothing] = Attribute("data-" + name, value)
 
   def onKeyDown[M](msg: Tyrian.KeyboardEvent => M): Attr[M] = onEvent("keydown", msg)
   def onKeyUp[M](msg: Tyrian.KeyboardEvent => M): Attr[M]   = onEvent("keyup", msg)
@@ -63,7 +65,13 @@ object Html extends HtmlTags with HtmlAttributes:
 
 end Html
 
+/** Object used to provide SVG syntax `import tyrian.SVG.*`
+  */
 object SVG extends SVGTags with SVGAttributes
+
+/** Object used to provide Aria attribute syntax `import tyrian.Aria.*`
+  */
+object Aria extends AriaAttributes
 
 /** An HTML tag */
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
