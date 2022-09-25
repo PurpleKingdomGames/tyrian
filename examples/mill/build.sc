@@ -5,8 +5,8 @@ import mill.scalajslib._
 import mill.scalajslib.api._
 
 object counter extends ScalaJSModule {
-  def scalaVersion   = "3.1.2"
-  def scalaJSVersion = "1.10.0"
+  def scalaVersion   = "3.2.0"
+  def scalaJSVersion = "1.11.0"
 
   def buildSite() =
     T.command {

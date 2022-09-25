@@ -8,7 +8,7 @@ val LogbackVersion         = "1.2.6"
 val MunitCatsEffectVersion = "1.0.6"
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.1.2"
+lazy val scala3Version = "3.2.0"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -45,7 +45,6 @@ lazy val server =
 lazy val spa =
   project
     .enablePlugins(ScalaJSPlugin)
-    .enablePlugins(ScalaJSBundlerPlugin)
     .settings(commonSettings: _*)
     .settings(
       name := "SPA",
@@ -53,12 +52,7 @@ lazy val spa =
         "io.indigoengine" %%% "tyrian-io" % tyrianVersion
       ),
       scalaJSUseMainModuleInitializer := true,
-      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
-    )
-    .settings(
-      // Source maps seem to be broken with bundler
-      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) }
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) }
     )
 
 lazy val serverExamples =
@@ -83,7 +77,8 @@ addCommandAlias(
   "start",
   List(
     "clean",
-    "spa/fastOptJS::webpack",
+    // "spa/fastOptJS::webpack",
+    "spa/fullLinkJS",
     "server/run"
   ).mkString(";", ";", "")
 )
@@ -91,7 +86,8 @@ addCommandAlias(
 addCommandAlias(
   "buildAll",
   List(
-    "spa/fastOptJS::webpack",
+    // "spa/fastOptJS::webpack",
+    "spa/fullLinkJS",
     "server/test"
   ).mkString(";", ";", "")
 )
