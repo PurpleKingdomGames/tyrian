@@ -98,7 +98,7 @@ lazy val http4sdom =
     )
     .settings(
       libraryDependencies ++= Seq(
-        "org.http4s" %%% "http4s-dom" % "0.2.3",
+        "org.http4s" %%% "http4s-dom"   % "0.2.3",
         "org.http4s" %%% "http4s-circe" % "0.23.15"
       )
     )
@@ -111,9 +111,9 @@ lazy val indigo =
       name := "indigo-bridge",
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianVersion,
-        "io.indigoengine" %%% "indigo"               % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-extras"        % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe"    % Dependancies.indigoVersion
+        "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
       )
     )
 
@@ -144,6 +144,35 @@ lazy val websocket =
     .settings(commonSettings: _*)
     .settings(name := "websocket")
 
+lazy val zio =
+  (project in file("zio"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(
+      version      := tyrianVersion,
+      scalaVersion := scala3Version,
+      organization := "io.indigoengine",
+      libraryDependencies ++= Seq(
+        "org.scalameta" %%% "munit" % "0.7.29" % Test
+      ),
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "tyrian-zio" % tyrianVersion
+      ),
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+      crossScalaVersions := Seq(scala3Version),
+      scalafixOnCompile  := true,
+      semanticdbEnabled  := true,
+      semanticdbVersion  := scalafixSemanticdb.revision,
+      autoAPIMappings    := true
+    )
+    .settings(
+      name := "zio",
+      resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+      libraryDependencies ++= Seq(
+        "dev.zio" %%% "zio"              % "2.0.2",
+        "dev.zio" %%% "zio-interop-cats" % "3.3.0+9-bd953aa9-SNAPSHOT"
+      )
+    )
+
 lazy val exampleProjects: List[String] =
   List(
     "bootstrap",
@@ -158,7 +187,8 @@ lazy val exampleProjects: List[String] =
     "mario",
     "nonpm",
     "subcomponents",
-    "websocket"
+    "websocket",
+    "zio"
   )
 
 lazy val tyrianExamplesProject =
