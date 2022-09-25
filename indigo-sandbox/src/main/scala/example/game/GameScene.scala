@@ -1,7 +1,7 @@
 package example.game
 
-import indigo._
-import indigo.scenes._
+import indigo.*
+import indigo.scenes.*
 
 final case class GameScene(clockwise: Boolean) extends Scene[Unit, Unit, Unit]:
 
@@ -24,20 +24,20 @@ final case class GameScene(clockwise: Boolean) extends Scene[Unit, Unit, Unit]:
     Set()
 
   def updateModel(
-      context: FrameContext[Unit],
+      context: SceneContext[Unit],
       model: Unit
   ): GlobalEvent => Outcome[Unit] =
     _ => Outcome(model)
 
   def updateViewModel(
-      context: FrameContext[Unit],
+      context: SceneContext[Unit],
       model: Unit,
       viewModel: Unit
   ): GlobalEvent => Outcome[Unit] =
     _ => Outcome(viewModel)
 
   def present(
-      context: FrameContext[Unit],
+      context: SceneContext[Unit],
       model: Unit,
       viewModel: Unit
   ): Outcome[SceneUpdateFragment] =
