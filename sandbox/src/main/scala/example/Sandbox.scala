@@ -205,8 +205,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
     case Msg.NewTime(time) =>
       (model.copy(currentTime = time), Cmd.None)
 
-    case Msg.FrameTick(time) =>
-      (model.copy(runningTime = time), Cmd.None)
+    case Msg.FrameTick(t) =>
+      (model.copy(time = model.time.next(t)), Cmd.None)
 
   def view(model: Model): Html[Msg] =
     val navItems =
@@ -272,14 +272,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
           val handX = 50 + 40 * math.cos(angle)
           val handY = 50 + 40 * math.sin(angle)
 
-          def orbit(t: Double, cx: Double, cy: Double, distance: Double): Vector2 =
-            val angle = (Math.PI * 2) * (t % 1.0d)
+          def orbit(runningTime: Double, cx: Double, cy: Double, distance: Double): Vector2 =
+            val angle = (Math.PI * 2) * (runningTime % 1.0d)
             Vector2(
               (Math.sin(angle) * distance) + cx,
               (Math.cos(angle) * distance) + cy
             )
 
-          val p = orbit(model.runningTime * 0.0001, 50, 50, 45)
+          val p = orbit(model.time.running, 50, 50, 45)
 
           svg(viewBox := "0, 0, 100, 100", width := "300px")(
             circle(
@@ -430,7 +430,7 @@ enum Msg:
   case GotHttpResult(response: Response)
   case GotHttpError(message: String)
   case UpdateHttpDetails(newUrl: String)
-  case FrameTick(time: Double)
+  case FrameTick(runningTime: Double)
 
 enum Status:
   case Connecting
@@ -474,8 +474,12 @@ final case class Model(
     saveData: Option[String],
     currentTime: js.Date,
     http: HttpDetails,
-    runningTime: Double
+    time: Time
 )
+
+final case class Time(running: Double, delta: Double):
+  def next(t: Double): Time =
+    this.copy(running = t, delta = t - running)
 
 enum Page:
   case Page1, Page2, Page3, Page4, Page5, Page6
@@ -518,7 +522,20 @@ object Model:
   val echoServer = "ws://localhost:8080/wsecho"
 
   val init: Model =
-    Model(Page.Page1, None, echoServer, "", Nil, Nil, None, "", None, new js.Date(), HttpDetails.initial, 0.0d)
+    Model(
+      Page.Page1,
+      None,
+      echoServer,
+      "",
+      Nil,
+      Nil,
+      None,
+      "",
+      None,
+      new js.Date(),
+      HttpDetails.initial,
+      Time(0.0d, 0.0d)
+    )
 
   // We're only saving/loading the input field contents as an example
   def encode(model: Model): String = model.field

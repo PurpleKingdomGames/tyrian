@@ -219,11 +219,11 @@ object Sub:
       Sync[F].delay(target.removeEventListener(name, listener))
     }(extract)
 
-  /** A subscription that emits a `msg` whenever the browser renders an animation frame. */
+  /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation frame. */
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   def animationFrameTick[F[_]: Sync, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
     Sub.make[F, Double, Msg, Int](id) { callback =>
-      var handle = 0
+      var handle: Int = 0
       def loop: Double => Unit = time => {
         callback(Right(time))
         handle = dom.window.requestAnimationFrame(loop)
@@ -233,7 +233,7 @@ object Sub:
     } { handle =>
       Sync[F].delay(dom.window.cancelAnimationFrame(handle))
     } { t =>
-      Some(toMsg(t))
+      Option(toMsg(t / 1000))
     }
 
   // Monoid
