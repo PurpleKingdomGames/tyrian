@@ -515,7 +515,7 @@ object Page:
       case "page5"  => Page5
       case "#page6" => Page6
       case "page6"  => Page6
-      case s        => Page1
+      case _        => Page1
 
 object Model:
   // val echoServer = "ws://ws.ifelse.io" // public echo server

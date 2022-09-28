@@ -6,7 +6,6 @@ import org.scalajs.dom.window
 import tyrian.Sub
 
 import scala.scalajs.js
-import scala.util.control.NonFatal
 
 /** Provides simple routing based on url hash (anchor), such as: `http://mysite.com/#page1` */
 object Navigation:
@@ -26,7 +25,7 @@ object Navigation:
         Option[Result.HashChange](Result.HashChange(evt.oldURL, oldFrag, evt.newURL, newFrag))
           .map(resultToMessage)
       } catch {
-        case NonFatal(e) =>
+        case _ =>
           None
       }
     }

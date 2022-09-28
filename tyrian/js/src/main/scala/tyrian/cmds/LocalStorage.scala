@@ -6,7 +6,6 @@ import org.scalajs.dom
 import tyrian.Cmd
 
 import scala.annotation.targetName
-import scala.util.control.NonFatal
 
 object LocalStorage:
 

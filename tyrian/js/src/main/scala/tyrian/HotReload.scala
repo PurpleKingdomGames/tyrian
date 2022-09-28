@@ -6,7 +6,6 @@ import util.Functions
 
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
-import scala.util.control.NonFatal
 
 /** A very simple mechanism to allow automatic loading and saving of your applications model to local storage. Uses:
   *
