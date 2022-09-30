@@ -18,16 +18,19 @@ object Navigation:
   /** Subscribes to changes in the url hash and reports when they occur */
   def onLocationHashChange[F[_]: Async, Msg](resultToMessage: Result.HashChange => Msg): Sub[F, Msg] =
     Sub.fromEvent("hashchange", window) { e =>
-      try {
-        val evt     = e.asInstanceOf[HashChangeEvent]
-        val oldFrag = evt.oldURL.substring(evt.oldURL.indexOf("#"))
-        val newFrag = evt.newURL.substring(evt.newURL.indexOf("#"))
-        Option[Result.HashChange](Result.HashChange(evt.oldURL, oldFrag, evt.newURL, newFrag))
-          .map(resultToMessage)
-      } catch {
-        case _ =>
-          None
-      }
+      def findFrag(frag: String): String =
+        if frag.contains('#') then frag.substring(frag.indexOf("#"))
+        else frag
+
+      val evt     = e.asInstanceOf[HashChangeEvent] // Never fails (JS Type), no exception to catch
+      val oldFrag = findFrag(evt.oldURL)
+      val newFrag = findFrag(evt.newURL)
+
+      Option(
+        resultToMessage(
+          Result.HashChange(evt.oldURL, oldFrag, evt.newURL, newFrag)
+        )
+      )
     }
 
   /** Fetch the current location hash */
