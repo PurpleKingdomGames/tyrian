@@ -68,6 +68,7 @@ The web sockets example is built like a normal example, however, before you open
 In a new terminal tab, go to the `examples/websocket/server` folder, then run:
 
 ```sh
+yarn install
 node websocketserver.js
 ```
 
