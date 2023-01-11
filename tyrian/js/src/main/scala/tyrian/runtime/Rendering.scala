@@ -4,40 +4,47 @@ import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom._
 import snabbdom.modules._
+import tyrian.Attr
 import tyrian.Attribute
 import tyrian.Event
 import tyrian.Html
 import tyrian.NamedAttribute
 import tyrian.Property
+import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
 
 object Rendering:
 
+  private def buildNodeData[Msg](attrs: List[Attr[Msg]], onMsg: Msg => Unit): VNodeData =
+    val as: List[(String, String)] =
+      attrs.collect {
+        case Attribute(n, v)   => (n, v)
+        case NamedAttribute(n) => (n, "")
+      }
+
+    val props: List[(String, PropValue)] =
+      attrs.collect { case Property(n, v) => (n, v) }
+
+    val events: List[(String, EventHandler)] =
+      attrs.collect { case Event(n, msg) =>
+        (n, EventHandler((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
+      }
+
+    VNodeData.empty.copy(
+      props = props.toMap,
+      attrs = as.toMap,
+      on = events.toMap
+    )
+
   def toVNode[Msg](html: Html[Msg], onMsg: Msg => Unit): VNode =
     html match
+      case RawTag(name, attrs, innerHTML) =>
+        val data = buildNodeData(attrs, onMsg)
+        h(name, data, innerHTML)
+
       case Tag(name, attrs, children) =>
-        val as: List[(String, String)] =
-          attrs.collect {
-            case Attribute(n, v)   => (n, v)
-            case NamedAttribute(n) => (n, "")
-          }
-
-        val props: List[(String, PropValue)] =
-          attrs.collect { case Property(n, v) => (n, v) }
-
-        val events: List[(String, EventHandler)] =
-          attrs.collect { case Event(n, msg) =>
-            (n, EventHandler((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
-          }
-
-        val data: VNodeData =
-          VNodeData.empty.copy(
-            props = props.toMap,
-            attrs = as.toMap,
-            on = events.toMap
-          )
-
+        val data = buildNodeData(attrs, onMsg)
         val childrenElem: Array[VNode] =
           children.toArray.map {
             case t: Text            => VNode.text(t.value)

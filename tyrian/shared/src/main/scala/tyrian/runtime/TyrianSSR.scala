@@ -40,6 +40,10 @@ object Render:
   extension [Msg](html: Html[Msg])
     def render: String =
       html match
+        case tag: RawTag[_] =>
+          val attributes =
+            spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
+          s"""<${tag.name}$attributes>${tag.innerHTML}</${tag.name}>"""
         case tag: Tag[_] =>
           val attributes =
             spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
