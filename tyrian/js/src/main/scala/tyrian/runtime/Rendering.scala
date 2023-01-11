@@ -39,9 +39,13 @@ object Rendering:
 
   def toVNode[Msg](html: Html[Msg], onMsg: Msg => Unit): VNode =
     html match
-      case RawTag(name, attrs, innerHTML) =>
+      case RawTag(name, attrs, html) =>
         val data = buildNodeData(attrs, onMsg)
-        h(name, data, innerHTML)
+        val elm  = dom.document.createElement(name)
+        elm.innerHTML = html
+        val vNode = snabbdom.toVNode(elm)
+        vNode.data = data
+        vNode
 
       case Tag(name, attrs, children) =>
         val data = buildNodeData(attrs, onMsg)
