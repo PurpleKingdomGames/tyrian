@@ -10,10 +10,6 @@ sealed trait Elem[+M]:
 final case class Text(value: String) extends Elem[Nothing]:
   def map[N](f: Nothing => N): Text = this
 
-// TODO remove
-// final case class Raw(html: String) extends Elem[Nothing]:
-//   def map[N](f: Nothing => N): Raw = this
-
 /** Base class for HTML tags */
 sealed trait Html[+M] extends Elem[M]:
   def map[N](f: M => N): Html[N]
