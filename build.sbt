@@ -38,16 +38,13 @@ lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
   scalacOptions ++= {
     // Map the sourcemaps to github paths instead of local directories
-    val flag =
-      if (scalaVersion.value.startsWith("3")) "-scalajs-mapSourceURI"
-      else "-P:scalajs:mapSourceURI"
     val localSourcesPath = baseDirectory.value.toURI
     val headCommit       = git.gitHeadCommit.value.get
     scmInfo.value.map { info =>
       val remoteSourcesPath =
         s"${info.browseUrl.toString
             .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
-      s"${flag}:$localSourcesPath->$remoteSourcesPath"
+      s"-scalajs-mapSourceURI:$localSourcesPath->$remoteSourcesPath"
     }
   }
 )
