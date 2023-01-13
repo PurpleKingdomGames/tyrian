@@ -35,7 +35,18 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
 )
 
 lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
-  Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
+  Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+  scalacOptions ++= {
+    // Map the sourcemaps to github paths instead of local directories
+    val localSourcesPath = baseDirectory.value.toURI
+    val headCommit       = git.gitHeadCommit.value.get
+    scmInfo.value.map { info =>
+      val remoteSourcesPath =
+        s"${info.browseUrl.toString
+            .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
+      s"-scalajs-mapSourceURI:$localSourcesPath->$remoteSourcesPath"
+    }
+  }
 )
 
 lazy val neverPublish = Seq(
