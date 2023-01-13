@@ -30,6 +30,12 @@ object Html extends HtmlTags with HtmlAttributes:
   def tag[M](name: String)(attributes: List[Attr[M]])(children: List[Elem[M]]): Html[M] =
     Tag(name, attributes, children)
 
+  def raw[M](name: String)(attributes: Attr[M]*)(html: String): Html[M] =
+    RawTag(name, attributes.toList, html)
+  @targetName("raw-list")
+  def raw[M](name: String)(attributes: List[Attr[M]])(html: String): Html[M] =
+    RawTag(name, attributes, html)
+
   // Custom tag syntax
 
   def radio[M](name: String, checked: Boolean, attributes: Attr[M]*): Html[M] =
@@ -77,3 +83,10 @@ object Aria extends AriaAttributes
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
   def map[N](f: M => N): Tag[N] =
     Tag(name, attributes.map(_.map(f)), children.map(_.map(f)))
+
+/** An HTML tag with raw HTML rendered inside. Beware that the inner HTML is not validated to be correct, nor does it
+  * get modified as a response to messages in any way.
+  */
+final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: String) extends Html[M]:
+  def map[N](f: M => N): RawTag[N] =
+    RawTag(name, attributes.map(_.map(f)), innerHTML)
