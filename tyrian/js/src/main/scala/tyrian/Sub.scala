@@ -121,10 +121,21 @@ object Sub:
   ): Sub[F, A] =
     make[F, A, A, R](id)(acquire)(release)(Option.apply)
 
+  /** Make a subscription based on an fs2.Stream. The stream is cancelled when it it removed from the list of
+    * subscriptions.
+    */
   def make[F[_]: Async, A](id: String, stream: Stream[F, A]): Sub[F, A] =
     make[F, A, Fiber[F, Throwable, Unit]](id) { cb =>
       Async[F].start(stream.attempt.foreach(result => Async[F].delay(cb(result))).compile.drain)
     }(_.cancel)
+
+  /** Make a subscription based on an fs2.Stream with additional custom clean up. The stream itself is always cancelled
+    * when it it removed from the list of subscriptions, even if no particular clean up is defined.
+    */
+  def make[F[_]: Async, A](id: String)(stream: Stream[F, A])(cleanUp: F[Unit]): Sub[F, A] =
+    make[F, A, Fiber[F, Throwable, Unit]](id) { cb =>
+      Async[F].start(stream.attempt.foreach(result => Async[F].delay(cb(result))).compile.drain)
+    }(_.cancel.flatMap(_ => cleanUp))
 
   private def _forget[F[_]: Sync]: Unit => F[Option[F[Unit]]] =
     (_: Unit) => Sync[F].delay(Option(Sync[F].delay(())))
@@ -219,7 +230,9 @@ object Sub:
       Sync[F].delay(target.removeEventListener(name, listener))
     }(extract)
 
-  /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation frame. */
+  /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation
+    * frame.
+    */
   @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
   def animationFrameTick[F[_]: Sync, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
     Sub.make[F, Double, Msg, Int](id) { callback =>
