@@ -235,7 +235,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
       model.page match
         case Page.Page1 =>
           div(onMouseMove(evt => Msg.MouseMove((evt.screenX.toInt, evt.screenY.toInt))))(
-            raw("div")()(s"<p><i>Mouse Coords ${model.mousePosition}</i></p>"),
+            div(id := "mousepos")().innerHtml(s"<p><i>Mouse Coords ${model.mousePosition}</i></p>"),
             input(
               placeholder := "What should we save?",
               value       := model.tmpSaveData,

@@ -13,6 +13,7 @@ final case class Text(value: String) extends Elem[Nothing]:
 /** Base class for HTML tags */
 sealed trait Html[+M] extends Elem[M]:
   def map[N](f: M => N): Html[N]
+  def innerHtml(html: String): Html[M]
 
 /** Object used to provide Html syntax `import tyrian.Html.*`
   */
@@ -81,6 +82,9 @@ object Aria extends AriaAttributes
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
   def map[N](f: M => N): Tag[N] =
     Tag(name, attributes.map(_.map(f)), children.map(_.map(f)))
+  
+  def innerHtml(html: String): RawTag[M] =
+    RawTag(name, attributes, html)
 
 /** An HTML tag with raw HTML rendered inside. Beware that the inner HTML is not validated to be correct, nor does it
   * get modified as a response to messages in any way.
@@ -88,3 +92,6 @@ final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List
 final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: String) extends Html[M]:
   def map[N](f: M => N): RawTag[N] =
     RawTag(name, attributes.map(_.map(f)), innerHTML)
+  
+  def innerHtml(html: String): RawTag[M] =
+    RawTag(name, attributes, html)
