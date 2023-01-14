@@ -1,12 +1,15 @@
 package tyrian.websocket
 
 import cats.effect.kernel.Async
+import cats.effect.kernel.Sync
+import fs2.Stream
 import org.scalajs.dom
 import tyrian.Cmd
 import tyrian.Sub
 import tyrian.websocket.WebSocketEvent
 import util.Functions
 
+import scala.collection.mutable.Queue
 import scala.concurrent.duration.*
 
 /** Helper WebSocket instance to store in your model that acts as a controller */
@@ -101,26 +104,52 @@ object WebSocket:
     Async[F].delay {
       val socket    = new dom.WebSocket(address)
       val keepAlive = new KeepAlive(socket, settings)
+      val q         = Queue.empty[WebSocketEvent]
+
+      val msgListener = Functions.fun { e =>
+        val event = WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString)
+        q.enqueue(event)
+      }
+
+      val errListener = Functions.fun { e =>
+        val msg =
+          try e.asInstanceOf[dom.ErrorEvent].message
+          catch { case _: Throwable => "Unknown" }
+        q.enqueue(WebSocketEvent.Error(msg))
+      }
+
+      val closeListener = Functions.fun { e =>
+        val ev = e.asInstanceOf[dom.CloseEvent]
+        q.enqueue(WebSocketEvent.Close(ev.code, ev.reason))
+      }
+
+      val openListener = Functions.fun { _ =>
+        onOpenSendMessage.foreach(msg => socket.send(msg))
+        q.enqueue(WebSocketEvent.Open)
+      }
+
+      socket.addEventListener("message", msgListener)
+      socket.addEventListener("error", errListener)
+      socket.addEventListener("open", openListener)
+      socket.addEventListener("close", closeListener)
 
       val subs =
         Sub.Batch(
-          Sub.fromEvent("message", socket) { e =>
-            Some(WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString))
-          },
-          Sub.fromEvent("error", socket) { e =>
-            val msg =
-              try e.asInstanceOf[dom.ErrorEvent].message
-              catch { case _: Throwable => "Unknown" }
-            Some(WebSocketEvent.Error(msg))
-          },
-          Sub.fromEvent("close", socket) { e =>
-            val ev = e.asInstanceOf[dom.CloseEvent]
-            Some(WebSocketEvent.Close(ev.code, ev.reason))
-          },
-          Sub.fromEvent("open", socket) { _ =>
-            onOpenSendMessage.foreach(msg => socket.send(msg))
-            Some(WebSocketEvent.Open)
-          },
+          Sub.make(s"[tyrian-ws-${address}]")(
+            Stream.repeatEval {
+              Sync[F].delay {
+                try Some(q.dequeue())
+                catch _ => None
+              }
+            }.unNone
+          )(
+            Async[F].delay {
+              socket.removeEventListener("message", msgListener)
+              socket.removeEventListener("error", errListener)
+              socket.removeEventListener("open", openListener)
+              socket.removeEventListener("close", closeListener)
+            }
+          ),
           keepAlive.run
         )
 
@@ -131,7 +160,7 @@ object WebSocket:
     @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
     def run: Sub[F, WebSocketEvent] =
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
-        Sub.every(settings.timeout, "ws-heartbeat").map(_ => WebSocketEvent.Heartbeat)
+        Sub.every(settings.timeout, "[tyrian-ws-heartbeat]").map(_ => WebSocketEvent.Heartbeat)
       else Sub.None
 
 sealed trait WebSocketConnect[F[_]: Async]
