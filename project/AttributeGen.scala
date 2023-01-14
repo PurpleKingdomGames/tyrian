@@ -33,7 +33,7 @@ object AttributeGen {
       case Normal(name, attrName, types) if isAttribute => genNormal(name, attrName, types)
       case Normal(name, attrName, types)                => genNormalProp(name, attrName, types)
       case NoValue(name, attrName)                      => genNoValue(name, attrName)
-      case EventEmitting(name, attrName)                => genEventEmitting(name, attrName)
+      case EventEmitting(name, attrName, eventType)     => genEventEmitting(name, attrName, eventType)
     }
 
   def genNormal(attrName: String, realName: Option[String], types: List[String]): String = {
@@ -66,15 +66,23 @@ object AttributeGen {
     |""".stripMargin
   }
 
-  def genEventEmitting(attrName: String, realName: Option[String]): String = {
+  def genEventEmitting(attrName: String, realName: Option[String], eventType: Option[String]): String = {
     val attr = realName.getOrElse {
       val n = attrName.toLowerCase
       if (n.startsWith("on")) n.substring(2)
       else n
     }
-    s"""  def $attrName[M](msg: M): Attr[M] = onEvent("$attr", (_: Tyrian.Event) => msg)
-    |
-    |""".stripMargin
+    eventType match {
+      case Some(evt) =>
+        s"""  def $attrName[M](msg: Tyrian.$evt => M): Attr[M] = onEvent("$attr", msg)
+        |
+        |""".stripMargin
+
+      case None =>
+        s"""  def $attrName[M](msg: M): Attr[M] = onEvent("$attr", (_: Tyrian.Event) => msg)
+        |
+        |""".stripMargin
+    }
   }
 
   def template(moduleName: String, fullyQualifiedPath: String, contents: String): String =
@@ -222,21 +230,30 @@ object AttributeGen {
       EventEmitting("onError"),
       EventEmitting("onFocus"),
       EventEmitting("onHashChange"),
-      EventEmitting("onInput"),
+      // EventEmitting("onInput"), // Provided manually as it doesn't fit the pattern
       EventEmitting("onInvalid"),
       EventEmitting("onKeyDown"),
+      EventEmitting("onKeyDown", None, Option("KeyboardEvent")),
       EventEmitting("onKeyPress"),
+      EventEmitting("onKeyPress", None, Option("KeyboardEvent")),
       EventEmitting("onKeyUp"),
+      EventEmitting("onKeyUp", None, Option("KeyboardEvent")),
       EventEmitting("onLoad"),
       EventEmitting("onLoadedData"),
       EventEmitting("onLoadedMetadata"),
       EventEmitting("onLoadStart"),
       EventEmitting("onMouseDown"),
-      EventEmitting("onMousemove"),
+      EventEmitting("onMouseDown", None, Option("MouseEvent")),
+      EventEmitting("onMouseMove"),
+      EventEmitting("onMouseMove", None, Option("MouseEvent")),
       EventEmitting("onMouseOut"),
+      EventEmitting("onMouseOut", None, Option("MouseEvent")),
       EventEmitting("onMouseOver"),
+      EventEmitting("onMouseOver", None, Option("MouseEvent")),
       EventEmitting("onMouseUp"),
+      EventEmitting("onMouseUp", None, Option("MouseEvent")),
       EventEmitting("onMouseWheel"),
+      EventEmitting("onMouseWheel", None, Option("MouseEvent")),
       EventEmitting("onOffline"),
       EventEmitting("onOnline"),
       EventEmitting("onPageHide"),
@@ -408,10 +425,10 @@ object NoValue {
   def apply(name: String): NoValue                   = NoValue(name, None)
   def apply(name: String, attrName: String): NoValue = NoValue(name, Some(attrName))
 }
-final case class EventEmitting(name: String, attrName: Option[String]) extends AttributeType
+final case class EventEmitting(name: String, attrName: Option[String], eventType: Option[String]) extends AttributeType
 object EventEmitting {
-  def apply(name: String): EventEmitting                   = EventEmitting(name, None)
-  def apply(name: String, attrName: String): EventEmitting = EventEmitting(name, Some(attrName))
+  def apply(name: String): EventEmitting                   = EventEmitting(name, None, None)
+  def apply(name: String, attrName: String): EventEmitting = EventEmitting(name, Some(attrName), None)
 }
 
 final case class AttributesList(attrs: List[AttributeType], props: List[AttributeType], namespace: String)

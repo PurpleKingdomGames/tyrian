@@ -6,8 +6,9 @@ object Tyrian:
 
   final case class FakeEvent(name: String, value: Any, target: Any)
   final case class FakeHTMLInputElement(value: String)
-  type Event = FakeEvent
-  type KeyboardEvent = FakeEvent
+  type Event            = FakeEvent
+  type KeyboardEvent    = FakeEvent
+  type MouseEvent       = FakeEvent
   type HTMLInputElement = FakeHTMLInputElement
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.

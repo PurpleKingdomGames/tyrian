@@ -45,6 +45,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.MouseMove(to) =>
+      (model.copy(mousePosition = to), Cmd.None)
+
     case Msg.UpdateHttpDetails(newUrl) =>
       (model.copy(http = model.http.copy(url = Option(newUrl))), Cmd.None)
 
@@ -231,7 +234,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
     val contents =
       model.page match
         case Page.Page1 =>
-          div(
+          div(onMouseMove(evt => Msg.MouseMove((evt.screenX.toInt, evt.screenY.toInt))))(
+            raw("div")()(s"<p><i>Mouse Coords ${model.mousePosition}</i></p>"),
             input(
               placeholder := "What should we save?",
               value       := model.tmpSaveData,
@@ -431,6 +435,7 @@ enum Msg:
   case GotHttpError(message: String)
   case UpdateHttpDetails(newUrl: String)
   case FrameTick(runningTime: Double)
+  case MouseMove(to: (Int, Int))
 
 enum Status:
   case Connecting
@@ -474,7 +479,8 @@ final case class Model(
     saveData: Option[String],
     currentTime: js.Date,
     http: HttpDetails,
-    time: Time
+    time: Time,
+    mousePosition: (Int, Int)
 )
 
 final case class Time(running: Double, delta: Double):
@@ -534,7 +540,8 @@ object Model:
       None,
       new js.Date(),
       HttpDetails.initial,
-      Time(0.0d, 0.0d)
+      Time(0.0d, 0.0d),
+      (0, 0)
     )
 
   // We're only saving/loading the input field contents as an example

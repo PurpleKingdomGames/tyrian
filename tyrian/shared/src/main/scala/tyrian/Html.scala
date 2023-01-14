@@ -56,8 +56,6 @@ object Html extends HtmlTags with HtmlAttributes:
 
   def dataAttr(name: String, value: String): Attr[Nothing] = Attribute("data-" + name, value)
 
-  def onKeyDown[M](msg: Tyrian.KeyboardEvent => M): Attr[M] = onEvent("keydown", msg)
-  def onKeyUp[M](msg: Tyrian.KeyboardEvent => M): Attr[M]   = onEvent("keyup", msg)
   def onInput[M](msg: String => M): Attr[M] =
     onEvent("input", (e: Tyrian.Event) => msg(e.target.asInstanceOf[Tyrian.HTMLInputElement].value))
 
