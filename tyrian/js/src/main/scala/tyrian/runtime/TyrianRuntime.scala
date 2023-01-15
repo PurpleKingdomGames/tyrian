@@ -3,9 +3,9 @@ package tyrian.runtime
 import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
 import cats.effect.std.Dispatcher
-import cats.effect.std.Queue
 import cats.syntax.all.*
 import fs2.Stream
+import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.VNode
@@ -23,7 +23,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     subscriptions: Model => Sub[F, Msg],
     model: Ref[F, ModelHolder[Model]],
     vnode: Ref[F, Element | VNode],
-    queue: => Queue[F, F[Unit]],
+    channel: => Channel[F, F[Unit]],
     dispatcher: => Dispatcher[F]
 ):
 
@@ -52,7 +52,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
     for {
       _           <- model.set(ModelHolder(updatedState, true))
       sideEffects <- gatherSideEffects(cmd, subscriptions(updatedState))
-      _           <- Stream.emits(sideEffects).foreach(queue.offer).compile.drain
+      _           <- Stream.emits(sideEffects).foreach(msg => channel.send(msg).void).compile.drain
     } yield ()
 
   private def gatherSideEffects(

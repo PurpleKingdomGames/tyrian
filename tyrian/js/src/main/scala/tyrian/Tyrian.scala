@@ -4,9 +4,9 @@ import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
-import cats.effect.std.Queue
 import cats.syntax.all._
 import fs2.Stream
+import fs2.concurrent.Channel
 import org.scalajs.dom.Element
 import snabbdom.VNode
 import tyrian.runtime.ModelHolder
@@ -50,35 +50,38 @@ object Tyrian:
       subscriptions: Model => Sub[F, Msg],
       maxConcurrentTasks: Int
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
-    Dispatcher[F].evalMap { dispatcher =>
-      for {
-        queue <- Queue.unbounded[F, F[Unit]]
+    Dispatcher
+      .sequential[F]
+      .evalMap { dispatcher =>
+        for {
+          channel <- Channel.synchronous[F, F[Unit]]
 
-        (initialModel, initialCmd) = init
+          (initialModel, initialCmd) = init
 
-        model <- Async[F].ref(ModelHolder[Model](initialModel, true))
-        vnode <- Async[F].ref[Element | VNode](node)
+          model <- Async[F].ref(ModelHolder[Model](initialModel, true))
+          vnode <- Async[F].ref[Element | VNode](node)
 
-        runtime <- Async[F].delay {
-          new TyrianRuntime(
-            initialCmd,
-            update,
-            view,
-            subscriptions,
-            model,
-            vnode,
-            queue,
-            dispatcher
-          )
-        }
+          runtime <- Async[F].delay {
+            new TyrianRuntime(
+              initialCmd,
+              update,
+              view,
+              subscriptions,
+              model,
+              vnode,
+              channel,
+              dispatcher
+            )
+          }
 
-      } yield Stream
-        .emit(runtime)
-        .concurrently(Stream.fromQueueUnterminated(queue).parEvalMap(maxConcurrentTasks)(identity))
-        .compile
-        .resource
-        .lastOrError
-    }.flatten
+        } yield Stream
+          .emit(runtime)
+          .concurrently(channel.stream.parEvalMap(maxConcurrentTasks)(identity))
+          .compile
+          .resource
+          .lastOrError
+      }
+      .flatten
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.
     */
