@@ -1,7 +1,7 @@
 object Dependancies {
 
-  val catsEffect        = "3.3.14"
-  val fs2               = "3.3.0"
+  val catsEffect        = "3.4.4"
+  val fs2               = "3.4.0"
   val indigoVersion     = "0.14.0"
   val scalajsDomVersion = "2.3.0"
   val munitCatsEffect3  = "1.0.7"
