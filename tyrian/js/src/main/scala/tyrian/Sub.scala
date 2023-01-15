@@ -12,6 +12,7 @@ import cats.syntax.all.*
 import fs2.Stream
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
+import tyrian.runtime.SubHelper
 import util.Functions
 
 import java.util.concurrent.TimeUnit
@@ -264,10 +265,8 @@ object Sub:
     def eqv(x: Sub[F, Msg], y: Sub[F, Msg]): Boolean = (x, y) match {
       case (Sub.None, Sub.None)                             => true
       case (Sub.Observe(id1, _, _), Sub.Observe(id2, _, _)) => id1 === id2
-      case (Sub.Combine(x1, y1), Sub.Combine(x2, y2))       => eqv(x1, x2) && eqv(y1, y2)
-      case (Sub.Batch(xs), Sub.Batch(ys)) =>
-        xs.size === ys.size && xs.zip(ys).forall((x, y) => eqv(x, y))
-      case _ => false
+      case (xs, ys) =>
+        SubHelper.flatten(xs).zip(SubHelper.flatten(ys)).forall((x, y) => eqv(x, y))
     }
 
   given [F[_]]: Functor[Sub[F, *]] with

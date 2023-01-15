@@ -14,17 +14,16 @@ class SubLawsTests extends munit.DisciplineSuite {
   given [A: Arbitrary]: Arbitrary[Sub[IO, A]] =
     Arbitrary(Arbitrary.arbitrary[A].map(Sub.emit))
 
-  given Cogen[Sub[IO, Int]] = Cogen {
+  val cogenValue: Sub[IO, Int] => Long =
     case Sub.None             => 0L
     case Sub.Observe(_, _, _) => 1L
-    case Sub.Combine(_, _)    => 2L
-    case Sub.Batch(_)         => 3L
-  }
+    case Sub.Combine(x, y)    => 2L + cogenValue(x) + cogenValue(y)
+    case Sub.Batch(xs)        => xs.foldLeft(3L)((acc, sub) => acc + cogenValue(sub))
+
+  given Cogen[Sub[IO, Int]] = Cogen(cogenValue)
 
   checkAll("Eq[Sub]", EqTests[Sub[IO, Int]].eqv)
   checkAll("Functor[Sub]", FunctorTests[Sub[IO, *]].functor[Int, Double, String])
-
-  // FIXME: not passing associativity laws
-  checkAll("Monoid[Sub]".ignore, MonoidTests[Sub[IO, String]].monoid)
+  checkAll("Monoid[Sub]", MonoidTests[Sub[IO, String]].monoid)
 
 }

@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 object SubHelper:
 
   // Flatten all the subs into a list of indvidual subs.
-  def flatten[F[_]: Concurrent, Msg](sub: Sub[F, Msg]): List[Sub.Observe[F, _, Msg]] =
+  def flatten[F[_], Msg](sub: Sub[F, Msg]): List[Sub.Observe[F, _, Msg]] =
     @tailrec
     def rec(remaining: List[Sub[F, Msg]], acc: List[Sub.Observe[F, _, Msg]]): List[Sub.Observe[F, _, Msg]] =
       remaining match
