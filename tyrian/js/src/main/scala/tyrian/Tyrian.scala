@@ -4,6 +4,7 @@ import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
 import cats.effect.kernel.Resource
 import cats.effect.std.Dispatcher
+import cats.effect.syntax.all._
 import cats.syntax.all._
 import fs2.Stream
 import fs2.concurrent.Channel
@@ -50,38 +51,30 @@ object Tyrian:
       subscriptions: Model => Sub[F, Msg],
       maxConcurrentTasks: Int
   ): Resource[F, TyrianRuntime[F, Model, Msg]] =
-    Dispatcher
-      .sequential[F]
-      .evalMap { dispatcher =>
-        for {
-          channel <- Channel.synchronous[F, F[Unit]]
+    for {
+      dispatcher <- Dispatcher.sequential[F]
+      channel    <- Channel.synchronous[F, F[Unit]].toResource
 
-          (initialModel, initialCmd) = init
+      (initialModel, initialCmd) = init
 
-          model <- Async[F].ref(ModelHolder[Model](initialModel, true))
-          vnode <- Async[F].ref[Element | VNode](node)
+      model <- Async[F].ref(ModelHolder[Model](initialModel, true)).toResource
+      vnode <- Async[F].ref[Element | VNode](node).toResource
 
-          runtime <- Async[F].delay {
-            new TyrianRuntime(
-              initialCmd,
-              update,
-              view,
-              subscriptions,
-              model,
-              vnode,
-              channel,
-              dispatcher
-            )
-          }
+      runtime <- Async[F].delay {
+        new TyrianRuntime(
+          initialCmd,
+          update,
+          view,
+          subscriptions,
+          model,
+          vnode,
+          channel,
+          dispatcher
+        )
+      }.toResource
 
-        } yield Stream
-          .emit(runtime)
-          .concurrently(channel.stream.parEvalMap(maxConcurrentTasks)(identity))
-          .compile
-          .resource
-          .lastOrError
-      }
-      .flatten
+      _ <- channel.stream.parEvalMap(maxConcurrentTasks)(identity).compile.drain.background
+    } yield runtime
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.
     */
