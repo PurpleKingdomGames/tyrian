@@ -2,6 +2,7 @@ package tyrian.websocket
 
 import cats.effect.kernel.Async
 import cats.effect.kernel.Sync
+import cats.syntax.functor.*
 import fs2.Stream
 import org.scalajs.dom
 import tyrian.Cmd
@@ -160,7 +161,7 @@ object WebSocket:
     @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
     def run: Sub[F, WebSocketEvent] =
       if socket != null && WebSocketReadyState.fromInt(socket.readyState).isOpen then
-        Sub.every(settings.timeout, "[tyrian-ws-heartbeat]").map(_ => WebSocketEvent.Heartbeat)
+        Sub.every(settings.timeout, "[tyrian-ws-heartbeat]").as(WebSocketEvent.Heartbeat)
       else Sub.None
 
 sealed trait WebSocketConnect[F[_]: Async]

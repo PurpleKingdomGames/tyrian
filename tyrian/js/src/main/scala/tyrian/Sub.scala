@@ -1,10 +1,12 @@
 package tyrian
 
+import cats.Functor
 import cats.data.Kleisli
 import cats.effect.kernel.Async
 import cats.effect.kernel.Concurrent
 import cats.effect.kernel.Fiber
 import cats.effect.kernel.Sync
+import cats.kernel.Eq
 import cats.kernel.Monoid
 import cats.syntax.all.*
 import fs2.Stream
@@ -249,14 +251,26 @@ object Sub:
       Option(toMsg(t / 1000))
     }
 
-  // Monoid
-
-  given [F[_], Msg]: Monoid[Sub[F, Msg]] = new Monoid[Sub[F, Msg]] {
-    def empty: Sub[F, Msg]                                   = Sub.None
-    def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
-  }
-
   def combineAll[F[_], A](list: List[Sub[F, A]]): Sub[F, A] =
     Monoid[Sub[F, A]].combineAll(list)
+
+  // Cats' typeclass instances
+
+  given [F[_], Msg]: Monoid[Sub[F, Msg]] with
+    def empty: Sub[F, Msg]                                   = Sub.None
+    def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
+
+  given [F[_], Msg: Eq]: Eq[Sub[F, Msg]] with
+    def eqv(x: Sub[F, Msg], y: Sub[F, Msg]): Boolean = (x, y) match {
+      case (Sub.None, Sub.None)                             => true
+      case (Sub.Observe(id1, _, _), Sub.Observe(id2, _, _)) => id1 === id2
+      case (Sub.Combine(x1, y1), Sub.Combine(x2, y2))       => eqv(x1, x2) && eqv(y1, y2)
+      case (Sub.Batch(xs), Sub.Batch(ys)) =>
+        xs.size === ys.size && xs.zip(ys).forall((x, y) => eqv(x, y))
+      case _ => false
+    }
+
+  given [F[_]]: Functor[Sub[F, *]] with
+    def map[A, B](fa: Sub[F, A])(f: A => B): Sub[F, B] = fa.map(f)
 
 end Sub
