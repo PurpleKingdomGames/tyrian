@@ -147,11 +147,7 @@ lazy val tyrianZIO =
     .in(file("tyrian-zio"))
     .settings(
       name := "tyrian-zio",
-      commonSettings ++ publishSettings,
-      resolvers ++= Seq( // Temporary, remove once using officially published interop-cats version (not SNAPSHOT)
-        "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-        "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases"
-      )
+      commonSettings ++ publishSettings
     )
     .jsSettings(
       commonJsSettings,
