@@ -1,8 +1,13 @@
 package tyrian
 
+import cats.Applicative
+import cats.Functor
 import cats.effect.kernel.Sync
 import cats.effect.kernel.Temporal
+import cats.kernel.Eq
 import cats.kernel.Monoid
+import cats.syntax.eq.*
+import tyrian.runtime.CmdHelper
 
 import scala.annotation.targetName
 import scala.concurrent.duration.FiniteDuration
@@ -81,10 +86,18 @@ object Cmd:
     def apply[F[_], Msg](cmds: Cmd[F, Msg]*): Batch[F, Msg] =
       Batch(cmds.toList)
 
-  given [F[_], Msg]: Monoid[Cmd[F, Msg]] = new Monoid[Cmd[F, Msg]] {
-    def empty: Cmd[F, Msg]                                   = Cmd.None
-    def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
-  }
-
   def combineAll[F[_], A](list: List[Cmd[F, A]]): Cmd[F, A] =
     Monoid[Cmd[F, A]].combineAll(list)
+
+  // Cats' typeclass instances
+
+  given [F[_], Msg]: Monoid[Cmd[F, Msg]] with
+    def empty: Cmd[F, Msg]                                   = Cmd.None
+    def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
+
+  given [F[_]: Applicative, Msg: Eq](using ev: Eq[F[Option[Msg]]]): Eq[Cmd[F, Msg]] with
+    def eqv(x: Cmd[F, Msg], y: Cmd[F, Msg]): Boolean =
+      CmdHelper.cmdToTaskList(x) === CmdHelper.cmdToTaskList(y)
+
+  given [F[_]]: Functor[Cmd[F, *]] with
+    def map[A, B](fa: Cmd[F, A])(f: A => B): Cmd[F, B] = fa.map(f)

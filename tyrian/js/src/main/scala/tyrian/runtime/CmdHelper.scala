@@ -1,13 +1,13 @@
 package tyrian.runtime
 
-import cats.effect.kernel.Concurrent
+import cats.Applicative
 import tyrian.Cmd
 
 import scala.annotation.tailrec
 
 object CmdHelper:
 
-  def cmdToTaskList[F[_]: Concurrent, Msg](cmd: Cmd[F, Msg]): List[F[Option[Msg]]] =
+  def cmdToTaskList[F[_]: Applicative, Msg](cmd: Cmd[F, Msg]): List[F[Option[Msg]]] =
     @tailrec
     def rec(remaining: List[Cmd[F, Msg]], acc: List[F[Option[Msg]]]): List[F[Option[Msg]]] =
       remaining match
@@ -20,13 +20,13 @@ object CmdHelper:
               rec(cmds, acc)
 
             case Cmd.Emit(msg) =>
-              rec(cmds, Concurrent[F].pure(Option(msg)) :: acc)
+              rec(cmds, Applicative[F].pure(Option(msg)) :: acc)
 
             case Cmd.SideEffect(task) =>
-              rec(cmds, Concurrent[F].map(task)(_ => Option.empty[Msg]) :: acc)
+              rec(cmds, Applicative[F].map(task)(_ => Option.empty[Msg]) :: acc)
 
             case Cmd.Run(task, f) =>
-              rec(cmds, Concurrent[F].map(task)(p => Option(f(p))) :: acc)
+              rec(cmds, Applicative[F].map(task)(p => Option(f(p))) :: acc)
 
             case Cmd.Combine(cmd1, cmd2) =>
               rec(cmd1 :: cmd2 :: cmds, acc)
