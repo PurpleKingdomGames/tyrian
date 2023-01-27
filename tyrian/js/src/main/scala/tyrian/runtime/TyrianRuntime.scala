@@ -107,7 +107,11 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
 
   // Render
 
-  private def renderLoop(): Unit =
+  private def renderLoop: F[Unit] =
+    def requestAnimationFrame: F[Unit] = Async[F].async_ { cb =>
+      dom.window.requestAnimationFrame(_ => cb(Either.unit))
+    }
+
     def redraw: F[Unit] =
       Async[F].flatMap(model.get) { m =>
         if m.updated then
@@ -118,17 +122,14 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
         else Async[F].unit
       }
 
-    dom.window.requestAnimationFrame { _ =>
-      dispatcher.unsafeRunAndForget(redraw)
-      renderLoop()
-    }
+    (requestAnimationFrame *> redraw).foreverM
 
   // Start up
 
   def start(): Unit =
-    renderLoop()
+    val init = model.get.flatMap { m =>
+      completeUpdate(initCmd, m.model)
+    }
     dispatcher.unsafeRunAndForget(
-      model.get.flatMap { m =>
-        completeUpdate(initCmd, m.model)
-      }
+      Async[F].both(renderLoop, init)
     )
