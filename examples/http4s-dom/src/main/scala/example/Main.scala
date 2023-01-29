@@ -63,16 +63,13 @@ object Http4sHelper:
 
     val client = FetchClientBuilder[IO].create
 
-    val fetchRepo: IO[String] = for {
-      repo <- client
+    val fetchRepo: IO[String] =
+      client
         .expect[Repo](s"https://api.github.com/repos/$repoName")
         .attempt
-      res <- IO {
-        repo match {
+        .map {
           case Right(Repo(stars)) => s"$stars ★"
           case Left(_)            => s"Not found :("
         }
-      }
-    } yield res
 
     Cmd.Run(fetchRepo)(s => Msg.Stars(s))

@@ -1,6 +1,7 @@
 package example
 
 import cats.effect.IO
+import cats.syntax.either.*
 import io.circe.parser.*
 import tyrian.Html.*
 import tyrian.*
@@ -37,22 +38,18 @@ enum Msg:
 
 object Msg:
   private val onResponse: Response => Msg = { response =>
-    val json = response.body
-
-    val parsed = parse(json) match
-      case Right(r) => Right(r)
-      case Left(l)  => Left(l.message)
-
     val deserialised =
-      parsed.flatMap { json =>
-        json.hcursor
-          .downField("data")
-          .downField("images")
-          .downField("downsized_medium")
-          .get[String]("url")
-          .toOption
-          .toRight("wrong json format")
-      }
+      parse(response.body)
+        .leftMap(_.message)
+        .flatMap {
+          _.hcursor
+            .downField("data")
+            .downField("images")
+            .downField("downsized_medium")
+            .get[String]("url")
+            .toOption
+            .toRight("wrong json format")
+        }
 
     deserialised match
       case Left(e)  => Msg.GifError(e)
