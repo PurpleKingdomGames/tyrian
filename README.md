@@ -85,9 +85,3 @@ $ npm --version
 $ yarn --version
 1.22.17
 ```
-
-Or remotely.
-
-```console
-nix develop github:PurpleKingdomGames/tyrian
-```
