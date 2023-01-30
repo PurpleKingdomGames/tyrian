@@ -27,6 +27,7 @@ Assuming the following imports:
 ```scala mdoc:js:shared
 import cats.effect.IO
 import cats.syntax.either.*
+import io.circe.HCursor
 import io.circe.parser.*
 import tyrian.*
 import tyrian.cmds.*
@@ -49,23 +50,20 @@ Followed by a `Decoder[Msg1]` needed to parse the HTTP responses.
 
 ```scala mdoc:js:shared
 object Msg1:
-  private val onResponse: Response => Msg1 = { response =>
-    val deserialised =
-      parse(response.body)
-        .leftMap(_.message)
-        .flatMap {
-          _.hcursor
-            .downField("data")
-            .downField("images")
-            .downField("downsized_medium")
-            .get[String]("url")
-            .toOption
-            .toRight("wrong json format")
-        }
+  def jsonDecode(hcursor: HCursor) =
+    hcursor
+      .downField("data")
+      .downField("images")
+      .downField("downsized_medium")
+      .get[String]("url")
+      .toOption
+      .toRight("wrong json format")
 
-    deserialised match
-      case Left(e)  => Msg1.GifError(e)
-      case Right(r) => Msg1.NewGif(r)
+  private val onResponse: Response => Msg1 = { response =>
+    parse(response.body)
+      .leftMap(_.message)
+      .flatMap(j => jsonDecode(j.hcursor))
+      .fold(Msg1.GifError(_), Msg1.NewGif(_))
   }
 
   private val onError: HttpError => Msg1 =
@@ -106,17 +104,22 @@ You can find the full code on the examples directory linked at the top.
 To use `http4s-dom` instead, we only need to replace the `HttpHelper` with the following implementation.
 
 ```scala mdoc:js
-import io.circe.generic.auto.*
+import io.circe.{ Decoder as JsonDecoder, DecodingFailure }
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dom.FetchClientBuilder
 
 object Http4sDomHelper:
   private val client = FetchClientBuilder[IO].create
 
+  given JsonDecoder[Msg1] = JsonDecoder.instance { c =>
+    Msg1.jsonDecode(c).map(Msg1.NewGif(_)).leftMap(e => DecodingFailure(e, c.history))
+  }
+
   def getRandomGif(topic: String): Cmd[IO, Msg1] =
-    // this can be improved to re-use our `Decoder[Msg1]` instead of Circe's auto derivation
     val fetchGif: IO[Msg1] =
-      client.expect[Msg1](HttpHelper.url(topic))
+      client
+        .expect[Msg1](HttpHelper.url(topic))
+        .handleError(e => Msg1.GifError(e.getMessage))
 
     Cmd.Run(fetchGif)(identity)
 ```

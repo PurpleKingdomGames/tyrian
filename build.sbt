@@ -216,13 +216,13 @@ lazy val jsdocs =
       libraryDependencies ++= Seq(
         "org.scala-js"    %%% "scalajs-dom"          % Dependancies.scalajsDomVersion,
         "io.circe"        %%% "circe-core"           % Dependancies.circe,
-        "io.circe"        %%% "circe-generic"        % Dependancies.circe,
         "io.circe"        %%% "circe-parser"         % Dependancies.circe,
         "io.indigoengine" %%% "indigo"               % indigoDocsVersion,
         "io.indigoengine" %%% "tyrian-io"            % tyrianDocsVersion,
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianDocsVersion,
-        "org.http4s"      %%% "http4s-dom"           % "0.2.3",
-        "org.http4s"      %%% "http4s-circe"         % "0.23.15"
+        "org.http4s"      %%% "http4s-dom"           % "0.2.6",
+        "org.http4s"      %%% "http4s-circe"         % "0.23.15",
+        "org.typelevel"   %%% "cats-effect"          % "3.4.5"
       )
     )
     .enablePlugins(ScalaJSPlugin)
