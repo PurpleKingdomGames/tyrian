@@ -18,7 +18,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     */
   def MaxConcurrentTasks: Int = 1024
 
-  val run: Resource[F, TyrianRuntime[F, Model, Msg]] => Unit
+  val run: F[Nothing] => Unit
 
   /** Used to initialise your app. Accepts simple flags and produces the initial model state, along with any commands to
     * run at start up, in order to trigger other processes.
@@ -78,13 +78,12 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 
   def ready(node: Element, flags: Map[String, String]): Unit =
     run(
-      Tyrian.start(
+      Tyrian.start[F, Model, Msg](
         node,
         init(flags),
         update,
         view,
         subscriptions,
-        MaxConcurrentTasks
       )
     )
 

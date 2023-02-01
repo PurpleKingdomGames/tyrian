@@ -48,33 +48,9 @@ object Tyrian:
       init: (Model, Cmd[F, Msg]),
       update: Model => Msg => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
-      subscriptions: Model => Sub[F, Msg],
-      maxConcurrentTasks: Int
-  ): Resource[F, TyrianRuntime[F, Model, Msg]] =
-    for {
-      dispatcher <- Dispatcher.sequential[F]
-      channel    <- Channel.synchronous[F, F[Unit]].toResource
-
-      (initialModel, initialCmd) = init
-
-      model <- Async[F].ref(ModelHolder[Model](initialModel, true)).toResource
-      vnode <- Async[F].ref[Element | VNode](node).toResource
-
-      runtime <- Async[F].delay {
-        new TyrianRuntime(
-          initialCmd,
-          update,
-          view,
-          subscriptions,
-          model,
-          vnode,
-          channel,
-          dispatcher
-        )
-      }.toResource
-
-      _ <- channel.stream.parEvalMap(maxConcurrentTasks)(identity).compile.drain.background
-    } yield runtime
+      subscriptions: Model => Sub[F, Msg]
+  ): F[Nothing] =
+    TyrianRuntime[F, Model, Msg](node, init._1, init._2, update, view, subscriptions)
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.
     */

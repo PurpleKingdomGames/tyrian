@@ -14,5 +14,4 @@ import scala.scalajs.js.annotation._
   */
 trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
-  val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
-    _.map(_.start()).useForever.unsafeRunAndForget()
+  val run: IO[Nothing] => Unit = _.unsafeRunAndForget()

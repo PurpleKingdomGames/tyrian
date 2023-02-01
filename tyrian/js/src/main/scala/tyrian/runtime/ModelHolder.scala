@@ -1,3 +1,3 @@
 package tyrian.runtime
 
-final class ModelHolder[Model](val model: Model, val updated: Boolean)
+final case class ModelHolder[Model](model: Model, updated: Boolean)
