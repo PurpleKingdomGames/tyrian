@@ -65,7 +65,7 @@ object TyrianRuntime:
                     .tupleLeft(id)
               }
 
-            discarded.traverse(_.voidError) *> newSubs.map(_ ++ stillAlive)
+            discarded.traverse_(_.start) *> newSubs.map(_ ++ stillAlive)
           }
         // end runSub
 
