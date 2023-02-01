@@ -61,27 +61,3 @@ object SubHelper:
       .start
       .map(_.cancel)
       .tupleLeft(sub.id)
-
-  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def toRun[F[_]: Concurrent, Msg](
-      newSubs: List[Sub.Observe[F, _, Msg]],
-      callback: Msg => Unit
-  ): List[F[Option[CancelableSub[F]]]] =
-    newSubs.map { case Sub.Observe(id, observable, toMsg) =>
-      observable.flatMap { run =>
-        val cancelable: F[Option[F[Unit]]] = run {
-          case Left(e) => throw e
-          case Right(m) =>
-            toMsg(m) match
-              case Some(msg) => callback(msg)
-              case _         => ()
-        }
-
-        val cancel: F[Option[CancelableSub[F]]] =
-          cancelable.map(_.map(c => CancelableSub(id, c)))
-
-        cancel
-      }
-    }
-
-  final case class CancelableSub[F[_]: Concurrent](id: String, cancel: F[Unit])

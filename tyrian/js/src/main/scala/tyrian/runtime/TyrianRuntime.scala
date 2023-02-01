@@ -14,14 +14,9 @@ import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.VNode
 import snabbdom.toVNode
-import tyrian.Attr
-import tyrian.Attribute
 import tyrian.Cmd
-import tyrian.Event
 import tyrian.Html
 import tyrian.Sub
-
-import scala.scalajs.js
 
 object TyrianRuntime:
 
