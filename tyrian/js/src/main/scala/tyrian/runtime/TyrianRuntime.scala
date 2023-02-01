@@ -36,7 +36,7 @@ object TyrianRuntime:
       .flatMapN { (model, currentSubs, msgs) =>
 
         def runCmd(cmd: Cmd[F, Msg]): Stream[F, Msg] =
-          Stream.emits(CmdHelper.cmdToTaskList(cmd)).parEvalMapUnorderedUnbounded(identity).unNone
+          Stream.emits(CmdHelper.cmdToTaskList(cmd)).parEvalMapUnorderedUnbounded(_.handleError(_ => None)).unNone
 
         def runSub(sub: Sub[F, Msg]): F[Unit] =
           currentSubs.evalUpdate { oldSubs =>
@@ -44,7 +44,7 @@ object TyrianRuntime:
             val (stillAlive, discarded) = SubHelper.aliveAndDead(allSubs, oldSubs)
 
             val newSubs =
-              SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), Nil).traverse {
+              SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), Nil).traverseFilter {
                 case Sub.Observe(id, observable, toMsg) =>
                   observable.flatMap { run =>
                     run(x =>
@@ -52,10 +52,10 @@ object TyrianRuntime:
                         OptionT(F.fromEither(x).map(toMsg)).foreachF(msgs.send(_).void)
                       )
                     ).map(_.getOrElse(F.unit)).tupleLeft(id)
-                  }
+                  }.map(Some(_)).handleError(_ => None)
               }
 
-            discarded.sequence *> newSubs.map(_ ++ stillAlive)
+            discarded.traverse(_.voidError) *> newSubs.map(_ ++ stillAlive)
           }
         // end runSub
 
