@@ -36,8 +36,12 @@ object TyrianRuntime:
     (F.ref(ModelHolder(initModel, true)), AtomicCell[F].of(List.empty[(String, F[Unit])]), Channel.unbounded[F, Msg])
       .flatMapN { (model, currentSubs, msgs) =>
 
-        def runCmd(cmd: Cmd[F, Msg]): Stream[F, Msg] =
-          Stream.emits(CmdHelper.cmdToTaskList(cmd)).parEvalMapUnorderedUnbounded(_.handleError(_ => None)).unNone
+        def runCmd(cmd: Cmd[F, Msg]): Stream[F, Nothing] =
+          Stream
+            .emits(CmdHelper.cmdToTaskList(cmd))
+            .parEvalMapUnorderedUnbounded(_.handleError(_ => None))
+            .unNone
+            .foreach(msgs.send(_).void)
 
         def runSub(sub: Sub[F, Msg]): F[Unit] =
           currentSubs.evalUpdate { oldSubs =>
@@ -81,7 +85,6 @@ object TyrianRuntime:
             runSub(sub).as(runCmd(cmd))
           }
           .parJoinUnbounded
-          .foreach(msgs.send(_).void)
         // end msgLoop
 
         val renderLoop =
