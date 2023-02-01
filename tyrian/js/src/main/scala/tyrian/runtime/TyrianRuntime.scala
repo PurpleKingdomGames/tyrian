@@ -55,18 +55,17 @@ object TyrianRuntime:
           }
         // end runSub
 
-        val msgLoop = msgs.stream
-          .evalMap { msg =>
-            model.modify { case ModelHolder(oldModel, _) =>
+        val msgLoop = msgs.stream.evalMap { msg =>
+          model
+            .modify { case ModelHolder(oldModel, _) =>
               val (newModel, cmd) = update(oldModel)(msg)
               val sub             = subscriptions(newModel)
               (ModelHolder(newModel, true), (cmd, sub))
             }
-          }
-          .evalMap { (cmd, sub) =>
-            runSub(sub).as(runCmd(cmd))
-          }
-          .parJoinUnbounded
+            .flatMap { (cmd, sub) =>
+              runSub(sub).as(runCmd(cmd))
+            }
+        }.parJoinUnbounded
         // end msgLoop
 
         val renderLoop =
