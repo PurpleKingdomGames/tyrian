@@ -3,6 +3,7 @@ package tyrian.runtime
 import cats.data.OptionT
 import cats.effect.kernel.Async
 import cats.effect.kernel.Ref
+import cats.effect.kernel.Resource
 import cats.effect.std.AtomicCell
 import cats.effect.std.Dispatcher
 import cats.effect.syntax.all.*
@@ -44,15 +45,24 @@ object TyrianRuntime:
             val (stillAlive, discarded) = SubHelper.aliveAndDead(allSubs, oldSubs)
 
             val newSubs =
-              SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), Nil).traverseFilter {
+              SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), Nil).traverse {
                 case Sub.Observe(id, observable, toMsg) =>
-                  observable.flatMap { run =>
-                    run(x =>
-                      dispatcher.unsafeRunAndForget(
-                        OptionT(F.fromEither(x).map(toMsg)).foreachF(msgs.send(_).void)
-                      )
-                    ).map(_.getOrElse(F.unit)).tupleLeft(id)
-                  }.map(Some(_)).handleError(_ => None)
+                  Resource
+                    .makeFull[F, Option[F[Unit]]] { poll =>
+                      poll {
+                        observable.flatMap { run =>
+                          run(x =>
+                            dispatcher.unsafeRunAndForget(
+                              OptionT(F.fromEither(x).map(toMsg)).foreachF(msgs.send(_).void)
+                            )
+                          )
+                        }
+                      }
+                    }(_.getOrElse(F.unit))
+                    .useForever
+                    .start
+                    .map(_.cancel)
+                    .tupleLeft(id)
               }
 
             discarded.traverse(_.voidError) *> newSubs.map(_ ++ stillAlive)
