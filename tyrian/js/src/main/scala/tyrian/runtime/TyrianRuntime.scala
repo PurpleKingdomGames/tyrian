@@ -48,26 +48,13 @@ object TyrianRuntime:
             val allSubs                 = SubHelper.flatten(sub)
             val (stillAlive, discarded) = SubHelper.aliveAndDead(allSubs, oldSubs)
 
-            val newSubs =
-              SubHelper.findNewSubs(allSubs, stillAlive.map(_._1), Nil).traverse {
-                case Sub.Observe(id, observable, toMsg) =>
-                  Resource
-                    .makeFull[F, Option[F[Unit]]] { poll =>
-                      poll {
-                        observable.flatMap { run =>
-                          run(x =>
-                            dispatcher.unsafeRunAndForget(
-                              OptionT(F.fromEither(x).map(toMsg)).foreachF(msgs.send(_).void)
-                            )
-                          )
-                        }
-                      }
-                    }(_.getOrElse(F.unit))
-                    .useForever
-                    .start
-                    .map(_.cancel)
-                    .tupleLeft(id)
-              }
+            val newSubs = SubHelper
+              .findNewSubs(allSubs, stillAlive.map(_._1), Nil)
+              .traverse(SubHelper.runObserve(_) { result =>
+                dispatcher.unsafeRunAndForget(
+                  OptionT(F.fromEither(result)).foreachF(msgs.send(_).void)
+                )
+              })
 
             discarded.traverse_(_.start) *> newSubs.map(_ ++ stillAlive)
           }
