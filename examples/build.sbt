@@ -8,7 +8,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.5.0"
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.2.0"
+lazy val scala3Version = "3.2.1"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
@@ -117,9 +117,9 @@ lazy val indigo =
       name := "indigo-bridge",
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianVersion,
-        "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion
+        "io.indigoengine" %%% "indigo"               % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-extras"        % Dependancies.indigoVersion,
+        "io.indigoengine" %%% "indigo-json-circe"    % Dependancies.indigoVersion
       )
     )
 
@@ -172,10 +172,9 @@ lazy val zio =
     )
     .settings(
       name := "zio",
-      resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
       libraryDependencies ++= Seq(
-        "dev.zio" %%% "zio"              % "2.0.2",
-        "dev.zio" %%% "zio-interop-cats" % "3.3.0+9-bd953aa9-SNAPSHOT"
+        "dev.zio" %%% "zio"              % "2.0.5",
+        "dev.zio" %%% "zio-interop-cats" % "23.0.0.1"
       )
     )
 

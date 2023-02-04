@@ -25,7 +25,7 @@ object Routes:
       case request @ GET -> Root / "spa.js" =>
         val spa = fs2.io.file.Path(
           "."
-        ) / "spa" / "target" / "scala-3.2.0" / "spa-opt" / "main.js"
+        ) / "spa" / "target" / "scala-3.2.1" / "spa-opt" / "main.js"
         StaticFile.fromPath(spa.absolute, Some(request)).getOrElseF(NotFound(spa.absolute.toString))
 
       case GET -> Root / "ssr" / in =>
