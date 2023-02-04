@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.103.0" />
+    <meta name="generator" content="Hugo 0.110.0">
     <meta name="description" content="Elm inspired Scala Web Framework">
 <meta name="author" content="Dave Smith">
 
@@ -12,22 +12,22 @@
     <title>Building &amp; Bundling - Tyrian</title>
 
     
-    <link href="/css/nucleus.css?1664141118" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1664141118" rel="stylesheet">
-    <link href="/css/hybrid.css?1664141118" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1664141118" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1664141118" rel="stylesheet">
-    <link href="/css/auto-complete.css?1664141118" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1664141118" rel="stylesheet">
-    <link href="/css/theme.css?1664141118" rel="stylesheet">
-    <link href="/css/tabs.css?1664141118" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1664141118" rel="stylesheet">
+    <link href="/css/nucleus.css?1675541392" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1675541392" rel="stylesheet">
+    <link href="/css/hybrid.css?1675541392" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1675541392" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1675541392" rel="stylesheet">
+    <link href="/css/auto-complete.css?1675541392" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1675541392" rel="stylesheet">
+    <link href="/css/theme.css?1675541392" rel="stylesheet">
+    <link href="/css/tabs.css?1675541392" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1675541392" rel="stylesheet">
     
-    <link href="/css/theme-tyrian.css?1664141118" rel="stylesheet">
+    <link href="/css/theme-tyrian.css?1675541392" rel="stylesheet">
     
-    <link href="/css/foo.css?1664141118" rel="stylesheet"><link href="/css/bar.css?1664141118" rel="stylesheet">
+    <link href="/css/foo.css?1675541392" rel="stylesheet"><link href="/css/bar.css?1675541392" rel="stylesheet">
 
-    <script src="/js/jquery-3.3.1.min.js?1664141118"></script>
+    <script src="/js/jquery-3.3.1.min.js?1675541392"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -58,14 +58,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/js/lunr.min.js?1664141118"></script>
-<script type="text/javascript" src="/js/auto-complete.js?1664141118"></script>
+<script type="text/javascript" src="/js/lunr.min.js?1675541392"></script>
+<script type="text/javascript" src="/js/auto-complete.js?1675541392"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/tyrian.indigoengine.io\/";
     
 </script>
-<script type="text/javascript" src="/js/search.js?1664141118"></script>
+<script type="text/javascript" src="/js/search.js?1675541392"></script>
 
     
   </div>
@@ -550,7 +550,7 @@
 </span></span></code></pre></div><ol start="4">
 <li>Reference the right <code>js</code> file.</li>
 </ol>
-<p>In the parcel.js examples, you&rsquo;ll see that we directly reference the normal Scala.js build output file in the <code>target</code> directory (or <code>out</code> directory in Mill examples), such as <code>target/3.2.0/tyrianapp-fastopt.js</code>. This is so that you can hot-reload on re-compile. However in scalajs-bundler, the output folder and file name you need to use will be slightly different, such as <code>target/3.2.0/scalajs-bundler/main/tyrianapp-fastopt-bundle.js</code>.</p>
+<p>In the parcel.js examples, you&rsquo;ll see that we directly reference the normal Scala.js build output file in the <code>target</code> directory (or <code>out</code> directory in Mill examples), such as <code>target/3.2.1/tyrianapp-fastopt.js</code>. This is so that you can hot-reload on re-compile. However in scalajs-bundler, the output folder and file name you need to use will be slightly different, such as <code>target/3.2.1/scalajs-bundler/main/tyrianapp-fastopt-bundle.js</code>.</p>
 <p>This is because scalajs-bundler is combining your code with all your other js dependencies into one big bundle, hence the name change.</p>
 <blockquote>
 <p>Note: Behind the scenes, parcel.js does the same thing, it&rsquo;s just not as obvious and doesn&rsquo;t require you to do anything.</p>
@@ -837,16 +837,16 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1664141118"></script>
-    <script src="/js/perfect-scrollbar.min.js?1664141118"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1664141118"></script>
-    <script src="/js/jquery.sticky.js?1664141118"></script>
-    <script src="/js/featherlight.min.js?1664141118"></script>
-    <script src="/js/highlight.pack.js?1664141118"></script>
+    <script src="/js/clipboard.min.js?1675541392"></script>
+    <script src="/js/perfect-scrollbar.min.js?1675541392"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1675541392"></script>
+    <script src="/js/jquery.sticky.js?1675541392"></script>
+    <script src="/js/featherlight.min.js?1675541392"></script>
+    <script src="/js/highlight.pack.js?1675541392"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1664141118"></script>
-    <script src="/js/learn.js?1664141118"></script>
-    <script src="/js/hugo-learn.js?1664141118"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1675541392"></script>
+    <script src="/js/learn.js?1675541392"></script>
+    <script src="/js/hugo-learn.js?1675541392"></script>
     
     
 
