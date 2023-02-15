@@ -29,14 +29,14 @@ object TyrianRuntime:
       subscriptions: Model => Sub[F, Msg]
   )(using F: Async[F]): F[Nothing] = Dispatcher.sequential[F].use { dispatcher =>
     (F.ref(ModelHolder(initModel, true)), AtomicCell[F].of(List.empty[(String, F[Unit])]), Channel.unbounded[F, Msg])
-      .flatMapN { (model, currentSubs, msgs) =>
+      .flatMapN { (model, currentSubs, msgChannel) =>
 
         def runCmd(cmd: Cmd[F, Msg]): Stream[F, Nothing] =
           Stream
             .emits(CmdHelper.cmdToTaskList(cmd))
             .parEvalMapUnorderedUnbounded(_.handleError(_ => None))
             .unNone
-            .foreach(msgs.send(_).void)
+            .foreach(msgChannel.send(_).void)
 
         def runSub(sub: Sub[F, Msg]): F[Unit] =
           currentSubs.evalUpdate { oldSubs =>
@@ -47,7 +47,7 @@ object TyrianRuntime:
               .findNewSubs(allSubs, stillAlive.map(_._1), Nil)
               .traverse(SubHelper.runObserve(_) { result =>
                 dispatcher.unsafeRunAndForget(
-                  OptionT(F.fromEither(result)).foreachF(msgs.send(_).void)
+                  OptionT(F.fromEither(result)).foreachF(msgChannel.send(_).void)
                 )
               })
 
@@ -55,7 +55,7 @@ object TyrianRuntime:
           }
         // end runSub
 
-        val msgLoop = msgs.stream.evalMap { msg =>
+        val msgLoop = msgChannel.stream.evalMap { msg =>
           model
             .modify { case ModelHolder(oldModel, _) =>
               val (newModel, cmd) = update(oldModel)(msg)
@@ -69,7 +69,7 @@ object TyrianRuntime:
         // end msgLoop
 
         val renderLoop =
-          val onMsg = (msg: Msg) => dispatcher.unsafeRunAndForget(msgs.send(msg))
+          val onMsg = (msg: Msg) => dispatcher.unsafeRunAndForget(msgChannel.send(msg))
 
           val requestAnimationFrame = F.async_ { cb =>
             dom.window.requestAnimationFrame(_ => cb(Either.unit))
