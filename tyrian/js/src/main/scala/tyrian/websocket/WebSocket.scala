@@ -2,6 +2,8 @@ package tyrian.websocket
 
 import cats.effect.kernel.Async
 import cats.effect.kernel.Sync
+import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
 import cats.syntax.functor.*
 import fs2.Stream
 import org.scalajs.dom
@@ -10,7 +12,6 @@ import tyrian.Sub
 import tyrian.websocket.WebSocketEvent
 import util.Functions
 
-import scala.collection.mutable.Queue
 import scala.concurrent.duration.*
 
 /** Helper WebSocket instance to store in your model that acts as a controller */
@@ -105,28 +106,36 @@ object WebSocket:
     Async[F].delay {
       val socket    = new dom.WebSocket(address)
       val keepAlive = new KeepAlive(socket, settings)
-      val q         = Queue.empty[WebSocketEvent]
+      val q         = Queue.unbounded[F, WebSocketEvent]
+
+      val enqueue: WebSocketEvent => Unit = wse =>
+        Dispatcher.sequential[F].use { disp =>
+          Async[F].delay {
+            val action = Async[F].flatMap(q)(_.offer(wse))
+            disp.unsafeRunAndForget(action)
+          }
+        }
 
       val msgListener = Functions.fun { e =>
         val event = WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString)
-        q.enqueue(event)
+        enqueue(event)
       }
 
       val errListener = Functions.fun { e =>
         val msg =
           try e.asInstanceOf[dom.ErrorEvent].message
           catch { case _: Throwable => "Unknown" }
-        q.enqueue(WebSocketEvent.Error(msg))
+        enqueue(WebSocketEvent.Error(msg))
       }
 
       val closeListener = Functions.fun { e =>
         val ev = e.asInstanceOf[dom.CloseEvent]
-        q.enqueue(WebSocketEvent.Close(ev.code, ev.reason))
+        enqueue(WebSocketEvent.Close(ev.code, ev.reason))
       }
 
       val openListener = Functions.fun { _ =>
         onOpenSendMessage.foreach(msg => socket.send(msg))
-        q.enqueue(WebSocketEvent.Open)
+        enqueue(WebSocketEvent.Open)
       }
 
       socket.addEventListener("message", msgListener)
@@ -138,11 +147,8 @@ object WebSocket:
         Sub.Batch(
           Sub.make(s"[tyrian-ws-${address}]")(
             Stream.repeatEval {
-              Sync[F].delay {
-                try Some(q.dequeue())
-                catch _ => None
-              }
-            }.unNone
+              Async[F].flatMap(q)(_.take)
+            }
           )(
             Async[F].delay {
               socket.removeEventListener("message", msgListener)
