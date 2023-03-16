@@ -4,6 +4,7 @@ import cats.Applicative
 import cats.Functor
 import cats.effect.kernel.Sync
 import cats.effect.kernel.Temporal
+import cats.effect.std.Dispatcher
 import cats.kernel.Eq
 import cats.kernel.Monoid
 import cats.syntax.eq.*
@@ -69,6 +70,14 @@ object Cmd:
     def apply[F[_], A, Msg](task: F[A])(toMessage: A => Msg): Run[F, A, Msg] =
       Run(task, toMessage)
 
+  /** Builds and runs a task that needs a Dispatcher */
+  final case class BuildRun[F[_], A, Msg](
+      build: Dispatcher[F] => F[A],
+      toMsg: A => Msg
+  ) extends Cmd[F, Msg]:
+    def map[OtherMsg](f: Msg => OtherMsg): BuildRun[F, A, OtherMsg] =
+      BuildRun(build, toMsg andThen f)
+
   /** Merge two commands into a single one */
   case class Combine[F[_], Msg](cmd1: Cmd[F, Msg], cmd2: Cmd[F, Msg]) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Combine[F, OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))
@@ -95,9 +104,12 @@ object Cmd:
     def empty: Cmd[F, Msg]                                   = Cmd.None
     def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
 
+  // XXX - How to do equality?
+  /*
   given [F[_]: Applicative, Msg: Eq](using ev: Eq[F[Option[Msg]]]): Eq[Cmd[F, Msg]] with
     def eqv(x: Cmd[F, Msg], y: Cmd[F, Msg]): Boolean =
       CmdHelper.cmdToTaskList(x) === CmdHelper.cmdToTaskList(y)
+  */
 
   given [F[_]]: Functor[Cmd[F, *]] with
     def map[A, B](fa: Cmd[F, A])(f: A => B): Cmd[F, B] = fa.map(f)

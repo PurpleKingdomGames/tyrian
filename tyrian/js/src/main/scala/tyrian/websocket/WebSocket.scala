@@ -2,6 +2,8 @@ package tyrian.websocket
 
 import cats.effect.kernel.Async
 import cats.effect.kernel.Sync
+import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
 import cats.syntax.functor.*
 import fs2.Stream
 import org.scalajs.dom
@@ -10,7 +12,6 @@ import tyrian.Sub
 import tyrian.websocket.WebSocketEvent
 import util.Functions
 
-import scala.collection.mutable.Queue
 import scala.concurrent.duration.*
 
 /** Helper WebSocket instance to store in your model that acts as a controller */
@@ -57,104 +58,105 @@ object KeepAliveSettings:
 object WebSocket:
   /** Acquires a WebSocket connection with default keep-alive message */
   def connect[F[_]: Async, Msg](address: String)(resultToMessage: WebSocketConnect[F] => Msg): Cmd[F, Msg] =
-    Cmd.Run(connectTask(address), resultToMessage)
+    Cmd.BuildRun(connectTask(address, _), resultToMessage)
 
   /** Acquires a WebSocket connection with default keep-alive message and a custom message onOpen */
   def connect[F[_]: Async, Msg](address: String, onOpenMessage: String)(
       resultToMessage: WebSocketConnect[F] => Msg
   ): Cmd[F, Msg] =
-    Cmd.Run(connectTask(address, onOpenMessage), resultToMessage)
+    Cmd.BuildRun(connectTask(address, onOpenMessage, _), resultToMessage)
 
   /** Acquires a WebSocket connection with custom keep-alive message */
   def connect[F[_]: Async, Msg](address: String, keepAliveSettings: KeepAliveSettings)(
       resultToMessage: WebSocketConnect[F] => Msg
   ): Cmd[F, Msg] =
-    Cmd.Run(connectTask(address, keepAliveSettings), resultToMessage)
+    Cmd.BuildRun(connectTask(address, keepAliveSettings, _), resultToMessage)
 
   /** Acquires a WebSocket connection with a custom keep-alive message and a custom message onOpen */
   def connect[F[_]: Async, Msg](address: String, onOpenMessage: String, keepAliveSettings: KeepAliveSettings)(
       resultToMessage: WebSocketConnect[F] => Msg
   ): Cmd[F, Msg] =
-    Cmd.Run(connectTask(address, onOpenMessage, keepAliveSettings), resultToMessage)
+    Cmd.BuildRun(connectTask(address, onOpenMessage, keepAliveSettings, _), resultToMessage)
 
-  private def connectTask[F[_]: Async](address: String): F[WebSocketConnect[F]] =
-    Async[F].map(newConnection(address, None, KeepAliveSettings.default))(ls => WebSocketConnect.Socket(WebSocket(ls)))
+  private def connectTask[F[_]: Async](address: String, disp: Dispatcher[F]): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, None, KeepAliveSettings.default, disp))(ls => WebSocketConnect.Socket(WebSocket(ls)))
 
-  private def connectTask[F[_]: Async](address: String, onOpenMessage: String): F[WebSocketConnect[F]] =
-    Async[F].map(newConnection(address, Option(onOpenMessage), KeepAliveSettings.default))(ls =>
+  private def connectTask[F[_]: Async](address: String, onOpenMessage: String, disp: Dispatcher[F]): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, Option(onOpenMessage), KeepAliveSettings.default, disp))(ls =>
       WebSocketConnect.Socket(WebSocket(ls))
     )
 
-  private def connectTask[F[_]: Async](address: String, keepAliveSettings: KeepAliveSettings): F[WebSocketConnect[F]] =
-    Async[F].map(newConnection(address, None, keepAliveSettings))(ls => WebSocketConnect.Socket(WebSocket(ls)))
+  private def connectTask[F[_]: Async](address: String, keepAliveSettings: KeepAliveSettings, disp: Dispatcher[F]): F[WebSocketConnect[F]] =
+    Async[F].map(newConnection(address, None, keepAliveSettings, disp))(ls => WebSocketConnect.Socket(WebSocket(ls)))
 
   private def connectTask[F[_]: Async](
       address: String,
       onOpenMessage: String,
-      keepAliveSettings: KeepAliveSettings
+      keepAliveSettings: KeepAliveSettings,
+      disp: Dispatcher[F]
   ): F[WebSocketConnect[F]] =
-    Async[F].map(newConnection(address, Some(onOpenMessage), keepAliveSettings))(ls =>
+    Async[F].map(newConnection(address, Some(onOpenMessage), keepAliveSettings, disp))(ls =>
       WebSocketConnect.Socket(WebSocket(ls))
     )
 
   private def newConnection[F[_]: Async](
       address: String,
       onOpenSendMessage: Option[String],
-      settings: KeepAliveSettings
+      settings: KeepAliveSettings,
+      disp: Dispatcher[F]
   ): F[LiveSocket[F]] =
-    Async[F].delay {
-      val socket    = new dom.WebSocket(address)
-      val keepAlive = new KeepAlive(socket, settings)
-      val q         = Queue.empty[WebSocketEvent]
+    // XXX - How to get flatMap into scope for a for-comprehension?
+    Async[F].flatMap(Queue.unbounded[F, WebSocketEvent]) { q =>
+      Async[F].delay {
+        val socket    = new dom.WebSocket(address)
+        val keepAlive = new KeepAlive(socket, settings)
 
-      val msgListener = Functions.fun { e =>
-        val event = WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString)
-        q.enqueue(event)
-      }
+        val msgListener = Functions.fun { e =>
+          val event = WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString)
+          disp.unsafeRunAndForget(q.offer(event))
+        }
 
-      val errListener = Functions.fun { e =>
-        val msg =
-          try e.asInstanceOf[dom.ErrorEvent].message
-          catch { case _: Throwable => "Unknown" }
-        q.enqueue(WebSocketEvent.Error(msg))
-      }
+        val errListener = Functions.fun { e =>
+          val msg =
+            try e.asInstanceOf[dom.ErrorEvent].message
+            catch { case _: Throwable => "Unknown" }
+          disp.unsafeRunAndForget(q.offer(WebSocketEvent.Error(msg)))
+        }
 
-      val closeListener = Functions.fun { e =>
-        val ev = e.asInstanceOf[dom.CloseEvent]
-        q.enqueue(WebSocketEvent.Close(ev.code, ev.reason))
-      }
+        val closeListener = Functions.fun { e =>
+          val ev = e.asInstanceOf[dom.CloseEvent]
+          disp.unsafeRunAndForget(q.offer(WebSocketEvent.Close(ev.code, ev.reason)))
+        }
 
-      val openListener = Functions.fun { _ =>
-        onOpenSendMessage.foreach(msg => socket.send(msg))
-        q.enqueue(WebSocketEvent.Open)
-      }
+        val openListener = Functions.fun { _ =>
+          onOpenSendMessage.foreach(msg => socket.send(msg))
+          disp.unsafeRunAndForget(q.offer(WebSocketEvent.Open))
+        }
 
-      socket.addEventListener("message", msgListener)
-      socket.addEventListener("error", errListener)
-      socket.addEventListener("open", openListener)
-      socket.addEventListener("close", closeListener)
+        socket.addEventListener("message", msgListener)
+        socket.addEventListener("error", errListener)
+        socket.addEventListener("open", openListener)
+        socket.addEventListener("close", closeListener)
 
-      val subs =
-        Sub.Batch(
-          Sub.make(s"[tyrian-ws-${address}]")(
-            Stream.repeatEval {
-              Sync[F].delay {
-                try Some(q.dequeue())
-                catch _ => None
+        val subs =
+          Sub.Batch(
+            Sub.make(s"[tyrian-ws-${address}]")(
+              Stream.repeatEval {
+                q.take
               }
-            }.unNone
-          )(
-            Async[F].delay {
-              socket.removeEventListener("message", msgListener)
-              socket.removeEventListener("error", errListener)
-              socket.removeEventListener("open", openListener)
-              socket.removeEventListener("close", closeListener)
-            }
-          ),
-          keepAlive.run
-        )
+            )(
+              Async[F].delay {
+                socket.removeEventListener("message", msgListener)
+                socket.removeEventListener("error", errListener)
+                socket.removeEventListener("open", openListener)
+                socket.removeEventListener("close", closeListener)
+              }
+            ),
+            keepAlive.run
+          )
 
-      LiveSocket(socket, subs)
+        LiveSocket(socket, subs)
+      }
     }
 
   final class KeepAlive[F[_]: Async](socket: dom.WebSocket, settings: KeepAliveSettings):

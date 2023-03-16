@@ -61,7 +61,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
   ): F[List[F[Unit]]] =
     Async[F].delay {
       // Cmds
-      val cmdsToRun = CmdHelper.cmdToTaskList(cmd)
+      val cmdsToRun = CmdHelper.cmdToTaskList(cmd, dispatcher)
 
       // Subs
       val allSubs                 = SubHelper.flatten(sub)
