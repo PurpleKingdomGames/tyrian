@@ -2,15 +2,16 @@ package tyrian.websocket
 
 import cats.effect.kernel.Async
 import cats.effect.kernel.Sync
-import cats.syntax.functor.*
+import cats.effect.std.Dispatcher
+import cats.syntax.all.*
 import fs2.Stream
+import fs2.concurrent.Channel
 import org.scalajs.dom
 import tyrian.Cmd
 import tyrian.Sub
 import tyrian.websocket.WebSocketEvent
 import util.Functions
 
-import scala.collection.mutable.Queue
 import scala.concurrent.duration.*
 
 /** Helper WebSocket instance to store in your model that acts as a controller */
@@ -18,6 +19,7 @@ final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
   /** Disconnect from this WebSocket */
   def disconnect[Msg]: Cmd[F, Msg] =
     Cmd.SideEffect(liveSocket.socket.close(1000, "Graceful shutdown"))
+      .combine(Cmd.SideEffect(liveSocket.closeChannel))
 
   /** Publish a message to this WebSocket */
   def publish[Msg](message: String): Cmd[F, Msg] =
@@ -29,7 +31,11 @@ final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
     else Sub.emit(f(WebSocketEvent.Error("Connection not ready")))
 
 /** The running instance of the WebSocket */
-final class LiveSocket[F[_]: Async](val socket: dom.WebSocket, val subs: Sub[F, WebSocketEvent])
+final class LiveSocket[F[_]: Async](
+    val socket: dom.WebSocket,
+    val subs: Sub[F, WebSocketEvent],
+    val closeChannel: F[Unit]
+)
 
 enum WebSocketReadyState derives CanEqual:
   case CONNECTING, OPEN, CLOSING, CLOSED
@@ -102,59 +108,56 @@ object WebSocket:
       onOpenSendMessage: Option[String],
       settings: KeepAliveSettings
   ): F[LiveSocket[F]] =
-    Async[F].delay {
-      val socket    = new dom.WebSocket(address)
-      val keepAlive = new KeepAlive(socket, settings)
-      val q         = Queue.empty[WebSocketEvent]
+    (Channel.unbounded[F, WebSocketEvent], Dispatcher.sequential[F].allocated).flatMapN {
+      case (channel, (dispatcher, closeDispatcher)) =>
+        Async[F].delay {
+          val socket    = new dom.WebSocket(address)
+          val keepAlive = new KeepAlive(socket, settings)
 
-      val msgListener = Functions.fun { e =>
-        val event = WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString)
-        q.enqueue(event)
-      }
+          val msgListener = Functions.fun { e =>
+            val event = WebSocketEvent.Receive(e.asInstanceOf[dom.MessageEvent].data.toString)
+            dispatcher.unsafeRunAndForget(channel.send(event))
+          }
 
-      val errListener = Functions.fun { e =>
-        val msg =
-          try e.asInstanceOf[dom.ErrorEvent].message
-          catch { case _: Throwable => "Unknown" }
-        q.enqueue(WebSocketEvent.Error(msg))
-      }
+          val errListener = Functions.fun { e =>
+            val msg =
+              try e.asInstanceOf[dom.ErrorEvent].message
+              catch { case _: Throwable => "Unknown" }
+            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Error(msg)))
+          }
 
-      val closeListener = Functions.fun { e =>
-        val ev = e.asInstanceOf[dom.CloseEvent]
-        q.enqueue(WebSocketEvent.Close(ev.code, ev.reason))
-      }
+          val closeListener = Functions.fun { e =>
+            val ev = e.asInstanceOf[dom.CloseEvent]
+            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Close(ev.code, ev.reason)))
+          }
 
-      val openListener = Functions.fun { _ =>
-        onOpenSendMessage.foreach(msg => socket.send(msg))
-        q.enqueue(WebSocketEvent.Open)
-      }
+          val openListener = Functions.fun { _ =>
+            onOpenSendMessage.foreach(msg => socket.send(msg))
+            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Open))
+          }
 
-      socket.addEventListener("message", msgListener)
-      socket.addEventListener("error", errListener)
-      socket.addEventListener("open", openListener)
-      socket.addEventListener("close", closeListener)
+          socket.addEventListener("message", msgListener)
+          socket.addEventListener("error", errListener)
+          socket.addEventListener("open", openListener)
+          socket.addEventListener("close", closeListener)
 
-      val subs =
-        Sub.Batch(
-          Sub.make(s"[tyrian-ws-${address}]")(
-            Stream.repeatEval {
-              Sync[F].delay {
-                try Some(q.dequeue())
-                catch _ => None
-              }
-            }.unNone
-          )(
-            Async[F].delay {
-              socket.removeEventListener("message", msgListener)
-              socket.removeEventListener("error", errListener)
-              socket.removeEventListener("open", openListener)
-              socket.removeEventListener("close", closeListener)
-            }
-          ),
-          keepAlive.run
-        )
+          val subs =
+            Sub.Batch(
+              Sub.make(s"[tyrian-ws-${address}]")(
+                channel.stream
+              )(
+                Async[F].delay {
+                  socket.removeEventListener("message", msgListener)
+                  socket.removeEventListener("error", errListener)
+                  socket.removeEventListener("open", openListener)
+                  socket.removeEventListener("close", closeListener)
+                }
+              ),
+              keepAlive.run
+            )
 
-      LiveSocket(socket, subs)
+          LiveSocket(socket, subs, channel.close *> closeDispatcher)
+        }
     }
 
   final class KeepAlive[F[_]: Async](socket: dom.WebSocket, settings: KeepAliveSettings):
