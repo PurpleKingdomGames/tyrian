@@ -236,21 +236,17 @@ object Sub:
   /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation
     * frame.
     */
-  @SuppressWarnings(Array("scalafix:DisableSyntax.var"))
-  def animationFrameTick[F[_]: Sync, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
-    Sub.make[F, Double, Msg, Int](id) { callback =>
-      var handle: Int = 0
-      def loop: Double => Unit = time => {
-        callback(Right(time))
-        handle = dom.window.requestAnimationFrame(loop)
+  def animationFrameTick[F[_]: Async, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
+    Sub.make(
+      id,
+      Stream.repeatEval {
+        Async[F].async_[Msg] { cb =>
+          dom.window.requestAnimationFrame { t =>
+            Right(toMsg(t / 1000))
+          }
+        }
       }
-      handle = dom.window.requestAnimationFrame(loop)
-      Sync[F].delay(handle)
-    } { handle =>
-      Sync[F].delay(dom.window.cancelAnimationFrame(handle))
-    } { t =>
-      Option(toMsg(t / 1000))
-    }
+    )
 
   def combineAll[F[_], A](list: List[Sub[F, A]]): Sub[F, A] =
     Monoid[Sub[F, A]].combineAll(list)
