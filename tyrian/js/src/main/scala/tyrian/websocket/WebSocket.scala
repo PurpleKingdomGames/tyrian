@@ -3,6 +3,7 @@ package tyrian.websocket
 import cats.effect.kernel.Async
 import cats.effect.kernel.Sync
 import cats.effect.std.Dispatcher
+import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import fs2.Stream
 import fs2.concurrent.Channel
@@ -109,6 +110,8 @@ object WebSocket:
   ): F[LiveSocket[F]] =
     (Channel.unbounded[F, WebSocketEvent], Dispatcher.sequential[F].allocated).flatMapN {
       case (channel, (dispatcher, closeDispatcher)) =>
+        val close = channel.close *> closeDispatcher
+
         Async[F].delay {
           val socket    = new dom.WebSocket(address)
           val keepAlive = new KeepAlive(socket, settings)
@@ -122,12 +125,18 @@ object WebSocket:
             val msg =
               try e.asInstanceOf[dom.ErrorEvent].message
               catch { case _: Throwable => "Unknown" }
-            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Error(msg)))
+            dispatcher.unsafeRunAndForget(
+              channel.send(WebSocketEvent.Error(msg)) *>
+                close.start // can't close the dispatcher from the dispatcher, so we start a new fiber
+            )
           }
 
           val closeListener = Functions.fun { e =>
             val ev = e.asInstanceOf[dom.CloseEvent]
-            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Close(ev.code, ev.reason)))
+            dispatcher.unsafeRunAndForget(
+              channel.send(WebSocketEvent.Close(ev.code, ev.reason)) *>
+                close.start // ditto
+            )
           }
 
           val openListener = Functions.fun { _ =>
@@ -155,7 +164,7 @@ object WebSocket:
               keepAlive.run
             )
 
-          LiveSocket(socket, subs, channel.close *> closeDispatcher)
+          LiveSocket(socket, subs, close)
         }
     }
 
