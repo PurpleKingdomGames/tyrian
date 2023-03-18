@@ -242,7 +242,7 @@ object Sub:
       Stream.repeatEval {
         Async[F].async_[Msg] { cb =>
           dom.window.requestAnimationFrame { t =>
-            Right(toMsg(t / 1000))
+            cb(Right(toMsg(t / 1000)))
           }
         }
       }
