@@ -31,12 +31,10 @@ object TyrianRuntime:
     (F.ref(ModelHolder(initModel, true)), AtomicCell[F].of(List.empty[(String, F[Unit])]), Channel.unbounded[F, Msg])
       .flatMapN { (model, currentSubs, msgChannel) =>
 
-        def runCmd(cmd: Cmd[F, Msg]): Stream[F, Nothing] =
-          Stream
-            .emits(CmdHelper.cmdToTaskList(cmd))
-            .parEvalMapUnorderedUnbounded(_.handleError(_ => None))
-            .unNone
-            .foreach(msgChannel.send(_).void)
+        def runCmd(cmd: Cmd[F, Msg]): F[Unit] =
+          CmdHelper.cmdToTaskList(cmd).foldMapM { task =>
+            task.handleError(_ => None).flatMap(_.traverse_(msgChannel.send(_))).start.void
+          }
 
         def runSub(sub: Sub[F, Msg]): F[Unit] =
           currentSubs.evalUpdate { oldSubs =>
@@ -47,15 +45,15 @@ object TyrianRuntime:
               .findNewSubs(allSubs, stillAlive.map(_._1), Nil)
               .traverse(SubHelper.runObserve(_) { result =>
                 dispatcher.unsafeRunAndForget(
-                  OptionT(F.fromEither(result)).foreachF(msgChannel.send(_).void)
+                  result.toOption.flatten.foldMapM(msgChannel.send(_).void)
                 )
               })
 
-            discarded.traverse_(_.start) *> newSubs.map(_ ++ stillAlive)
+            discarded.foldMapM(_.start.void) *> newSubs.map(_ ++ stillAlive)
           }
         // end runSub
 
-        val msgLoop = msgChannel.stream.evalMap { msg =>
+        val msgLoop = msgChannel.stream.foreach { msg =>
           model
             .modify { case ModelHolder(oldModel, _) =>
               val (newModel, cmd) = update(oldModel)(msg)
@@ -63,9 +61,10 @@ object TyrianRuntime:
               (ModelHolder(newModel, true), (cmd, sub))
             }
             .flatMap { (cmd, sub) =>
-              runSub(sub).as(runCmd(cmd))
+              runCmd(cmd) *> runSub(sub)
             }
-        }.parJoinUnbounded
+            .void
+        }
         // end msgLoop
 
         val renderLoop =
@@ -89,7 +88,7 @@ object TyrianRuntime:
 
         renderLoop.background.surround {
           msgLoop.compile.drain.background.surround {
-            runCmd(initCmd).compile.drain *> F.never
+            runCmd(initCmd) *> F.never
           }
         }
       }
