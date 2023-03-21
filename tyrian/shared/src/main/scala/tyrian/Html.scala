@@ -60,6 +60,9 @@ object Html extends HtmlTags with HtmlAttributes:
   def onInput[M](msg: String => M): Attr[M] =
     onEvent("input", (e: Tyrian.Event) => msg(e.target.asInstanceOf[Tyrian.HTMLInputElement].value))
 
+  def onChange[M](msg: String => M): Attr[M] =
+    onEvent("change", (e: Tyrian.Event) => msg(e.target.asInstanceOf[Tyrian.HTMLInputElement].value))
+
   def style(name: String, value: String): Attr[Nothing] = Attribute("style", Style(name, value).toString)
   @targetName("style_Style")
   def style(style: Style): Attr[Nothing]    = Attribute("style", style.toString)
