@@ -209,7 +209,7 @@ object AttributeGen {
       EventEmitting("onBlur"),
       EventEmitting("onCanPlay"),
       EventEmitting("onCanPlayThrough"),
-      EventEmitting("onChange", "change"),
+      // EventEmitting("onChange", "change"), // Provided manually as it doesn't fit the pattern
       EventEmitting("onClick", "click"),
       EventEmitting("onContextMenu"),
       EventEmitting("onCopy"),

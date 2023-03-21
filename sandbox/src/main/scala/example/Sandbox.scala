@@ -45,6 +45,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.NewFlavour(f) =>
+      (model.copy(flavour = Option(f)), Cmd.None)
+
     case Msg.MouseMove(to) =>
       (model.copy(mousePosition = to), Cmd.None)
 
@@ -236,6 +239,16 @@ object Sandbox extends TyrianApp[Msg, Model]:
         case Page.Page1 =>
           div(onMouseMove(evt => Msg.MouseMove((evt.screenX.toInt, evt.screenY.toInt))))(
             div(id := "mousepos")().innerHtml(s"<p><i>Mouse Coords ${model.mousePosition}</i></p>"),
+            label(
+              p("Choose an ice cream flavour:"),
+              select(cls := "ice-cream", name := "ice-cream", onChange(Msg.NewFlavour(_)))(
+                option(value := "")("Select One ..."),
+                option(value := "chocolate")("Chocolate"),
+                option(value := "sardine")("Sardine"),
+                option(value := "vanilla")("Vanilla")
+              )
+            ),
+            p(model.flavour.map(f => s"You like $f").getOrElse("Pick a flavour...")),
             input(
               placeholder := "What should we save?",
               value       := model.tmpSaveData,
@@ -436,6 +449,7 @@ enum Msg:
   case UpdateHttpDetails(newUrl: String)
   case FrameTick(runningTime: Double)
   case MouseMove(to: (Int, Int))
+  case NewFlavour(name: String)
 
 enum Status:
   case Connecting
@@ -480,7 +494,8 @@ final case class Model(
     currentTime: js.Date,
     http: HttpDetails,
     time: Time,
-    mousePosition: (Int, Int)
+    mousePosition: (Int, Int),
+    flavour: Option[String]
 )
 
 final case class Time(running: Double, delta: Double):
@@ -541,7 +556,8 @@ object Model:
       new js.Date(),
       HttpDetails.initial,
       Time(0.0d, 0.0d),
-      (0, 0)
+      (0, 0),
+      None
     )
 
   // We're only saving/loading the input field contents as an example
