@@ -8,11 +8,6 @@ jobs:
     - uses: olafurpg/setup-scala@v11
       with:
         java-version: adopt@1.11
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '17'
-    - name: Install npm deps
-      run: npm install
     - name: Tyrian Compile & Test
       run: sbt clean compile scalafmtCheckAll test
 
