@@ -8,7 +8,7 @@ val LogbackVersion         = "1.2.6"
 val MunitCatsEffectVersion = "1.0.6"
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.2.1"
+lazy val scala3Version = "3.2.2"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
