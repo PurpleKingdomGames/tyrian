@@ -10,14 +10,14 @@ jobs:
         java-version: adopt@1.11
     - uses: jodersky/setup-mill@master
       with:
-        mill-version: 0.10.4
+        mill-version: 0.10.10
     - uses: actions/setup-node@v2
       with:
         node-version: '17'
     - name: Install npm deps
       run: npm install
     - name: Tyrian Compile & Test
-      run: sbt compile test +publishLocal gendocs
+      run: sbt compile scalafmtCheckAll test +publishLocal gendocs
     - name: Build SBT Examples
       run: |
         pwd

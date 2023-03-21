@@ -40,7 +40,8 @@ object Misc {
     UsefulTask("e", "sandboxBuild", "Build the sandbox project"),
     UsefulTask("f", "indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
     UsefulTask("g", "gendocs", "Rebuild the API and markdown docs"),
-    UsefulTask("h", "code", "Launch VSCode")
+    UsefulTask("h", "code", "Launch VSCode"),
+    UsefulTask("i", "scalafmtCheckAll", ""),
   )
 
   def logoSettings(version: SettingKey[String]): Seq[Def.Setting[String]] = {

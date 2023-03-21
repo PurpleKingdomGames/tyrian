@@ -82,7 +82,7 @@ object Aria extends AriaAttributes
 final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]) extends Html[M]:
   def map[N](f: M => N): Tag[N] =
     Tag(name, attributes.map(_.map(f)), children.map(_.map(f)))
-  
+
   def innerHtml(html: String): RawTag[M] =
     RawTag(name, attributes, html)
 
@@ -92,6 +92,6 @@ final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List
 final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: String) extends Html[M]:
   def map[N](f: M => N): RawTag[N] =
     RawTag(name, attributes.map(_.map(f)), innerHTML)
-  
+
   def innerHtml(html: String): RawTag[M] =
     RawTag(name, attributes, html)
