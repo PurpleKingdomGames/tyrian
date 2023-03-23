@@ -19,14 +19,14 @@ object CmdHelper:
             case Cmd.None =>
               rec(cmds, acc)
 
-            case Cmd.Emit(msg) =>
-              rec(cmds, Applicative[F].pure(Option(msg)) :: acc)
+            case c: Cmd.Emit[_] =>
+              rec(cmds, Applicative[F].map(c.toTask)(Option.apply) :: acc)
 
-            case Cmd.SideEffect(task) =>
-              rec(cmds, Applicative[F].map(task)(_ => Option.empty[Msg]) :: acc)
+            case c: Cmd.SideEffect[_] =>
+              rec(cmds, Applicative[F].map(c.toTask)(_ => Option.empty[Msg]) :: acc)
 
-            case Cmd.Run(task, f) =>
-              rec(cmds, Applicative[F].map(task)(p => Option(f(p))) :: acc)
+            case c: Cmd.Run[_, _, _] =>
+              rec(cmds, Applicative[F].map(c.toTask)(Option.apply) :: acc)
 
             case Cmd.Combine(cmd1, cmd2) =>
               rec(cmd1 :: cmd2 :: cmds, acc)

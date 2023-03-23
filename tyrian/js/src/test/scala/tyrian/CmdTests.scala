@@ -1,10 +1,11 @@
 package tyrian
 
 import cats.effect.IO
+import tyrian.syntax.*
 
 import scala.concurrent.duration.*
 
-@SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
+@SuppressWarnings(Array("scalafix:DisableSyntax.throw", "scalafix:DisableSyntax.var"))
 class CmdTests extends munit.CatsEffectSuite {
 
   import CmdSubUtils.*
@@ -77,11 +78,11 @@ class CmdTests extends munit.CatsEffectSuite {
 
     val actual: IO[(Int, Int, Int)] =
       mapped.cmds match
-        case c1 :: (cs: Cmd.Combine[IO, _]) :: Nil =>
+        case c1 :: (Cmd.Combine(cmd1, cmd2)) :: Nil =>
           for {
             a <- runCmd(c1)
-            b <- runCmd(cs.cmd1)
-            c <- runCmd(cs.cmd2)
+            b <- runCmd(cmd1)
+            c <- runCmd(cmd2)
           } yield (a, b, c)
 
         case _ =>
@@ -159,6 +160,43 @@ class CmdTests extends munit.CatsEffectSuite {
       cmd.run
 
     actual.assertEquals(10)
+  }
+
+  test("Cmd.Emit toTask") {
+    val actual: IO[Int] =
+      Cmd.Emit(10).toTask
+
+    actual.assertEquals(10)
+  }
+
+  test("Cmd.SideEffect toTask") {
+    var actual = 0
+
+    val t = IO {
+      actual = actual + 1
+    }
+
+    Cmd.SideEffect(t).toTask.map(_ => actual == 1).assert
+  }
+
+  test("Cmd.Run toTask") {
+    Cmd.Run(IO(10), _.toString).toTask.assertEquals("10")
+  }
+
+  test("Cmd -> toTask -> Cmd") {
+    var acc = 0
+
+    val t: IO[String] =
+      for {
+        i <- Cmd.Emit(10).toTask[IO]
+        _ <- IO { acc = acc + 1 }
+        s <- IO((i + acc).toString)
+      } yield s
+
+    val actual =
+      Cmd.Run(t, s => "count: " + s)
+
+    actual.run.assertEquals("count: 11")
   }
 
 }
