@@ -80,7 +80,7 @@ object Request:
       RequestCredentials.SameOrigin,
       RequestCache.Default
     )
-  
+
   def apply[A](method: Method, url: String, body: Body): Request[A] =
     Request[A](
       method,
@@ -91,7 +91,6 @@ object Request:
       RequestCredentials.SameOrigin,
       RequestCache.Default
     )
-
 
   /** Convenience method to create a GET Request[A] and try to decode the response body from String to A.
     * @param url
