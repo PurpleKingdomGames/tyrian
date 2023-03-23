@@ -16,7 +16,7 @@ enum HttpError:
 
 /** An HTTP method */
 enum Method derives CanEqual:
-  case Get, Post, Put, Patch, Delete, Options
+  case Get, Post, Put, Patch, Delete, Options, Head
 
   def asString: String =
     this match
@@ -26,6 +26,7 @@ enum Method derives CanEqual:
       case Patch   => "PATCH"
       case Delete  => "DELETE"
       case Options => "OPTIONS"
+      case Head    => "HEAD"
 
 /** The body of a request */
 enum Body derives CanEqual:
@@ -81,3 +82,24 @@ final case class Response(
   *   the status message
   */
 final case class Status(code: Int, message: String)
+
+enum RequestCredentials derives CanEqual:
+  case Omit, SameOrigin, Include
+
+  def asString: String =
+    this match
+      case Omit       => "omit"
+      case SameOrigin => "same-origin"
+      case Include    => "include"
+
+enum RequestCache derives CanEqual:
+  case Default, NoStore, Reload, NoCache, ForceCache, OnlyIfCached
+
+  def asString: String =
+    this match
+      case Default      => "default"
+      case NoStore      => "no-store"
+      case Reload       => "reload"
+      case NoCache      => "no-cache"
+      case ForceCache   => "force-cache"
+      case OnlyIfCached => "only-if-cached"
