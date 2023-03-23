@@ -20,7 +20,7 @@ object Http:
   case object NetworkErrorException                 extends Throwable
   case class UnknownErrorException(message: String) extends Throwable
 
-    /** Send an HTTP request.
+  /** Send an HTTP request.
     * @param request
     *   the request
     * @param resultToMessage
