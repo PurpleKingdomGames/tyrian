@@ -33,7 +33,7 @@ final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
 /** The running instance of the WebSocket */
 final class LiveSocket[F[_]: Async](
     val socket: dom.WebSocket,
-    val subs: Sub[F, WebSocketEvent],
+    val subs: Sub[F, WebSocketEvent]
 )
 
 enum WebSocketReadyState derives CanEqual:
