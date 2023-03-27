@@ -19,7 +19,7 @@ import scala.concurrent.duration.*
 final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
   /** Disconnect from this WebSocket */
   def disconnect[Msg]: Cmd[F, Msg] =
-    Cmd.SideEffect(Async[F].delay(liveSocket.socket.close(1000, "Graceful shutdown")) *> liveSocket.closeChannel)
+    Cmd.SideEffect(Async[F].delay(liveSocket.socket.close(1000, "Graceful shutdown")))
 
   /** Publish a message to this WebSocket */
   def publish[Msg](message: String): Cmd[F, Msg] =
@@ -34,7 +34,6 @@ final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
 final class LiveSocket[F[_]: Async](
     val socket: dom.WebSocket,
     val subs: Sub[F, WebSocketEvent],
-    val closeChannel: F[Unit]
 )
 
 enum WebSocketReadyState derives CanEqual:
@@ -161,7 +160,7 @@ object WebSocket:
               keepAlive.run
             )
 
-          LiveSocket(socket, subs, close)
+          LiveSocket(socket, subs)
         }
     }
 
