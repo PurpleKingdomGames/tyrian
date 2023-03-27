@@ -125,17 +125,14 @@ object WebSocket:
             val msg =
               try e.asInstanceOf[dom.ErrorEvent].message
               catch { case _: Throwable => "Unknown" }
-            dispatcher.unsafeRunAndForget(
-              channel.send(WebSocketEvent.Error(msg)) *>
-                close.start // can't close the dispatcher from the dispatcher, so we start a new fiber
-            )
+            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Error(msg)))
           }
 
           val closeListener = Functions.fun { e =>
             val ev = e.asInstanceOf[dom.CloseEvent]
             dispatcher.unsafeRunAndForget(
               channel.send(WebSocketEvent.Close(ev.code, ev.reason)) *>
-                close.start // ditto
+                close.start // can't close the dispatcher from the dispatcher, so we start a new fiber
             )
           }
 
