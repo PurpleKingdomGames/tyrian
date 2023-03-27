@@ -19,16 +19,7 @@ import scala.concurrent.duration.*
 final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
   /** Disconnect from this WebSocket */
   def disconnect[Msg]: Cmd[F, Msg] =
-    Cmd.SideEffect {
-      Async[F].async_[Unit] { cb =>
-        liveSocket.socket.close(1000, "Graceful shutdown")
-        liveSocket.socket.addEventListener(
-          "close",
-          _ => cb(Either.unit),
-          new dom.EventListenerOptions { once = true }
-        )
-      } *> liveSocket.closeChannel
-    }
+    Cmd.SideEffect(Async[F].delay(liveSocket.socket.close(1000, "Graceful shutdown")) *> liveSocket.closeChannel)
 
   /** Publish a message to this WebSocket */
   def publish[Msg](message: String): Cmd[F, Msg] =
