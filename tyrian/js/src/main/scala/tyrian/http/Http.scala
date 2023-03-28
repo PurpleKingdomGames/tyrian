@@ -106,7 +106,8 @@ object Http:
 
   private def errorToThrowable(error: Any): Throwable =
     error match {
-      case e: js.Error if e.name == "NetworkError" => NetworkErrorException
-      case e: js.Error                             => UnknownErrorException(e.message)
-      case e                                       => UnknownErrorException(e.toString())
+      case e: js.Error if e.name == "NetworkError"                                      => NetworkErrorException
+      case e: js.Error if e.name == "TypeError" && e.message.startsWith("NetworkError") => NetworkErrorException
+      case e: js.Error => UnknownErrorException(e.message)
+      case e           => UnknownErrorException(e.toString())
     }
