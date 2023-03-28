@@ -9,3 +9,5 @@ addSbtPlugin("com.github.sbt"            % "sbt-unidoc"               % "0.5.0")
 addSbtPlugin("com.github.reibitto"       % "sbt-welcome"              % "0.2.2")
 addSbtPlugin("com.github.sbt"            % "sbt-git"                  % "2.0.1")
 addSbtPlugin("org.scalameta"             % "sbt-scalafmt"             % "2.5.0")
+
+libraryDependencies += "org.scala-js" %% "scalajs-env-selenium" % "1.1.1"

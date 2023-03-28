@@ -1,6 +1,9 @@
 import Misc._
 
 import scala.language.postfixOps
+import org.openqa.selenium.chrome.ChromeOptions
+import org.openqa.selenium.firefox.FirefoxOptions
+import org.scalajs.jsenv.selenium.SeleniumJSEnv
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -35,18 +38,46 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   autoAPIMappings   := true
 )
 
+lazy val commonScalacOptions = Def.setting {
+  // Map the sourcemaps to github paths instead of local directories
+  val localSourcesPath = (LocalRootProject / baseDirectory).value.toURI
+  val headCommit       = git.gitHeadCommit.value.get
+  scmInfo.value.map { info =>
+    val remoteSourcesPath =
+      s"${info.browseUrl.toString
+          .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
+    s"-scalajs-mapSourceURI:$localSourcesPath->$remoteSourcesPath"
+  }
+}
+
 lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-  scalacOptions ++= {
-    // Map the sourcemaps to github paths instead of local directories
-    val localSourcesPath = (LocalRootProject / baseDirectory).value.toURI
-    val headCommit       = git.gitHeadCommit.value.get
-    scmInfo.value.map { info =>
-      val remoteSourcesPath =
-        s"${info.browseUrl.toString
-            .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
-      s"-scalajs-mapSourceURI:$localSourcesPath->$remoteSourcesPath"
-    }
+  scalacOptions ++= commonScalacOptions.value
+)
+
+lazy val commonBrowserTestJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  scalacOptions ++= commonScalacOptions.value,
+  libraryDependencies ++= Seq(
+    "org.scala-js"  %%% "scalajs-dom"  % Dependancies.scalajsDomVersion,
+    "org.typelevel" %%% "cats-effect"  % Dependancies.catsEffect,
+    "io.circe"      %%% "circe-core"   % Dependancies.circe,
+    "io.circe"      %%% "circe-parser" % Dependancies.circe
+  )
+)
+
+lazy val firefoxJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  jsEnv := {
+    val options = new FirefoxOptions()
+    options.setHeadless(true)
+    new SeleniumJSEnv(options)
+  }
+)
+
+lazy val chromeJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  jsEnv := {
+    val options = new ChromeOptions()
+    options.setHeadless(true)
+    new SeleniumJSEnv(options)
   }
 )
 
@@ -100,7 +131,9 @@ lazy val tyrianProject =
       tyrianZIO.js,
       tyrianIndigoBridge.js,
       sandbox.js,
-      indigoSandbox.js
+      indigoSandbox.js,
+      firefoxTests.js,
+      chromeTests.js
     )
 
 lazy val tyrian =
@@ -246,6 +279,34 @@ lazy val docs =
       run / fork := true
     )
 
+lazy val firefoxTests =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-firefox-tests"))
+    .settings(
+      name := "tyrian-firefox-tests",
+      Test / unmanagedSourceDirectories +=
+        (LocalRootProject / baseDirectory).value / "tyrian-browser-tests" / "src" / "test" / "scala",
+      commonSettings ++ publishSettings ++ firefoxJsSettings
+    )
+    .jsSettings(commonBrowserTestJsSettings)
+    .dependsOn(tyrian)
+
+lazy val chromeTests =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-chrome-tests"))
+    .settings(
+      name := "tyrian-chrome-tests",
+      Test / unmanagedSourceDirectories +=
+        (LocalRootProject / baseDirectory).value / "tyrian-browser-tests" / "src" / "test" / "scala",
+      commonSettings ++ publishSettings ++ chromeJsSettings
+    )
+    .jsSettings(commonBrowserTestJsSettings)
+    .dependsOn(tyrian)
+
 addCommandAlias(
   "sandboxBuild",
   List(
@@ -279,7 +340,9 @@ addCommandAlias(
     "tyrianZIO/clean",
     "tyrianIndigoBridge/clean",
     "sandbox/clean",
-    "indigoSandbox/clean"
+    "indigoSandbox/clean",
+    "firefoxTests/clean",
+    "chromeTests/clean"
   ).mkString(";", ";", "")
 )
 
@@ -305,7 +368,9 @@ addCommandAlias(
     "tyrianZIO/test",
     "tyrianIndigoBridge/test",
     "sandbox/test",
-    "indigoSandbox/test"
+    "indigoSandbox/test",
+    "firefoxTests/test",
+    "chromeTests/test"
   ).mkString(";", ";", "")
 )
 
