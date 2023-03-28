@@ -32,7 +32,7 @@ class HttpTests extends munit.CatsEffectSuite {
   test("NetworkError") {
     val result = runCmd(
       Http.send(
-        Request.get("http://127.0.0.1:8080"),
+        Request.get("http://whatever:1234"),
         msgDecoder
       )
     )
