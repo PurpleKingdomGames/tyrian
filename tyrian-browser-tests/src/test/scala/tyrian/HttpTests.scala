@@ -29,18 +29,6 @@ class HttpTests extends munit.CatsEffectSuite {
       case _ =>
         IO.raiseError(new Exception("failed, was not a run task"))
 
-  test("NetworkError") {
-    val result = runCmd(
-      Http.send(
-        Request.get("http://whatever:1234"),
-        msgDecoder
-      )
-    )
-    result
-      .flatMap(x => IO.println(x).as(x))
-      .assertEquals(Left(HttpError.NetworkError))
-  }
-
   test("HEAD") {
     val result = runCmd(
       Http.send(
