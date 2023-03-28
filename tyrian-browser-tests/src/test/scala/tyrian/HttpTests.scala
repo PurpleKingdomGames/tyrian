@@ -36,7 +36,9 @@ class HttpTests extends munit.CatsEffectSuite {
         msgDecoder
       )
     )
-    result.assertEquals(Left(HttpError.NetworkError))
+    result
+      .flatMap(x => IO.println(x).as(x))
+      .assertEquals(Left(HttpError.NetworkError))
   }
 
   test("HEAD") {
