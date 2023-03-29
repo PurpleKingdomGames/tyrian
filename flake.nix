@@ -20,11 +20,25 @@
         };
         jdk = pkgs.jdk17_headless;
 
-        jvmInputs = with pkgs; [ jdk coursier mill sbt ];
+        commonInputs = with pkgs; [
+          chromedriver
+          geckodriver
+        ];
+
+        jvmInputs = with pkgs; [
+          jdk
+          coursier
+          mill
+          sbt
+        ];
         jvmHook = ''
           JAVA_HOME="${jdk}"
         '';
-        jsInputs = with pkgs; [ nodejs yarn ];
+
+        jsInputs = with pkgs; [
+          nodejs
+          yarn
+        ];
         jsHook = ''
           yarn install
         '';
@@ -32,7 +46,7 @@
       {
         devShells.default = pkgs.mkShell {
           name = "tyrian-dev-shell";
-          buildInputs = jvmInputs ++ jsInputs;
+          buildInputs = commonInputs ++ jvmInputs ++ jsInputs;
           shellHook = jvmHook + jsHook;
         };
       }
