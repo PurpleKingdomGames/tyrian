@@ -10,6 +10,8 @@ import tyrian.Event
 import tyrian.Html
 import tyrian.NamedAttribute
 import tyrian.Property
+import tyrian.PropertyBoolean
+import tyrian.PropertyString
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
@@ -24,7 +26,10 @@ object Rendering:
       }
 
     val props: List[(String, PropValue)] =
-      attrs.collect { case Property(n, v) => (n, v) }
+      attrs.collect {
+        case PropertyString(n, v)  => (n, v)
+        case PropertyBoolean(n, v) => (n, v)
+      }
 
     val events: List[(String, EventHandler)] =
       attrs.collect { case Event(n, msg) =>

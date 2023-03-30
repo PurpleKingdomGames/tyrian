@@ -22,8 +22,8 @@ object AttributeGen {
   def genAttributesAndProperties: String =
     s"""  def attribute(name: String, value: String): Attr[Nothing]  = Attribute(name, value)
     |  def attributes(as: (String, String)*): List[Attr[Nothing]] = as.toList.map(p => Attribute(p._1, p._2))
-    |  def property(name: String, value: String): Attr[Nothing]   = Property(name, value)
-    |  def properties(ps: (String, String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
+    |  def property(name: String, value: Boolean | String): Attr[Nothing]   = Property(name, value)
+    |  def properties(ps: (String, Boolean | String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
     |
     |  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Attr[M] = Event(name, msg)
     |""".stripMargin
@@ -140,7 +140,7 @@ object AttributeGen {
       NoValue("autoPlay"),
       NoValue("autoplay"),
       Normal("charset"),
-      NoValue("checked"),
+      NoValue("checked"), // property
       Normal("cite"),
       Normal("`class`", "class"),
       Normal("cls", "class"),
@@ -332,7 +332,10 @@ object AttributeGen {
 
   def htmlProps: List[Normal] =
     List(
-      Normal("value").withTypes("String", "Double", "Boolean")
+      Normal("checked").withTypes("Boolean"),
+      Normal("indeterminate").withTypes("Boolean"),
+      Normal("selected").withTypes("Boolean"),
+      Normal("value").withTypes("String")
     )
 
   def svgAttrs: List[AttributeType] = List(

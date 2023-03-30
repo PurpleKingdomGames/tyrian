@@ -68,12 +68,12 @@ class HtmlTests extends munit.FunSuite {
 
   }
 
-  test("'value' attribute can have different types") {
+  test("'value' property can have different types") {
 
     val attr1 = value := "fish"
-    val attr2 = value := 10
-    val attr3 = value := 101.5d
-    val attr4 = value := true
+    val attr2 = value := "10"
+    val attr3 = value := "101.5d"
+    val attr4 = value := "true"
 
     assert(clue(attr1.name) == "value")
     assert(clue(attr1.value) == "fish")
