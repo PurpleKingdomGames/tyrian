@@ -11,10 +11,13 @@ object AttributeGen {
           else "value.toString"
         })
       |
-      |  final class PropertyName$typ(name: String):
-      |    def :=(value: $typ): Property = Property(name.toString, ${
-          if (typ == "String") "value" else "value.toString"
-        })
+      |""".stripMargin
+    }.mkString
+
+  def generatePropertyNameTypes: String =
+    List("String", "Boolean").map { typ =>
+      s"""  final class PropertyName$typ(name: String):
+      |    def :=(value: $typ): Property$typ = Property$typ(name.toString, value)
       |
       |""".stripMargin
     }.mkString
@@ -110,6 +113,7 @@ object AttributeGen {
 
         val contents: String =
           generateAttributeNameTypes +
+            generatePropertyNameTypes +
             genAttributesAndProperties +
             "\n\n  // Attributes\n\n" +
             attrs.map(a => genAttr(a, true)).mkString +
@@ -298,7 +302,7 @@ object AttributeGen {
       Normal("rowspan").withTypes("String", "Int"),
       NoValue("sandbox"),
       Normal("scope"),
-      NoValue("selected"),
+      NoValue("selected"), // property
       Normal("shape"),
       Normal("size").withTypes("String", "Int"),
       Normal("sizes"),
