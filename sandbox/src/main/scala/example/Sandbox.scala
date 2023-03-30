@@ -45,6 +45,21 @@ object Sandbox extends TyrianApp[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.AddFruit =>
+      (model.copy(fruit = Fruit(model.fruitInput, false) :: model.fruit), Cmd.None)
+
+    case Msg.UpdateFruitInput(input) =>
+      (model.copy(fruitInput = input), Cmd.None)
+
+    case Msg.ToggleFruitAvailability(name) =>
+      (
+        model.copy(fruit = model.fruit.map { fruit =>
+          if fruit.name == name then fruit.copy(available = !fruit.available)
+          else fruit
+        }),
+        Cmd.None
+      )
+
     case Msg.NewFlavour(f) =>
       (model.copy(flavour = Option(f)), Cmd.None)
 
@@ -298,7 +313,26 @@ object Sandbox extends TyrianApp[Msg, Model]:
     val contents =
       model.page match
         case Page.Page1 =>
+          val checkboxes =
+            model.fruit.map { fruit =>
+              Html.span(
+                label(fruit.name),
+                input(
+                  typ := "checkbox",
+                  checked := fruit.available,
+                  onChange(_ => Msg.ToggleFruitAvailability(fruit.name))
+                )
+              )
+            }
+
           div(onMouseMove(evt => Msg.MouseMove((evt.screenX.toInt, evt.screenY.toInt))))(
+            div(
+              input(id := "fruitName", onInput(s => Msg.UpdateFruitInput(s))),
+              button(onClick(Msg.AddFruit))(
+                text("Add Fruit")
+              ),
+              div(checkboxes)
+            ),
             div(id := "mousepos")().innerHtml(s"<p><i>Mouse Coords ${model.mousePosition}</i></p>"),
             label(
               p("Choose an ice cream flavour:"),
@@ -591,6 +625,9 @@ enum Msg:
   case FrameTick(runningTime: Double)
   case MouseMove(to: (Int, Int))
   case NewFlavour(name: String)
+  case AddFruit
+  case UpdateFruitInput(input: String)
+  case ToggleFruitAvailability(name: String)
 
 enum Status:
   case Connecting
@@ -636,8 +673,12 @@ final case class Model(
     http: HttpDetails,
     time: Time,
     mousePosition: (Int, Int),
-    flavour: Option[String]
+    flavour: Option[String],
+    fruit: List[Fruit],
+    fruitInput: String
 )
+
+final case class Fruit(name: String, available: Boolean)
 
 final case class Time(running: Double, delta: Double):
   def next(t: Double): Time =
@@ -698,7 +739,9 @@ object Model:
       HttpDetails.initial,
       Time(0.0d, 0.0d),
       (0, 0),
-      None
+      None,
+      Nil,
+      ""
     )
 
   // We're only saving/loading the input field contents as an example
