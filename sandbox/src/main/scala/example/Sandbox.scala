@@ -420,7 +420,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
               text("Timeout: "),
               input(
                 placeholder := "timeout",
-                value       := model.http.timeout,
+                value       := model.http.timeout.toString,
                 onInput(s => Msg.UpdateHttpTimeout(s))
               )
             ),
