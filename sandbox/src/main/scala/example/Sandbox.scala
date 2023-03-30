@@ -318,7 +318,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
               Html.span(
                 label(fruit.name),
                 input(
-                  typ := "checkbox",
+                  typ     := "checkbox",
                   checked := fruit.available,
                   onChange(_ => Msg.ToggleFruitAvailability(fruit.name))
                 )
