@@ -509,19 +509,8 @@ object Sandbox extends TyrianApp[Msg, Model]:
           )
 
         case Page.Page6 =>
-          // Example of how to use preventDefault to avoid a page refesh on form submit.
-          val submitMyForm =
-            Html.onEvent(
-              "submit",
-              { (e: Tyrian.Event) =>
-                e.preventDefault()
-                Msg.Log("submitted")
-              }
-            )
-
           div(
-            // form(onSubmit(Msg.Log("submitted")))( // Refreshes the page
-            form(submitMyForm)(
+            form(onSubmit(Msg.Log("submitted")))(
               input(_type := "submit", name := "submit", value := "submit")
             )
           )
