@@ -86,5 +86,29 @@ object Property:
   * @param msg
   *   Message to produce when the event is triggered
   */
-final case class Event[E <: Tyrian.Event, M](name: String, msg: E => M) extends Attr[M]:
-  def map[N](f: M => N): Attr[N] = Event(name, msg andThen f)
+final case class Event[E <: Tyrian.Event, M](
+    name: String,
+    msg: E => M,
+    preventDefault: Boolean,
+    stopPropagation: Boolean,
+    stopImmediatePropagation: Boolean
+) extends Attr[M]:
+  def map[N](f: M => N): Attr[N]                  = Event(name, msg andThen f)
+  def preventDefaultToggle: Event[E, M]           = this.copy(preventDefault = !preventDefault)
+  def preventDefaultOn: Event[E, M]               = this.copy(preventDefault = true)
+  def preventDefaultOff: Event[E, M]              = this.copy(preventDefault = false)
+  def stopPropagationToggle: Event[E, M]          = this.copy(stopPropagation = !stopPropagation)
+  def stopPropagationOn: Event[E, M]              = this.copy(stopPropagation = true)
+  def stopPropagationOff: Event[E, M]             = this.copy(stopPropagation = false)
+  def stopImmediatePropagationToggle: Event[E, M] = this.copy(stopImmediatePropagation = !stopImmediatePropagation)
+  def stopImmediatePropagationOn: Event[E, M]     = this.copy(stopImmediatePropagation = true)
+  def stopImmediatePropagationOff: Event[E, M]    = this.copy(stopImmediatePropagation = false)
+object Event:
+  def apply[E <: Tyrian.Event, M](name: String, msg: E => M): Event[E, M] =
+    Event(
+      name = name,
+      msg = msg,
+      preventDefault = true,
+      stopPropagation = true,
+      stopImmediatePropagation = true
+    )

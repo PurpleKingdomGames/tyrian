@@ -28,7 +28,7 @@ object AttributeGen {
     |  def property(name: String, value: Boolean | String): Attr[Nothing]   = Property(name, value)
     |  def properties(ps: (String, Boolean | String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
     |
-    |  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Attr[M] = Event(name, msg)
+    |  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Event[E, M] = Event(name, msg)
     |""".stripMargin
 
   def genAttr(tag: AttributeType, isAttribute: Boolean): String =
@@ -77,12 +77,12 @@ object AttributeGen {
     }
     eventType match {
       case Some(evt) =>
-        s"""  def $attrName[M](msg: Tyrian.$evt => M): Attr[M] = onEvent("$attr", msg)
+        s"""  def $attrName[M](msg: Tyrian.$evt => M): Event[Tyrian.$evt, M] = onEvent("$attr", msg)
         |
         |""".stripMargin
 
       case None =>
-        s"""  def $attrName[M](msg: M): Attr[M] = onEvent("$attr", (_: Tyrian.Event) => msg)
+        s"""  def $attrName[M](msg: M): Event[Tyrian.Event, M] = onEvent("$attr", (_: Tyrian.Event) => msg)
         |
         |""".stripMargin
     }
