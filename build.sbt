@@ -28,7 +28,7 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "munit-cats-effect" % Dependancies.munitCatsEffect3 % Test,
     "org.typelevel" %%% "discipline-munit"  % Dependancies.munitCatsEffect3 % Test,
-    "org.typelevel" %%% "cats-laws"         % "2.9.0"                       % Test
+    "org.typelevel" %%% "cats-laws"         % Dependancies.catsLaws         % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-language:strictEquality"),
@@ -253,9 +253,9 @@ lazy val jsdocs =
         "io.indigoengine" %%% "indigo"               % indigoDocsVersion,
         "io.indigoengine" %%% "tyrian-io"            % tyrianDocsVersion,
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianDocsVersion,
-        "org.http4s"      %%% "http4s-dom"           % "0.2.6",
-        "org.http4s"      %%% "http4s-circe"         % "0.23.15",
-        "org.typelevel"   %%% "cats-effect"          % "3.4.5"
+        "org.http4s"      %%% "http4s-dom"           % Dependancies.http4sDom,
+        "org.http4s"      %%% "http4s-circe"         % Dependancies.http4sCirce,
+        "org.typelevel"   %%% "cats-effect"          % Dependancies.catsEffect
       )
     )
     .enablePlugins(ScalaJSPlugin)

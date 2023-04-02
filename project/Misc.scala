@@ -33,15 +33,15 @@ object Misc {
   }
 
   lazy val customTasksAliases = Seq(
-    UsefulTask("a", "cleanAll", "Clean all (JS + JVM)"),
-    UsefulTask("b", "compileAll", "Compile all (JS + JVM)"),
-    UsefulTask("c", "testAll", "Test all (JS + JVM)"),
-    UsefulTask("d", "localPublish", "Locally publish the core modules (JS + JVM)"),
-    UsefulTask("e", "sandboxBuild", "Build the sandbox project"),
-    UsefulTask("f", "indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
-    UsefulTask("g", "gendocs", "Rebuild the API and markdown docs"),
-    UsefulTask("h", "code", "Launch VSCode"),
-    UsefulTask("i", "scalafmtCheckAll", ""),
+    UsefulTask("cleanAll", "Clean all (JS + JVM)"),
+    UsefulTask("compileAll", "Compile all (JS + JVM)"),
+    UsefulTask("testAll", "Test all (JS + JVM)"),
+    UsefulTask("localPublish", "Locally publish the core modules (JS + JVM)"),
+    UsefulTask("sandboxBuild", "Build the sandbox project"),
+    UsefulTask("indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
+    UsefulTask("gendocs", "Rebuild the API and markdown docs"),
+    UsefulTask("code", "Launch VSCode"),
+    UsefulTask("scalafmtCheckAll", ""),
   )
 
   def logoSettings(version: SettingKey[String]): Seq[Def.Setting[String]] = {
