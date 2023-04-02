@@ -87,7 +87,7 @@ lazy val http =
       libraryDependencies ++= Seq(
         "io.circe" %%% "circe-core",
         "io.circe" %%% "circe-parser"
-      ).map(_ % "0.14.2")
+      ).map(_ % "0.14.5")
     )
 
 lazy val http4sdom =
@@ -100,12 +100,12 @@ lazy val http4sdom =
         "io.circe" %%% "circe-core",
         "io.circe" %%% "circe-parser",
         "io.circe" %%% "circe-generic"
-      ).map(_ % "0.14.2")
+      ).map(_ % "0.14.5")
     )
     .settings(
       libraryDependencies ++= Seq(
-        "org.http4s" %%% "http4s-dom"   % "0.2.3",
-        "org.http4s" %%% "http4s-circe" % "0.23.15"
+        "org.http4s" %%% "http4s-dom"   % "0.2.7",
+        "org.http4s" %%% "http4s-circe" % "0.23.18"
       )
     )
 
@@ -173,8 +173,8 @@ lazy val zio =
     .settings(
       name := "zio",
       libraryDependencies ++= Seq(
-        "dev.zio" %%% "zio"              % "2.0.5",
-        "dev.zio" %%% "zio-interop-cats" % "23.0.0.1"
+        "dev.zio" %%% "zio"              % "2.0.10",
+        "dev.zio" %%% "zio-interop-cats" % "23.0.03"
       )
     )
 
@@ -213,15 +213,14 @@ lazy val tyrianExamplesProject =
       name := "TyrianExamples"
     )
     .settings(
-      logo := s"Tyrian Examples (v${version.value})",
+      logo := s"Tyrian Examples (v${version.value}):\n" + exampleProjects.map(s => " - " + s).mkString("\n") + "\n",
       usefulTasks := Seq(
-        UsefulTask("", "buildExamples", "Cleans and builds all examples"),
-        UsefulTask("", "cleanAll", "Cleans all examples"),
-        UsefulTask("", "compileAll", "Compiles all examples"),
-        UsefulTask("", "testAll", "Tests all examples"),
-        UsefulTask("", "fastOptAll", "Compiles all examples to JS"),
-        UsefulTask("", "code", "Launch VSCode")
-      ) ++ makeCmds(exampleProjects),
+        UsefulTask("cleanAll", "Cleans all examples").noAlias,
+        UsefulTask("compileAll", "Compiles all examples").noAlias,
+        UsefulTask("testAll", "Tests all examples").noAlias,
+        UsefulTask("fastOptAll", "Compiles all examples to JS").noAlias,
+        UsefulTask("code", "Launch VSCode").noAlias
+      ),
       logoColor        := scala.Console.MAGENTA,
       aliasColor       := scala.Console.BLUE,
       commandColor     := scala.Console.CYAN,
@@ -248,7 +247,7 @@ def makeCmds(names: List[String]): Seq[UsefulTask] =
           ).mkString(";", ";", "")
       }
 
-    UsefulTask("build" + (i + 1), cmd, n)
+    UsefulTask(cmd, n).alias("build" + (i + 1))
   }.toSeq
 
 // Top level commands
