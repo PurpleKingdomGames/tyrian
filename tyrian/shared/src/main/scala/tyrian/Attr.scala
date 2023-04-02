@@ -93,16 +93,20 @@ final case class Event[E <: Tyrian.Event, M](
     stopPropagation: Boolean,
     stopImmediatePropagation: Boolean
 ) extends Attr[M]:
-  def map[N](f: M => N): Attr[N]                  = Event(name, msg andThen f)
-  def preventDefaultToggle: Event[E, M]           = this.copy(preventDefault = !preventDefault)
-  def preventDefaultOn: Event[E, M]               = this.copy(preventDefault = true)
-  def preventDefaultOff: Event[E, M]              = this.copy(preventDefault = false)
-  def stopPropagationToggle: Event[E, M]          = this.copy(stopPropagation = !stopPropagation)
-  def stopPropagationOn: Event[E, M]              = this.copy(stopPropagation = true)
-  def stopPropagationOff: Event[E, M]             = this.copy(stopPropagation = false)
-  def stopImmediatePropagationToggle: Event[E, M] = this.copy(stopImmediatePropagation = !stopImmediatePropagation)
-  def stopImmediatePropagationOn: Event[E, M]     = this.copy(stopImmediatePropagation = true)
-  def stopImmediatePropagationOff: Event[E, M]    = this.copy(stopImmediatePropagation = false)
+  def map[N](f: M => N): Attr[N] = Event(name, msg andThen f)
+
+  def withPreventDefault(enabled: Boolean): Event[E, M] = this.copy(preventDefault = enabled)
+  def usePreventDefault: Event[E, M]                    = withPreventDefault(true)
+  def noPreventDefault: Event[E, M]                     = withPreventDefault(false)
+
+  def withStopPropagation(enabled: Boolean): Event[E, M] = this.copy(stopPropagation = enabled)
+  def useStopPropagation: Event[E, M]                    = withStopPropagation(true)
+  def noStopPropagation: Event[E, M]                     = withStopPropagation(false)
+
+  def withStopImmediatePropagation(enabled: Boolean): Event[E, M] = this.copy(stopImmediatePropagation = enabled)
+  def useStopImmediatePropagation: Event[E, M]                    = withStopImmediatePropagation(true)
+  def noStopImmediatePropagation: Event[E, M]                     = withStopImmediatePropagation(false)
+
 object Event:
   def apply[E <: Tyrian.Event, M](name: String, msg: E => M): Event[E, M] =
     Event(
