@@ -17,7 +17,7 @@ ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
 lazy val scala3Version      = "3.2.2"
-lazy val tyrianDocsVersion  = "0.6.1"
+lazy val tyrianDocsVersion  = "0.6.2"
 lazy val scalaJsDocsVersion = "1.13.0"
 lazy val scalaDocsVersion   = "3.2.2"
 lazy val indigoDocsVersion  = "0.14.0"
@@ -243,6 +243,7 @@ lazy val unidocs =
     .enablePlugins(ScalaJSPlugin, ScalaUnidocPlugin)
     .settings(
       name := "Tyrian",
+      neverPublish,
       ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
         tyrian.jvm,
         indigoSandbox.js,
@@ -298,6 +299,7 @@ lazy val firefoxTests =
     .in(file("tyrian-firefox-tests"))
     .settings(
       name := "tyrian-firefox-tests",
+      neverPublish,
       Test / unmanagedSourceDirectories +=
         (LocalRootProject / baseDirectory).value / "tyrian-browser-tests" / "src" / "test" / "scala",
       commonSettings ++ publishSettings ++ firefoxJsSettings
@@ -312,6 +314,7 @@ lazy val chromeTests =
     .in(file("tyrian-chrome-tests"))
     .settings(
       name := "tyrian-chrome-tests",
+      neverPublish,
       Test / unmanagedSourceDirectories +=
         (LocalRootProject / baseDirectory).value / "tyrian-browser-tests" / "src" / "test" / "scala",
       commonSettings ++ publishSettings ++ chromeJsSettings
