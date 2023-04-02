@@ -108,21 +108,18 @@ lazy val publishSettings = {
 lazy val tyrianProject =
   project
     .in(file("."))
-    .enablePlugins(ScalaUnidocPlugin)
     .settings(
       neverPublish,
       commonSettings,
-      name        := "Tyrian",
-      code        := codeTaskDefinition,
-      copyApiDocs := copyApiDocsTaskDefinition(scala3Version, (Compile / target).value),
+      name := "Tyrian",
+      code := codeTaskDefinition,
+      copyApiDocs := copyApiDocsTaskDefinition(
+        scala3Version,
+        (unidocs / Compile / target).value,
+        (Compile / target).value
+      ),
       usefulTasks := customTasksAliases,
-      logoSettings(version),
-      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-        tyrian.jvm,
-        indigoSandbox.js,
-        sandbox.js,
-        docs
-      )
+      logoSettings(version)
     )
     .aggregate(
       tyrian.js,
@@ -241,6 +238,21 @@ lazy val indigoSandbox =
       scalacOptions -= "-language:strictEquality"
     )
 
+lazy val unidocs =
+  project
+    .enablePlugins(ScalaJSPlugin, ScalaUnidocPlugin)
+    .settings(
+      name := "Tyrian",
+      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
+        tyrian.jvm,
+        indigoSandbox.js,
+        sandbox.js,
+        docs,
+        firefoxTests.js,
+        chromeTests.js
+      )
+    )
+
 lazy val jsdocs =
   project
     .settings(
@@ -325,15 +337,16 @@ addCommandAlias(
   List(
     "clean",
     "docs/clean",
-    "unidoc", // Docs in ./target/scala-3.1.1/unidoc/
-    "copyApiDocs",
-    "docs/mdoc" // Docs in ./indigo/tyrian-docs/target/mdoc
+    "unidocs/unidoc", // Docs in ./target/scala-3.x.x/unidoc/
+    "copyApiDocs",    // Copied to ./target/unidocs/site-docs
+    "docs/mdoc"       // Content docs in ./indigo/tyrian-docs/target/mdoc
   ).mkString(";", ";", "")
 )
 
 addCommandAlias(
   "cleanAll",
   List(
+    "clean",
     "tyrianJS/clean",
     "tyrianJVM/clean",
     "tyrianIO/clean",
