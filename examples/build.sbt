@@ -166,6 +166,18 @@ lazy val nonpm =
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.NoModule) }
     )
 
+lazy val routing =
+  (project in file("routing"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      name := "routing",
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "tyrian-io"   % "0.6.2",
+        "org.scala-js"    %%% "scalajs-dom" % "2.2.0"
+      )
+    )
+
 lazy val subcomponents =
   (project in file("subcomponents"))
     .enablePlugins(ScalaJSPlugin)
