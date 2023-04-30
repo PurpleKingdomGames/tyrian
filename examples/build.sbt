@@ -173,8 +173,8 @@ lazy val routing =
     .settings(
       name := "routing",
       libraryDependencies ++= Seq(
-        "be.doeraene" %%% "url-dsl" % "0.4.0",
-        "org.scala-js"    %%% "scalajs-dom" % "2.2.0"
+        "be.doeraene"  %%% "url-dsl"     % "0.4.0",
+        "org.scala-js" %%% "scalajs-dom" % "2.2.0"
       )
     )
 
