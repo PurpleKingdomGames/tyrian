@@ -232,6 +232,7 @@ lazy val exampleProjects: List[String] =
     // "mainlauncher", // Keep out of main build until 0.7.0 is released
     "mario",
     "nonpm",
+    "routing",
     "subcomponents",
     "websocket",
     "zio"
