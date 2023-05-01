@@ -57,6 +57,8 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
     case Msg.Increment => (model.copy(counter = model.counter + 1), Cmd.None)
     case Msg.Decrement => (model.copy(counter = model.counter - 1), Cmd.None)
     case Msg.Reset     => (model.copy(counter = 0), Cmd.None)
+    case Msg.GoToPage(page) =>
+      (model.copy(page = page), Cmd.SideEffect(dom.window.history.replaceState({}, "TyrianApp", Page.toString(page))))
 
   def viewHome(model: Model): Html[Msg] =
     div(p("Hello from home!"))
@@ -89,15 +91,13 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
     )
 
   def viewNotFound(): Html[Msg] =
-    div(p("Not found the requested page"))
+    div(p("Not found the requested page"), button(onClick(Msg.GoToPage(Page.Home)))("Go Home"))
 
   def viewUserPage(userId: Int): Html[Msg] =
     div(p(s"Welcome at user page with user id: ${userId}"))
 
   def viewUserMaybeAgePage(ageOption: Option[Int]): Html[Msg] =
-    ageOption.fold(div(p("You're so boring...")))(age =>
-      div(p(s"Thanks, you are cool and have $age years!"))
-    )
+    ageOption.fold(div(p("You're so boring...")))(age => div(p(s"Thanks, you are cool and have $age years!")))
 
   def view(model: Model): Html[Msg] =
     model.page match {
@@ -119,9 +119,24 @@ enum Page {
   case UserAgePage(ageOption: Option[Int])
 }
 
+object Page {
+  def toString(p: Page) = p match {
+    case Home             => "/home"
+    case Counter          => "/counter"
+    case UserPage(userId) => s"/id/${userId}"
+    case UserAgePage(ageOption) =>
+      ageOption match {
+        case None      => "/user"
+        case Some(age) => s"/user?age=${age}"
+      }
+    case _ => ???
+  }
+}
+
 case class AppState(page: Page, counter: Int)
 
 type Model = AppState
 
 enum Msg:
   case Increment, Decrement, Reset
+  case GoToPage(p: Page)
