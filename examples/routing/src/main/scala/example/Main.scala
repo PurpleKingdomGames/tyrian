@@ -14,6 +14,7 @@ import urldsl.vocabulary.Segment
 import urldsl.vocabulary.UrlMatching
 
 import scala.scalajs.js.annotation.JSExportTopLevel
+import urldsl.errors.SimpleParamMatchingError
 
 @JSExportTopLevel("TyrianApp")
 object HelloTyrian extends TyrianApp[Msg, Model]:
@@ -104,7 +105,6 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
       div(p(s"Thanks, you are cool and have $age years!"))
     )
 
-
   def view(model: Model): Html[Msg] =
     model.page match {
       case Page.Home             => viewHome(model)
@@ -134,36 +134,50 @@ object Page {
 
   case class SimpleRoute[X, P](
       pathSegment: PathSegment[X, SimplePathMatchingError],
+      notFound: SimplePathMatchingError => P,
       combinator: X => P
   )
 
-  case class ComplexRoute[X, P](
-      pathSegment: PathSegmentWithQueryParams[?, SimplePathMatchingError, X, ?],
-      combinator: UrlMatching[?, X] => P
+  case class ComplexRoute[X, Y, P](
+      pathSegment: PathSegmentWithQueryParams[
+        X,
+        SimplePathMatchingError,
+        Y,
+        SimpleParamMatchingError
+      ],
+      notFound: Either[SimplePathMatchingError, SimpleParamMatchingError] => P,
+      combinator: UrlMatching[X, Y] => P
   )
 
-  def routerFromList(
-      xs: List[SimpleRoute[?, Page] | ComplexRoute[?, Page]],
-      path: String
-  ): Page =
+  def routerFromList[P](
+      path: String,
+      notFound: P,
+      xs: List[SimpleRoute[?, P] | ComplexRoute[?, ?, P]]
+  ): P =
     xs match {
-      case Nil => Page.NotFound
-      case (head: SimpleRoute[?, Page]) :: Nil =>
+      case Nil => notFound
+      case (head: SimpleRoute[?, P]) :: Nil =>
         head.pathSegment
           .matchRawUrl(path)
-          .fold[Page](_ => Page.NotFound, head.combinator(_))
-      case (head: ComplexRoute[?, Page]) :: Nil =>
+          .fold[P](head.notFound(_), head.combinator(_))
+      case (head: ComplexRoute[?, ?, P]) :: Nil =>
         head.pathSegment
           .matchRawUrl(path)
-          .fold[Page](_ => Page.NotFound, head.combinator(_))
-      case (head: SimpleRoute[?, Page]) :: tail =>
+          .fold[P](head.notFound(_), head.combinator(_))
+      case (head: SimpleRoute[?, P]) :: tail =>
         head.pathSegment
           .matchRawUrl(path)
-          .fold[Page](_ => routerFromList(tail, path), head.combinator(_))
-      case (head: ComplexRoute[?, Page]) :: tail =>
+          .fold[P](
+            _ => routerFromList[P](path, notFound, tail),
+            head.combinator(_)
+          )
+      case (head: ComplexRoute[?, ?, P]) :: tail =>
         head.pathSegment
           .matchRawUrl(path)
-          .fold[Page](_ => routerFromList(tail, path), head.combinator(_))
+          .fold[P](
+            _ => routerFromList(path, notFound, tail),
+            head.combinator(_)
+          )
     }
 
   extension (p: Page)
@@ -180,20 +194,27 @@ object Page {
     }
 
   extension (path: String)
-    def getPage(): Page = routerFromList(
+    def getPage(): Page = routerFromList[Page](
+      path = path,
+      Page.NotFound,
       List(
-        SimpleRoute[Unit, Page](homePath, _ => Page.Home),
-        SimpleRoute[Unit, Page](counterPath, _ => Page.Counter),
+        SimpleRoute[Unit, Page](homePath, _ => Page.NotFound, _ => Page.Home),
+        SimpleRoute[Unit, Page](
+          counterPath,
+          _ => Page.NotFound,
+          _ => Page.Counter
+        ),
         SimpleRoute[Int, Page](
           moreComplexPath,
+          _ => Page.NotFound,
           (userId: Int) => Page.UserPage(userId)
         ),
-        ComplexRoute[Option[Int], Page](
+        ComplexRoute[Unit, Option[Int], Page](
           pathWithParam,
+          _ => Page.NotFound,
           { case UrlMatching(_, ageOption) => Page.UserAgePage(ageOption) }
         )
-      ),
-      path
+      )
     )
 
 }
