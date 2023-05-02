@@ -3,6 +3,7 @@ package tyrian
 import cats.effect.IO
 import cats.effect.kernel.Resource
 import cats.effect.unsafe.implicits.global
+import org.scalajs.dom.Element
 import org.scalajs.dom.document
 import tyrian.TyrianAppF
 import tyrian.runtime.TyrianRuntime
@@ -16,3 +17,15 @@ trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
   val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
     _.map(_.start()).useForever.unsafeRunAndForget()
+
+  def ready(node: Element, flags: Map[String, String]): Unit =
+    run(
+      Tyrian.start(
+        node,
+        init(flags),
+        update,
+        view,
+        subscriptions,
+        MaxConcurrentTasks
+      )
+    )

@@ -76,17 +76,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
   def launch(node: Element, flags: Map[String, String]): Unit =
     ready(node, flags)
 
-  def ready(node: Element, flags: Map[String, String]): Unit =
-    run(
-      Tyrian.start(
-        node,
-        init(flags),
-        update,
-        view,
-        subscriptions,
-        MaxConcurrentTasks
-      )
-    )
+  def ready(node: Element, flags: Map[String, String]): Unit
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   private def runReadyOrError(containerId: String, flags: Map[String, String]): Unit =

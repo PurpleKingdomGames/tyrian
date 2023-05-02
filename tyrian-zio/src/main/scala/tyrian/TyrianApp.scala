@@ -4,6 +4,7 @@ import cats.effect.Async
 import cats.effect.kernel.Resource
 import cats.effect.unsafe.implicits.global
 import org.scalajs.dom.document
+import org.scalajs.dom.Element
 import tyrian.TyrianAppF
 import tyrian.runtime.TyrianRuntime
 import zio.Runtime
@@ -24,3 +25,15 @@ trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Mod
     Unsafe.unsafe { implicit unsafe =>
       runtime.unsafe.run(runnable).getOrThrowFiberFailure()
     }
+
+  def ready(node: Element, flags: Map[String, String]): Unit =
+    run(
+      Tyrian.start(
+        node,
+        init(flags),
+        update,
+        view,
+        subscriptions,
+        MaxConcurrentTasks
+      )
+    )
