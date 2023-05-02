@@ -17,7 +17,14 @@ import scala.scalajs.js.annotation.*
 import scalajs.js
 
 @JSExportTopLevel("TyrianApp")
-object Sandbox extends TyrianApp[Msg, Model]:
+object Sandbox extends MultiPage[Msg, Model]:
+
+  val hashResultToMessage: Navigation.Result => Msg = {
+    case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
+    case _                                   => Msg.NavigateTo(Page.Page1)
+  }
+  val hashChangeToMessage: Navigation.Result.HashChange => Msg =
+    hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))
 
   val hotReloadKey: String = "hotreload"
 
@@ -29,10 +36,6 @@ object Sandbox extends TyrianApp[Msg, Model]:
           case Right(model) => Msg.OverwriteModel(model)
         },
         Logger.info(flags.toString),
-        Navigation.getLocationHash {
-          case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
-          case _                                   => Msg.NavigateTo(Page.Page1)
-        },
         LocalStorage.key(0) {
           case LocalStorage.Result.Key(key) => Msg.Log("Found local storage key: " + key)
           case _                            => Msg.Log("No local storage enties found.")
@@ -187,7 +190,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
       (model.copy(tmpSaveData = content), Cmd.None)
 
     case Msg.JumpToHomePage =>
-      (model, Navigation.setLocationHash(Page.Page1.toHash))
+      (model, setLocationHash(Page.Page1.toHash))
 
     case Msg.NavigateTo(page) =>
       (model.copy(page = page), Cmd.None)
@@ -569,7 +572,6 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     Sub.Batch(
       webSocketSubs,
-      Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
       simpleSubs,
       clockSub,
       Sub.animationFrameTick("frametick") { t =>

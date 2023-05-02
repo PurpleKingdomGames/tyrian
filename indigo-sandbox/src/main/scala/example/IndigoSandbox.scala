@@ -3,6 +3,7 @@ package example
 import example.game.MyAwesomeGame
 import org.scalajs.dom.document
 import tyrian.Html.*
+import tyrian.SinglePage
 import tyrian.*
 import tyrian.cmds.Logger
 import tyrian.cmds.Random
@@ -12,7 +13,7 @@ import zio.interop.catz.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
-object IndigoSandbox extends TyrianApp[Msg, Model]:
+object IndigoSandbox extends SinglePage[Msg, Model]:
 
   val gameDivId1: String    = "my-game-1"
   val gameDivId2: String    = "my-game-2"
