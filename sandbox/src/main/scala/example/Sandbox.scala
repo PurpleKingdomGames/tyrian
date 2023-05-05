@@ -19,12 +19,15 @@ import scalajs.js
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends MultiPage[Msg, Model]:
 
-  val hashResultToMessage: Navigation.Result => Msg = {
-    case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
-    case _                                   => Msg.NavigateTo(Page.Page1)
-  }
-  val hashChangeToMessage: Navigation.Result.HashChange => Msg =
-    hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))
+  // Here we just do a simple string match, but this could be a route matching
+  // lib like: https://github.com/sherpal/url-dsl
+  def router: String => Msg =
+    case "/#page2" => Msg.NavigateTo(Page.Page2)
+    case "/#page3" => Msg.NavigateTo(Page.Page3)
+    case "/#page4" => Msg.NavigateTo(Page.Page4)
+    case "/#page5" => Msg.NavigateTo(Page.Page5)
+    case "/#page6" => Msg.NavigateTo(Page.Page6)
+    case _         => Msg.NavigateTo(Page.Page1)
 
   val hotReloadKey: String = "hotreload"
 
@@ -695,21 +698,6 @@ enum Page:
       case Page4 => "#page4"
       case Page5 => "#page5"
       case Page6 => "#page6"
-
-object Page:
-  def fromString(pageString: String): Page =
-    pageString match
-      case "#page2" => Page2
-      case "page2"  => Page2
-      case "#page3" => Page3
-      case "page3"  => Page3
-      case "#page4" => Page4
-      case "page4"  => Page4
-      case "#page5" => Page5
-      case "page5"  => Page5
-      case "#page6" => Page6
-      case "page6"  => Page6
-      case _        => Page1
 
 object Model:
   // val echoServer = "ws://ws.ifelse.io" // public echo server
