@@ -123,6 +123,14 @@ lazy val indigo =
       )
     )
 
+lazy val mainlauncher =
+  (project in file("main-launcher"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "main-launcher",
+      Compile / mainClass := Some("example.Main"),
+      scalaJSUseMainModuleInitializer := true)
+
 lazy val mario =
   (project in file("mario"))
     .enablePlugins(ScalaJSPlugin)
@@ -190,6 +198,7 @@ lazy val exampleProjects: List[String] =
     "http",
     "http4sdom",
     "indigo",
+    "mainlauncher",
     "mario",
     "nonpm",
     "subcomponents",

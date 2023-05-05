@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "parcel index.html --no-cache --dist-dir dist --log-level info",
+    "build": "parcel build index.html --dist-dir dist --log-level info"
+  },
+  "devDependencies": {
+    "parcel": "^2.1.0",
+    "process": "^0.11.10"
+  }
+}
