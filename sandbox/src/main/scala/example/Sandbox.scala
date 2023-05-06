@@ -21,13 +21,17 @@ object Sandbox extends MultiPage[Msg, Model]:
 
   // Here we just do a simple string match, but this could be a route matching
   // lib like: https://github.com/sherpal/url-dsl
-  def router: String => Msg =
-    case "/#page2" => Msg.NavigateTo(Page.Page2)
-    case "/#page3" => Msg.NavigateTo(Page.Page3)
-    case "/#page4" => Msg.NavigateTo(Page.Page4)
-    case "/#page5" => Msg.NavigateTo(Page.Page5)
-    case "/#page6" => Msg.NavigateTo(Page.Page6)
-    case _         => Msg.NavigateTo(Page.Page1)
+  def router: Location => Msg = loc =>
+    loc.pathName match
+      case "/page2" => Msg.NavigateTo(Page.Page2)
+      case "/page3" => Msg.NavigateTo(Page.Page3)
+      case "/page4" => Msg.NavigateTo(Page.Page4)
+      case "/page5" => Msg.NavigateTo(Page.Page5)
+      case "/page6" => Msg.NavigateTo(Page.Page6)
+      case url =>
+        println("Unknown route: " + url)
+        println(loc)
+        Msg.NavigateTo(Page.Page1)
 
   val hotReloadKey: String = "hotreload"
 
@@ -193,10 +197,10 @@ object Sandbox extends MultiPage[Msg, Model]:
       (model.copy(tmpSaveData = content), Cmd.None)
 
     case Msg.JumpToHomePage =>
-      (model, setLocationHash(Page.Page1.toHash))
+      (model, Routing.setLocation(Page.Page1.toUrlPath))
 
     case Msg.NavigateTo(page) =>
-      (model.copy(page = page), Cmd.None)
+      (model.copy(page = page), Routing.setLocation(page.toUrlPath))
 
     case Msg.TakeSnapshot =>
       (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
@@ -300,7 +304,10 @@ object Sandbox extends MultiPage[Msg, Model]:
     val navItems =
       Page.values.toList.map { pg =>
         if pg == model.page then li(style := CSS.`font-family`("sans-serif"))(pg.toNavLabel)
-        else li(style := CSS.`font-family`("sans-serif"))(a(href := pg.toHash)(pg.toNavLabel))
+        else
+          li(style := CSS.`font-family`("sans-serif")) {
+            a(href := "#", onClick(Msg.NavigateTo(pg)))(pg.toNavLabel)
+          }
       }
 
     val counters = model.components.zipWithIndex.map { case (c, i) =>
@@ -690,14 +697,14 @@ enum Page:
       case Page5 => "Http"
       case Page6 => "Form"
 
-  def toHash: String =
+  def toUrlPath: String =
     this match
-      case Page1 => "#page1"
-      case Page2 => "#page2"
-      case Page3 => "#page3"
-      case Page4 => "#page4"
-      case Page5 => "#page5"
-      case Page6 => "#page6"
+      case Page1 => "/page1"
+      case Page2 => "/page2"
+      case Page3 => "/page3"
+      case Page4 => "/page4"
+      case Page5 => "/page5"
+      case Page6 => "/page6"
 
 object Model:
   // val echoServer = "ws://ws.ifelse.io" // public echo server
