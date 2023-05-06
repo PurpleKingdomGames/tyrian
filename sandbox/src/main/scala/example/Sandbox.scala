@@ -13,6 +13,7 @@ import tyrian.websocket.*
 
 import scala.concurrent.duration.*
 import scala.scalajs.js.annotation.*
+import scala.util.Random
 
 import scalajs.js
 
@@ -28,8 +29,8 @@ object Sandbox extends MultiPage[Msg, Model]:
       case "/page4" => Msg.NavigateTo(Page.Page4)
       case "/page5" => Msg.NavigateTo(Page.Page5)
       case "/page6" => Msg.NavigateTo(Page.Page6)
-      case url =>
-        println("Unknown route: " + url)
+      case _ =>
+        println("Unknown route: " + loc.fullPath)
         println(loc)
         Msg.NavigateTo(Page.Page1)
 
@@ -308,7 +309,12 @@ object Sandbox extends MultiPage[Msg, Model]:
           li(style := CSS.`font-family`("sans-serif")) {
             a(href := "#", onClick(Msg.NavigateTo(pg)))(pg.toNavLabel)
           }
-      }
+      } ++
+        List(
+          li(style := CSS.`font-family`("sans-serif")) {
+            a(href := "#foo" + Random.nextInt())("Random link")
+          }
+        )
 
     val counters = model.components.zipWithIndex.map { case (c, i) =>
       Counter.view(c).map(msg => Msg.Modify(i, msg))
