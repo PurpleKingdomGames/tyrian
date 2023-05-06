@@ -17,3 +17,14 @@ trait SinglePage[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
   val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
     _.map(_.start()).useForever.unsafeRunAndForget()
+
+/** The MultiPage trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
+  * as providing a number of standard app launching methods.
+  */
+trait MultiPage[Msg, Model] extends TyrianRoutedAppF[IO, Msg, Model]:
+
+  val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
+    _.map(_.start()).useForever.unsafeRunAndForget()
+
+@deprecated("Please use SinglePage or MultiPage instead of TyrianApp.")
+trait TyrianApp[Msg, Model] extends SinglePage[Msg, Model]

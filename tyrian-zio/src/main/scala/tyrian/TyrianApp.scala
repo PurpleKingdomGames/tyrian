@@ -13,6 +13,19 @@ import zio.Unsafe
 
 import scala.scalajs.js.annotation._
 
+/** The SinglePage trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
+  * as providing a number of standard app launching methods.
+  */
+trait SinglePage[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Model]:
+
+  val run: Resource[Task, TyrianRuntime[Task, Model, Msg]] => Unit = res =>
+    val runtime  = Runtime.default
+    val runnable = res.map(_.start()).useForever
+
+    Unsafe.unsafe { implicit unsafe =>
+      runtime.unsafe.run(runnable).getOrThrowFiberFailure()
+    }
+
 /** The MultiPage trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
@@ -25,3 +38,6 @@ trait MultiPage[Msg, Model](using Async[Task]) extends TyrianRoutedAppF[Task, Ms
     Unsafe.unsafe { implicit unsafe =>
       runtime.unsafe.run(runnable).getOrThrowFiberFailure()
     }
+
+@deprecated("Please use SinglePage or MultiPage instead of TyrianApp.")
+trait TyrianApp[Msg, Model](using Async[Task]) extends SinglePage[Msg, Model]
