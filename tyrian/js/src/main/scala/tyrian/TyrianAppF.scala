@@ -80,6 +80,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     run(
       Tyrian.start(
         node,
+        ???, // TODO
         init(flags),
         update,
         view,

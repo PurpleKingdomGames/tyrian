@@ -3,9 +3,9 @@ package tyrian
 import cats.effect.kernel.Async
 import cats.effect.kernel.Resource
 import org.scalajs.dom.Element
+import org.scalajs.dom.PopStateEvent
 import org.scalajs.dom.document
 import org.scalajs.dom.window
-import tyrian.runtime.TyrianRuntime
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
@@ -17,9 +17,16 @@ trait TyrianRoutedAppF[F[_]: Async, Msg, Model] extends TyrianAppF[F, Msg, Model
 
   def router: Location => Msg
 
+  private def routeCurrentLocation[F[_]: Async, Msg](router: Location => Msg): Cmd[F, Msg] =
+    val task =
+      Async[F].delay {
+        Location.fromJsLocation(window.location)
+      }
+    Cmd.Run(task, router)
+
   private def _init(flags: Map[String, String]): (Model, Cmd[F, Msg]) =
     val (m, cmd) = init(flags)
-    (m, Routing.getLocation[F, Msg](router) |+| cmd)
+    (m, cmd |+| routeCurrentLocation[F, Msg](router))
 
   private def _update(model: Model): Msg => (Model, Cmd[F, Msg]) =
     msg => update(model)(msg)
@@ -34,6 +41,7 @@ trait TyrianRoutedAppF[F[_]: Async, Msg, Model] extends TyrianAppF[F, Msg, Model
     run(
       Tyrian.start(
         node,
+        router,
         _init(flags),
         _update,
         _view,
@@ -44,40 +52,16 @@ trait TyrianRoutedAppF[F[_]: Async, Msg, Model] extends TyrianAppF[F, Msg, Model
 
 object Routing:
 
-  private def jsLocationToLocation(loc: org.scalajs.dom.Location): Location =
-    Location(
-      _url = loc.toString,
-      _hash = loc.hash,
-      _protocol = loc.protocol,
-      _search = loc.search,
-      _href = loc.href,
-      _hostname = loc.hostname,
-      _port = loc.port,
-      _pathname = loc.pathname,
-      _host = loc.host,
-      _origin = loc.origin.toOption
-    )
-
   def onLocationChange[F[_]: Async, Msg](router: Location => Msg): Sub[F, Msg] =
-    def makeMsg = Option(router(jsLocationToLocation(window.location)))
-
+    def makeMsg = Option(router(Location.fromJsLocation(window.location)))
     Sub.Batch(
       Sub.fromEvent("DOMContentLoaded", window)(_ => makeMsg),
       Sub.fromEvent("popstate", window)(_ => makeMsg)
     )
 
-  def getLocation[F[_]: Async, Msg](router: Location => Msg): Cmd[F, Msg] =
-    val task =
-      Async[F].delay {
-        jsLocationToLocation(window.location)
-      }
-    Cmd.Run(task, router)
-
-  private val emptyObj: js.Object = new js.Object
-
   def setLocation[F[_]: Async](newLocation: String): Cmd[F, Nothing] =
     Cmd.SideEffect {
-      window.history.pushState(emptyObj, "", newLocation)
+      window.history.pushState("", "", newLocation)
     }
 
 /** The Location interface represents the location of the object it is linked to. Changes done on it are reflected on
@@ -144,3 +128,34 @@ final case class Location(
     * This property also does not exist consistently on IE, even as new as IE11, hence it must be optional.
     */
   def origin: Option[String] = _origin
+
+object Location:
+
+  // TODO!
+  def fromPath(path: String): Location =
+    Location(
+      _url = "",
+      _hash = "",
+      _protocol = "",
+      _search = "",
+      _href = "",
+      _hostname = "",
+      _port = "",
+      _pathname = path,
+      _host = "",
+      _origin = None
+    )
+
+  def fromJsLocation(loc: org.scalajs.dom.Location): Location =
+    Location(
+      _url = loc.toString,
+      _hash = loc.hash,
+      _protocol = loc.protocol,
+      _search = loc.search,
+      _href = loc.href,
+      _hostname = loc.hostname,
+      _port = loc.port,
+      _pathname = loc.pathname,
+      _host = loc.host,
+      _origin = loc.origin.toOption
+    )

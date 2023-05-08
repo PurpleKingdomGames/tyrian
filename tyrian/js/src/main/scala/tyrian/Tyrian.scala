@@ -45,6 +45,7 @@ object Tyrian:
     */
   def start[F[_]: Async, Model, Msg](
       node: Element,
+      router: Location => Msg,
       init: (Model, Cmd[F, Msg]),
       update: Model => Msg => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
@@ -62,6 +63,7 @@ object Tyrian:
 
       runtime <- Async[F].delay {
         new TyrianRuntime(
+          router,
           initialCmd,
           update,
           view,

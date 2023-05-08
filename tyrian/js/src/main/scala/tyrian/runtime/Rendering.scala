@@ -2,12 +2,14 @@ package tyrian.runtime
 
 import org.scalajs.dom
 import org.scalajs.dom.Element
+import org.scalajs.dom.window
 import snabbdom._
 import snabbdom.modules._
 import tyrian.Attr
 import tyrian.Attribute
 import tyrian.Event
 import tyrian.Html
+import tyrian.Location
 import tyrian.NamedAttribute
 import tyrian.Property
 import tyrian.PropertyBoolean
@@ -15,6 +17,8 @@ import tyrian.PropertyString
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
+
+import scala.scalajs.js
 
 object Rendering:
 
@@ -50,7 +54,50 @@ object Rendering:
       on = events.toMap
     )
 
-  def toVNode[Msg](html: Html[Msg], onMsg: Msg => Unit): VNode =
+  private def interceptHref[Msg](attrs: List[Attr[Msg]]): Boolean =
+    val href = attrs.exists {
+      case Attribute("href", _) => true
+      case _                    => false
+    }
+
+    val onClick = attrs.exists {
+      case Event("click", _, _, _, _) => true
+      case _                          => false
+    }
+
+    href && !onClick
+
+  private def onClickPreventDefault[Msg](
+      attrs: List[Attr[Msg]],
+      onMsg: Msg => Unit,
+      router: Location => Msg
+  ): (String, EventHandler) =
+    val newLocation = attrs.collect { case Attribute("href", loc) =>
+      loc
+    }.headOption
+
+    val callback: dom.Event => Unit = { (e: dom.Event) =>
+
+      e.preventDefault()
+
+      newLocation match
+        case None =>
+          ()
+
+        case Some(loc) =>
+          // Updates the address bar
+          window.history.pushState(new js.Object, "", loc)
+
+          // Invoke the page change
+          onMsg(router(Location.fromPath(loc)))
+
+          ()
+
+    }
+
+    "click" -> EventHandler(callback)
+
+  def toVNode[Msg](html: Html[Msg], onMsg: Msg => Unit, router: Location => Msg): VNode =
     html match
       case RawTag(name, attrs, html) =>
         val data = buildNodeData(attrs, onMsg)
@@ -60,12 +107,28 @@ object Rendering:
         vNode.data = data
         vNode
 
+      // Intercept a tags with an href and no onClick attribute to stop the
+      // browser following links by default.
+      case Tag("a", attrs, children) if interceptHref(attrs) =>
+        val data = buildNodeData(attrs, onMsg)
+        val childrenElem: Array[VNode] =
+          children.toArray.map {
+            case t: Text            => VNode.text(t.value)
+            case subHtml: Html[Msg] => toVNode(subHtml, onMsg, router)
+          }
+
+        h(
+          "a",
+          data.copy(on = data.on + onClickPreventDefault(attrs, onMsg, router)),
+          childrenElem
+        )
+
       case Tag(name, attrs, children) =>
         val data = buildNodeData(attrs, onMsg)
         val childrenElem: Array[VNode] =
           children.toArray.map {
             case t: Text            => VNode.text(t.value)
-            case subHtml: Html[Msg] => toVNode(subHtml, onMsg)
+            case subHtml: Html[Msg] => toVNode(subHtml, onMsg, router)
           }
 
         h(name, data, childrenElem)
@@ -82,7 +145,13 @@ object Rendering:
       )
     )
 
-  def render[Model, Msg](oldNode: Element | VNode, model: Model, view: Model => Html[Msg], onMsg: Msg => Unit): VNode =
+  def render[Model, Msg](
+      oldNode: Element | VNode,
+      model: Model,
+      view: Model => Html[Msg],
+      onMsg: Msg => Unit,
+      router: Location => Msg
+  ): VNode =
     oldNode match
-      case em: Element => patch(em, Rendering.toVNode(view(model), onMsg))
-      case vn: VNode   => patch(vn, Rendering.toVNode(view(model), onMsg))
+      case em: Element => patch(em, Rendering.toVNode(view(model), onMsg, router))
+      case vn: VNode   => patch(vn, Rendering.toVNode(view(model), onMsg, router))

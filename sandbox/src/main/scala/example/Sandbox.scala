@@ -198,10 +198,10 @@ object Sandbox extends MultiPage[Msg, Model]:
       (model.copy(tmpSaveData = content), Cmd.None)
 
     case Msg.JumpToHomePage =>
-      (model, Routing.setLocation(Page.Page1.toUrlPath))
+      (model.copy(page = Page.Page1), Routing.setLocation(Page.Page1.toUrlPath))
 
     case Msg.NavigateTo(page) =>
-      (model.copy(page = page), Routing.setLocation(page.toUrlPath))
+      (model.copy(page = page), Cmd.None)
 
     case Msg.TakeSnapshot =>
       (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
@@ -307,7 +307,7 @@ object Sandbox extends MultiPage[Msg, Model]:
         if pg == model.page then li(style := CSS.`font-family`("sans-serif"))(pg.toNavLabel)
         else
           li(style := CSS.`font-family`("sans-serif")) {
-            a(href := "#", onClick(Msg.NavigateTo(pg)))(pg.toNavLabel)
+            a(href := pg.toUrlPath)(pg.toNavLabel)
           }
       } ++
         List(

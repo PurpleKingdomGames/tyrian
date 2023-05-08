@@ -11,9 +11,11 @@ import org.scalajs.dom.Element
 import snabbdom.VNode
 import tyrian.Cmd
 import tyrian.Html
+import tyrian.Location
 import tyrian.Sub
 
 final class TyrianRuntime[F[_]: Async, Model, Msg](
+    router: Location => Msg,
     initCmd: Cmd[F, Msg],
     update: Model => Msg => (Model, Cmd[F, Msg]),
     view: Model => Html[Msg],
@@ -109,7 +111,7 @@ final class TyrianRuntime[F[_]: Async, Model, Msg](
       Async[F].flatMap(model.get) { m =>
         if m.updated then
           for {
-            _ <- vnode.updateAndGet(n => Rendering.render(n, m.model, view, onMsg))
+            _ <- vnode.updateAndGet(n => Rendering.render(n, m.model, view, onMsg, router))
             _ <- model.set(ModelHolder(m.model, false))
           } yield ()
         else Async[F].unit
