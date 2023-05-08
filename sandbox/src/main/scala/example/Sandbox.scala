@@ -313,6 +313,9 @@ object Sandbox extends MultiPage[Msg, Model]:
         List(
           li(style := CSS.`font-family`("sans-serif")) {
             a(href := "#foo" + Random.nextInt())("Random link")
+          },
+          li(style := CSS.`font-family`("sans-serif")) {
+            a(href := "https://tyrian.indigoengine.io/")("Tyrian's Website")
           }
         )
 
