@@ -22,17 +22,21 @@ object Sandbox extends MultiPage[Msg, Model]:
 
   // Here we just do a simple string match, but this could be a route matching
   // lib like: https://github.com/sherpal/url-dsl
-  def router: Location => Msg = loc =>
-    loc.pathName match
-      case "/page2" => Msg.NavigateTo(Page.Page2)
-      case "/page3" => Msg.NavigateTo(Page.Page3)
-      case "/page4" => Msg.NavigateTo(Page.Page4)
-      case "/page5" => Msg.NavigateTo(Page.Page5)
-      case "/page6" => Msg.NavigateTo(Page.Page6)
-      case _ =>
-        println("Unknown route: " + loc.fullPath)
-        println(loc)
-        Msg.NavigateTo(Page.Page1)
+  def router: Location => Msg =
+    case loc: Location.Internal =>
+      loc.path match
+        case "/page2" => Msg.NavigateTo(Page.Page2)
+        case "/page3" => Msg.NavigateTo(Page.Page3)
+        case "/page4" => Msg.NavigateTo(Page.Page4)
+        case "/page5" => Msg.NavigateTo(Page.Page5)
+        case "/page6" => Msg.NavigateTo(Page.Page6)
+        case _ =>
+          println("Unknown route: " + loc.fullPath)
+          println(loc)
+          Msg.NavigateTo(Page.Page1)
+
+    case loc: Location.External =>
+      Msg.NavigateToUrl(loc.href)
 
   val hotReloadKey: String = "hotreload"
 
@@ -198,10 +202,13 @@ object Sandbox extends MultiPage[Msg, Model]:
       (model.copy(tmpSaveData = content), Cmd.None)
 
     case Msg.JumpToHomePage =>
-      (model.copy(page = Page.Page1), Routing.setLocation(Page.Page1.toUrlPath))
+      (model.copy(page = Page.Page1), Nav.pushUrl(Page.Page1.toUrlPath))
 
     case Msg.NavigateTo(page) =>
       (model.copy(page = page), Cmd.None)
+
+    case Msg.NavigateToUrl(href) =>
+      (model, Nav.loadUrl(href))
 
     case Msg.TakeSnapshot =>
       (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
@@ -615,6 +622,7 @@ enum Msg:
   case ClearStorage(key: String)
   case DataLoaded(data: String)
   case NavigateTo(page: Page)
+  case NavigateToUrl(href: String)
   case JumpToHomePage
   case OverwriteModel(model: Model)
   case TakeSnapshot

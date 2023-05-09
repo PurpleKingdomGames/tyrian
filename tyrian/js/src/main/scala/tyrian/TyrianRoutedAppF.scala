@@ -35,7 +35,7 @@ trait TyrianRoutedAppF[F[_]: Async, Msg, Model] extends TyrianAppF[F, Msg, Model
     view(model)
 
   private def _subscriptions(model: Model): Sub[F, Msg] =
-    Routing.onLocationChange[F, Msg](router) |+| subscriptions(model)
+    Routing.onUrlChange[F, Msg](router) |+| subscriptions(model)
 
   override def ready(node: Element, flags: Map[String, String]): Unit =
     run(
@@ -52,110 +52,125 @@ trait TyrianRoutedAppF[F[_]: Async, Msg, Model] extends TyrianAppF[F, Msg, Model
 
 object Routing:
 
-  def onLocationChange[F[_]: Async, Msg](router: Location => Msg): Sub[F, Msg] =
+  def onUrlChange[F[_]: Async, Msg](router: Location => Msg): Sub[F, Msg] =
     def makeMsg = Option(router(Location.fromJsLocation(window.location)))
     Sub.Batch(
       Sub.fromEvent("DOMContentLoaded", window)(_ => makeMsg),
       Sub.fromEvent("popstate", window)(_ => makeMsg)
     )
 
-  def setLocation[F[_]: Async](newLocation: String): Cmd[F, Nothing] =
+object Nav:
+
+  def pushUrl[F[_]: Async](url: String): Cmd[F, Nothing] =
     Cmd.SideEffect {
-      window.history.pushState("", "", newLocation)
+      window.history.pushState("", "", url)
     }
 
-/** The Location interface represents the location of the object it is linked to. Changes done on it are reflected on
-  * the object it relates to. Both the Document and Window interface have such a linked Location, accessible via
-  * Document.location and Window.location respectively.
-  *
-  * This `Location` type is mostly a paired back version of Scala.js's: org.scalajs.dom.Location, right down to the
-  * scaladocs! However, field names have been changed to camel case to be more Scala consitent, and additional fields
-  * `url` and `fullPath` have been added for convenience.
-  */
-final case class Location(
-    private val _url: String,
-    private val _hash: String,
-    private val _protocol: String,
-    private val _search: String,
-    private val _href: String,
-    private val _hostname: String,
-    private val _port: String,
-    private val _pathname: String,
-    private val _host: String,
-    private val _origin: Option[String]
-):
-  /** Is a String of the full rendered url address. */
-  val url: String = _url
+  def loadUrl[F[_]: Async](href: String): Cmd[F, Nothing] =
+    Cmd.SideEffect {
+      window.location.href = href
+    }
+
+trait LocationDetails:
 
   /** Is a String of the full rendered url address, minus the origin. e.g. /my-page?id=12#anchor */
-  val fullPath: String =
-    _origin match
+  def fullPath: String =
+    origin match
       case None =>
-        _url
+        href
 
       case Some(o) =>
-        _url.replaceFirst(o, "")
+        href.replaceFirst(o, "")
 
-  /** Is a String containing a '#' followed by the fragment identifier of the URL. */
-  val hash: String = _hash
+  /** The anchor in the url starting with '#' followed by the fragment of the URL. */
+  def hash: Option[String]
 
-  /** Is a String containing the protocol scheme of the URL, including the final ':'. */
-  val protocol: String = _protocol
+  /** The protocol e.g. https:// */
+  def protocol: Option[String]
 
   /** Is a String containing a '?' followed by the parameters of the URL. */
-  val search: String = _search
+  def search: Option[String]
 
-  /** Is a String containing the whole URL. */
-  val href: String = _href
+  /** The whole URL. */
+  def href: String =
+    origin.getOrElse("") + path + hash.getOrElse("") + search.getOrElse("")
 
-  /** Is a String containing the domain of the URL. */
-  val hostName: String = _hostname
+  /** The whole URL. */
+  def url: String = href
 
-  /** Is a String containing the port number of the URL. */
-  val port: String = _port
+  /** The name of host, e.g. localhost. */
+  def hostName: Option[String]
 
-  /** Is a String containing an initial '/' followed by the path of the URL. */
-  val pathName: String = _pathname
+  /** Is the port number of the URL, e.g. 80. */
+  def port: Option[String]
 
-  /** Is a String containing the host, that is the hostname, a ':', and the port of the URL. */
-  val host: String = _host
+  /** Is the path minus hash anchors and query params, e.g. "/page1". */
+  def path: String
 
-  /** The origin read-only property is a String containing the Unicode serialization of the origin of the represented
-    * URL, that is, for http and https, the scheme followed by '://', followed by the domain, followed by ':', followed
-    * by the port (the default port, 80 and 443 respectively, if explicitly specified). For URL using file: scheme, the
-    * value is browser dependant.
-    *
-    * This property also does not exist consistently on IE, even as new as IE11, hence it must be optional.
-    */
-  def origin: Option[String] = _origin
+  /** The host, e.g. localhost:8080. */
+  def host: Option[String] =
+    for {
+      h <- hostName
+      p <- port
+    } yield s"$h:$p"
+
+  /** The origin, e.g. http://localhost:8080. */
+  def origin: Option[String] = 
+    for {
+      pr <- protocol
+      ht <- host
+    } yield pr + ht
+
+enum Location:
+
+  case Internal(
+      hash: Option[String],
+      hostName: Option[String],
+      path: String,
+      port: Option[String],
+      protocol: Option[String],
+      search: Option[String]
+  ) extends Location with LocationDetails
+
+  case External(
+      hash: Option[String],
+      hostName: Option[String],
+      path: String,
+      port: Option[String],
+      protocol: Option[String],
+      search: Option[String]
+  ) extends Location with LocationDetails
 
 object Location:
 
-  // TODO!
-  def fromPath(path: String): Location =
-    Location(
-      _url = "",
-      _hash = "",
-      _protocol = "",
-      _search = "",
-      _href = "",
-      _hostname = "",
-      _port = "",
-      _pathname = path,
-      _host = "",
-      _origin = None
-    )
+  extension (s: String) def optional: Option[String] = if s.isEmpty then None else Option(s)
 
-  def fromJsLocation(loc: org.scalajs.dom.Location): Location =
-    Location(
-      _url = loc.toString,
-      _hash = loc.hash,
-      _protocol = loc.protocol,
-      _search = loc.search,
-      _href = loc.href,
-      _hostname = loc.hostname,
-      _port = loc.port,
-      _pathname = loc.pathname,
-      _host = loc.host,
-      _origin = loc.origin.toOption
+  // TODO!
+  def fromUrl(path: String): Location =
+    fromUnknownUrl(path, fromJsLocation(window.location))
+
+  def fromUnknownUrl(path: String, currentLocation: Location.Internal): Location =
+    ???
+    // Location.Internal(
+    //   hash = location.hash.optional,
+    //   host = location.host.optional,
+    //   hostName = location.hostname.optional,
+    //   href = location.href,
+    //   origin = location.origin.toOption,
+    //   path = location.pathname,
+    //   port = location.port.optional,
+    //   protocol = location.protocol.optional,
+    //   search = location.search.optional
+    // )
+
+  /** Location instances created from JS Location's are assumed to be internal links.
+    */
+  def fromJsLocation(location: org.scalajs.dom.Location): Location.Internal =
+    Location.Internal(
+      hash = location.hash.optional,
+      hostName = location.hostname.optional,
+      path = location.pathname,
+      port = location.port.optional,
+      protocol = location.protocol.optional,
+      search = location.search.optional
     )

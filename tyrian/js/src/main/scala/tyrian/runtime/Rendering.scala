@@ -89,7 +89,7 @@ object Rendering:
           window.history.pushState(new js.Object, "", loc)
 
           // Invoke the page change
-          onMsg(router(Location.fromPath(loc)))
+          onMsg(router(Location.fromUrl(loc)))
 
           ()
 
