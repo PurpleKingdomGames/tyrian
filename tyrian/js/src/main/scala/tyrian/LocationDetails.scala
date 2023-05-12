@@ -16,17 +16,26 @@ object LocationDetails:
   private val urlDataMatch = """^(data\:)(.*)?""".r
   private val urlMatch     = """^([a-z]+\:)(\/+)?([a-zA-Z0-9-\.\@]+)(:)?([0-9]+)?(\/.*)?""".r
 
-
+  private val pathMatchAll    = """(.*)(\?.*)(#.*)""".r
+  private val pathMatchHash   = """(.*)(#.*)""".r
+  private val pathMatchSearch = """(.*)(\?.*)""".r
 
   private def parsePath(path: String): LocationPathDetails =
     path match
       case "" =>
         LocationPathDetails(path, None, None)
 
-      // TODO
+      case pathMatchAll(path, search, hash) =>
+        LocationPathDetails(path, Option(search), Option(hash))
 
-      case pathOnly =>
-        LocationPathDetails(pathOnly, None, None)
+      case pathMatchHash(path, hash) =>
+        LocationPathDetails(path, None, Option(hash))
+
+      case pathMatchSearch(path, search) =>
+        LocationPathDetails(path, Option(search), None)
+
+      case _ =>
+        LocationPathDetails(path, None, None)
 
   def fromUrl(url: String): LocationDetails =
     url match
