@@ -1,18 +1,24 @@
 package tyrian.http
 
 import cats.effect.kernel.Async
+import cats.implicits.*
+import org.scalajs.dom
+import org.scalajs.dom.HttpMethod
+import org.scalajs.dom.RequestInit
 import org.scalajs.dom.XMLHttpRequest
+import org.scalajs.dom.fetch
 import tyrian.Cmd
 
 import scala.annotation.targetName
+import scala.scalajs.js
 import scala.util.Try
 
 /** Send HTTP requests as a command */
 object Http:
 
-  private enum Connection:
-    case Handler(xhr: XMLHttpRequest)
-    case Error(e: HttpError)
+  case object TimeoutException                      extends Throwable
+  case object NetworkErrorException                 extends Throwable
+  case class UnknownErrorException(message: String) extends Throwable
 
   /** Send an HTTP request.
     * @param request
@@ -28,66 +34,80 @@ object Http:
     * @return
     *   A Cmd that describes the HTTP request
     */
-  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
   def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: Decoder[Msg]): Cmd[F, Msg] =
-    val task: F[Connection] =
-      Async[F].async_ { callback =>
-        val xhr = new XMLHttpRequest
 
-        try {
-          xhr.timeout = request.timeout.toMillis.toDouble
-          xhr.withCredentials = request.withCredentials
-          xhr.open(request.method.asString, request.url)
-          xhr.onload = _ => callback(Right(Connection.Handler(xhr)))
-          xhr.onerror = _ => callback(Right(Connection.Error(HttpError.NetworkError)))
-          xhr.ontimeout = _ => callback(Right(Connection.Error(HttpError.Timeout)))
+    def fetchTask(abortController: dom.AbortController): F[dom.Response] = Async[F].async_ { callback =>
 
-          request.headers.foreach(h => xhr.setRequestHeader(h.name, h.value))
-          request.body match
-            case Body.Empty =>
-              xhr.send(null)
+      val requestInit = new RequestInit {}
+      val headers     = new dom.Headers()
 
-            case Body.PlainText(contentType, body) =>
-              xhr.setRequestHeader("Content-Type", contentType)
-              xhr.send(body)
+      requestInit.method = request.method.asString.asInstanceOf[HttpMethod]
+      requestInit.credentials = request.credentials.asString.asInstanceOf[dom.RequestCredentials]
+      requestInit.signal = abortController.signal
+      requestInit.cache = request.cache.asString.asInstanceOf[dom.RequestCache]
+      request.headers.foreach(h => headers.append(h.name, h.value))
 
-        } catch {
-          case e: Throwable => callback(Left(e))
-        }
-      }
+      (request.body, request.method) match
+        case (Body.PlainText(contentType, body), method) if !Set(Method.Get, Method.Head).contains(method) =>
+          headers.append("Content-Type", contentType)
+          requestInit.body = body
+        case _ =>
 
-    val withResponse = Async[F].map(task) {
-      case Connection.Error(e) =>
-        resultToMessage.withError(e)
+      requestInit.headers = headers
 
-      case Connection.Handler(xhr) =>
-        resultToMessage.withResponse(
-          Response(
-            url = request.url,
-            status = Status(xhr.status, xhr.statusText),
-            headers = parseHeaders(xhr.getAllResponseHeaders()),
-            body = xhr.responseText
-          )
-        )
+      fetch(request.url, requestInit)
+        .`then`(response => callback(Right(response)))
+        .`catch`(error => callback(Left(errorToThrowable(error))))
+    }
+    def textBodyTask(domResponse: dom.Response): F[String] = Async[F].async_ { callback =>
+      domResponse
+        .text()
+        .`then`(text => callback(Right(text)))
+        .`catch`(error => callback(Left(errorToThrowable(error))))
     }
 
-    val withTimeout =
-      Async[F].timeoutTo(
-        withResponse,
+    val fullTask = (for {
+      abortController <- Async[F].delay(new dom.AbortController())
+      domResponse <- Async[F].timeoutTo(
+        fetchTask(abortController),
         request.timeout,
-        Async[F].delay(resultToMessage.withError(HttpError.Timeout))
+        Async[F].delay(abortController.abort()) >> Async[F].raiseError(TimeoutException)
       )
+      textBody <- textBodyTask(domResponse)
+    } yield resultToMessage.withResponse(
+      Response(
+        url = request.url,
+        status = Status(domResponse.status, domResponse.statusText),
+        headers = parseHeaders(domResponse.headers),
+        body = textBody
+      )
+    )).recover {
+      case _: TimeoutException.type =>
+        resultToMessage.withError(HttpError.Timeout)
+      case _: NetworkErrorException.type =>
+        resultToMessage.withError(HttpError.NetworkError)
+      case UnknownErrorException(message) =>
+        resultToMessage.withError(HttpError.BadRequest(message))
+    }
 
-    Cmd.Run(withTimeout, identity)
+    Cmd.Run(fullTask, identity)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.noValPatterns"))
-  private def parseHeaders(headers: String): Map[String, String] =
+  private def parseHeaders(headers: dom.Headers): Map[String, String] =
     headers
-      .split("[\\u000d\\u000a]+")
+      .map(_.toString())
       .flatMap(h =>
         Try {
-          val Array(fst, scd) = h.split(":").map(_.trim()).slice(0, 2)
+          val Array(fst, scd) = h.split(",").map(_.trim()).slice(0, 2)
           (fst, scd)
         }.toOption
       )
       .toMap
+
+  private def errorToThrowable(error: Any): Throwable =
+    error match {
+      case e: js.Error if e.name == "NetworkError"                                      => NetworkErrorException
+      case e: js.Error if e.name == "TypeError" && e.message.startsWith("NetworkError") => NetworkErrorException
+      case e: js.Error => UnknownErrorException(e.message)
+      case e           => UnknownErrorException(e.toString())
+    }

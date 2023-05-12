@@ -19,7 +19,7 @@ The TEA Pattern is about:
 3. Uni-directional data flow.
 4. Strictly ordered events and updates.
 
-This gives you a system that is very easy it reason about, since the data cannot (or is unlikely to) be subject to hard-to-test race conditions or side effects, and everything happens in a predictable order.
+This gives you a system that is very easy to reason about, since the data cannot (or is unlikely to) be subject to hard-to-test race conditions or side effects, and everything happens in a predictable order.
 
 The purity of the system, the way that the state is held apart from the processing and rendering functions, also allows for easy testing without the need for complex mocking.
 

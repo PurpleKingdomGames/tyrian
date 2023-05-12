@@ -11,10 +11,13 @@ object AttributeGen {
           else "value.toString"
         })
       |
-      |  final class PropertyName$typ(name: String):
-      |    def :=(value: $typ): Property = Property(name.toString, ${
-          if (typ == "String") "value" else "value.toString"
-        })
+      |""".stripMargin
+    }.mkString
+
+  def generatePropertyNameTypes: String =
+    List("String", "Boolean").map { typ =>
+      s"""  final class PropertyName$typ(name: String):
+      |    def :=(value: $typ): Property$typ = Property$typ(name.toString, value)
       |
       |""".stripMargin
     }.mkString
@@ -22,10 +25,10 @@ object AttributeGen {
   def genAttributesAndProperties: String =
     s"""  def attribute(name: String, value: String): Attr[Nothing]  = Attribute(name, value)
     |  def attributes(as: (String, String)*): List[Attr[Nothing]] = as.toList.map(p => Attribute(p._1, p._2))
-    |  def property(name: String, value: String): Attr[Nothing]   = Property(name, value)
-    |  def properties(ps: (String, String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
+    |  def property(name: String, value: Boolean | String): Attr[Nothing]   = Property(name, value)
+    |  def properties(ps: (String, Boolean | String)*): List[Attr[Nothing]] = ps.toList.map(p => Property(p._1, p._2))
     |
-    |  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Attr[M] = Event(name, msg)
+    |  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Event[E, M] = Event(name, msg)
     |""".stripMargin
 
   def genAttr(tag: AttributeType, isAttribute: Boolean): String =
@@ -74,12 +77,12 @@ object AttributeGen {
     }
     eventType match {
       case Some(evt) =>
-        s"""  def $attrName[M](msg: Tyrian.$evt => M): Attr[M] = onEvent("$attr", msg)
+        s"""  def $attrName[M](msg: Tyrian.$evt => M): Event[Tyrian.$evt, M] = onEvent("$attr", msg)
         |
         |""".stripMargin
 
       case None =>
-        s"""  def $attrName[M](msg: M): Attr[M] = onEvent("$attr", (_: Tyrian.Event) => msg)
+        s"""  def $attrName[M](msg: M): Event[Tyrian.Event, M] = onEvent("$attr", (_: Tyrian.Event) => msg)
         |
         |""".stripMargin
     }
@@ -110,6 +113,7 @@ object AttributeGen {
 
         val contents: String =
           generateAttributeNameTypes +
+            generatePropertyNameTypes +
             genAttributesAndProperties +
             "\n\n  // Attributes\n\n" +
             attrs.map(a => genAttr(a, true)).mkString +
@@ -140,7 +144,7 @@ object AttributeGen {
       NoValue("autoPlay"),
       NoValue("autoplay"),
       Normal("charset"),
-      NoValue("checked"),
+      NoValue("checked"), // property
       Normal("cite"),
       Normal("`class`", "class"),
       Normal("cls", "class"),
@@ -209,7 +213,7 @@ object AttributeGen {
       EventEmitting("onBlur"),
       EventEmitting("onCanPlay"),
       EventEmitting("onCanPlayThrough"),
-      EventEmitting("onChange", "change"),
+      // EventEmitting("onChange", "change"), // Provided manually as it doesn't fit the pattern
       EventEmitting("onClick", "click"),
       EventEmitting("onContextMenu"),
       EventEmitting("onCopy"),
@@ -298,7 +302,7 @@ object AttributeGen {
       Normal("rowspan").withTypes("String", "Int"),
       NoValue("sandbox"),
       Normal("scope"),
-      NoValue("selected"),
+      NoValue("selected"), // property
       Normal("shape"),
       Normal("size").withTypes("String", "Int"),
       Normal("sizes"),
@@ -332,7 +336,10 @@ object AttributeGen {
 
   def htmlProps: List[Normal] =
     List(
-      Normal("value").withTypes("String", "Double", "Boolean")
+      Normal("checked").withTypes("Boolean"),
+      Normal("indeterminate").withTypes("Boolean"),
+      Normal("selected").withTypes("Boolean"),
+      Normal("value").withTypes("String")
     )
 
   def svgAttrs: List[AttributeType] = List(

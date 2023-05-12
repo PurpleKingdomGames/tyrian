@@ -22,25 +22,30 @@ object Misc {
     run.!
   }
 
-  def copyApiDocsTaskDefinition(scalaVersion: String, file: File): Unit = {
+  def copyApiDocsTaskDefinition(scalaVersion: String, fromFileTarget: File, toFileTarget: File): Unit = {
+    val fromTargetPath = fromFileTarget.getCanonicalFile().toString()
+    val toTargetPath   = toFileTarget.getCanonicalFile().toString()
 
-    println(s"Copy docs from 'target/scala-$scalaVersion/unidoc' to 'target/scala-$scalaVersion/site-docs/api'")
+    println(
+      s"Copy docs from '$fromTargetPath/scala-$scalaVersion/unidoc' to '$toTargetPath/unidocs/site-docs/api'"
+    )
 
-    val src = file / s"scala-$scalaVersion" / "unidoc"
-    val dst = file / s"scala-$scalaVersion" / "site-docs" / "api"
+    val src = fromFileTarget / s"scala-$scalaVersion" / "unidoc"
+    val dst = toFileTarget / s"unidocs" / "site-docs" / "api"
 
     IO.copyDirectory(src, dst)
   }
 
   lazy val customTasksAliases = Seq(
-    UsefulTask("a", "cleanAll", "Clean all (JS + JVM)"),
-    UsefulTask("b", "compileAll", "Compile all (JS + JVM)"),
-    UsefulTask("c", "testAll", "Test all (JS + JVM)"),
-    UsefulTask("d", "localPublish", "Locally publish the core modules (JS + JVM)"),
-    UsefulTask("e", "sandboxBuild", "Build the sandbox project"),
-    UsefulTask("f", "indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
-    UsefulTask("g", "gendocs", "Rebuild the API and markdown docs"),
-    UsefulTask("h", "code", "Launch VSCode")
+    UsefulTask("cleanAll", "Clean all (JS + JVM)"),
+    UsefulTask("compileAll", "Compile all (JS + JVM)"),
+    UsefulTask("testAll", "Test all (JS + JVM)"),
+    UsefulTask("localPublish", "Locally publish the core modules (JS + JVM)"),
+    UsefulTask("sandboxBuild", "Build the sandbox project"),
+    UsefulTask("indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
+    UsefulTask("gendocs", "Rebuild the API and markdown docs"),
+    UsefulTask("code", "Launch VSCode"),
+    UsefulTask("scalafmtCheckAll", "")
   )
 
   def logoSettings(version: SettingKey[String]): Seq[Def.Setting[String]] = {

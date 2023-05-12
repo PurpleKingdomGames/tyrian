@@ -3,8 +3,22 @@ import scala.sys.process._
 
 object CSSGen {
 
-  def genCssProp(name: String): String =
-    s"""  def `$name`(value: String): Style = Style("$name", value)"""
+  def genCssProp(name: String): String = {
+    val cssProp = s"""  def `$name`(value: String): Style = Style("$name", value)"""
+    if (!name.contains("-") || name.contains("@")) { 
+      cssProp
+    } else {
+      val nameCC: String = name.split("-").toList match {
+        case Nil =>
+  	  throw new Exception(s"CSS property '$name' was unexpectedly empty")
+        case head :: tail =>
+  	  (head :: tail.map(_.capitalize)).mkString
+      }
+      s"""$cssProp 
+      |  def ${nameCC}(value: String): Style = Style("$name", value)
+      |""".stripMargin
+    }
+  }
 
   def template(moduleName: String, fullyQualifiedPath: String, contents: String): String =
     s"""package $fullyQualifiedPath

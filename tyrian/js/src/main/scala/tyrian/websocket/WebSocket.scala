@@ -19,7 +19,7 @@ import scala.concurrent.duration.*
 final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
   /** Disconnect from this WebSocket */
   def disconnect[Msg]: Cmd[F, Msg] =
-    Cmd.SideEffect(Async[F].delay(liveSocket.socket.close(1000, "Graceful shutdown")) *> liveSocket.closeChannel)
+    Cmd.SideEffect(Async[F].delay(liveSocket.socket.close(1000, "Graceful shutdown")))
 
   /** Publish a message to this WebSocket */
   def publish[Msg](message: String): Cmd[F, Msg] =
@@ -33,8 +33,7 @@ final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
 /** The running instance of the WebSocket */
 final class LiveSocket[F[_]: Async](
     val socket: dom.WebSocket,
-    val subs: Sub[F, WebSocketEvent],
-    val closeChannel: F[Unit]
+    val subs: Sub[F, WebSocketEvent]
 )
 
 enum WebSocketReadyState derives CanEqual:
@@ -125,17 +124,14 @@ object WebSocket:
             val msg =
               try e.asInstanceOf[dom.ErrorEvent].message
               catch { case _: Throwable => "Unknown" }
-            dispatcher.unsafeRunAndForget(
-              channel.send(WebSocketEvent.Error(msg)) *>
-                close.start // can't close the dispatcher from the dispatcher, so we start a new fiber
-            )
+            dispatcher.unsafeRunAndForget(channel.send(WebSocketEvent.Error(msg)))
           }
 
           val closeListener = Functions.fun { e =>
             val ev = e.asInstanceOf[dom.CloseEvent]
             dispatcher.unsafeRunAndForget(
               channel.send(WebSocketEvent.Close(ev.code, ev.reason)) *>
-                close.start // ditto
+                close.start // can't close the dispatcher from the dispatcher, so we start a new fiber
             )
           }
 
@@ -164,7 +160,7 @@ object WebSocket:
               keepAlive.run
             )
 
-          LiveSocket(socket, subs, close)
+          LiveSocket(socket, subs)
         }
     }
 

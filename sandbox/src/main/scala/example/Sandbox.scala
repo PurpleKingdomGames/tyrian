@@ -45,11 +45,82 @@ object Sandbox extends TyrianApp[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.AddFruit =>
+      (model.copy(fruit = Fruit(model.fruitInput, false) :: model.fruit), Cmd.None)
+
+    case Msg.UpdateFruitInput(input) =>
+      (model.copy(fruitInput = input), Cmd.None)
+
+    case Msg.ToggleFruitAvailability(name) =>
+      (
+        model.copy(fruit = model.fruit.map { fruit =>
+          if fruit.name == name then fruit.copy(available = !fruit.available)
+          else fruit
+        }),
+        Cmd.None
+      )
+
+    case Msg.NewFlavour(f) =>
+      (model.copy(flavour = Option(f)), Cmd.None)
+
     case Msg.MouseMove(to) =>
       (model.copy(mousePosition = to), Cmd.None)
 
     case Msg.UpdateHttpDetails(newUrl) =>
       (model.copy(http = model.http.copy(url = Option(newUrl))), Cmd.None)
+
+    case Msg.UpdateHttpBody(newBody) =>
+      (model.copy(http = model.http.copy(body = newBody)), Cmd.None)
+
+    case Msg.UpdateHttpMethod(newMethod) =>
+      val method = newMethod match {
+        case "get"     => Method.Get
+        case "post"    => Method.Post
+        case "put"     => Method.Put
+        case "patch"   => Method.Patch
+        case "delete"  => Method.Delete
+        case "options" => Method.Options
+        case "head"    => Method.Head
+      }
+
+      (model.copy(http = model.http.copy(method = method)), Cmd.None)
+
+    case Msg.UpdateHttpCredentials(newCredentials) =>
+      val credentials = newCredentials match {
+        case "omit"        => RequestCredentials.Omit
+        case "same-origin" => RequestCredentials.SameOrigin
+        case "include"     => RequestCredentials.Include
+      }
+      (model.copy(http = model.http.copy(credentials = credentials)), Cmd.None)
+
+    case Msg.UpdateHttpTimeout(newTimeout) =>
+      (model.copy(http = model.http.copy(timeout = newTimeout.toDouble)), Cmd.None)
+
+    case Msg.UpdateHeaderKey(headerIndex, key) =>
+      val newHeader = model.http.headers(headerIndex).copy(_1 = key)
+      (model.copy(http = model.http.copy(headers = model.http.headers.updated(headerIndex, newHeader))), Cmd.None)
+
+    case Msg.UpdateHeaderValue(headerIndex, value) =>
+      val newHeader = model.http.headers(headerIndex).copy(_2 = value)
+      (model.copy(http = model.http.copy(headers = model.http.headers.updated(headerIndex, newHeader))), Cmd.None)
+
+    case Msg.UpdateHeaderAdd =>
+      (model.copy(http = model.http.copy(headers = model.http.headers :+ ("", ""))), Cmd.None)
+
+    case Msg.UpdateHeaderRemove(headerIndex) =>
+      val headers = model.http.headers.patch(headerIndex, Nil, 1)
+      (model.copy(http = model.http.copy(headers = headers)), Cmd.None)
+
+    case Msg.UpdateHttpCache(newCache) =>
+      val cache = newCache match {
+        case "default"        => RequestCache.Default
+        case "no-store"       => RequestCache.NoStore
+        case "reload"         => RequestCache.Reload
+        case "no-cache"       => RequestCache.NoCache
+        case "force-cache"    => RequestCache.ForceCache
+        case "only-if-cached" => RequestCache.OnlyIfCached
+      }
+      (model.copy(http = model.http.copy(cache = cache)), Cmd.None)
 
     case Msg.MakeHttpRequest =>
       val cmd: Cmd[IO, Msg] =
@@ -59,9 +130,17 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
           case Some(url) =>
             Cmd.Batch(
-              Logger.info("Making request to: " + url),
+              Logger.info(s"Making ${model.http.method.asString} request to: $url"),
               Http.send(
-                Request(Method.Get, url),
+                Request(
+                  model.http.method,
+                  model.http.headers.map(h => Header(h._1, h._2)),
+                  url,
+                  Body.json(model.http.body),
+                  model.http.timeout.millis,
+                  model.http.credentials,
+                  model.http.cache
+                ),
                 Decoder(
                   Msg.GotHttpResult(_),
                   e => Msg.GotHttpError(e.toString)
@@ -234,8 +313,37 @@ object Sandbox extends TyrianApp[Msg, Model]:
     val contents =
       model.page match
         case Page.Page1 =>
+          val checkboxes =
+            model.fruit.map { fruit =>
+              Html.span(
+                label(fruit.name),
+                input(
+                  typ     := "checkbox",
+                  checked := fruit.available,
+                  onChange(_ => Msg.ToggleFruitAvailability(fruit.name))
+                )
+              )
+            }
+
           div(onMouseMove(evt => Msg.MouseMove((evt.screenX.toInt, evt.screenY.toInt))))(
+            div(
+              input(id := "fruitName", onInput(s => Msg.UpdateFruitInput(s))),
+              button(onClick(Msg.AddFruit))(
+                text("Add Fruit")
+              ),
+              div(checkboxes)
+            ),
             div(id := "mousepos")().innerHtml(s"<p><i>Mouse Coords ${model.mousePosition}</i></p>"),
+            label(
+              p("Choose an ice cream flavour:"),
+              select(cls := "ice-cream", name := "ice-cream", onChange(Msg.NewFlavour(_)))(
+                option(value := "")("Select One ..."),
+                option(value := "chocolate")("Chocolate"),
+                option(value := "sardine")("Sardine"),
+                option(value := "vanilla")("Vanilla")
+              )
+            ),
+            p(model.flavour.map(f => s"You like $f").getOrElse("Pick a flavour...")),
             input(
               placeholder := "What should we save?",
               value       := model.tmpSaveData,
@@ -310,39 +418,99 @@ object Sandbox extends TyrianApp[Msg, Model]:
         case Page.Page5 =>
           val status  = model.http.response.map(r => r.status.toString).getOrElse("..")
           val headers = model.http.response.map(r => r.headers.toList.mkString("[", ", ", "]")).getOrElse("..")
-          val body    = model.http.response.map(r => r.body.take(30)).getOrElse("..")
+          val body    = model.http.response.map(r => r.body).getOrElse("..")
           val error   = model.http.error.map(e => "Error: " + e).getOrElse("Success!")
 
           div(
-            input(
-              placeholder := "enter a url",
-              value       := model.http.url.getOrElse(""),
-              onInput(s => Msg.UpdateHttpDetails(s))
+            div(
+              text("Method: "),
+              select(cls := "http-method", name := "http-method", onChange(Msg.UpdateHttpMethod(_)))(
+                option(value := "get")("GET"),
+                option(value := "post")("POST"),
+                option(value := "put")("PUT"),
+                option(value := "delete")("DELETE"),
+                option(value := "patch")("PATCH"),
+                option(value := "head")("HEAD")
+              )
+            ),
+            div(
+              text("URL: "),
+              input(
+                placeholder := "enter a url",
+                value       := model.http.url.getOrElse(""),
+                onInput(s => Msg.UpdateHttpDetails(s))
+              )
+            ),
+            div(
+              text("Body: "),
+              input(
+                placeholder := "request body",
+                value       := model.http.body,
+                disabled(Set(Method.Get, Method.Head).contains(model.http.method)),
+                onInput(s => Msg.UpdateHttpBody(s))
+              )
+            ),
+            div(
+              text("Timeout: "),
+              input(
+                placeholder := "timeout",
+                value       := model.http.timeout.toString,
+                onInput(s => Msg.UpdateHttpTimeout(s))
+              )
+            ),
+            div(
+              text("Credentials: "),
+              select(cls := "http-credentials", name := "http-credentials", onChange(Msg.UpdateHttpCredentials(_)))(
+                option(value := "same-origin")("same-origin"),
+                option(value := "omit")("omit"),
+                option(value := "include")("include")
+              )
+            ),
+            div(
+              div(
+                text("Headers: "),
+                button(onClick(Msg.UpdateHeaderAdd))(text("+"))
+              ),
+              div(model.http.headers.zipWithIndex.map { case ((k, v), i) =>
+                div(
+                  input(
+                    placeholder := "key",
+                    value       := k,
+                    onInput(s => Msg.UpdateHeaderKey(i, s))
+                  ),
+                  input(
+                    placeholder := "value",
+                    value       := v,
+                    onInput(s => Msg.UpdateHeaderValue(i, s))
+                  ),
+                  button(onClick(Msg.UpdateHeaderRemove(i)))(text("-"))
+                )
+              })
+            ),
+            div(
+              text("Cache: "),
+              select(cls := "http-cache", name := "http-cache", onChange(Msg.UpdateHttpCache(_)))(
+                option(value := "default")("default"),
+                option(value := "no-store")("no-store"),
+                option(value := "reload")("reload"),
+                option(value := "no-cache")("no-cache"),
+                option(value := "force-cache")("force-cache"),
+                option(value := "only-if-cached")("only-if-cached")
+              )
             ),
             p(button(onClick(Msg.MakeHttpRequest))("Fetch!")),
             p("Our server says..."),
             ul(
               li("Status: " + status),
               li("Headers: " + headers),
-              li("Body (first 30 chars): " + body),
+              li("Body: " + body),
               li(error)
             )
           )
 
         case Page.Page6 =>
-          // Example of how to use preventDefault to avoid a page refesh on form submit.
-          val submitMyForm =
-            Html.onEvent(
-              "submit",
-              { (e: Tyrian.Event) =>
-                e.preventDefault()
-                Msg.Log("submitted")
-              }
-            )
-
           div(
-            // form(onSubmit(Msg.Log("submitted")))( // Refreshes the page
-            form(submitMyForm)(
+            form(onSubmit(Msg.Log("submitted")))(
               input(_type := "submit", name := "submit", value := "submit")
             )
           )
@@ -434,8 +602,21 @@ enum Msg:
   case GotHttpResult(response: Response)
   case GotHttpError(message: String)
   case UpdateHttpDetails(newUrl: String)
+  case UpdateHttpBody(body: String)
+  case UpdateHttpMethod(method: String)
+  case UpdateHttpCredentials(credentials: String)
+  case UpdateHttpTimeout(timeout: String)
+  case UpdateHeaderKey(headerIndex: Int, key: String)
+  case UpdateHeaderValue(headerIndex: Int, value: String)
+  case UpdateHeaderAdd
+  case UpdateHeaderRemove(headerIndex: Int)
+  case UpdateHttpCache(cache: String)
   case FrameTick(runningTime: Double)
   case MouseMove(to: (Int, Int))
+  case NewFlavour(name: String)
+  case AddFruit
+  case UpdateFruitInput(input: String)
+  case ToggleFruitAvailability(name: String)
 
 enum Status:
   case Connecting
@@ -480,8 +661,13 @@ final case class Model(
     currentTime: js.Date,
     http: HttpDetails,
     time: Time,
-    mousePosition: (Int, Int)
+    mousePosition: (Int, Int),
+    flavour: Option[String],
+    fruit: List[Fruit],
+    fruitInput: String
 )
+
+final case class Fruit(name: String, available: Boolean)
 
 final case class Time(running: Double, delta: Double):
   def next(t: Double): Time =
@@ -541,7 +727,10 @@ object Model:
       new js.Date(),
       HttpDetails.initial,
       Time(0.0d, 0.0d),
-      (0, 0)
+      (0, 0),
+      None,
+      Nil,
+      ""
     )
 
   // We're only saving/loading the input field contents as an example
@@ -551,8 +740,29 @@ object Model:
     case Some(data) =>
       Right(Model.init.copy(field = data))
 
-final case class HttpDetails(url: Option[String], response: Option[Response], error: Option[String])
+final case class HttpDetails(
+    method: Method,
+    url: Option[String],
+    body: String,
+    response: Option[Response],
+    error: Option[String],
+    timeout: Double,
+    credentials: RequestCredentials,
+    headers: List[(String, String)],
+    cache: RequestCache
+)
 object HttpDetails:
-  val initial: HttpDetails = HttpDetails(Option("http://127.0.0.1:3000/"), None, None)
+  val initial: HttpDetails =
+    HttpDetails(
+      Method.Get,
+      Option("http://httpbin.org/get"),
+      "",
+      None,
+      None,
+      10000,
+      RequestCredentials.SameOrigin,
+      List(),
+      RequestCache.Default
+    )
 
 final case class Vector2(x: Double, y: Double)

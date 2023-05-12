@@ -10,6 +10,8 @@ import tyrian.Event
 import tyrian.Html
 import tyrian.NamedAttribute
 import tyrian.Property
+import tyrian.PropertyBoolean
+import tyrian.PropertyString
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
@@ -24,11 +26,22 @@ object Rendering:
       }
 
     val props: List[(String, PropValue)] =
-      attrs.collect { case Property(n, v) => (n, v) }
+      attrs.collect {
+        case PropertyString(n, v)  => (n, v)
+        case PropertyBoolean(n, v) => (n, v)
+      }
 
     val events: List[(String, EventHandler)] =
-      attrs.collect { case Event(n, msg) =>
-        (n, EventHandler((e: dom.Event) => onMsg(msg.asInstanceOf[dom.Event => Msg](e))))
+      attrs.collect { case Event(n, msg, preventDefault, stopPropagation, stopImmediatePropagation) =>
+        val callback: dom.Event => Unit = { (e: dom.Event) =>
+          if preventDefault then e.preventDefault()
+          if stopPropagation then e.stopPropagation()
+          if stopImmediatePropagation then e.stopImmediatePropagation()
+
+          onMsg(msg.asInstanceOf[dom.Event => Msg](e))
+        }
+
+        (n, EventHandler(callback))
       }
 
     VNodeData.empty.copy(

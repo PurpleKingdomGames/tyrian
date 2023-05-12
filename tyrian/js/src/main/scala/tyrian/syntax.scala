@@ -1,5 +1,6 @@
 package tyrian
 
+import cats.Applicative
 import cats.effect.Async
 
 object syntax:
@@ -12,7 +13,7 @@ object syntax:
 
   /** Make a cmd from any `F[A]`
     */
-  extension [F[_], A](task: F[A])
+  extension [F[_]: Applicative, A](task: F[A])
     def toCmd: Cmd.Run[F, A, A] =
       Cmd.Run(task)(identity)
 

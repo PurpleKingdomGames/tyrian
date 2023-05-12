@@ -1,6 +1,9 @@
 import Misc._
 
 import scala.language.postfixOps
+import org.openqa.selenium.chrome.ChromeOptions
+import org.openqa.selenium.firefox.FirefoxOptions
+import org.scalajs.jsenv.selenium.SeleniumJSEnv
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -13,10 +16,10 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.2.1"
-lazy val tyrianDocsVersion  = "0.6.1"
-lazy val scalaJsDocsVersion = "1.13.0"
-lazy val scalaDocsVersion   = "3.2.1"
+lazy val scala3Version      = "3.2.2"
+lazy val tyrianDocsVersion  = "0.6.2"
+lazy val scalaJsDocsVersion = "1.13.1"
+lazy val scalaDocsVersion   = "3.2.2"
 lazy val indigoDocsVersion  = "0.14.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
@@ -25,7 +28,7 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "munit-cats-effect" % Dependancies.munitCatsEffect3 % Test,
     "org.typelevel" %%% "discipline-munit"  % Dependancies.munitCatsEffect3 % Test,
-    "org.typelevel" %%% "cats-laws"         % "2.9.0"                       % Test
+    "org.typelevel" %%% "cats-laws"         % Dependancies.catsLaws         % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-language:strictEquality"),
@@ -35,18 +38,46 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   autoAPIMappings   := true
 )
 
+lazy val commonScalacOptions = Def.setting {
+  // Map the sourcemaps to github paths instead of local directories
+  val localSourcesPath = (LocalRootProject / baseDirectory).value.toURI
+  val headCommit       = git.gitHeadCommit.value.get
+  scmInfo.value.map { info =>
+    val remoteSourcesPath =
+      s"${info.browseUrl.toString
+          .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
+    s"-scalajs-mapSourceURI:$localSourcesPath->$remoteSourcesPath"
+  }
+}
+
 lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
-  scalacOptions ++= {
-    // Map the sourcemaps to github paths instead of local directories
-    val localSourcesPath = (LocalRootProject / baseDirectory).value.toURI
-    val headCommit       = git.gitHeadCommit.value.get
-    scmInfo.value.map { info =>
-      val remoteSourcesPath =
-        s"${info.browseUrl.toString
-            .replace("github.com", "raw.githubusercontent.com")}/$headCommit"
-      s"-scalajs-mapSourceURI:$localSourcesPath->$remoteSourcesPath"
-    }
+  scalacOptions ++= commonScalacOptions.value
+)
+
+lazy val commonBrowserTestJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  scalacOptions ++= commonScalacOptions.value,
+  libraryDependencies ++= Seq(
+    "org.scala-js"  %%% "scalajs-dom"  % Dependancies.scalajsDomVersion,
+    "org.typelevel" %%% "cats-effect"  % Dependancies.catsEffect,
+    "io.circe"      %%% "circe-core"   % Dependancies.circe,
+    "io.circe"      %%% "circe-parser" % Dependancies.circe
+  )
+)
+
+lazy val firefoxJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  jsEnv := {
+    val options = new FirefoxOptions()
+    options.setHeadless(true)
+    new SeleniumJSEnv(options)
+  }
+)
+
+lazy val chromeJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+  jsEnv := {
+    val options = new ChromeOptions()
+    options.setHeadless(true)
+    new SeleniumJSEnv(options)
   }
 )
 
@@ -77,21 +108,18 @@ lazy val publishSettings = {
 lazy val tyrianProject =
   project
     .in(file("."))
-    .enablePlugins(ScalaUnidocPlugin)
     .settings(
       neverPublish,
       commonSettings,
-      name        := "Tyrian",
-      code        := codeTaskDefinition,
-      copyApiDocs := copyApiDocsTaskDefinition(scala3Version, (Compile / target).value),
+      name := "Tyrian",
+      code := codeTaskDefinition,
+      copyApiDocs := copyApiDocsTaskDefinition(
+        scala3Version,
+        (unidocs / Compile / target).value,
+        (Compile / target).value
+      ),
       usefulTasks := customTasksAliases,
-      logoSettings(version),
-      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-        tyrian.jvm,
-        indigoSandbox.js,
-        sandbox.js,
-        docs
-      )
+      logoSettings(version)
     )
     .aggregate(
       tyrian.js,
@@ -100,7 +128,9 @@ lazy val tyrianProject =
       tyrianZIO.js,
       tyrianIndigoBridge.js,
       sandbox.js,
-      indigoSandbox.js
+      indigoSandbox.js,
+      firefoxTests.js,
+      chromeTests.js
     )
 
 lazy val tyrian =
@@ -208,6 +238,22 @@ lazy val indigoSandbox =
       scalacOptions -= "-language:strictEquality"
     )
 
+lazy val unidocs =
+  project
+    .enablePlugins(ScalaJSPlugin, ScalaUnidocPlugin)
+    .settings(
+      name := "Tyrian",
+      neverPublish,
+      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
+        tyrian.jvm,
+        indigoSandbox.js,
+        sandbox.js,
+        docs,
+        firefoxTests.js,
+        chromeTests.js
+      )
+    )
+
 lazy val jsdocs =
   project
     .settings(
@@ -220,9 +266,9 @@ lazy val jsdocs =
         "io.indigoengine" %%% "indigo"               % indigoDocsVersion,
         "io.indigoengine" %%% "tyrian-io"            % tyrianDocsVersion,
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianDocsVersion,
-        "org.http4s"      %%% "http4s-dom"           % "0.2.6",
-        "org.http4s"      %%% "http4s-circe"         % "0.23.15",
-        "org.typelevel"   %%% "cats-effect"          % "3.4.5"
+        "org.http4s"      %%% "http4s-dom"           % Dependancies.http4sDom,
+        "org.http4s"      %%% "http4s-circe"         % Dependancies.http4sCirce,
+        "org.typelevel"   %%% "cats-effect"          % Dependancies.catsEffect
       )
     )
     .enablePlugins(ScalaJSPlugin)
@@ -246,6 +292,36 @@ lazy val docs =
       run / fork := true
     )
 
+lazy val firefoxTests =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-firefox-tests"))
+    .settings(
+      name := "tyrian-firefox-tests",
+      neverPublish,
+      Test / unmanagedSourceDirectories +=
+        (LocalRootProject / baseDirectory).value / "tyrian-browser-tests" / "src" / "test" / "scala",
+      commonSettings ++ publishSettings ++ firefoxJsSettings
+    )
+    .jsSettings(commonBrowserTestJsSettings)
+    .dependsOn(tyrian)
+
+lazy val chromeTests =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-chrome-tests"))
+    .settings(
+      name := "tyrian-chrome-tests",
+      neverPublish,
+      Test / unmanagedSourceDirectories +=
+        (LocalRootProject / baseDirectory).value / "tyrian-browser-tests" / "src" / "test" / "scala",
+      commonSettings ++ publishSettings ++ chromeJsSettings
+    )
+    .jsSettings(commonBrowserTestJsSettings)
+    .dependsOn(tyrian)
+
 addCommandAlias(
   "sandboxBuild",
   List(
@@ -264,22 +340,25 @@ addCommandAlias(
   List(
     "clean",
     "docs/clean",
-    "unidoc", // Docs in ./target/scala-3.1.1/unidoc/
-    "copyApiDocs",
-    "docs/mdoc" // Docs in ./indigo/tyrian-docs/target/mdoc
+    "unidocs/unidoc", // Docs in ./target/scala-3.x.x/unidoc/
+    "copyApiDocs",    // Copied to ./target/unidocs/site-docs
+    "docs/mdoc"       // Content docs in ./indigo/tyrian-docs/target/mdoc
   ).mkString(";", ";", "")
 )
 
 addCommandAlias(
   "cleanAll",
   List(
+    "clean",
     "tyrianJS/clean",
     "tyrianJVM/clean",
     "tyrianIO/clean",
     "tyrianZIO/clean",
     "tyrianIndigoBridge/clean",
     "sandbox/clean",
-    "indigoSandbox/clean"
+    "indigoSandbox/clean",
+    "firefoxTests/clean",
+    "chromeTests/clean"
   ).mkString(";", ";", "")
 )
 
@@ -305,7 +384,9 @@ addCommandAlias(
     "tyrianZIO/test",
     "tyrianIndigoBridge/test",
     "sandbox/test",
-    "indigoSandbox/test"
+    "indigoSandbox/test",
+    "firefoxTests/test",
+    "chromeTests/test"
   ).mkString(";", ";", "")
 )
 

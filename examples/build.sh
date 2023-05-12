@@ -2,7 +2,7 @@
 
 set -e
 
-sbt buildExamples
+sbt cleanAll compileAll fastOptAll testAll
 
 cd mill
 mill clean

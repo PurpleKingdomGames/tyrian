@@ -70,4 +70,9 @@ object Render:
 
   extension (p: Property)
     def render: String =
-      s"""${p.name}="${p.value}""""
+      val asStr: String =
+        p.valueOf match
+          case x: Boolean => x.toString
+          case x: String  => x
+
+      s"""${p.name}="${asStr}""""

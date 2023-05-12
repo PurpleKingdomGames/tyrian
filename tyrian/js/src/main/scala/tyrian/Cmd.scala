@@ -50,6 +50,7 @@ object Cmd:
   /** Runs a task that produces no message */
   final case class SideEffect[F[_]](task: F[Unit]) extends Cmd[F, Nothing]:
     def map[OtherMsg](f: Nothing => OtherMsg): SideEffect[F] = this
+    def toTask: F[Unit]                                      = task
   object SideEffect:
     def apply[F[_]: Sync](thunk: => Unit): SideEffect[F] =
       SideEffect(Sync[F].delay(thunk))
@@ -57,16 +58,18 @@ object Cmd:
   /** Simply produces a message that will then be actioned. */
   final case class Emit[Msg](msg: Msg) extends Cmd[Nothing, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Emit[OtherMsg] = Emit(f(msg))
+    def toTask[F[_]: Applicative]: F[Msg]                 = Applicative[F].pure(msg)
 
   /** Represents runnable concurrent task that produces a message */
-  final case class Run[F[_], A, Msg](
+  final case class Run[F[_]: Applicative, A, Msg](
       task: F[A],
       toMsg: A => Msg
   ) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Run[F, A, OtherMsg] = Run(task, toMsg andThen f)
+    def toTask: F[Msg]                                         = Applicative[F].map(task)(toMsg)
   object Run:
     @targetName("Cmd.Run separate param lists")
-    def apply[F[_], A, Msg](task: F[A])(toMessage: A => Msg): Run[F, A, Msg] =
+    def apply[F[_]: Applicative, A, Msg](task: F[A])(toMessage: A => Msg): Run[F, A, Msg] =
       Run(task, toMessage)
 
   /** Merge two commands into a single one */

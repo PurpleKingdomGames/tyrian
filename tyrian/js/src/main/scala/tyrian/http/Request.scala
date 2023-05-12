@@ -16,7 +16,7 @@ import scala.concurrent.duration._
   *   tries to transform a Response[String] to a value of type A
   * @param timeout
   *   duration to wait before giving up.
-  * @param withCredentials
+  * @param credentials
   *   indicates if the request is using credentials
   * @tparam A
   *   type of the successfully decoded response
@@ -27,7 +27,8 @@ final case class Request[A](
     url: String,
     body: Body,
     timeout: FiniteDuration,
-    withCredentials: Boolean
+    credentials: RequestCredentials,
+    cache: RequestCache
 ):
   def withMethod(newMethod: Method): Request[A] =
     this.copy(method = newMethod)
@@ -51,9 +52,9 @@ final case class Request[A](
     this.copy(timeout = newTimeout)
 
   def usingCredentials: Request[A] =
-    this.copy(withCredentials = true)
+    this.copy(credentials = RequestCredentials.Include)
   def noCredentials: Request[A] =
-    this.copy(withCredentials = false)
+    this.copy(credentials = RequestCredentials.Omit)
 
 object Request:
   val DefaultTimeOut: FiniteDuration = 10.seconds
@@ -65,7 +66,8 @@ object Request:
       url,
       Body.Empty,
       DefaultTimeOut,
-      false
+      RequestCredentials.SameOrigin,
+      RequestCache.Default
     )
 
   def apply[A](method: Method, url: String, timeout: FiniteDuration): Request[A] =
@@ -75,7 +77,19 @@ object Request:
       url,
       Body.Empty,
       timeout,
-      false
+      RequestCredentials.SameOrigin,
+      RequestCache.Default
+    )
+
+  def apply[A](method: Method, url: String, body: Body): Request[A] =
+    Request[A](
+      method,
+      Nil,
+      url,
+      body,
+      DefaultTimeOut,
+      RequestCredentials.SameOrigin,
+      RequestCache.Default
     )
 
   /** Convenience method to create a GET Request[A] and try to decode the response body from String to A.
@@ -93,7 +107,8 @@ object Request:
       url = url,
       body = Body.Empty,
       timeout = DefaultTimeOut,
-      withCredentials = false
+      credentials = RequestCredentials.SameOrigin,
+      cache = RequestCache.Default
     )
 
   /** Convenience method to create a POST Request[A] and try to decode the response body from String to A.
@@ -113,5 +128,6 @@ object Request:
       url = url,
       body = body,
       timeout = DefaultTimeOut,
-      withCredentials = false
+      credentials = RequestCredentials.SameOrigin,
+      cache = RequestCache.Default
     )
