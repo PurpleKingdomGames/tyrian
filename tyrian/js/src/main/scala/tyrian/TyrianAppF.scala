@@ -83,7 +83,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
         init(flags),
         update,
         view,
-        subscriptions,
+        subscriptions
       )
     )
 

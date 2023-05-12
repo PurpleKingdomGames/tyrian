@@ -18,7 +18,7 @@ import scala.scalajs.js.annotation._
 trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Model]:
 
   val run: Task[Nothing] => Unit = runnable =>
-    val runtime  = Runtime.default
+    val runtime = Runtime.default
 
     Unsafe.unsafe { implicit unsafe =>
       runtime.unsafe.run(runnable).getOrThrowFiberFailure()
