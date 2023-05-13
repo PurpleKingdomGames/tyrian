@@ -3,7 +3,6 @@ package example
 import example.game.MyAwesomeGame
 import org.scalajs.dom.document
 import tyrian.Html.*
-import tyrian.SinglePage
 import tyrian.*
 import tyrian.cmds.Logger
 import tyrian.cmds.Random
@@ -13,17 +12,25 @@ import zio.interop.catz.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
-object IndigoSandbox extends SinglePage[Msg, Model]:
+object IndigoSandbox extends TyrianApp[Msg, Model]:
 
   val gameDivId1: String    = "my-game-1"
   val gameDivId2: String    = "my-game-2"
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
+  def router: Location => Msg = Routing.basic(Msg.NoOp, Msg.FollowLink(_))
+
   def init(flags: Map[String, String]): (Model, Cmd[Task, Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))
 
   def update(model: Model): Msg => (Model, Cmd[Task, Msg]) =
+    case Msg.NoOp =>
+      (model, Cmd.None)
+
+    case Msg.FollowLink(href) =>
+      (model, Nav.loadUrl(href))
+
     case Msg.NewRandomInt(i) =>
       (model.copy(randomNumber = i), Cmd.None)
 
@@ -91,6 +98,11 @@ object IndigoSandbox extends SinglePage[Msg, Model]:
 
     div(
       div(hidden(false))("Random number: " + model.randomNumber.toString),
+      div(
+        a(href := "/another-page")("Internal link (will be ignored)"),
+        br,
+        a(href := "http://tyrian.indigoengine.io/")("Tyrian website")
+      ),
       div(id := gameDivId1)(),
       div(id := gameDivId2)(),
       div(
@@ -123,13 +135,15 @@ object IndigoSandbox extends SinglePage[Msg, Model]:
     )
 
 enum Msg:
-  case NewContent(content: String)      extends Msg
-  case Insert                           extends Msg
-  case Remove                           extends Msg
-  case Modify(i: Int, msg: Counter.Msg) extends Msg
-  case StartIndigo                      extends Msg
-  case IndigoReceive(msg: String)       extends Msg
-  case NewRandomInt(i: Int)             extends Msg
+  case NewContent(content: String)
+  case Insert
+  case Remove
+  case Modify(i: Int, msg: Counter.Msg)
+  case StartIndigo
+  case IndigoReceive(msg: String)
+  case NewRandomInt(i: Int)
+  case FollowLink(href: String)
+  case NoOp
 
 object Counter:
 

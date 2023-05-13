@@ -14,6 +14,8 @@ sealed trait Location:
   def locationDetails: LocationDetails
   def isInternal: Boolean
   def isExternal: Boolean
+  def href: String
+  def url: String
 
 object Location:
 
