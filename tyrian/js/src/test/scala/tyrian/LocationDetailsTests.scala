@@ -23,6 +23,30 @@ class LocationDetailsTests extends munit.FunSuite:
     assertEquals(actual, expected)
   }
 
+  test("derived values: origin, host, and fullPath") {
+
+    val url = "http://localhost:8080/page2?id=12#section"
+
+    val actual =
+      LocationDetails.fromUrl(url)
+
+    val expected =
+      LocationDetails(
+        hash = Some("#section"),
+        hostName = Some("localhost"),
+        pathName = "/page2",
+        port = Some("8080"),
+        protocol = Some("http:"),
+        search = Some("?id=12"),
+        url = url
+      )
+
+    assertEquals(actual, expected)
+    assertEquals(actual.host, Some("localhost:8080"))
+    assertEquals(actual.origin, Some("http://localhost:8080"))
+    assertEquals(actual.fullPath, "/page2?id=12#section")
+  }
+
   test("check example locations parse correctly") {
 
     examples.toList.foreach { case (url, loc) =>

@@ -1,5 +1,22 @@
 package tyrian
 
+/** Represents the deconstructed parts of a url.
+  *
+  * @param hash
+  *   The anchor in the url starting with '#' followed by the fragment of the URL.
+  * @param hostName
+  *   The name of host, e.g. localhost.
+  * @param pathName
+  *   Is the path minus hash anchors and query params, e.g. "/page1".
+  * @param port
+  *   Is the port number of the URL, e.g. 80.
+  * @param protocol
+  *   The protocol e.g. https:
+  * @param search
+  *   Is a String containing a '?' followed by the parameters of the URL.
+  * @param url
+  *   The whole URL.
+  */
 final case class LocationDetails(
     hash: Option[String],
     hostName: Option[String],
@@ -8,13 +25,45 @@ final case class LocationDetails(
     protocol: Option[String],
     search: Option[String],
     url: String
-)
+):
+  private val noSep = List("xmpp:", "data:", "mailto:")
+
+  private def whichSeparator(protocol: String): String =
+    if noSep.contains(protocol) then "" else "//"
+
+  /** The host, e.g. localhost:8080. */
+  val host: Option[String] =
+    port match
+      case None =>
+        hostName
+
+      case Some(p) =>
+        hostName.map(h => s"$h:$p")
+
+  /** The whole URL. */
+  val href: String = url
+
+  /** The origin, e.g. http://localhost:8080. */
+  val origin: Option[String] =
+    for {
+      pr <- protocol
+      ht <- host
+    } yield pr + whichSeparator(pr) + ht
+
+  /** Is a String of the full rendered url address, minus the origin. e.g. /my-page?id=12#anchor */
+  val fullPath: String =
+    origin match
+      case None =>
+        href
+
+      case Some(o) =>
+        href.replaceFirst(o, "")
 
 object LocationDetails:
 
   private val urlFileMatch = """^(file\:)\/\/(\/.*)?""".r
   private val urlDataMatch = """^(data\:)(.*)?""".r
-  private val urlMatch     = """^([a-z]+\:)(\/+)?([a-zA-Z0-9-\.\@]+)(:)?([0-9]+)?(\/.*)?""".r
+  private val urlMatch     = """^([a-z]+\:)(\/+)?([a-zA-Z0-9-\.\@]+)(:)?([0-9]+)?(.*)?""".r
 
   private val pathMatchAll    = """(.*)(\?.*)(#.*)""".r
   private val pathMatchHash   = """(.*)(#.*)""".r
@@ -92,51 +141,3 @@ object LocationDetails:
         )
 
   final case class LocationPathDetails(path: String, search: Option[String], hash: Option[String])
-
-  /** Is a String of the full rendered url address, minus the origin. e.g. /my-page?id=12#anchor */
-  // val fullPath: String =
-  //   origin match
-  //     case None =>
-  //       href
-
-  //     case Some(o) =>
-  //       href.replaceFirst(o, "")
-
-  // /** The anchor in the url starting with '#' followed by the fragment of the URL. */
-  // val hash: Option[String] =
-  //   ???
-
-  // /** The host, e.g. localhost:8080. */
-  // val host: Option[String] =
-  //   for {
-  //     h <- hostName
-  //     p <- port
-  //   } yield s"$h:$p"
-
-  // /** The name of host, e.g. localhost. */
-  // val hostName: Option[String]
-
-  // /** The whole URL. */
-  // val href: String
-
-  // /** The origin, e.g. http://localhost:8080. */
-  // val origin: Option[String] =
-  //   for {
-  //     pr <- protocol
-  //     ht <- host
-  //   } yield pr + ht
-
-  // /** Is the path minus hash anchors and query params, e.g. "/page1". */
-  // val path: String
-
-  // /** Is the port number of the URL, e.g. 80. */
-  // val port: Option[String]
-
-  // /** The protocol e.g. https:// */
-  // val protocol: Option[String]
-
-  // /** Is a String containing a '?' followed by the parameters of the URL. */
-  // val search: Option[String]
-
-  // /** The whole URL. */
-  // val url: String = href
