@@ -85,11 +85,13 @@ object Rendering:
           ()
 
         case Some(loc) =>
-          // Updates the address bar
-          window.history.pushState(new js.Object, "", loc)
 
           val jsLoc           = Location.fromJsLocation(window.location)
           val locationToRoute = Location.fromUrl(loc, jsLoc)
+
+          if locationToRoute.isInternal then
+            // Updates the address bar
+            window.history.pushState(new js.Object, "", loc)
 
           // Invoke the page change
           onMsg(router(locationToRoute))
