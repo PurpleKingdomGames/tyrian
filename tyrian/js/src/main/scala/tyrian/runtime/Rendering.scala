@@ -88,8 +88,11 @@ object Rendering:
           // Updates the address bar
           window.history.pushState(new js.Object, "", loc)
 
+          val jsLoc           = Location.fromJsLocation(window.location)
+          val locationToRoute = Location.fromUrl(loc, jsLoc)
+
           // Invoke the page change
-          onMsg(router(Location.fromUrl(loc)))
+          onMsg(router(locationToRoute))
 
           ()
 

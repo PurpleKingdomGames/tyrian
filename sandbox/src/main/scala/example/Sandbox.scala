@@ -24,7 +24,7 @@ object Sandbox extends MultiPage[Msg, Model]:
   // lib like: https://github.com/sherpal/url-dsl
   def router: Location => Msg =
     case loc: Location.Internal =>
-      loc.path match
+      loc.fullPath match
         case "/page2" => Msg.NavigateTo(Page.Page2)
         case "/page3" => Msg.NavigateTo(Page.Page3)
         case "/page4" => Msg.NavigateTo(Page.Page4)
@@ -60,6 +60,9 @@ object Sandbox extends MultiPage[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.NoOp =>
+      (model, Cmd.None)
+
     case Msg.AddFruit =>
       (model.copy(fruit = Fruit(model.fruitInput, false) :: model.fruit), Cmd.None)
 
@@ -646,6 +649,7 @@ enum Msg:
   case AddFruit
   case UpdateFruitInput(input: String)
   case ToggleFruitAvailability(name: String)
+  case NoOp
 
 enum Status:
   case Connecting
