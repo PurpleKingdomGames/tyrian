@@ -24,16 +24,17 @@ object Sandbox extends MultiPage[Msg, Model]:
   // lib like: https://github.com/sherpal/url-dsl
   def router: Location => Msg =
     case loc: Location.Internal =>
-      loc.fullPath match
+      loc.pathName match
+        case "/"      => Msg.NavigateTo(Page.Page1)
+        case "/page1" => Msg.NavigateTo(Page.Page1)
         case "/page2" => Msg.NavigateTo(Page.Page2)
         case "/page3" => Msg.NavigateTo(Page.Page3)
         case "/page4" => Msg.NavigateTo(Page.Page4)
         case "/page5" => Msg.NavigateTo(Page.Page5)
         case "/page6" => Msg.NavigateTo(Page.Page6)
         case _ =>
-          println("Unknown route: " + loc.fullPath)
-          println(loc)
-          Msg.NavigateTo(Page.Page1)
+          println("Unknown route: " + loc.url)
+          Msg.NoOp
 
     case loc: Location.External =>
       Msg.NavigateToUrl(loc.href)
