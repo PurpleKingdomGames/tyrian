@@ -19,7 +19,7 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
   val gameId1: IndigoGameId = IndigoGameId("reverse")
   val gameId2: IndigoGameId = IndigoGameId("combine")
 
-  def router: Location => Msg = Routing.basic(Msg.NoOp, Msg.FollowLink(_))
+  def router: Location => Msg = Routing.externalOnly(Msg.NoOp, Msg.FollowLink(_))
 
   def init(flags: Map[String, String]): (Model, Cmd[Task, Msg]) =
     (Model.init, Cmd.Emit(Msg.StartIndigo))

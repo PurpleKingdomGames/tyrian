@@ -7,24 +7,36 @@ object Routing:
 
   /** Provides ultra simple frontend router for convience in minimal use cases.
     *
-    * @param internal
-    *   A function that converts an href (url) to a Msg.
-    * @param external
-    *   A function that converts an href (url) to a Msg.
+    * @param internalHRef
+    *   A function that converts an internal href (url) to a Msg, i.e. a link to another page on this website.
+    * @param externalHRef
+    *   A function that converts an external href (url) to a Msg, i.e. a link to a different website.
     */
-  def basic[Msg](internal: String => Msg, external: String => Msg): Location => Msg = {
-    case loc @ Location.Internal(_) => internal(loc.href)
-    case loc @ Location.External(_) => external(loc.href)
+  def basic[Msg](internalHRef: String => Msg, externalHRef: String => Msg): Location => Msg = {
+    case loc @ Location.Internal(_) => internalHRef(loc.href)
+    case loc @ Location.External(_) => externalHRef(loc.href)
   }
 
-  /** Provides ultra simple frontend router for convience in minimal use cases.
+  /** Provides ultra simple frontend router that ignores internal links to the app's own website, but allows you to
+    * follow links to other sites.
     *
-    * @param noop
-    *   A user defined 'no-op' Msg that means "ignore this link".
-    * @param external
-    *   A function that converts an href (url) to a Msg.
+    * @param ignore
+    *   A user defined 'no-op' Msg that means "ignore this link/href".
+    * @param externalHRef
+    *   A function that converts an external href (url) to a Msg, i.e. a link to a different website.
     */
-  def basic[Msg](ignore: Msg, external: String => Msg): Location => Msg = {
+  def externalOnly[Msg](ignore: Msg, externalHRef: String => Msg): Location => Msg = {
     case loc @ Location.Internal(_) => ignore
-    case loc @ Location.External(_) => external(loc.href)
+    case loc @ Location.External(_) => externalHRef(loc.href)
+  }
+
+  /** Provides a frontend router that ignores and deactivates all links fired by the app. In other words, no `<a href>`
+    * style links will work.
+    *
+    * @param ignore
+    *   A user defined 'no-op' Msg that means "ignore this link/href".
+    */
+  def none[Msg](ignore: Msg): Location => Msg = {
+    case loc @ Location.Internal(_) => ignore
+    case loc @ Location.External(_) => ignore
   }
