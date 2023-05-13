@@ -85,7 +85,6 @@ object Rendering:
           ()
 
         case Some(loc) =>
-
           val jsLoc           = Location.fromJsLocation(window.location)
           val locationToRoute = Location.fromUrl(loc, jsLoc)
 
