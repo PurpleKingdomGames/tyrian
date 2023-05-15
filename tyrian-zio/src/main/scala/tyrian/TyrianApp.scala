@@ -8,7 +8,7 @@ import zio.Runtime
 import zio.Task
 import zio.Unsafe
 
-/** The MultiPage trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
+/** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
 trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Model]:
