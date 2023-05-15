@@ -6,6 +6,7 @@ import cats.effect.kernel.Ref
 import cats.effect.kernel.Resource
 import cats.effect.std.AtomicCell
 import cats.effect.std.Dispatcher
+import cats.effect.std.Queue
 import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import fs2.Stream
@@ -28,12 +29,12 @@ object TyrianRuntime:
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   )(using F: Async[F]): F[Nothing] = Dispatcher.sequential[F].use { dispatcher =>
-    (F.ref(ModelHolder(initModel, true)), AtomicCell[F].of(List.empty[(String, F[Unit])]), Channel.unbounded[F, Msg])
-      .flatMapN { (model, currentSubs, msgChannel) =>
+    (F.ref(ModelHolder(initModel, true)), AtomicCell[F].of(List.empty[(String, F[Unit])]), Queue.unbounded[F, Msg])
+      .flatMapN { (model, currentSubs, msgQueue) =>
 
         def runCmd(cmd: Cmd[F, Msg]): F[Unit] =
           CmdHelper.cmdToTaskList(cmd).foldMapM { task =>
-            task.handleError(_ => None).flatMap(_.traverse_(msgChannel.send(_))).start.void
+            task.handleError(_ => None).flatMap(_.traverse_(msgQueue.offer(_))).start.void
           }
 
         def runSub(sub: Sub[F, Msg]): F[Unit] =
@@ -45,7 +46,7 @@ object TyrianRuntime:
               .findNewSubs(allSubs, stillAlive.map(_._1), Nil)
               .traverse(SubHelper.runObserve(_) { result =>
                 dispatcher.unsafeRunAndForget(
-                  result.toOption.flatten.foldMapM(msgChannel.send(_).void)
+                  result.toOption.flatten.foldMapM(msgQueue.offer(_).void)
                 )
               })
 
@@ -53,7 +54,7 @@ object TyrianRuntime:
           }
         // end runSub
 
-        val msgLoop = msgChannel.stream.foreach { msg =>
+        val msgLoop = msgQueue.take.flatMap { msg =>
           model
             .modify { case ModelHolder(oldModel, _) =>
               val (newModel, cmd) = update(oldModel)(msg)
@@ -64,11 +65,11 @@ object TyrianRuntime:
               runCmd(cmd) *> runSub(sub)
             }
             .void
-        }
+        }.foreverM
         // end msgLoop
 
         val renderLoop =
-          val onMsg = (msg: Msg) => dispatcher.unsafeRunAndForget(msgChannel.send(msg))
+          val onMsg = (msg: Msg) => dispatcher.unsafeRunAndForget(msgQueue.offer(msg))
 
           val requestAnimationFrame = F.async_ { cb =>
             dom.window.requestAnimationFrame(_ => cb(Either.unit))
@@ -87,7 +88,7 @@ object TyrianRuntime:
         // end renderLoop
 
         renderLoop.background.surround {
-          msgLoop.compile.drain.background.surround {
+          msgLoop.background.surround {
             runCmd(initCmd) *> F.never
           }
         }
