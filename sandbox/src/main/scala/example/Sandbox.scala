@@ -13,11 +13,31 @@ import tyrian.websocket.*
 
 import scala.concurrent.duration.*
 import scala.scalajs.js.annotation.*
+import scala.util.Random
 
 import scalajs.js
 
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianApp[Msg, Model]:
+
+  // Here we just do a simple string match, but this could be a route matching
+  // lib like: https://github.com/sherpal/url-dsl
+  def router: Location => Msg =
+    case loc: Location.Internal =>
+      loc.pathName match
+        case "/"      => Msg.NavigateTo(Page.Page1)
+        case "/page1" => Msg.NavigateTo(Page.Page1)
+        case "/page2" => Msg.NavigateTo(Page.Page2)
+        case "/page3" => Msg.NavigateTo(Page.Page3)
+        case "/page4" => Msg.NavigateTo(Page.Page4)
+        case "/page5" => Msg.NavigateTo(Page.Page5)
+        case "/page6" => Msg.NavigateTo(Page.Page6)
+        case _ =>
+          println("Unknown route: " + loc.url)
+          Msg.NoOp
+
+    case loc: Location.External =>
+      Msg.NavigateToUrl(loc.href)
 
   val hotReloadKey: String = "hotreload"
 
@@ -29,10 +49,6 @@ object Sandbox extends TyrianApp[Msg, Model]:
           case Right(model) => Msg.OverwriteModel(model)
         },
         Logger.info(flags.toString),
-        Navigation.getLocationHash {
-          case Navigation.Result.CurrentHash(hash) => Msg.NavigateTo(Page.fromString(hash))
-          case _                                   => Msg.NavigateTo(Page.Page1)
-        },
         LocalStorage.key(0) {
           case LocalStorage.Result.Key(key) => Msg.Log("Found local storage key: " + key)
           case _                            => Msg.Log("No local storage enties found.")
@@ -45,6 +61,9 @@ object Sandbox extends TyrianApp[Msg, Model]:
     (Model.init, cmds)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
+    case Msg.NoOp =>
+      (model, Cmd.None)
+
     case Msg.AddFruit =>
       (model.copy(fruit = Fruit(model.fruitInput, false) :: model.fruit), Cmd.None)
 
@@ -187,10 +206,13 @@ object Sandbox extends TyrianApp[Msg, Model]:
       (model.copy(tmpSaveData = content), Cmd.None)
 
     case Msg.JumpToHomePage =>
-      (model, Navigation.setLocationHash(Page.Page1.toHash))
+      (model.copy(page = Page.Page1), Nav.pushUrl(Page.Page1.toUrlPath))
 
     case Msg.NavigateTo(page) =>
       (model.copy(page = page), Cmd.None)
+
+    case Msg.NavigateToUrl(href) =>
+      (model, Nav.loadUrl(href))
 
     case Msg.TakeSnapshot =>
       (model, HotReload.snapshot(hotReloadKey, model, Model.encode))
@@ -294,8 +316,19 @@ object Sandbox extends TyrianApp[Msg, Model]:
     val navItems =
       Page.values.toList.map { pg =>
         if pg == model.page then li(style := CSS.`font-family`("sans-serif"))(pg.toNavLabel)
-        else li(style := CSS.`font-family`("sans-serif"))(a(href := pg.toHash)(pg.toNavLabel))
-      }
+        else
+          li(style := CSS.`font-family`("sans-serif")) {
+            a(href := pg.toUrlPath)(pg.toNavLabel)
+          }
+      } ++
+        List(
+          li(style := CSS.`font-family`("sans-serif")) {
+            a(href := "#foo" + Random.nextInt())("Random link")
+          },
+          li(style := CSS.`font-family`("sans-serif")) {
+            a(href := "https://tyrian.indigoengine.io/")("Tyrian's Website")
+          }
+        )
 
     val counters = model.components.zipWithIndex.map { case (c, i) =>
       Counter.view(c).map(msg => Msg.Modify(i, msg))
@@ -569,7 +602,6 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
     Sub.Batch(
       webSocketSubs,
-      Navigation.onLocationHashChange(hashChange => Msg.NavigateTo(Page.fromString(hashChange.newFragment))),
       simpleSubs,
       clockSub,
       Sub.animationFrameTick("frametick") { t =>
@@ -594,6 +626,7 @@ enum Msg:
   case ClearStorage(key: String)
   case DataLoaded(data: String)
   case NavigateTo(page: Page)
+  case NavigateToUrl(href: String)
   case JumpToHomePage
   case OverwriteModel(model: Model)
   case TakeSnapshot
@@ -617,6 +650,7 @@ enum Msg:
   case AddFruit
   case UpdateFruitInput(input: String)
   case ToggleFruitAvailability(name: String)
+  case NoOp
 
 enum Status:
   case Connecting
@@ -685,29 +719,14 @@ enum Page:
       case Page5 => "Http"
       case Page6 => "Form"
 
-  def toHash: String =
+  def toUrlPath: String =
     this match
-      case Page1 => "#page1"
-      case Page2 => "#page2"
-      case Page3 => "#page3"
-      case Page4 => "#page4"
-      case Page5 => "#page5"
-      case Page6 => "#page6"
-
-object Page:
-  def fromString(pageString: String): Page =
-    pageString match
-      case "#page2" => Page2
-      case "page2"  => Page2
-      case "#page3" => Page3
-      case "page3"  => Page3
-      case "#page4" => Page4
-      case "page4"  => Page4
-      case "#page5" => Page5
-      case "page5"  => Page5
-      case "#page6" => Page6
-      case "page6"  => Page6
-      case _        => Page1
+      case Page1 => "/page1"
+      case Page2 => "/page2"
+      case Page3 => "/page3"
+      case Page4 => "/page4"
+      case Page5 => "/page5"
+      case Page6 => "/page6"
 
 object Model:
   // val echoServer = "ws://ws.ifelse.io" // public echo server

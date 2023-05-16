@@ -45,12 +45,13 @@ object Tyrian:
     */
   def start[F[_]: Async, Model, Msg](
       node: Element,
+      router: Location => Msg,
       init: (Model, Cmd[F, Msg]),
       update: Model => Msg => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   ): F[Nothing] =
-    TyrianRuntime[F, Model, Msg](node, init._1, init._2, update, view, subscriptions)
+    TyrianRuntime[F, Model, Msg](router, node, init._1, init._2, update, view, subscriptions)
 
   /** Takes a normal Tyrian Model and view function and renders the html to a string prefixed with the doctype.
     */

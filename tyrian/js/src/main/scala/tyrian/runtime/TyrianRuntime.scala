@@ -17,11 +17,13 @@ import snabbdom.VNode
 import snabbdom.toVNode
 import tyrian.Cmd
 import tyrian.Html
+import tyrian.Location
 import tyrian.Sub
 
 object TyrianRuntime:
 
   def apply[F[_], Model, Msg](
+      router: Location => Msg,
       node: Element,
       initModel: Model,
       initCmd: Cmd[F, Msg],
@@ -77,7 +79,7 @@ object TyrianRuntime:
 
           def redraw(vnode: VNode) =
             model.getAndUpdate(m => ModelHolder(m.model, false)).flatMap { m =>
-              if m.updated then F.delay(Rendering.render(vnode, m.model, view, onMsg))
+              if m.updated then F.delay(Rendering.render(vnode, m.model, view, onMsg, router))
               else F.pure(vnode)
             }
 
