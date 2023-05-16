@@ -134,7 +134,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 object TyrianAppF:
   /** Launch app instances after DOMContentLoaded.
     */
-  def launchOnContentLoaded[F[_] : Async](appDirectory: Map[String, () => TyrianAppF[F, _, _]]): Unit = {
+  def onLoad[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
     val documentReady = new Promise((resolve, _reject) => {
       document.addEventListener("DOMContentLoaded", _ => {
         resolve(())
@@ -144,29 +144,28 @@ object TyrianAppF:
       }
     })
     documentReady.`then`(_ => {
-      launch[F](appDirectory)
+      launch[F](appDirectory: _*)
     })
-  }
 
   /** Find data-tyrian-app HTMLElements and launch corresponding TyrianAppF instances
     */
-  def launch[F[_] : Async](appDirectory: Map[String, () => TyrianAppF[F, _, _]]): Unit = {
+  def launch[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+    val appMap = appDirectory.toMap
     for {
       element <- document.querySelectorAll("[data-tyrian-app]")
     } yield {
       val tyrianAppElement = element.asInstanceOf[HTMLElement]
+      val tyrianAppName = tyrianAppElement.dataset.get("tyrianApp")
       val appSupplierOption = for {
-        appName <- tyrianAppElement.dataset.get("tyrianApp")
-        appSupplier <- appDirectory.get(appName)
+        appName <- tyrianAppName
+        appSupplier <- appMap.get(appName)
       } yield appSupplier
       appSupplierOption match
         case Some(appSupplier) =>
-          appSupplier().launch(tyrianAppElement, appElementFlags(tyrianAppElement))
+          appSupplier.launch(tyrianAppElement, appElementFlags(tyrianAppElement))
         case _ =>
-          // Log a warning message?
-          ()
+          println(s"Could not find an app entry for ${tyrianAppName.getOrElse("")}")
     }
-  }
 
   private def appElementFlags(tyrianAppElement: HTMLElement): Map[String,String] =
     val appFlags = for {

@@ -19,6 +19,7 @@ object CounterApp extends TyrianApp[Msg, Model]:
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
     case Msg.Increment => (model + 1, Cmd.None)
     case Msg.Decrement => (model - 1, Cmd.None)
+    case Msg.NavigateTo => (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div(
@@ -26,6 +27,9 @@ object CounterApp extends TyrianApp[Msg, Model]:
       div(model.toString),
       button(onClick(Msg.Increment))("+")
     )
+
+  def router: Location => Msg =
+    _ => Msg.NavigateTo
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
@@ -39,4 +43,4 @@ object Model:
     def -(other: Int): Model = i - other
 
 enum Msg:
-  case Increment, Decrement
+  case Increment, Decrement, NavigateTo

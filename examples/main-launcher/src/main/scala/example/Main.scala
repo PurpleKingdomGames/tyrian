@@ -6,9 +6,8 @@ import tyrian.*
 
 object Main {
   def main(args: Array[String]): Unit =
-    TyrianAppF.launchOnContentLoaded(Map(
-      "CounterApp" -> (() => CounterApp),
-      "ChatApp" -> (() => ChatApp)
-    ))
-    println("")
+    TyrianApp.onLoad(
+      "CounterApp" -> CounterApp,
+      "ChatApp" -> ChatApp
+    )
 }

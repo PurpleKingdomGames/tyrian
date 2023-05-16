@@ -1,6 +1,7 @@
 package tyrian
 
 import cats.effect.IO
+import cats.effect.kernel.Async
 import cats.effect.kernel.Resource
 import cats.effect.unsafe.implicits.global
 import tyrian.TyrianAppF
@@ -13,3 +14,10 @@ trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
   val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
     _.map(_.start()).useForever.unsafeRunAndForget()
+
+object TyrianApp:
+  def onLoad[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+    TyrianAppF.onLoad(appDirectory: _*)
+
+  def launch[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+    TyrianAppF.launch(appDirectory: _*)
