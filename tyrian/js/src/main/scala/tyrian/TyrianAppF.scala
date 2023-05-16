@@ -114,7 +114,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
         init(flags),
         _update,
         _view,
-        _subscriptions,
+        _subscriptions
       )
     )
 
