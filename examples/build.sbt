@@ -123,6 +123,34 @@ lazy val indigo =
       )
     )
 
+lazy val mainlauncher =
+  (project in file("main-launcher"))
+    .enablePlugins(ScalaJSPlugin)
+    // .settings(commonSettings: _*) // Temporarily replace with the below until 0.7.0 is released
+    .settings( // Copy of common settings, remove once 0.7.0 is released
+      version      := tyrianVersion,
+      scalaVersion := scala3Version,
+      organization := "io.indigoengine",
+      libraryDependencies ++= Seq(
+        "org.scalameta" %%% "munit" % "0.7.29" % Test
+      ),
+      libraryDependencies ++= Seq(
+        "io.indigoengine" %%% "tyrian-io" % "0.6.3-SNAPSHOT"
+      ),
+      testFrameworks += new TestFramework("munit.Framework"),
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+      crossScalaVersions := Seq(scala3Version),
+      scalafixOnCompile  := true,
+      semanticdbEnabled  := true,
+      semanticdbVersion  := scalafixSemanticdb.revision,
+      autoAPIMappings    := true
+    )
+    .settings(
+      name                            := "main-launcher",
+      Compile / mainClass             := Some("example.Main"),
+      scalaJSUseMainModuleInitializer := true
+    )
+
 lazy val mario =
   (project in file("mario"))
     .enablePlugins(ScalaJSPlugin)
@@ -190,6 +218,7 @@ lazy val exampleProjects: List[String] =
     "http",
     "http4sdom",
     "indigo",
+    // "mainlauncher", // Keep out of main build until 0.7.0 is released
     "mario",
     "nonpm",
     "subcomponents",

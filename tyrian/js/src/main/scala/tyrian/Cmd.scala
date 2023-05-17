@@ -72,6 +72,9 @@ object Cmd:
     def apply[F[_]: Applicative, A, Msg](task: F[A])(toMessage: A => Msg): Run[F, A, Msg] =
       Run(task, toMessage)
 
+    def apply[F[_]: Applicative, Msg](task: F[Msg]): Run[F, Msg, Msg] =
+      Run(task, identity)
+
   /** Merge two commands into a single one */
   case class Combine[F[_], Msg](cmd1: Cmd[F, Msg], cmd2: Cmd[F, Msg]) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Combine[F, OtherMsg] = Combine(cmd1.map(f), cmd2.map(f))

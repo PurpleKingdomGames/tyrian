@@ -15,7 +15,7 @@ object syntax:
     */
   extension [F[_]: Applicative, A](task: F[A])
     def toCmd: Cmd.Run[F, A, A] =
-      Cmd.Run(task)(identity)
+      Cmd.Run[F, A](task)
 
   /** Make a sub from an `fs2.Stream`
     */

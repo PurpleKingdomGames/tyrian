@@ -2,11 +2,14 @@ package tyrian
 
 import cats.effect.kernel.Async
 import cats.effect.kernel.Resource
+import org.scalajs.dom.DocumentReadyState
 import org.scalajs.dom.Element
+import org.scalajs.dom.HTMLElement
 import org.scalajs.dom.document
 import org.scalajs.dom.window
 import tyrian.runtime.TyrianRuntime
 
+import scala.scalajs.js.Promise
 import scala.scalajs.js.annotation.*
 
 /** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
@@ -126,3 +129,45 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 
       case None =>
         throw new Exception(s"Missing Element! Could not find an element with id '$containerId' on the page.")
+
+object TyrianAppF:
+  /** Launch app instances after DOMContentLoaded.
+    */
+  def onLoad[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
+    val documentReady = new Promise((resolve, _reject) => {
+      document.addEventListener("DOMContentLoaded", _ => resolve(()))
+      if (document.readyState != DocumentReadyState.loading) {
+        resolve(())
+      }
+    })
+    documentReady.`then`(_ => launch[F](appDirectory))
+
+  def onLoad[F[_]: Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+    onLoad(appDirectory.toMap)
+
+  /** Find data-tyrian-app HTMLElements and launch corresponding TyrianAppF instances
+    */
+  def launch[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
+    for {
+      element <- document.querySelectorAll("[data-tyrian-app]")
+    } yield {
+      val tyrianAppElement = element.asInstanceOf[HTMLElement]
+      val tyrianAppName    = tyrianAppElement.dataset.get("tyrianApp")
+      val appSupplierOption = for {
+        appName     <- tyrianAppName
+        appSupplier <- appDirectory.get(appName)
+      } yield appSupplier
+      appSupplierOption match
+        case Some(appSupplier) =>
+          appSupplier.launch(tyrianAppElement, appElementFlags(tyrianAppElement))
+        case _ =>
+          println(s"Could not find an app entry for ${tyrianAppName.getOrElse("")}")
+    }
+
+  private def appElementFlags(tyrianAppElement: HTMLElement): Map[String, String] =
+    val appFlags = for {
+      (dataAttr, attrValue) <- tyrianAppElement.dataset
+      if dataAttr.startsWith("tyrianFlag")
+      flagName = dataAttr.replaceFirst("^tyrianFlag", "")
+    } yield (flagName, attrValue)
+    appFlags.toMap
