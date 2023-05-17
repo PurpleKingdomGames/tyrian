@@ -134,32 +134,28 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 object TyrianAppF:
   /** Launch app instances after DOMContentLoaded.
     */
-  def onLoad[F[_] : Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
+  def onLoad[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
     val documentReady = new Promise((resolve, _reject) => {
-      document.addEventListener("DOMContentLoaded", _ => {
-        resolve(())
-      })
+      document.addEventListener("DOMContentLoaded", _ => resolve(()))
       if (document.readyState != DocumentReadyState.loading) {
         resolve(())
       }
     })
-    documentReady.`then`(_ => {
-      launch[F](appDirectory)
-    })
+    documentReady.`then`(_ => launch[F](appDirectory))
 
-  def onLoad[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+  def onLoad[F[_]: Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
     onLoad(appDirectory.toMap)
 
   /** Find data-tyrian-app HTMLElements and launch corresponding TyrianAppF instances
     */
-  def launch[F[_] : Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
+  def launch[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
     for {
       element <- document.querySelectorAll("[data-tyrian-app]")
     } yield {
       val tyrianAppElement = element.asInstanceOf[HTMLElement]
-      val tyrianAppName = tyrianAppElement.dataset.get("tyrianApp")
+      val tyrianAppName    = tyrianAppElement.dataset.get("tyrianApp")
       val appSupplierOption = for {
-        appName <- tyrianAppName
+        appName     <- tyrianAppName
         appSupplier <- appDirectory.get(appName)
       } yield appSupplier
       appSupplierOption match
@@ -169,7 +165,7 @@ object TyrianAppF:
           println(s"Could not find an app entry for ${tyrianAppName.getOrElse("")}")
     }
 
-  private def appElementFlags(tyrianAppElement: HTMLElement): Map[String,String] =
+  private def appElementFlags(tyrianAppElement: HTMLElement): Map[String, String] =
     val appFlags = for {
       (dataAttr, attrValue) <- tyrianAppElement.dataset
       if dataAttr.startsWith("tyrianFlag")
