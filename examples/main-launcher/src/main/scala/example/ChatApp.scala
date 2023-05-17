@@ -16,7 +16,7 @@ object ChatApp extends TyrianApp[ChatAppMsg, ChatAppModel]:
   def update(model: ChatAppModel): ChatAppMsg => (ChatAppModel, Cmd[IO, ChatAppMsg]) =
     case ChatInput(input) => (model.copy(chatInput = input), Cmd.None)
     case SendChat() => (model.copy(chatInput = "", messages = model.messages :+ model.chatInput), Cmd.None)
-    case NavigateTo() => (model, Cmd.None)
+    case NoOp() => (model, Cmd.None)
 
   def view(model: ChatAppModel): Html[ChatAppMsg] =
     div(
@@ -29,7 +29,7 @@ object ChatApp extends TyrianApp[ChatAppMsg, ChatAppModel]:
     )
 
   def router: Location => ChatAppMsg =
-    _ => NavigateTo()
+    _ => NoOp()
 
   def subscriptions(model: ChatAppModel): Sub[IO, ChatAppMsg] =
     Sub.None
@@ -37,7 +37,7 @@ object ChatApp extends TyrianApp[ChatAppMsg, ChatAppModel]:
 case class ChatAppModel(chatInput: String, messages: Seq[String])
 
 sealed abstract class ChatAppMsg
-case class NavigateTo() extends ChatAppMsg
+case class NoOp() extends ChatAppMsg
 case class ChatInput(input: String) extends ChatAppMsg
 case class SendChat() extends ChatAppMsg
 

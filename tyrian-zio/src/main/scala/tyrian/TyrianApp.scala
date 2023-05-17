@@ -23,8 +23,8 @@ trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Mod
     }
 
 object TyrianApp:
-  def onLoad[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+  def onLoad(appDirectory: (String, TyrianAppF[Task, _, _])*)(using Async[Task]): Unit =
     TyrianAppF.onLoad(appDirectory: _*)
 
-  def launch[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
-    TyrianAppF.launch(appDirectory: _*)
+  def launch(appDirectory: Map[String, TyrianAppF[Task, _, _]])(using Async[Task]): Unit =
+    TyrianAppF.launch(appDirectory)

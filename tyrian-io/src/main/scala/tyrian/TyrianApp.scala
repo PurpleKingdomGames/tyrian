@@ -16,8 +16,8 @@ trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
     _.map(_.start()).useForever.unsafeRunAndForget()
 
 object TyrianApp:
-  def onLoad[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+  def onLoad(appDirectory: (String, TyrianAppF[IO, _, _])*): Unit =
     TyrianAppF.onLoad(appDirectory: _*)
 
-  def launch[F[_] : Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
-    TyrianAppF.launch(appDirectory: _*)
+  def launch(appDirectory: Map[String, TyrianAppF[IO, _, _]]): Unit =
+    TyrianAppF.launch(appDirectory)
