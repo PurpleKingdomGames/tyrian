@@ -114,7 +114,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
       Tyrian.start[F, Model, Msg](
         node,
         router,
-        init(flags),
+        _init(flags),
         _update,
         _view,
         _subscriptions
