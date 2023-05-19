@@ -3,6 +3,7 @@ package tyrian
 import cats.effect.Async
 import cats.effect.kernel.Async
 import cats.effect.kernel.Resource
+import org.scalajs.dom.window
 import tyrian.TyrianAppF
 import tyrian.runtime.TyrianRuntime
 import zio.Runtime
@@ -14,11 +15,11 @@ import zio.Unsafe
   */
 trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Model]:
 
-  val run: Task[Nothing] => Unit = runnable =>
-    val runtime = Runtime.default
+  private val runtime = Runtime.default
 
+  val run: Task[Nothing] => Unit = runnable =>
     Unsafe.unsafe { implicit unsafe =>
-      runtime.unsafe.run(runnable).getOrThrowFiberFailure()
+      runtime.unsafe.fork(runnable)
     }
 
 object TyrianApp:
