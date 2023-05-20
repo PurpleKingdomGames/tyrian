@@ -12,8 +12,7 @@ import tyrian.runtime.TyrianRuntime
   */
 trait TyrianApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
 
-  val run: Resource[IO, TyrianRuntime[IO, Model, Msg]] => Unit =
-    _.map(_.start()).useForever.unsafeRunAndForget()
+  val run: IO[Nothing] => Unit = _.unsafeRunAndForget()
 
 object TyrianApp:
   def onLoad(appDirectory: (String, TyrianAppF[IO, _, _])*): Unit =

@@ -9,6 +9,7 @@ import tyrian.cmds.Random
 import zio.*
 import zio.interop.catz.*
 
+import scala.concurrent.duration.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
@@ -61,27 +62,33 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
       (model.copy(components = cs), Cmd.None)
 
     case Msg.StartIndigo =>
-      (
-        model,
-        Cmd.Batch(
-          Cmd.SideEffect {
+      val task: Task[Msg] =
+        ZIO.attempt {
+          if gameDivsExist(gameDivId1, gameDivId2) then
+            println("Indigo container divs ready, launching games.")
             MyAwesomeGame(model.bridge.subSystem(gameId1), true)
               .launch(
                 gameDivId1,
                 "width"  -> "200",
                 "height" -> "200"
               )
-          },
-          Cmd.SideEffect {
             MyAwesomeGame(model.bridge.subSystem(gameId2), false)
               .launch(
                 gameDivId2,
                 "width"  -> "200",
                 "height" -> "200"
               )
-          }
-        )
-      )
+
+            Msg.NoOp
+          else
+            println("Indigo container divs not ready, retrying...")
+            Msg.RetryIndigo
+        }
+
+      (model, Cmd.Run(task))
+
+    case Msg.RetryIndigo =>
+      (model, Cmd.emitAfterDelay(Msg.StartIndigo, 0.5.seconds))
 
     case Msg.IndigoReceive(msg) =>
       (model, Logger.consoleLog("(Tyrian) from indigo: " + msg))
@@ -134,12 +141,18 @@ object IndigoSandbox extends TyrianApp[Msg, Model]:
       CSS.`text-align`("center")
     )
 
+  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
+  private def gameDivsExist(id1: String, id2: String): Boolean =
+    document.getElementById(id1) != null &&
+      document.getElementById(id2) != null
+
 enum Msg:
   case NewContent(content: String)
   case Insert
   case Remove
   case Modify(i: Int, msg: Counter.Msg)
   case StartIndigo
+  case RetryIndigo
   case IndigoReceive(msg: String)
   case NewRandomInt(i: Int)
   case FollowLink(href: String)

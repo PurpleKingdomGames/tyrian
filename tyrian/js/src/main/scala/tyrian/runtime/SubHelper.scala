@@ -1,6 +1,8 @@
 package tyrian.runtime
 
 import cats.effect.kernel.Concurrent
+import cats.effect.kernel.Resource
+import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import tyrian.Sub
 
@@ -44,26 +46,18 @@ object SubHelper:
   ): List[Sub.Observe[F, _, Msg]] =
     subs.filter(s => alive.forall(_ != s.id) && !inProgress.contains(s.id))
 
-  @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  def toRun[F[_]: Concurrent, Msg](
-      newSubs: List[Sub.Observe[F, _, Msg]],
-      callback: Msg => Unit
-  ): List[F[Option[CancelableSub[F]]]] =
-    newSubs.map { case Sub.Observe(id, observable, toMsg) =>
-      observable.flatMap { run =>
-        val cancelable: F[Option[F[Unit]]] = run {
-          case Left(e) => throw e
-          case Right(m) =>
-            toMsg(m) match
-              case Some(msg) => callback(msg)
-              case _         => ()
+  def runObserve[F[_], A, Msg](sub: Sub.Observe[F, A, Msg])(callback: Either[Throwable, Option[Msg]] => Unit)(using
+      F: Concurrent[F]
+  ): F[(String, F[Unit])] =
+    Resource
+      .makeFull[F, Option[F[Unit]]] { poll =>
+        poll {
+          sub.observable.flatMap { run =>
+            run(result => callback(result.map(sub.toMsg(_))))
+          }
         }
-
-        val cancel: F[Option[CancelableSub[F]]] =
-          cancelable.map(_.map(c => CancelableSub(id, c)))
-
-        cancel
-      }
-    }
-
-  final case class CancelableSub[F[_]: Concurrent](id: String, cancel: F[Unit])
+      }(_.getOrElse(F.unit))
+      .useForever
+      .start
+      .map(_.cancel)
+      .tupleLeft(sub.id)

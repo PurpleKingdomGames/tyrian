@@ -22,7 +22,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
     */
   def MaxConcurrentTasks: Int = 1024
 
-  val run: Resource[F, TyrianRuntime[F, Model, Msg]] => Unit
+  val run: F[Nothing] => Unit
 
   def router: Location => Msg
 
@@ -111,14 +111,13 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 
   def ready(node: Element, flags: Map[String, String]): Unit =
     run(
-      Tyrian.start(
+      Tyrian.start[F, Model, Msg](
         node,
         router,
         _init(flags),
         _update,
         _view,
-        _subscriptions,
-        MaxConcurrentTasks
+        _subscriptions
       )
     )
 
