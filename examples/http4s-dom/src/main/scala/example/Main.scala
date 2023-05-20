@@ -12,6 +12,8 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Model.init, Cmd.None)
 
@@ -27,6 +29,9 @@ object Main extends TyrianApp[Msg, Model]:
 
     case Msg.Stars(res) =>
       (model.copy(stargazersResult = res), Cmd.None)
+
+    case Msg.NoOp =>
+      (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div(
@@ -54,6 +59,7 @@ enum Msg:
   case FetchStars
   case UpdateRepo(repo: String)
   case Stars(result: String)
+  case NoOp
 
 object Http4sHelper:
 

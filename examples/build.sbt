@@ -201,8 +201,7 @@ lazy val zio =
     .settings(
       name := "zio",
       libraryDependencies ++= Seq(
-        "dev.zio" %%% "zio"              % "2.0.10",
-        "dev.zio" %%% "zio-interop-cats" % "23.0.03"
+        "dev.zio" %%% "zio-interop-cats" % "23.0.0.5"
       )
     )
 

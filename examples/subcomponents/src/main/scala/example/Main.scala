@@ -9,6 +9,8 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Nil, Cmd.None)
 
@@ -28,6 +30,9 @@ object Main extends TyrianApp[Msg, Model]:
 
       (updated, Cmd.None)
 
+    case Msg.NoOp =>
+      (model, Cmd.None)
+
   def view(model: Model): Html[Msg] =
     val counters = model.toList.zipWithIndex.map { case (c, i) =>
       Counter.view(c).map(msg => Msg.Modify(i, msg))
@@ -46,9 +51,10 @@ object Main extends TyrianApp[Msg, Model]:
 type Model = List[Counter.Model]
 
 enum Msg:
-  case Insert                           extends Msg
-  case Remove                           extends Msg
-  case Modify(i: Int, msg: Counter.Msg) extends Msg
+  case Insert
+  case Remove
+  case Modify(i: Int, msg: Counter.Msg)
+  case NoOp
 
 object Counter:
 

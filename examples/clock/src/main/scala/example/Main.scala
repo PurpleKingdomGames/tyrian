@@ -13,11 +13,14 @@ import concurrent.duration.DurationInt
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (new js.Date(), Cmd.None)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
-    msg => (msg.newTime, Cmd.None)
+    case Msg.Tick(newTime) => (newTime, Cmd.None)
+    case Msg.NoOp          => (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     val angle = model.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
@@ -40,8 +43,10 @@ object Main extends TyrianApp[Msg, Model]:
     )
 
   def subscriptions(model: Model): Sub[IO, Msg] =
-    Sub.every[IO](1.second, "clock-ticks").map(Msg.apply)
+    Sub.every[IO](1.second, "clock-ticks").map(Msg.Tick.apply)
 
 type Model = js.Date
 
-final case class Msg(newTime: js.Date)
+enum Msg:
+  case Tick(newTime: js.Date)
+  case NoOp

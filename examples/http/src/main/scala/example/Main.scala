@@ -12,6 +12,8 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Model("cats", "waiting.gif"), HttpHelper.getRandomGif("cats"))
 
@@ -19,6 +21,7 @@ object Main extends TyrianApp[Msg, Model]:
     case Msg.MorePlease     => (model, HttpHelper.getRandomGif(model.topic))
     case Msg.NewGif(newUrl) => (model.copy(gifUrl = newUrl), Cmd.None)
     case Msg.GifError(_)    => (model, Cmd.None)
+    case Msg.NoOp           => (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -32,9 +35,10 @@ object Main extends TyrianApp[Msg, Model]:
     Sub.None
 
 enum Msg:
-  case MorePlease              extends Msg
-  case NewGif(result: String)  extends Msg
-  case GifError(error: String) extends Msg
+  case MorePlease
+  case NewGif(result: String)
+  case GifError(error: String)
+  case NoOp
 
 object Msg:
   private val onResponse: Response => Msg = { response =>

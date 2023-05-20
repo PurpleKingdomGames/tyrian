@@ -11,6 +11,8 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Mario]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Mario, Cmd[IO, Msg]) =
     (Mario(0, 0, 0, 0, Direction.Right), Cmd.None)
 
@@ -37,6 +39,9 @@ object Main extends TyrianApp[Msg, Mario]:
 
     case Msg.PassageOfTime =>
       (Mario.applyPhysics(model), Cmd.None)
+
+    case Msg.NoOp =>
+      (model, Cmd.None)
 
     case _ =>
       (model, Cmd.None)
@@ -86,7 +91,7 @@ end Main
 
 enum Msg:
   case PassageOfTime, ArrowLeftPressed, ArrowRightPressed, ArrowLeftReleased,
-  ArrowRightReleased, ArrowUpPressed
+    ArrowRightReleased, ArrowUpPressed, NoOp
 
 enum Direction:
   case Left, Right

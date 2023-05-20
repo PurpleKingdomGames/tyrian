@@ -4057,11 +4057,6 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-snabbdom@^3.0.1:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-3.2.0.tgz#8ea6b2517739a7d9ca82df3f181d052adf1ca5ad"
-  integrity sha512-UWyfm8WbaFmbmYLC33pe5fawBfExhynkMDoZqQ8ehlHDwkxrgIOpWhKf5PaacLUW1n+Uwu5N5HND6mESU7cMlw==
-
 source-map-js@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.1.tgz#a1741c131e3c77d048252adfa24e23b908670caf"

@@ -11,6 +11,8 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Model.init, Cmd.None)
 
@@ -31,6 +33,9 @@ object Main extends TyrianApp[Msg, Model]:
         )
 
       (model, cmds)
+
+    case Msg.NoOp =>
+      (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div(
@@ -64,6 +69,7 @@ enum Msg:
   case FromSocket(message: String)
   case ToSocket(message: String)
   case WebSocketStatus(status: EchoSocket.Status)
+  case NoOp
 
 final case class Model(echoSocket: EchoSocket, log: List[String])
 object Model:

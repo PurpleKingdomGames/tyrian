@@ -9,10 +9,13 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianApp[Msg, Model]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) = ("", Cmd.None)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
     case Msg.NewContent(content) => (content, Cmd.None)
+    case Msg.NoOp                => (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -39,4 +42,5 @@ object Main extends TyrianApp[Msg, Model]:
 type Model = String
 
 enum Msg:
-  case NewContent(content: String) extends Msg
+  case NewContent(content: String)
+  case NoOp

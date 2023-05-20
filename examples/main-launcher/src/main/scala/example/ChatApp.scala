@@ -9,6 +9,8 @@ import scala.scalajs.js.annotation.*
 
 object ChatApp extends TyrianApp[ChatAppMsg, ChatAppModel]:
 
+  def router: Location => Msg = Routing.none(Msg.NoOp)
+
   def init(flags: Map[String, String]): (ChatAppModel, Cmd[IO, ChatAppMsg]) =
     val initialChat = flags.get("InitialMessage").getOrElse("")
     (ChatAppModel(chatInput = initialChat, messages = Seq()), Cmd.None)
