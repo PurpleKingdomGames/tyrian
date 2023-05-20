@@ -391,6 +391,17 @@ addCommandAlias(
 )
 
 addCommandAlias(
+  "testRelease",
+  List(
+    "tyrianJS/test",
+    "tyrianJVM/test",
+    "tyrianIO/test",
+    "tyrianZIO/test",
+    "tyrianIndigoBridge/test"
+  ).mkString(";", ";", "")
+)
+
+addCommandAlias(
   "localPublish",
   "+publishLocal"
 )

@@ -8,4 +8,4 @@ export GPG_TTY=$(tty)
 
 source credentials.sh
 
-sbt clean update compile test +publishSigned sonatypeBundleRelease 
+sbt clean update compile testRelease +publishSigned sonatypeBundleRelease 
