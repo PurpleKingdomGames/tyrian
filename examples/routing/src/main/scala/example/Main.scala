@@ -15,129 +15,33 @@ import urldsl.vocabulary.UrlMatching
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
-enum Page {
-  case Home
-  case Counter
-  case NotFound
-  case UserPage(userId: Int)
-  case UserAgePage(ageOption: Option[Int])
-
-}
-
-case class AppState(page: Page, counter: Int)
-
-type Model = AppState
-
-enum Msg:
-  case Increment, Decrement, Reset
-  case NavigateTo(page: Page)
-  case Void
-
 @JSExportTopLevel("TyrianApp")
 object HelloTyrian extends TyrianApp[Msg, Model]:
 
-  val homePath        = root / "home"
-  val counterPath     = root / "counter"
-  val moreComplexPath = root / "id" / segment[Int]
-  val pathWithParam   = (root / "user" / endOfSegments) ? param[Int]("age").?
+  /** Implements the standard router function using url-dsl:
+    * https://github.com/sherpal/url-dsl
+    */
+  def router: Location => Msg =
+    Routes.router
 
-  case class SimpleRoute[X, P](
-      pathSegment: PathSegment[X, SimplePathMatchingError],
-      notFound: SimplePathMatchingError => P,
-      combinator: X => P
-  )
-
-  case class ComplexRoute[X, Y, P](
-      pathSegment: PathSegmentWithQueryParams[
-        X,
-        SimplePathMatchingError,
-        Y,
-        SimpleParamMatchingError
-      ],
-      notFound: Either[SimplePathMatchingError, SimpleParamMatchingError] => P,
-      combinator: UrlMatching[X, Y] => P
-  )
-
-  def routerFromList[P](
-      path: String,
-      notFound: P,
-      xs: List[SimpleRoute[?, P] | ComplexRoute[?, ?, P]]
-  ): P =
-    xs match {
-      case Nil => notFound
-      case (head: SimpleRoute[?, P]) :: Nil =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold[P](head.notFound(_), head.combinator(_))
-      case (head: ComplexRoute[?, ?, P]) :: Nil =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold[P](head.notFound(_), head.combinator(_))
-      case (head: SimpleRoute[?, P]) :: tail =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold[P](
-            _ => routerFromList[P](path, notFound, tail),
-            head.combinator(_)
-          )
-      case (head: ComplexRoute[?, ?, P]) :: tail =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold[P](
-            _ => routerFromList(path, notFound, tail),
-            head.combinator(_)
-          )
-    }
-
-  def router: Location => Msg = loc =>
-    loc match
-      case loc: Location.Internal =>
-        Msg.NavigateTo(
-          routerFromList[Page](
-            path = loc.pathName,
-            notFound = Page.NotFound,
-            List(
-              SimpleRoute[Unit, Page](
-                homePath,
-                _ => Page.NotFound,
-                _ => Page.Home
-              ),
-              SimpleRoute[Unit, Page](
-                counterPath,
-                _ => Page.NotFound,
-                _ => Page.Counter
-              ),
-              SimpleRoute[Int, Page](
-                moreComplexPath,
-                _ => Page.NotFound,
-                (userId: Int) => Page.UserPage(userId)
-              ),
-              ComplexRoute[Unit, Option[Int], Page](
-                pathWithParam,
-                _ => Page.NotFound,
-                { case UrlMatching(_, ageOption) =>
-                  Page.UserAgePage(ageOption)
-                }
-              )
-            )
-          )
-        )
-      case loc: Location.External => ???
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    (
-      AppState(
-        Page.Home,
-        counter = 0
-      ),
-      Cmd.None
-    )
+    (Model(Page.Home, 0), Cmd.None)
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
-    case Msg.Increment => (model.copy(counter = model.counter + 1), Cmd.None)
-    case Msg.Decrement => (model.copy(counter = model.counter - 1), Cmd.None)
-    case Msg.Reset     => (model.copy(counter = 0), Cmd.None)
-    case Msg.NavigateTo(page) => (model.copy(page = page), Cmd.None)
-    case Msg.Void             => (model, Cmd.None)
+    case Msg.Increment =>
+      (model.copy(counter = model.counter + 1), Cmd.None)
+
+    case Msg.Decrement =>
+      (model.copy(counter = model.counter - 1), Cmd.None)
+
+    case Msg.Reset =>
+      (model.copy(counter = 0), Cmd.None)
+
+    case Msg.NavigateTo(page) =>
+      (model.copy(page = page), Nav.pushUrl(page.address))
+
+    case Msg.FollowExternalLink(href) =>
+      (model, Nav.loadUrl(href))
 
   def viewHome(model: Model): Html[Msg] =
     div(
@@ -191,13 +95,118 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
     )
 
   def view(model: Model): Html[Msg] =
-    model.page match {
+    model.page match
       case Page.Home             => viewHome(model)
       case Page.Counter          => viewCounter(model)
       case Page.NotFound         => viewNotFound()
       case Page.UserPage(userId) => viewUserPage(userId)
       case Page.UserAgePage(age) => viewUserMaybeAgePage(age)
-    }
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
+
+final case class Model(page: Page, counter: Int)
+
+enum Page(val address: String):
+  case Home                  extends Page("/home")
+  case Counter               extends Page("/counter")
+  case NotFound              extends Page("/not-found")
+  case UserPage(userId: Int) extends Page(s"/id/$userId")
+  case UserAgePage(ageOption: Option[Int])
+      extends Page(s"/user${ageOption.map(a => s"?age=$a").getOrElse("")}")
+
+enum Msg:
+  case Increment, Decrement, Reset
+  case NavigateTo(page: Page)
+  case FollowExternalLink(href: String)
+
+object Routes:
+
+  /** This is our routing function.
+    *
+    * Internal routing uses our url-dsl based router.
+    *
+    * External routing uses the standard Tyrian routing pattern, on the
+    * assumption that we just want to follow all links.
+    */
+  def router: Location => Msg = loc =>
+    loc match
+      case loc: Location.Internal =>
+        Msg.NavigateTo(
+          Routes.routerFromList(
+            path = loc.pathName,
+            notFound = Page.NotFound,
+            List(
+              SimpleRoute[Unit](
+                root / "home",
+                _ => Page.Home
+              ),
+              SimpleRoute[Unit](
+                root / "counter",
+                _ => Page.Counter
+              ),
+              SimpleRoute[Int](
+                root / "id" / segment[Int],
+                (userId: Int) => Page.UserPage(userId)
+              ),
+              ComplexRoute[Unit, Option[Int]](
+                (root / "user" / endOfSegments) ? param[Int]("age").?,
+                { case UrlMatching(_, ageOption) =>
+                  Page.UserAgePage(ageOption)
+                }
+              )
+            )
+          )
+        )
+
+      case loc: Location.External =>
+        Msg.FollowExternalLink(loc.href)
+
+  def routerFromList(
+      path: String,
+      notFound: Page,
+      xs: List[SimpleRoute[?] | ComplexRoute[?, ?]]
+  ): Page =
+    xs match {
+      case Nil => notFound
+      case (head: SimpleRoute[?]) :: Nil =>
+        head.pathSegment
+          .matchRawUrl(path)
+          .fold(_ => notFound, head.combinator(_))
+
+      case (head: ComplexRoute[?, ?]) :: Nil =>
+        head.pathSegment
+          .matchRawUrl(path)
+          .fold(_ => notFound, head.combinator(_))
+
+      case (head: SimpleRoute[?]) :: tail =>
+        head.pathSegment
+          .matchRawUrl(path)
+          .fold(
+            _ => routerFromList(path, notFound, tail),
+            head.combinator(_)
+          )
+
+      case (head: ComplexRoute[?, ?]) :: tail =>
+        head.pathSegment
+          .matchRawUrl(path)
+          .fold(
+            _ => routerFromList(path, notFound, tail),
+            head.combinator(_)
+          )
+    }
+
+  final case class SimpleRoute[PathType](
+      pathSegment: PathSegment[PathType, SimplePathMatchingError],
+      combinator: PathType => Page
+  )
+
+  final case class ComplexRoute[PathType, ParamsType](
+      pathSegment: PathSegmentWithQueryParams[
+        PathType,
+        SimplePathMatchingError,
+        ParamsType,
+        SimpleParamMatchingError
+      ],
+      combinator: UrlMatching[PathType, ParamsType] => Page
+  )

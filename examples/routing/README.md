@@ -1,8 +1,6 @@
-# Tyrian routing example
+# Tyrian routing with Url-DSL
 
-This is an example of how to do routing in Tyrian using 3rd party library [https://github.com/sherpal/url-dsl](url-dsl). 
-You should also add [https://github.com/scala-js/scala-js-dom](scala-js-dom) to your list of dependencies in order 
-to get access to `dom.window.location.href` property. 
+This is an example of how to do routing in Tyrian using third party library [url-dsl](https://github.com/sherpal/url-dsl).  You should also add [scala-js-dom](https://github.com/scala-js/scala-js-dom) to your list of dependencies in order to get access to `dom.window.location.href` property. 
 
 To run the program in a browser you will need to have yarn (or npm) installed.
 
