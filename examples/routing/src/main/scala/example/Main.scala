@@ -2,16 +2,8 @@ package myorg
 
 import cats.effect.IO
 import org.scalajs.dom
-import tyrian.Html.{param => _, _}
+import tyrian.Html.*
 import tyrian.*
-import urldsl.errors.SimpleParamMatchingError
-import urldsl.errors.SimplePathMatchingError
-import urldsl.language.PathSegment
-import urldsl.language.PathSegmentWithQueryParams
-import urldsl.language.simpleErrorImpl.*
-import urldsl.vocabulary.Param
-import urldsl.vocabulary.Segment
-import urldsl.vocabulary.UrlMatching
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 
@@ -22,7 +14,7 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
     * https://github.com/sherpal/url-dsl
     */
   def router: Location => Msg =
-    Routes.router
+    CustomRoutes.router
 
   def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
     (Model(Page.Home, 0), Cmd.None)
@@ -45,8 +37,12 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
 
   def viewHome(model: Model): Html[Msg] =
     div(
-      p("Hello from home!"),
-      button(onClick(Msg.NavigateTo(Page.Counter)))("Go counter")
+      p("Hello from the homepage!"),
+      ul(
+        li(a(href := Page.Counter.address)("Go to the counter")),
+        li(a(href := Page.UserPage(1).address)("See user by id")),
+        li(a(href := Page.UserAgePage(Option(23)).address)("See user by age"))
+      )
     )
 
   def viewCounter(model: Model): Html[Msg] =
@@ -108,7 +104,7 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
 final case class Model(page: Page, counter: Int)
 
 enum Page(val address: String):
-  case Home                  extends Page("/home")
+  case Home                  extends Page("/")
   case Counter               extends Page("/counter")
   case NotFound              extends Page("/not-found")
   case UserPage(userId: Int) extends Page(s"/id/$userId")
@@ -120,7 +116,37 @@ enum Msg:
   case NavigateTo(page: Page)
   case FollowExternalLink(href: String)
 
-object Routes:
+object CustomRoutes:
+
+  import urldsl.errors.*
+  import urldsl.language.*
+  import urldsl.language.simpleErrorImpl.*
+  import urldsl.vocabulary.*
+
+  /** These are our routes. Since they don't change throughout the life of the
+    * app, we can store them in a val for resuse.
+    */
+  val routes: List[SimpleRoute[?] | RouteWithParam[?, ?]] =
+    List(
+      SimpleRoute[Unit](
+        root,
+        _ => Page.Home
+      ),
+      SimpleRoute[Unit](
+        root / "counter",
+        _ => Page.Counter
+      ),
+      SimpleRoute[Int](
+        root / "id" / segment[Int],
+        (userId: Int) => Page.UserPage(userId)
+      ),
+      RouteWithParam[Unit, Option[Int]](
+        (root / "user" / endOfSegments) ? param[Int]("age").?,
+        { case UrlMatching(_, ageOption) =>
+          Page.UserAgePage(ageOption)
+        }
+      )
+    )
 
   /** This is our routing function.
     *
@@ -133,80 +159,62 @@ object Routes:
     loc match
       case loc: Location.Internal =>
         Msg.NavigateTo(
-          Routes.routerFromList(
-            path = loc.pathName,
+          CustomRoutes.routerFromList(
+            path = loc.href,
             notFound = Page.NotFound,
-            List(
-              SimpleRoute[Unit](
-                root / "home",
-                _ => Page.Home
-              ),
-              SimpleRoute[Unit](
-                root / "counter",
-                _ => Page.Counter
-              ),
-              SimpleRoute[Int](
-                root / "id" / segment[Int],
-                (userId: Int) => Page.UserPage(userId)
-              ),
-              ComplexRoute[Unit, Option[Int]](
-                (root / "user" / endOfSegments) ? param[Int]("age").?,
-                { case UrlMatching(_, ageOption) =>
-                  Page.UserAgePage(ageOption)
-                }
-              )
-            )
+            routeList = routes
           )
         )
 
       case loc: Location.External =>
         Msg.FollowExternalLink(loc.href)
 
-  def routerFromList(
+  private def routerFromList(
       path: String,
       notFound: Page,
-      xs: List[SimpleRoute[?] | ComplexRoute[?, ?]]
+      routeList: List[SimpleRoute[?] | RouteWithParam[?, ?]]
   ): Page =
-    xs match {
-      case Nil => notFound
+    routeList match
+      case Nil =>
+        notFound
+
       case (head: SimpleRoute[?]) :: Nil =>
         head.pathSegment
           .matchRawUrl(path)
-          .fold(_ => notFound, head.combinator(_))
+          .fold(_ => notFound, head.matchPath(_))
 
-      case (head: ComplexRoute[?, ?]) :: Nil =>
+      case (head: RouteWithParam[?, ?]) :: Nil =>
         head.pathSegment
           .matchRawUrl(path)
-          .fold(_ => notFound, head.combinator(_))
+          .fold(_ => notFound, head.matchPath(_))
 
       case (head: SimpleRoute[?]) :: tail =>
         head.pathSegment
           .matchRawUrl(path)
           .fold(
             _ => routerFromList(path, notFound, tail),
-            head.combinator(_)
+            head.matchPath(_)
           )
 
-      case (head: ComplexRoute[?, ?]) :: tail =>
+      case (head: RouteWithParam[?, ?]) :: tail =>
         head.pathSegment
           .matchRawUrl(path)
           .fold(
             _ => routerFromList(path, notFound, tail),
-            head.combinator(_)
+            head.matchPath(_)
           )
-    }
 
   final case class SimpleRoute[PathType](
       pathSegment: PathSegment[PathType, SimplePathMatchingError],
-      combinator: PathType => Page
+      matchPath: PathType => Page
   )
 
-  final case class ComplexRoute[PathType, ParamsType](
+  final case class RouteWithParam[PathType, ParamsType](
       pathSegment: PathSegmentWithQueryParams[
         PathType,
         SimplePathMatchingError,
         ParamsType,
         SimpleParamMatchingError
       ],
-      combinator: UrlMatching[PathType, ParamsType] => Page
+      matchPath: UrlMatching[PathType, ParamsType] => Page
   )
