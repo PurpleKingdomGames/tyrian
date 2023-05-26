@@ -75,20 +75,22 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
 
   def viewNotFound(): Html[Msg] =
     div(
-      p("Not found the requested page"),
+      p("The requested page was not found..."),
       button(onClick(Msg.NavigateTo(Page.Home)))("Go to homepage")
     )
 
   def viewUserPage(userId: Int): Html[Msg] =
     div(
-      p(s"Welcome at user page with user id: ${userId}"),
+      p(s"Welcome to the user page with user id: ${userId}"),
       button(onClick(Msg.NavigateTo(Page.Home)))("Go to home")
     )
 
   def viewUserMaybeAgePage(ageOption: Option[Int]): Html[Msg] =
-    ageOption.fold(div(p("You're so boring...")))(age =>
-      div(p(s"Thanks, you are cool and have $age years!"))
-    )
+    ageOption
+      .map { age =>
+        div(p(s"$age years old, eh?"))
+      }
+      .getOrElse(div(p("You didn't provide an age :(")))
 
   def view(model: Model): Html[Msg] =
     model.page match
@@ -112,7 +114,9 @@ enum Page(val address: String):
       extends Page(s"/user${ageOption.map(a => s"?age=$a").getOrElse("")}")
 
 enum Msg:
-  case Increment, Decrement, Reset
+  case Increment
+  case Decrement
+  case Reset
   case NavigateTo(page: Page)
   case FollowExternalLink(href: String)
 
@@ -123,24 +127,28 @@ object CustomRoutes:
   import urldsl.language.simpleErrorImpl.*
   import urldsl.vocabulary.*
 
+  // To avoid conflicts with Tyrian
+  import urldsl.language.simpleErrorImpl.param
+
   /** These are our routes. Since they don't change throughout the life of the
     * app, we can store them in a val for resuse.
+    *
+    * Route matching looks for the existance of the desired path within the
+    * given path, meaning that we cannot match on 'root' alone for the home
+    * page, because it matches everything. The route matcher takes care of this
+    * later.
     */
-  val routes: List[SimpleRoute[?] | RouteWithParam[?, ?]] =
+  val routes: List[Route] =
     List(
-      SimpleRoute[Unit](
-        root,
-        _ => Page.Home
-      ),
-      SimpleRoute[Unit](
+      Route.Simple[Unit](
         root / "counter",
         _ => Page.Counter
       ),
-      SimpleRoute[Int](
+      Route.Simple[Int](
         root / "id" / segment[Int],
         (userId: Int) => Page.UserPage(userId)
       ),
-      RouteWithParam[Unit, Option[Int]](
+      Route.WithParam[Unit, Option[Int]](
         (root / "user" / endOfSegments) ? param[Int]("age").?,
         { case UrlMatching(_, ageOption) =>
           Page.UserAgePage(ageOption)
@@ -158,63 +166,73 @@ object CustomRoutes:
   def router: Location => Msg = loc =>
     loc match
       case loc: Location.Internal =>
-        Msg.NavigateTo(
+        val page =
           CustomRoutes.routerFromList(
-            path = loc.href,
+            path = loc.pathName,
+            search = loc.search,
             notFound = Page.NotFound,
             routeList = routes
           )
-        )
+
+        Msg.NavigateTo(page)
 
       case loc: Location.External =>
         Msg.FollowExternalLink(loc.href)
 
+  /** First checks if the page requested is empty or "/", and gives the homepage
+    * if true. Otherwise, works through the list of routes until it finds a
+    * match, and produces a Page / Not Found result.
+    */
   private def routerFromList(
       path: String,
+      search: Option[String],
       notFound: Page,
-      routeList: List[SimpleRoute[?] | RouteWithParam[?, ?]]
+      routeList: List[Route]
   ): Page =
-    routeList match
-      case Nil =>
-        notFound
+    if path.isEmpty || path == "/" then Page.Home
+    else
+      routeList
+        .find(_.matches(path, search))
+        .flatMap(_.producePath(path, search))
+        .getOrElse(notFound)
 
-      case (head: SimpleRoute[?]) :: Nil =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold(_ => notFound, head.matchPath(_))
+  /** Custom route type that knows how to use url-dsl to match routes.
+    */
+  enum Route:
 
-      case (head: RouteWithParam[?, ?]) :: Nil =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold(_ => notFound, head.matchPath(_))
+    def matches(path: String, search: Option[String]): Boolean =
+      this match
+        case r: Route.Simple[_] =>
+          r.pathSegment.matchPath(path).isRight
 
-      case (head: SimpleRoute[?]) :: tail =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold(
-            _ => routerFromList(path, notFound, tail),
-            head.matchPath(_)
-          )
+        case r: Route.WithParam[_, _] =>
+          r.pathSegment.matchPathAndQuery(path, search.getOrElse("")).isRight
 
-      case (head: RouteWithParam[?, ?]) :: tail =>
-        head.pathSegment
-          .matchRawUrl(path)
-          .fold(
-            _ => routerFromList(path, notFound, tail),
-            head.matchPath(_)
-          )
+    def producePath(path: String, search: Option[String]): Option[Page] =
+      this match
+        case r: Route.Simple[_] =>
+          r.pathSegment
+            .matchPath(path)
+            .toOption
+            .map(r.matchPath)
 
-  final case class SimpleRoute[PathType](
-      pathSegment: PathSegment[PathType, SimplePathMatchingError],
-      matchPath: PathType => Page
-  )
+        case r: Route.WithParam[_, _] =>
+          r.pathSegment
+            .matchPathAndQuery(path, search.getOrElse(""))
+            .toOption
+            .map(r.matchPath)
 
-  final case class RouteWithParam[PathType, ParamsType](
-      pathSegment: PathSegmentWithQueryParams[
-        PathType,
-        SimplePathMatchingError,
-        ParamsType,
-        SimpleParamMatchingError
-      ],
-      matchPath: UrlMatching[PathType, ParamsType] => Page
-  )
+    case Simple[PathType](
+        pathSegment: PathSegment[PathType, SimplePathMatchingError],
+        matchPath: PathType => Page
+    )
+
+    case WithParam[PathType, ParamsType](
+        pathSegment: PathSegmentWithQueryParams[
+          PathType,
+          SimplePathMatchingError,
+          ParamsType,
+          SimpleParamMatchingError
+        ],
+        matchPath: UrlMatching[PathType, ParamsType] => Page
+    )
