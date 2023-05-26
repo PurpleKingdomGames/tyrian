@@ -32,6 +32,9 @@ object HelloTyrian extends TyrianApp[Msg, Model]:
     case Msg.NavigateTo(page) =>
       (model.copy(page = page), Nav.pushUrl(page.address))
 
+    case Msg.FollowInternalLink(page) =>
+      (model.copy(page = page), Cmd.None)
+
     case Msg.FollowExternalLink(href) =>
       (model, Nav.loadUrl(href))
 
@@ -117,7 +120,10 @@ enum Msg:
   case Increment
   case Decrement
   case Reset
+  // Used by buttons, also triggers a pushState to update the address bar
   case NavigateTo(page: Page)
+  // User by anchor tags, address bar automatically updated
+  case FollowInternalLink(page: Page)
   case FollowExternalLink(href: String)
 
 object CustomRoutes:
@@ -174,7 +180,7 @@ object CustomRoutes:
             routeList = routes
           )
 
-        Msg.NavigateTo(page)
+        Msg.FollowInternalLink(page)
 
       case loc: Location.External =>
         Msg.FollowExternalLink(loc.href)
