@@ -10,6 +10,6 @@
   "author": "Purple Kingdom Games",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^19.0.3"
+    "electron": "^23.0.0"
   }
 }
