@@ -6,6 +6,10 @@ import scala.annotation.targetName
 sealed trait Elem[+M]:
   def map[N](f: M => N): Elem[N]
 
+/** An Empty Node - renders nothing */
+case object Empty extends Elem[Nothing]:
+  def map[N](f: Nothing => N): Empty.type = this
+
 /** A text node */
 final case class Text(value: String) extends Elem[Nothing]:
   def map[N](f: Nothing => N): Text = this

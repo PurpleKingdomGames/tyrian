@@ -7,6 +7,7 @@ import snabbdom._
 import snabbdom.modules._
 import tyrian.Attr
 import tyrian.Attribute
+import tyrian.Empty
 import tyrian.Event
 import tyrian.Html
 import tyrian.Location
@@ -117,6 +118,7 @@ object Rendering:
         val data = buildNodeData(attrs, onMsg)
         val childrenElem: Array[VNode] =
           children.toArray.map {
+            case _: Empty.type      => VNode.empty()
             case t: Text            => VNode.text(t.value)
             case subHtml: Html[Msg] => toVNode(subHtml, onMsg, router)
           }
@@ -131,6 +133,7 @@ object Rendering:
         val data = buildNodeData(attrs, onMsg)
         val childrenElem: Array[VNode] =
           children.toArray.map {
+            case _: Empty.type      => VNode.empty()
             case t: Text            => VNode.text(t.value)
             case subHtml: Html[Msg] => toVNode(subHtml, onMsg, router)
           }

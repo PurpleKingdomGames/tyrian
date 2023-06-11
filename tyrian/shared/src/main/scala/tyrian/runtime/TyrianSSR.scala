@@ -34,8 +34,9 @@ object Render:
   extension [Msg](elem: Elem[Msg])
     def render: String =
       elem match
-        case t: Text    => t.value
-        case h: Html[_] => h.render
+        case _: Empty.type => ""
+        case t: Text       => t.value
+        case h: Html[_]    => h.render
 
   extension [Msg](html: Html[Msg])
     def render: String =
@@ -49,8 +50,9 @@ object Render:
             spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
 
           val children = tag.children.map {
-            case t: Text    => t.value
-            case h: Html[_] => h.render
+            case _: Empty.type => ""
+            case t: Text       => t.value
+            case h: Html[_]    => h.render
           }.mkString
 
           s"""<${tag.name}$attributes>$children</${tag.name}>"""
