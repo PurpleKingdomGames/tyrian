@@ -22,3 +22,5 @@ object syntax:
   extension [F[_]: Async, A](stream: fs2.Stream[F, A])
     def toSub(id: String): Sub[F, A] =
       Sub.make(id, stream)
+
+  extension [M](oa: Option[Elem[M]]) def orEmpty: Elem[M] = oa.getOrElse(tyrian.Empty)

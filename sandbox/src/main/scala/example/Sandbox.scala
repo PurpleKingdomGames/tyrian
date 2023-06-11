@@ -360,6 +360,14 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
           div(onMouseMove(evt => Msg.MouseMove((evt.screenX.toInt, evt.screenY.toInt))))(
             div(
+              p("Optional elements:"),
+              Option(p("This will show, but then... nothing!")).orEmpty,
+              Option.empty[Html[Msg]].orEmpty,
+              p("Then something with a predicate"),
+              if true then p("Showing") else Empty,
+              if false then p("Showing") else Empty
+            ),
+            div(
               input(id := "fruitName", onInput(s => Msg.UpdateFruitInput(s))),
               button(onClick(Msg.AddFruit))(
                 text("Add Fruit")
