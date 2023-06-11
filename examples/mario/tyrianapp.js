@@ -1,5 +1,5 @@
 import {
   TyrianApp
-} from './target/scala-3.2.2/mario-fastopt.js';
+} from './target/scala-3.3.0/mario-fastopt.js';
 
 TyrianApp.launch("mario");

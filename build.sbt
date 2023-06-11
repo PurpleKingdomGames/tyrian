@@ -16,10 +16,10 @@ ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports"
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.2.2"
+lazy val scala3Version      = "3.3.0"
 lazy val tyrianDocsVersion  = "0.6.2"
 lazy val scalaJsDocsVersion = "1.13.1"
-lazy val scalaDocsVersion   = "3.2.2"
+lazy val scalaDocsVersion   = "3.3.0"
 lazy val indigoDocsVersion  = "0.14.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
@@ -387,6 +387,19 @@ addCommandAlias(
     "indigoSandbox/test",
     "firefoxTests/test",
     "chromeTests/test"
+  ).mkString(";", ";", "")
+)
+
+addCommandAlias(
+  "testAllUnit",
+  List(
+    "tyrianJS/test",
+    "tyrianJVM/test",
+    "tyrianIO/test",
+    "tyrianZIO/test",
+    "tyrianIndigoBridge/test",
+    "sandbox/test",
+    "indigoSandbox/test",
   ).mkString(";", ";", "")
 )
 
