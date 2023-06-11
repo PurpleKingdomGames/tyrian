@@ -21,7 +21,7 @@ Points (1) and (2) are 90% just the usual stuff we see in all the other examples
 From the root of the examples folder containing the `build.sbt` file, run the following to compile our Scala.js app:
 
 ```sh
-sbt electron/fastOptJS
+sbt electron/fastLinkJS
 ```
 
 Then make sure parcel is set up:
