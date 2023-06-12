@@ -81,6 +81,24 @@ Styles are also baked in, albeit it in a slightly crude way, but you will get so
 p(style(CSS.`font-weight`("bold")))("Hello")
 ```
 
+#### Optional tags
+
+Sometime you might want to optionally render a tag, or not. To help with this, you can use the `orEmpty` extension method:
+
+```scala
+import tyrian.syntax.*
+
+Option(p("Show this!")).orEmpty
+```
+
+Or the `Empty` type:
+
+```scala
+import tyrian.syntax.*
+
+if showIt then p("Show this!") else Empty
+```
+
 ### SVG
 
 You can also pull in SVG tags and attributes using:
