@@ -1,10 +1,10 @@
 +++
-title = "Core Concepts"
-menuTitle = "Core Concepts"
+title = "Guides"
+menuTitle = "Guides"
 weight = 2
 chapter = true
 +++
 
-## Core Concepts
+## Guides
 
 This section covers the key features and functions of Tyrian.
