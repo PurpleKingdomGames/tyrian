@@ -1,3 +1,3 @@
-import {TyrianApp} from './out/counter/fastOpt.dest/out.js';
+import {TyrianApp} from './out/counter/fastLinkJS.dest/main.js';
 
 TyrianApp.launch("myapp");

@@ -26,7 +26,8 @@ object Main extends TyrianApp[Msg, Model]:
     val angle = model.getSeconds() * 2 * math.Pi / 60 - math.Pi / 2
     val handX = 50 + 40 * math.cos(angle)
     val handY = 50 + 40 * math.sin(angle)
-    tag("svg")(viewBox := "0, 0, 100, 100", width := "300px")(
+
+    svg(viewBox := "0, 0, 100, 100", width := "300px")(
       circle(
         cx   := "50",
         cy   := "50",

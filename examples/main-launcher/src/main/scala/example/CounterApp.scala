@@ -30,9 +30,6 @@ object CounterApp extends TyrianApp[Msg, Model]:
       button(onClick(Msg.Increment))("+")
     )
 
-  def router: Location => Msg =
-    _ => Msg.NoOp
-
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
 

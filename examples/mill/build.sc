@@ -15,7 +15,7 @@ object counter extends ScalaJSModule with TpolecatModule {
     T.command {
       T {
         compile()
-        fastOpt()
+        fastLinkJS()
       }
     }
 
