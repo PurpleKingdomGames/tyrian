@@ -71,7 +71,12 @@ identifier = "discord"
 url = "https://discord.gg/b5CD47g"
 weight = 30
 [[menu.shortcuts]]
-name = "<i class='fas fa-bullhorn'></i> GitHub Sponsors"
+name = "<i class='fas fa-heart'></i> GitHub Sponsors"
 identifier = "sponsors"
 url = "https://github.com/sponsors/PurpleKingdomGames"
 weight = 40
+[[menu.shortcuts]]
+name = "<i class='fas fa-bullhorn'></i> Twitter"
+identifier = "twitter"
+url = "https://twitter.com/indigoengine"
+weight = 50
