@@ -121,7 +121,7 @@ object Http4sDomHelper:
         .expect[Msg1](HttpHelper.url(topic))
         .handleError(e => Msg1.GifError(e.getMessage))
 
-    Cmd.Run(fetchGif)(identity)
+    Cmd.Run(fetchGif)
 ```
 
 ## Web Sockets
