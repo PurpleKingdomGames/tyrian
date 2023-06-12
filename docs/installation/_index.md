@@ -38,13 +38,13 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs"  % "@SCALAJS_VERSION@")
 
 Enable the plugin and add the Tyrian library to your `build.sbt` file.
 
-> At the time of writing, only an implementation for Cats Effect 3's `IO` exists, only because no other compatible libs were available. In theory however, Tyrian will support any effectful monad that implements the CE3 typeclasses. If you'd like to do that, take a look at the [tiny implementation](https://github.com/PurpleKingdomGames/tyrian/blob/main/tyrian-io/src/main/scala/tyrian/TyrianApp.scala), and import `tyrian` instead of `tyrian-io` shown below.
-
 ```scala
 enablePlugins(ScalaJSPlugin)
 
 libraryDependencies ++= Seq(
   "io.indigoengine" %%% "tyrian-io" % "@VERSION@"
+  // OR
+  "io.indigoengine" %%% "tyrian-zio" % "@VERSION@"
 )
 
 scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) }
@@ -84,9 +84,6 @@ object counter extends ScalaJSModule {
     def testFramework = "munit.Framework"
 
     override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
-    override def jsEnvConfig = T(
-      JsEnvConfig.NodeJs(args = List("--dns-result-order=ipv4first"))
-    )
   }
 
 }
