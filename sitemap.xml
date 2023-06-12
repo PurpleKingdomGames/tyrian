@@ -6,34 +6,36 @@
   </url><url>
     <loc>https://tyrian.indigoengine.io/architecture/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/</loc>
   </url><url>
     <loc>https://tyrian.indigoengine.io/examples/</loc>
   </url><url>
     <loc>https://tyrian.indigoengine.io/information/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/guided-tour/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/guided-tour/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/bundling/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/bundling/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/goodies/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/goodies/</loc>
   </url><url>
     <loc>https://tyrian.indigoengine.io/categories/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/cmd/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/cmd/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/networking/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/routing/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/html/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/networking/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/ssr/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/html/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/subs/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/ssr/</loc>
+  </url><url>
+    <loc>https://tyrian.indigoengine.io/guides/subs/</loc>
   </url><url>
     <loc>https://tyrian.indigoengine.io/tags/</loc>
   </url><url>
     <loc>https://tyrian.indigoengine.io/</loc>
   </url><url>
-    <loc>https://tyrian.indigoengine.io/concepts/tyrian-indigo-bridge/</loc>
+    <loc>https://tyrian.indigoengine.io/guides/tyrian-indigo-bridge/</loc>
   </url>
 </urlset>
