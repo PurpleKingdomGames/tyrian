@@ -66,7 +66,12 @@ identifier = "apidocs"
 url = "/api/"
 weight = 20
 [[menu.shortcuts]]
+name = "<i class='fas fa-comments'></i> Discord"
+identifier = "discord"
+url = "https://discord.gg/b5CD47g"
+weight = 30
+[[menu.shortcuts]]
 name = "<i class='fas fa-bullhorn'></i> GitHub Sponsors"
 identifier = "sponsors"
 url = "https://github.com/sponsors/PurpleKingdomGames"
-weight = 30
+weight = 40
