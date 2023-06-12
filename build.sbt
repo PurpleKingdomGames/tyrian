@@ -17,7 +17,7 @@ ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
 lazy val scala3Version      = "3.3.0"
-lazy val tyrianDocsVersion  = "0.6.2"
+lazy val tyrianDocsVersion  = "0.7.1"
 lazy val scalaJsDocsVersion = "1.13.1"
 lazy val scalaDocsVersion   = "3.3.0"
 lazy val indigoDocsVersion  = "0.14.0"
