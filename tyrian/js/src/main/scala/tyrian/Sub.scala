@@ -1,7 +1,6 @@
 package tyrian
 
 import cats.Functor
-import cats.data.Kleisli
 import cats.effect.kernel.Async
 import cats.effect.kernel.Concurrent
 import cats.effect.kernel.Fiber
@@ -84,7 +83,7 @@ object Sub:
       Observe(
         id,
         observable,
-        Kleisli(toMsg).map(f).run
+        toMsg.andThen(_.map(f))
       )
 
   object Observe:
@@ -99,8 +98,8 @@ object Sub:
         toMsg: A => Option[Msg]
     ): Sub[F, Msg] =
       val task = Sync[F].delay {
-        val cancel = Kleisli((res: R) => Sync[F].delay(Option(release(res))))
-        (Kleisli(acquire) andThen cancel).run
+        def cancel(res: R) = Option(release(res))
+        (cb: Either[Throwable, A] => Unit) => acquire(cb).map(cancel)
       }
       Observe[F, A, Msg](id, task, toMsg)
 
@@ -113,8 +112,8 @@ object Sub:
       release: R => F[Unit]
   )(toMsg: A => Option[Msg]): Sub[F, Msg] =
     val task = Sync[F].delay {
-      val cancel = Kleisli((res: R) => Sync[F].delay(Option(release(res))))
-      (Kleisli(acquire) andThen cancel).run
+      def cancel(res: R) = Option(release(res))
+      (cb: Either[Throwable, A] => Unit) => acquire(cb).map(cancel)
     }
     Observe[F, A, Msg](id, task, toMsg)
 
