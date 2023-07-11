@@ -175,28 +175,16 @@ object Sub:
 
   /** A subscription that produces a `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg, id: String): Sub[F, Msg] =
-    val acquire: F[(Either[Throwable, Msg] => Unit) => Int] =
-      Sync[F].delay { (callback: Either[Throwable, Msg] => Unit) =>
-        dom.window.setTimeout(
-          Functions.fun0(() => callback(Right(msg))),
-          duration.toMillis.toDouble
-        )
+    def task(callback: Either[Throwable, Msg] => Unit): F[Option[F[Unit]]] =
+      val handle = dom.window.setTimeout(
+        Functions.fun0(() => callback(Right(msg))),
+        duration.toMillis.toDouble
+      )
+      Sync[F].delay {
+        Option(Sync[F].delay(dom.window.clearTimeout(handle)))
       }
 
-    val release: F[Int => F[Option[F[Unit]]]] =
-      Sync[F].delay { (handle: Int) =>
-        Sync[F].delay {
-          Option(Sync[F].delay(dom.window.clearTimeout(handle)))
-        }
-      }
-
-    val task =
-      for {
-        a <- acquire
-        r <- release
-      } yield a andThen r
-
-    Observe(id, task)
+    Observe(id, Sync[F].pure(task))
 
   /** A subscription that produces a `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg): Sub[F, Msg] =
