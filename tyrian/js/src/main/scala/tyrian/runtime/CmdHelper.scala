@@ -3,35 +3,41 @@ package tyrian.runtime
 import cats.Applicative
 import tyrian.Cmd
 
+import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
 
 object CmdHelper:
 
   def cmdToTaskList[F[_]: Applicative, Msg](cmd: Cmd[F, Msg]): List[F[Option[Msg]]] =
+    val acc: ListBuffer[F[Option[Msg]]] = ListBuffer.empty
+
     @tailrec
-    def rec(remaining: List[Cmd[F, Msg]], acc: List[F[Option[Msg]]]): List[F[Option[Msg]]] =
+    def rec(remaining: List[Cmd[F, Msg]]): List[F[Option[Msg]]] =
       remaining match
         case Nil =>
-          acc.reverse
+          acc.toList
 
         case cmd :: cmds =>
           cmd match
             case Cmd.None =>
-              rec(cmds, acc)
+              rec(cmds)
 
             case c: Cmd.Emit[_] =>
-              rec(cmds, Applicative[F].map(c.toTask)(Option.apply) :: acc)
+              acc += Applicative[F].map(c.toTask)(Option.apply)
+              rec(cmds)
 
             case c: Cmd.SideEffect[_] =>
-              rec(cmds, Applicative[F].map(c.toTask)(_ => Option.empty[Msg]) :: acc)
+              acc += Applicative[F].map(c.toTask)(_ => Option.empty[Msg])
+              rec(cmds)
 
             case c: Cmd.Run[_, _, _] =>
-              rec(cmds, Applicative[F].map(c.toTask)(Option.apply) :: acc)
+              acc += Applicative[F].map(c.toTask)(Option.apply)
+              rec(cmds)
 
             case Cmd.Combine(cmd1, cmd2) =>
-              rec(cmd1 :: cmd2 :: cmds, acc)
+              rec(cmd1 :: cmd2 :: cmds)
 
             case Cmd.Batch(cs) =>
-              rec(cs ++ cmds, acc)
+              rec(cs ++ cmds)
 
-    rec(List(cmd), Nil)
+    rec(List(cmd))
