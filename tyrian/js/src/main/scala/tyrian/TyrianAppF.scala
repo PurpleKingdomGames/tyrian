@@ -153,11 +153,7 @@ object TyrianAppF:
     } yield {
       val tyrianAppElement = element.asInstanceOf[HTMLElement]
       val tyrianAppName    = tyrianAppElement.dataset.get("tyrianApp")
-      val appSupplierOption = for {
-        appName     <- tyrianAppName
-        appSupplier <- appDirectory.get(appName)
-      } yield appSupplier
-      appSupplierOption match
+      tyrianAppName.flatMap(appDirectory.get) match
         case Some(appSupplier) =>
           appSupplier.launch(tyrianAppElement, appElementFlags(tyrianAppElement))
         case _ =>
@@ -165,9 +161,7 @@ object TyrianAppF:
     }
 
   private def appElementFlags(tyrianAppElement: HTMLElement): Map[String, String] =
-    val appFlags = for {
-      (dataAttr, attrValue) <- tyrianAppElement.dataset
-      if dataAttr.startsWith("tyrianFlag")
-      flagName = dataAttr.replaceFirst("^tyrianFlag", "")
-    } yield (flagName, attrValue)
-    appFlags.toMap
+    tyrianAppElement.dataset.collect {
+      case (dataAttr, attrValue) if dataAttr.startsWith("tyrianFlag") =>
+        dataAttr.replaceFirst("^tyrianFlag", "") -> attrValue
+    }.toMap
