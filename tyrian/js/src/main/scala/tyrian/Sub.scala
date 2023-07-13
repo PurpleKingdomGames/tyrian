@@ -76,15 +76,11 @@ object Sub:
     */
   final case class Observe[F[_], A, Msg](
       id: String,
-      observable: F[(Either[Throwable, A] => Unit) => F[Option[F[Unit]]]],
+      observable: (Either[Throwable, A] => Unit) => F[Option[F[Unit]]],
       toMsg: A => Option[Msg]
   ) extends Sub[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Sub[F, OtherMsg] =
-      Observe(
-        id,
-        observable,
-        toMsg.andThen(_.map(f))
-      )
+      Observe(id, observable, toMsg.andThen(_.map(f)))
 
   object Observe:
 
@@ -97,24 +93,20 @@ object Sub:
         release: R => F[Unit],
         toMsg: A => Option[Msg]
     ): Sub[F, Msg] =
-      val task = Sync[F].delay {
-        def cancel(res: R) = Option(release(res))
-        (cb: Either[Throwable, A] => Unit) => acquire(cb).map(cancel)
-      }
+      def cancel(res: R)                         = Option(release(res))
+      def task(cb: Either[Throwable, A] => Unit) = acquire(cb).map(cancel)
       Observe[F, A, Msg](id, task, toMsg)
 
     /** Construct a cancelable observable sub of a value */
-    def apply[F[_], A](id: String, observable: F[(Either[Throwable, A] => Unit) => F[Option[F[Unit]]]]): Sub[F, A] =
+    def apply[F[_], A](id: String, observable: (Either[Throwable, A] => Unit) => F[Option[F[Unit]]]): Sub[F, A] =
       Observe(id, observable, Option.apply)
 
   /** Make a cancelable subscription that produces an optional message */
   def make[F[_]: Sync, A, Msg, R](id: String)(acquire: (Either[Throwable, A] => Unit) => F[R])(
       release: R => F[Unit]
   )(toMsg: A => Option[Msg]): Sub[F, Msg] =
-    val task = Sync[F].delay {
-      def cancel(res: R) = Option(release(res))
-      (cb: Either[Throwable, A] => Unit) => acquire(cb).map(cancel)
-    }
+    def task(cb: Either[Throwable, A] => Unit) =
+      acquire(cb).map((res: R) => Option(release(res)))
     Observe[F, A, Msg](id, task, toMsg)
 
   /** Make a cancelable subscription that returns a value (to be mapped into a Msg) */
@@ -146,10 +138,7 @@ object Sub:
   def forever[F[_]: Sync, A, Msg](acquire: (Either[Throwable, A] => Unit) => Unit)(
       toMsg: A => Option[Msg]
   ): Sub[F, Msg] =
-    val task =
-      Sync[F].delay(acquire andThen _forget)
-
-    Observe[F, A, Msg]("<none>", task, toMsg)
+    Observe[F, A, Msg]("<none>", acquire andThen _forget, toMsg)
 
   /** Merge two subscriptions into a single one */
   final case class Combine[F[_], Msg](sub1: Sub[F, Msg], sub2: Sub[F, Msg]) extends Sub[F, Msg]:
@@ -183,7 +172,7 @@ object Sub:
         Option(Sync[F].delay(dom.window.clearTimeout(handle)))
       }
 
-    Observe(id, Sync[F].pure(task))
+    Observe(id, task)
 
   /** A subscription that produces a `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg): Sub[F, Msg] =

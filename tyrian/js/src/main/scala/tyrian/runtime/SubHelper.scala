@@ -52,9 +52,7 @@ object SubHelper:
     Resource
       .makeFull[F, Option[F[Unit]]] { poll =>
         poll {
-          sub.observable.flatMap { run =>
-            run(result => callback(result.map(sub.toMsg(_))))
-          }
+          sub.observable(result => callback(result.map(sub.toMsg(_))))
         }
       }(_.getOrElse(F.unit))
       .useForever

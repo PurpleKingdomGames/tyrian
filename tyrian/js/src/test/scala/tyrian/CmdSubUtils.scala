@@ -24,9 +24,7 @@ object CmdSubUtils:
   def runSub[A, Msg](sub: Sub[IO, Msg])(callback: Either[Throwable, A] => Unit): IO[Unit] =
     sub match
       case s: Sub.Observe[IO, A, Msg] @unchecked =>
-        s.observable.map { run =>
-          run(callback)
-        }
+        s.observable(callback).void
 
       case _ =>
         throw new Exception("failed, was not a run task")

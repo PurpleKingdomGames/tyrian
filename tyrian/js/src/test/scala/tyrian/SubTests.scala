@@ -5,7 +5,7 @@ import cats.effect.IO
 @SuppressWarnings(Array("scalafix:DisableSyntax.throw", "scalafix:DisableSyntax.var"))
 class SubTests extends munit.CatsEffectSuite {
 
-  type Obs[A] = IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]]
+  type Obs[A] = (Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]
 
   import CmdSubUtils.*
 
@@ -17,11 +17,10 @@ class SubTests extends munit.CatsEffectSuite {
       case Left(_)  => throw new Exception("failed")
     }
 
-    val observable: Int => Obs[Int] = i =>
-      IO.delay { cb =>
-        cb(Right(i))
-        IO(Option(IO(())))
-      }
+    val observable: Int => Obs[Int] = i => { cb =>
+      cb(Right(i))
+      IO(Option(IO(())))
+    }
 
     val subs = List(
       Sub.Observe[IO, Int]("sub1", observable(10)),
@@ -63,7 +62,7 @@ class SubTests extends munit.CatsEffectSuite {
       case Left(_)  => throw new Exception("failed")
     }
 
-    val observable: Obs[Int] = IO.delay { cb =>
+    val observable: Obs[Int] = { cb =>
       cb(Right(10))
       IO(Option(IO(())))
     }
@@ -82,11 +81,10 @@ class SubTests extends munit.CatsEffectSuite {
       case Left(_)  => throw new Exception("failed")
     }
 
-    val observable: Int => Obs[Int] = i =>
-      IO.delay { cb =>
-        cb(Right(i))
-        IO(Option(IO(())))
-      }
+    val observable: Int => Obs[Int] = i => { cb =>
+      cb(Right(i))
+      IO(Option(IO(())))
+    }
 
     val combined =
       Sub.Combine(
@@ -108,11 +106,10 @@ class SubTests extends munit.CatsEffectSuite {
       case Left(_)  => throw new Exception("failed")
     }
 
-    val observable: Int => Obs[Int] = i =>
-      IO.delay { cb =>
-        cb(Right(i))
-        IO(Option(IO(())))
-      }
+    val observable: Int => Obs[Int] = i => { cb =>
+      cb(Right(i))
+      IO(Option(IO(())))
+    }
 
     val batched =
       Sub.Batch[IO, Int](
@@ -145,11 +142,10 @@ class SubTests extends munit.CatsEffectSuite {
       case Left(_)  => throw new Exception("failed")
     }
 
-    val observable: Int => Obs[Int] = i =>
-      IO.delay { cb =>
-        cb(Right(i))
-        IO(Option(IO(())))
-      }
+    val observable: Int => Obs[Int] = i => { cb =>
+      cb(Right(i))
+      IO(Option(IO(())))
+    }
 
     val test1 =
       Sub.Batch[IO, Int](
