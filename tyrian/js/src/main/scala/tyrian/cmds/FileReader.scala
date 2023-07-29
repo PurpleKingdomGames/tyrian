@@ -23,30 +23,7 @@ object FileReader:
   ): Cmd[F, Msg] =
     val files = document.getElementById(fileInputFieldId).asInstanceOf[html.Input].files
     if files.length == 0 then Cmd.None
-    else
-      val task = Async[F].delay {
-        val file       = files.item(0)
-        val p          = Promise[Result[js.Any]]()
-        val fileReader = new dom.FileReader()
-        fileReader.addEventListener(
-          "load",
-          (e: Event) =>
-            p.success(
-              Result.File(
-                name = file.name,
-                path = e.target.asInstanceOf[js.Dynamic].result.asInstanceOf[String],
-                data = fileReader.result
-              )
-            ),
-          false
-        )
-        fileReader.onerror =
-          _ => p.success(Result.Error(s"Error reading from file type input field '$fileInputFieldId'"))
-        fileReader.readAsDataURL(file)
-        p.future
-      }
-
-      Cmd.Run(Async[F].fromFuture(task), resultToMessage)
+    else read(files.item(0))(resultToMessage)
 
   /** Reads an input file as an image */
   def readImage[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[html.Image] => Msg): Cmd[F, Msg] =
@@ -56,6 +33,16 @@ object FileReader:
     }
     read(inputFieldId)(cast andThen resultToMessage)
 
+  def readImage[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[html.Image] => Msg): Cmd[F, Msg] =
+    val cast: Result[js.Any] => Result[html.Image] = {
+      case Result.Error(msg) => Result.Error(msg)
+      case Result.File(n, p, d) =>
+        try Result.File(n, p, d.asInstanceOf[html.Image])
+        catch case _ => Result.Error("File is not an image")
+
+    }
+    read(file)(cast andThen resultToMessage)
+
   /** Reads an input file as plain text */
   def readText[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
     val cast: Result[js.Any] => Result[String] = {
@@ -63,6 +50,40 @@ object FileReader:
       case Result.File(n, p, d) => Result.File(n, p, d.asInstanceOf[String])
     }
     read(inputFieldId)(cast andThen resultToMessage)
+
+  def readText[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
+    val cast: Result[js.Any] => Result[String] = {
+      case Result.Error(msg) => Result.Error(msg)
+      case Result.File(n, p, d) =>
+        try Result.File(n, p, d.asInstanceOf[String])
+        catch case _ => Result.Error("File is not text")
+    }
+    read(file)(cast andThen resultToMessage)
+
+  private def read[F[_]: Async, Msg](file: dom.File)(
+      resultToMessage: Result[js.Any] => Msg
+  ): Cmd[F, Msg] =
+    val task = Async[F].delay {
+      val p          = Promise[Result[js.Any]]()
+      val fileReader = new dom.FileReader()
+      fileReader.addEventListener(
+        "load",
+        (e: Event) =>
+          p.success(
+            Result.File(
+              name = file.name,
+              path = e.target.asInstanceOf[js.Dynamic].result.asInstanceOf[String],
+              data = fileReader.result
+            )
+          ),
+        false
+      )
+      fileReader.onerror = _ => p.success(Result.Error(s"Error reading from file"))
+      fileReader.readAsDataURL(file)
+      p.future
+    }
+
+    Cmd.Run(Async[F].fromFuture(task), resultToMessage)
 
   enum Result[A]:
     case Error(message: String)
