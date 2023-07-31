@@ -1,10 +1,14 @@
 package example
 
 import cats.effect.IO
+import org.scalajs.dom
+import org.scalajs.dom.html
 import tyrian.Html.*
 import tyrian.SVG.*
 import tyrian.*
 import tyrian.cmds.Dom
+import tyrian.cmds.File
+import tyrian.cmds.FileReader
 import tyrian.cmds.LocalStorage
 import tyrian.cmds.Logger
 import tyrian.http.*
@@ -312,6 +316,26 @@ object Sandbox extends TyrianApp[Msg, Model]:
     case Msg.FrameTick(t) =>
       (model.copy(time = model.time.next(t)), Cmd.None)
 
+    case Msg.SelectFile =>
+      (
+        model,
+        File.select(
+          Array("image/png", "image/jpg", "image/webp")
+        )((f: dom.File) => Msg.ReadFile(f))
+      )
+
+    case Msg.ReadFile(file) =>
+      (
+        model,
+        FileReader.readImage(file)((r: FileReader.Result[html.Image]) =>
+          r match {
+            case FileReader.Result.File(_, _, d) => Msg.FileRead(d)
+            case _                               => Msg.NoOp
+          }
+        )
+      )
+    case Msg.FileRead(file) =>
+      (model.copy(image = Some(file)), Cmd.None)
   def view(model: Model): Html[Msg] =
     val navItems =
       Page.values.toList.map { pg =>
@@ -556,6 +580,17 @@ object Sandbox extends TyrianApp[Msg, Model]:
             )
           )
 
+        case Page.Page7 =>
+          div(
+            button(onClick(Msg.SelectFile)),
+            div(style := CSS.width("200px"))(
+              img(
+                src :=
+                  model.image.map(img => img.src).getOrElse("")
+              )
+            )
+          )
+
     div(
       div(
         h3(style := CSS.`font-family`("sans-serif"))("Navigation:"),
@@ -658,6 +693,9 @@ enum Msg:
   case AddFruit
   case UpdateFruitInput(input: String)
   case ToggleFruitAvailability(name: String)
+  case SelectFile
+  case ReadFile(file: dom.File)
+  case FileRead(file: html.Image)
   case NoOp
 
 enum Status:
@@ -706,7 +744,8 @@ final case class Model(
     mousePosition: (Int, Int),
     flavour: Option[String],
     fruit: List[Fruit],
-    fruitInput: String
+    fruitInput: String,
+    image: Option[html.Image]
 )
 
 final case class Fruit(name: String, available: Boolean)
@@ -716,7 +755,7 @@ final case class Time(running: Double, delta: Double):
     this.copy(running = t, delta = t - running)
 
 enum Page:
-  case Page1, Page2, Page3, Page4, Page5, Page6
+  case Page1, Page2, Page3, Page4, Page5, Page6, Page7
 
   def toNavLabel: String =
     this match
@@ -726,6 +765,7 @@ enum Page:
       case Page4 => "Clock"
       case Page5 => "Http"
       case Page6 => "Form"
+      case Page7 => "File Select"
 
   def toUrlPath: String =
     this match
@@ -735,6 +775,7 @@ enum Page:
       case Page4 => "/page4"
       case Page5 => "/page5"
       case Page6 => "/page6"
+      case Page7 => "/page7"
 
 object Model:
   // val echoServer = "ws://ws.ifelse.io" // public echo server
@@ -757,7 +798,8 @@ object Model:
       (0, 0),
       None,
       Nil,
-      ""
+      "",
+      None
     )
 
   // We're only saving/loading the input field contents as an example
