@@ -71,7 +71,7 @@ object Property:
         val v: Boolean | String =
           asBoolean(value).getOrElse(value)
 
-        Some(Property(name, value))
+        Some(Property(name, v))
 
       case name :: value :: tail =>
         Some(Property(name, value + tail.mkString))

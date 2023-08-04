@@ -11,8 +11,6 @@ Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.
 
 ThisBuild / versionScheme := Some("early-semver")
 
-ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
-
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
@@ -21,6 +19,12 @@ lazy val tyrianDocsVersion  = "0.7.1"
 lazy val scalaJsDocsVersion = "1.13.1"
 lazy val scalaDocsVersion   = "3.3.0"
 lazy val indigoDocsVersion  = "0.14.0"
+
+ThisBuild / tpolecatExcludeOptions := Set(
+  ScalacOptions.warnNonUnitStatement,
+  ScalacOptions.warnValueDiscard,
+  ScalacOptions.warnUnusedImports
+)
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,

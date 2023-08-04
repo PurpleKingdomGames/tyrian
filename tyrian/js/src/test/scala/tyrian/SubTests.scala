@@ -151,12 +151,6 @@ class SubTests extends munit.CatsEffectSuite {
         IO(Option(IO(())))
       }
 
-    val test1 =
-      Sub.Batch[IO, Int](
-        Sub.Observe[IO, Int]("sub1", observable(10)),
-        Sub.Observe[IO, Int]("sub2", observable(20))
-      )
-
     def check(batched: Sub.Batch[IO, Int]): IO[(Unit, Unit)] =
       batched.subs match
         case s1 :: s2 :: Nil =>

@@ -206,8 +206,6 @@ class CmdTests extends munit.CatsEffectSuite {
   }
 
   test("Cmd.Run use syntax to produce a command") {
-    type Msg = String
-
     IO("testing 2").toCmd.toTask.assertEquals("testing 2")
   }
 

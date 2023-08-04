@@ -5,6 +5,9 @@ import io.circe.HCursor
 import io.circe.parser.*
 import tyrian.http.*
 
+import scala.annotation.nowarn
+
+@nowarn
 class HttpTests extends munit.CatsEffectSuite {
 
   type Msg = Either[HttpError, Response]
