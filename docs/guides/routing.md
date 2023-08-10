@@ -16,7 +16,7 @@ There are a few ways to implement the `router` function. Please note that in all
 If your needs are simple, then the easiest way to implement the router is to use the helpers in the `Routing` module. For example, this one simply forwards on the `href`s as custom `Msg`s. As usual, note that you need to provide suitable `Msg` types:
 
 ```scala
-def router: Location => Msg = Routing.basic(Msg.Msg.FollowInternalLink(_), Msg.FollowExternalLink(_))
+def router: Location => Msg = Routing.basic(Msg.FollowInternalLink(_), Msg.FollowExternalLink(_))
 ```
 
 There are also `Routing.externalOnly` and `Routing.none` variations.
