@@ -340,7 +340,7 @@ addCommandAlias(
     "docs/clean",
     "unidocs/unidoc", // Docs in ./target/scala-3.x.x/unidoc/
     "copyApiDocs",    // Copied to ./target/unidocs/site-docs
-    "docs/mdoc"       // Content docs in ./indigo/tyrian-docs/target/mdoc
+    "docs/mdoc"       // Content docs in ./tyrian-docs/target/mdoc
   ).mkString(";", ";", "")
 )
 

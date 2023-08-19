@@ -67,7 +67,7 @@ val cmd: Cmd[IO, Msg] =
 
 ### `Http`
 
-Please see [Networking](../networking/) for details.
+Please see [Networking](networking.md) for details.
 
 ### `ImageLoader`
 
@@ -198,5 +198,5 @@ With an update for `Msg.TakeSnapshot` (made up `Msg` name/type),  that triggers 
 
 These entries form a pub/sub relationship where you are required to store an object that holds state in your app's model, and which allows you to then subscribe to events and publish messages via given `Sub`s and `Cmd`s respectively.
 
-- `WebSocket` - Allows you to send and receive data to/from a socket server (see [Networking](../networking/)).
+- `WebSocket` - Allows you to send and receive data to/from a socket server (see [Networking](networking.md)).
 - `TyrianIndigoBridge` - Allows your Tyrian app to communicates with embedded Indigo games.
