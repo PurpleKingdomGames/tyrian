@@ -338,7 +338,7 @@ addCommandAlias(
   "gendocs",
   List(
     "clean",
-    "docs/clean",
+    "compile",        // Make sure we generate sources
     "unidocs/unidoc", // Docs in ./target/scala-3.x.x/unidoc/
     "copyApiDocs",    // Copied to ./target/unidocs/site-docs
     "docs/mdoc"       // Content docs in ./tyrian-docs/target/mdoc
@@ -398,7 +398,7 @@ addCommandAlias(
     "tyrianZIO/test",
     "tyrianIndigoBridge/test",
     "sandbox/test",
-    "indigoSandbox/test",
+    "indigoSandbox/test"
   ).mkString(";", ";", "")
 )
 
