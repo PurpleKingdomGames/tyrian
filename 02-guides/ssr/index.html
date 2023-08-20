@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Server-side Rendering</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Server-side Rendering</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#what-is-server-side-rendering-ssr">What is server-side rendering? (SSR)</a></li>
+    <li class="level1 nav-leaf"><a href="#simple-ssr-with-tyrian">Simple SSR with Tyrian</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="server-side-rendering" class="title">Server-side Rendering</h1>
+        
+        <h2 id="what-is-server-side-rendering-ssr" class="section"><a class="anchor-link left" href="#what-is-server-side-rendering-ssr"><i class="icofont-laika link">&#xef71;</i></a>What is server-side rendering? (SSR)</h2>
+        <p>These days, a normal straight-forward relationship between a frontend client and some sort of backend service, is that the client makes an HTTP request to the service, and receives some data back that it uses to render a page/view for the user. But it wasn&#39;t always so!</p>
+        <p>Back in the days when Perl dominated the world of server side technology and ASP was new and exciting, it was more normal for the browser to hit a url, and for the page rendering to happen entirely on the server: The HTML delivered whole and fully formed to the browser. This allow the pages to be built up from data pulled from other services and databases.</p>
+        <p>This arrangement has come back into fashion, and now has the fancy name &quot;server-side rendering&quot; or SSR. The benefit of SSR is that HTML is incredibly cache-able. If you can manufacture a page or a fragment of a page once, then you may be able to cache it for super fast page loading performance.</p>
+        
+        <h2 id="simple-ssr-with-tyrian" class="section"><a class="anchor-link left" href="#simple-ssr-with-tyrian"><i class="icofont-laika link">&#xef71;</i></a>Simple SSR with Tyrian</h2>
+        <p>Below is a simple example of SRR with Tyrian:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="type-name">Html</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">styles</span><span>  = </span><span class="identifier">style</span><span>(</span><span class="type-name">CSS</span><span>.</span><span class="identifier">`font-family`</span><span>(</span><span class="string-literal">&quot;Arial, Helvetica, sans-serif&quot;</span><span>))
+</span><span class="keyword">val</span><span> </span><span class="identifier">topLine</span><span> = </span><span class="identifier">p</span><span>(</span><span class="identifier">b</span><span>(</span><span class="identifier">text</span><span>(</span><span class="string-literal">&quot;HTML fragment rendered by Tyrian on the server.&quot;</span><span>)))
+
+</span><span class="type-name">Tyrian</span><span>.</span><span class="identifier">render</span><span>(
+  </span><span class="identifier">div</span><span>(</span><span class="identifier">styles</span><span>)(
+    </span><span class="identifier">topLine</span><span>,
+    </span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;Hello, world!&quot;</span><span>)
+  )
+)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>As you can see, this is completely ordinary Scala, which means you can do anything that Scala lets you do in order to generate this HTML block, without having to learn a templating language like Mustache.</p>
+        <p>There are a number of variations of the <code>Tyrian.render</code> function, full details can be found in the Tyrian API docs.</p>
+        <p>There is an example of SRR in the <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">server-examples</a>.
+        &lt;script type=&quot;text/javascript&quot; src=&quot;ssr.md.js&quot; defer&gt;&lt;/script&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

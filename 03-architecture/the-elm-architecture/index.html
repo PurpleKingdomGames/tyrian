@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>The Elm Architecture</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../../02-guides/guided-tour.md.js"></script>
+    <script src="../../02-guides/tyrian-indigo-bridge.md.js"></script>
+    <script src="../../02-guides/subs.md.js"></script>
+    <script src="../../02-guides/networking.md.js"></script>
+    <script src="../../02-guides/ssr.md.js"></script>
+    <script src="../../02-guides/html.md.js"></script>
+    <script src="../../02-guides/cmd.md.js"></script>
+    <script src="../../02-guides/goodies.md.js"></script>
+    <script src="../../02-guides/mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 active nav-leaf"><a href="#">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">The Elm Architecture</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#the-tea-pattern">The TEA pattern</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="the-elm-architecture" class="title">The Elm Architecture</h1>
+        <p>Tyrian provides a runtime environment for executing applications that was originally designed according to the <a href="https://guide.elm-lang.org/architecture/">Elm architecture</a>.</p>
+        <p>Elm is the name of a language and an ecosystem, but it&#39;s architecture has become more widely known as the &#39;TEA Pattern&#39; (<em>(<strong>T</strong>)he (<strong>E</strong>)lm (<strong>A</strong>)rchitecture</em>) and has influenced many GUI/UI libraries and implementations beyond the world of functional programming.</p>
+        
+        <h2 id="the-tea-pattern" class="section"><a class="anchor-link left" href="#the-tea-pattern"><i class="icofont-laika link">&#xef71;</i></a>The TEA pattern</h2>
+        <p>The TEA Pattern is about:</p>
+        <ol class="arabic">
+          <li>Immutable data.</li>
+          <li>Pure functions.</li>
+          <li>Uni-directional data flow.</li>
+          <li>Strictly ordered events and updates.</li>
+        </ol>
+        <p>This gives you a system that is very easy to reason about, since the data cannot (or is unlikely to) be subject to hard-to-test race conditions or side effects, and everything happens in a predictable order.</p>
+        <p>The purity of the system, the way that the state is held apart from the processing and rendering functions, also allows for easy testing without the need for complex mocking.</p>
+        <p>In essence:</p>
+        <ul>
+          <li>The state of the application is modeled by an immutable <code>Model</code>.</li>
+          <li>Events that change the state of the application are modeled by an immutable <code>Msg</code> type.</li>
+          <li>State transitions are implemented by a <code>(Msg, Model) =&gt; Model</code> function.</li>
+          <li>Finally, a <code>Model =&gt; Html[Msg]</code> function defines how to render the state of the application in HTML.</li>
+        </ul>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

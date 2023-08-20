@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Subscriptions</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Subscriptions</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#a-notification-of-change">A notification of change</a></li>
+    <li class="level2 nav-leaf"><a href="#working-with-subscriptions">Working with Subscriptions</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="subscriptions" class="title">Subscriptions</h1>
+        
+        <h2 id="a-notification-of-change" class="section"><a class="anchor-link left" href="#a-notification-of-change"><i class="icofont-laika link">&#xef71;</i></a>A notification of change</h2>
+        <p>Subscriptions (<code>Sub</code>s) are used to observe something that changes over time, and to emit discrete messages when something happens.</p>
+        <p>For example, we could chose to observe the mouse position, and emit a message every time the mouse moves, like this:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.</span><span class="identifier">document</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.</span><span class="type-name">MouseEvent</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+
+</span><span class="keyword">type</span><span> </span><span class="type-name">Model</span><span> = </span><span class="type-name">Int</span><span>
+
+</span><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">MouseMove</span><span>(</span><span class="identifier">x</span><span>: </span><span class="type-name">Double</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Double</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">mousePosition</span><span>: </span><span class="type-name">Sub</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] = 
+  </span><span class="type-name">Sub</span><span>.</span><span class="identifier">fromEvent</span><span>(</span><span class="string-literal">&quot;mousemove&quot;</span><span>, </span><span class="identifier">document</span><span>) { </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span>: </span><span class="type-name">MouseEvent</span><span>  =&gt;
+    </span><span class="type-name">Option</span><span>(</span><span class="type-name">Msg</span><span>.</span><span class="type-name">MouseMove</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">pageX</span><span>, </span><span class="identifier">e</span><span>.</span><span class="identifier">pageY</span><span>))
+  }
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">subscriptions</span><span>(</span><span class="identifier">model</span><span>: </span><span class="type-name">Model</span><span>): </span><span class="type-name">Sub</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="identifier">mousePosition</span></code></pre>
+        <p>A change in mouse position will now result in a <code>MouseMove</code> message that will be piped back to your <code>updateModel</code> function.</p>
+        <p>Subscriptions can be used on their own, or in conjunction with commands to form a pub/sub relationship with a resource, as is the case with web sockets and the tyrian-indigo bridge.</p>
+        
+        <h3 id="working-with-subscriptions" class="section"><a class="anchor-link left" href="#working-with-subscriptions"><i class="icofont-laika link">&#xef71;</i></a>Working with Subscriptions</h3>
+        <p>Subscriptions are Functors which means that you can <code>map</code> over them to change the resultant message. They are also Monoids which means that they have an empty representation <code>Sub.None</code> and that you can <code>combine</code> them together, using <code>combine</code> or the shorthand operator: <code>sub1 |+| sub2</code>.</p>
+        <p>A common thing to need to do is batch multiple subs together into a single subscription, like this:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">scala</span><span>.</span><span class="identifier">concurrent</span><span>.</span><span class="identifier">duration</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.</span><span class="identifier">document</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.</span><span class="type-name">MouseEvent</span><span>
+
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+
+</span><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">MouseMove</span><span>(</span><span class="identifier">x</span><span>: </span><span class="type-name">Double</span><span>, </span><span class="identifier">y</span><span>: </span><span class="type-name">Double</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">CurrentSeconds</span><span>(</span><span class="identifier">seconds</span><span>: </span><span class="type-name">Double</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">mousePosition</span><span>: </span><span class="type-name">Sub</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] = 
+  </span><span class="type-name">Sub</span><span>.</span><span class="identifier">fromEvent</span><span>(</span><span class="string-literal">&quot;mousemove&quot;</span><span>, </span><span class="identifier">document</span><span>) { </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span>: </span><span class="type-name">MouseEvent</span><span>  =&gt;
+    </span><span class="type-name">Option</span><span>(</span><span class="type-name">Msg</span><span>.</span><span class="type-name">MouseMove</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">pageX</span><span>, </span><span class="identifier">e</span><span>.</span><span class="identifier">pageY</span><span>))
+  }
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">tick</span><span> =
+  </span><span class="type-name">Sub</span><span>.</span><span class="identifier">every</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="number-literal">1</span><span>.</span><span class="identifier">second</span><span>, </span><span class="string-literal">&quot;tick&quot;</span><span>)
+    .</span><span class="identifier">map</span><span>(</span><span class="identifier">date</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">CurrentSeconds</span><span>(</span><span class="identifier">date</span><span>.</span><span class="identifier">getSeconds</span><span>()))
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">subscriptions</span><span>(</span><span class="identifier">model</span><span>: </span><span class="type-name">Model</span><span>): </span><span class="type-name">Sub</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">Sub</span><span>.</span><span class="type-name">Batch</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>](
+    </span><span class="identifier">mousePosition</span><span>,
+    </span><span class="identifier">tick</span><span>
+  )</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run1&quot; data-mdoc-js&gt;&lt;/div&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;subs.md.js&quot; defer&gt;&lt;/script&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

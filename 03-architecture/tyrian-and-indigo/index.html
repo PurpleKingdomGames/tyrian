@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Tyrian &amp; Indigo</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../../02-guides/guided-tour.md.js"></script>
+    <script src="../../02-guides/tyrian-indigo-bridge.md.js"></script>
+    <script src="../../02-guides/subs.md.js"></script>
+    <script src="../../02-guides/networking.md.js"></script>
+    <script src="../../02-guides/ssr.md.js"></script>
+    <script src="../../02-guides/html.md.js"></script>
+    <script src="../../02-guides/cmd.md.js"></script>
+    <script src="../../02-guides/goodies.md.js"></script>
+    <script src="../../02-guides/mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Tyrian &amp; Indigo</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#cmd-vs-outcome"><code>Cmd</code> vs <code>Outcome</code></a></li>
+    <li class="level1 nav-leaf"><a href="#the-nature-of-your-model">The nature of your <code>Model</code></a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="tyrian-indigo" class="title">Tyrian &amp; Indigo</h1>
+        <p>Tyrian and <a href="https://indigoengine.io/">Indigo</a> are siblings and both follow an interpretation of the TEA Pattern, but they grew up at different times under different influences, and so they are not exactly the same in their design.</p>
+        <p>Tyrian is designed in the same image as Elm, and for the same purpose: Building rich web apps. Indigo however is a game engine. They do have a lot of things in common:</p>
+        <ul>
+          <li>The APIs are all pure functions</li>
+          <li>The state is immutable</li>
+          <li>The data follows a uni-directional path</li>
+          <li>Events/Messages are strictly ordered</li>
+          <li>...even the names and signatures of the API functions are similar</li>
+        </ul>
+        <p>...and so on.</p>
+        <p>But if you consider the life of a GUI app versus a game - in general - user interfaces don&#39;t do anything except as a reaction to user input. Yes, there are exceptions, you can do animations, people do use Elm to make games, etc. But as a broad brush principle, most of the time your word processor or photo editing applications are doing nothing unless you are doing something with them. Hammering keys and painting with you mouse.</p>
+        <p>Games on the other hand are normally doing things <em>all the time</em>. Even if the player isn&#39;t doing anything! There <em>will</em> be background animations, particle effects will be firing, non-player characters will be walking around, your character will get bored and start impatiently tapping their foot.</p>
+        <p>Two of the main ways this difference visibly manifests itself are:</p>
+        <ol class="arabic">
+          <li><code>Cmd</code> vs <code>Outcome</code></li>
+          <li>The nature of your <code>Model</code> instance</li>
+        </ol>
+        
+        <h3 id="cmd-vs-outcome" class="section"><a class="anchor-link left" href="#cmd-vs-outcome"><i class="icofont-laika link">&#xef71;</i></a><code>Cmd</code> vs <code>Outcome</code></h3>
+        <p>The update function in Tyrian returns a <code>(Model, Cmd)</code> where the command is a lazily evaluated task - perhaps an HTTP call or some other side effect. Whereas in Indigo you return an <code>Outcome</code>, but an outcome does not allow you to directly describe actions that would need evaluation, it only captures updated values and events. If you want to make an HTTP call, there&#39;s an event for that.</p>
+        <p>In Tyrian we expect that you&#39;ll be doing a lot of out-of-band/concurrent/side-effecting work like calling web services and interacting with JavaScript, in Indigo we assume you mostly won&#39;t be.</p>
+        <p>This has the interesting side effect that Tyrian&#39;s update functions are referentially transparent, but Indigo&#39;s are both referentially transparent and declarative. The former allows you to do more practical things, the latter is lighter and easier to test, but less clean if you do need to, say, call down to JavaScript.</p>
+        
+        <h3 id="the-nature-of-your-model" class="section"><a class="anchor-link left" href="#the-nature-of-your-model"><i class="icofont-laika link">&#xef71;</i></a>The nature of your <code>Model</code></h3>
+        <p>What is in your model?</p>
+        <p>In a GUI app, your model is probably quite close to representing the things that will be displayed. Perhaps it holds the current state of a quiz or survey for example, or the items in a todo list.</p>
+        <p>In an Indigo game, the model tends to be much more abstract and divorced from any presentation concerns. So much so that Indigo has an extra model called a <code>ViewModel</code> that behaves more like a model in Tyrian.</p>
+        <p>As an example: Consider the score counter on a pinball machine. What makes these fun is that they do not simply show your score, they rapidly roll through the numbers always trying to <em>keep up</em> with your score!</p>
+        <p>We have two things we have to know to draw this effect:</p>
+        <ol class="arabic">
+          <li>The real score the player has achieved.</li>
+          <li>The score currently being shown.</li>
+        </ol>
+        <p>In Tyrian, both of these values would be held in the <code>Model</code>.
+        In Indigo, the real score (1) would be held in the <code>Model</code> as it&#39;s a factual piece of data, while the currently displayed score would live in the <code>ViewModel</code> since it&#39;s purely there for presentation purposes.</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

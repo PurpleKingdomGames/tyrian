@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Commands &amp; Effects</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Commands &amp; Effects</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#monadic-effect-handling">Monadic effect handling</a></li>
+    <li class="level1 nav-leaf"><a href="#making-things-happen">Making things happen</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="commands-effects" class="title">Commands &amp; Effects</h1>
+        <p>Using Tyrian, you can get a long way with nothing more than a model, a view, and some messages being pumped around their endless one-way circuit.</p>
+        <p>However, sooner or later you are going to want to do something that appears to break the loop, for instance:</p>
+        <ul>
+          <li>Make an HTTP call</li>
+          <li>Log a message to the console</li>
+          <li>Invoke a download</li>
+          <li>Draw to a canvas</li>
+        </ul>
+        <p>These kinds of actions are called &#39;side-effects&#39;, and are an extremely popular talking point with functional programmers, because they represent the very moment that all their beautiful functional purity goes right out the window.</p>
+        <p>Luckily, Tyrian has a pretty elegant solution for this.</p>
+        
+        <h2 id="monadic-effect-handling" class="section"><a class="anchor-link left" href="#monadic-effect-handling"><i class="icofont-laika link">&#xef71;</i></a>Monadic effect handling</h2>
+        <blockquote>You can skip this bit of context if you like. This section has a bit of jargon in it for those who care about such things, but it&#39;s really not important if you just want to know how to use commands.</blockquote>
+        <p>The usual approach to handling effects (short for side effects) is to employ some sort of effect monad that captures your side effect as a lazy value.</p>
+        <p>This is <em>exactly</em> what a command (<code>Cmd</code>) does. While commands themselves are only Monoidal Functors*, they work using Cats Effect 3 under the covers.</p>
+        <p>(* Meaning you can <code>map</code> over them, they can be combined together, and have an empty state <code>Cmd.None</code>.)</p>
+        <p>So far, this is sounding like effect handling as usual. But no. Primarily because you rarely actually see the underlying effect type.</p>
+        
+        <h2 id="making-things-happen" class="section"><a class="anchor-link left" href="#making-things-happen"><i class="icofont-laika link">&#xef71;</i></a>Making things happen</h2>
+        <p>Commands take the form <code>Cmd[IO, Msg]</code> (<code>IO</code> is used for illustrative purposes) which is to say that they represent some sort of side effect that can produce a message to be cleanly fed back into your single page application&#39;s <code>updateModel</code> function.</p>
+        <p>Commands can be produced as part of a result of calling the <code>init</code> or <code>updateModel</code> functions, which both return a <code>(Model, Cmd[IO, Msg])</code>.</p>
+        <p>Here is an example in which, on receiving a message <code>Msg.LogThis</code>, we are not going to change the model, but we want to write to the browser&#39;s JavaScript console:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+
+</span><span class="keyword">type</span><span> </span><span class="type-name">Model</span><span> = </span><span class="type-name">Int</span><span>
+
+</span><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">LogThis</span><span>(</span><span class="identifier">message</span><span>: </span><span class="type-name">String</span><span>)
+
+</span><span class="keyword">def</span><span> </span><span class="declaration-name">update</span><span>(</span><span class="identifier">model</span><span>: </span><span class="type-name">Model</span><span>): </span><span class="type-name">Msg</span><span> =&gt; (</span><span class="type-name">Model</span><span>, </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>]) =
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Msg</span><span>.</span><span class="type-name">LogThis</span><span>(</span><span class="identifier">msg</span><span>) =&gt;
+    (</span><span class="identifier">model</span><span>, </span><span class="type-name">Logger</span><span>.</span><span class="identifier">consoleLog</span><span>(</span><span class="identifier">msg</span><span>))</span></code></pre>
+        <p>To achieve this, we use the <code>Logger</code> command that comes with Tyrian. The <code>Logger</code> command is in fact just a <code>Cmd.SideEffect</code> that captures a value or behavior as a zero argument function, known as a <code>thunk</code>, in this case a simplified implementation could just be:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">consoleLog</span><span>(</span><span class="identifier">msg</span><span>: </span><span class="type-name">String</span><span>): </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Nothing</span><span>] =
+  </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">SideEffect</span><span> {
+    </span><span class="identifier">println</span><span>(</span><span class="identifier">msg</span><span>)
+  }</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run1&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>But commands can also return values in the form of messages. The <code>Random</code> command looks like this:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Random</span><span>.</span><span class="identifier">double</span><span>[</span><span class="type-name">IO</span><span>]</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run2&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>...and produces an instance of <code>RandomValue</code>, but this leads to a problem since <code>RandomValue</code> is almost certainly not your app&#39;s <code>Msg</code> type, and so we must map over the result:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enum</span><span> </span><span class="type-name">MyMsg</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">MyRandom</span><span>(</span><span class="identifier">d</span><span>: </span><span class="type-name">Double</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">MyMsg</span><span>
+
+</span><span class="type-name">Random</span><span>.</span><span class="identifier">double</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">map</span><span>(</span><span class="identifier">next</span><span> =&gt; </span><span class="type-name">MyMsg</span><span>.</span><span class="type-name">MyRandom</span><span>(</span><span class="identifier">next</span><span>.</span><span class="identifier">value</span><span>))</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run3&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>These are simple examples, but there are much more complicated uses for commands. One great use of commands is for making <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">HTTP requests where the response is decoded into a <code>Msg</code>.</a>
+        &lt;script type=&quot;text/javascript&quot; src=&quot;cmd.md.js&quot; defer&gt;&lt;/script&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

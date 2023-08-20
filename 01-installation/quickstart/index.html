@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Installation</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../../02-guides/guided-tour.md.js"></script>
+    <script src="../../02-guides/tyrian-indigo-bridge.md.js"></script>
+    <script src="../../02-guides/subs.md.js"></script>
+    <script src="../../02-guides/networking.md.js"></script>
+    <script src="../../02-guides/ssr.md.js"></script>
+    <script src="../../02-guides/html.md.js"></script>
+    <script src="../../02-guides/cmd.md.js"></script>
+    <script src="../../02-guides/goodies.md.js"></script>
+    <script src="../../02-guides/mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 active nav-leaf"><a href="#">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Installation</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#quick-setup-with-giter8">Quick Setup with Giter8</a></li>
+    <li class="level1 nav-node"><a href="#installation-2">Installation</a></li>
+    <li class="level2 nav-leaf"><a href="#sbt">sbt</a></li>
+    <li class="level2 nav-leaf"><a href="#mill">Mill</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="installation-1" class="title">Installation</h1>
+        
+        <h2 id="quick-setup-with-giter8" class="section"><a class="anchor-link left" href="#quick-setup-with-giter8"><i class="icofont-laika link">&#xef71;</i></a>Quick Setup with Giter8</h2>
+        <p>You can create an sbt based Tyrian project and have it up and running in less than 5 minutes!*</p>
+        <p>From your command line, create a folder for your project, navigate into it, and run:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>sbt new PurpleKingdomGames/tyrian.g</span><span class="number-literal">8</span></code></pre>
+        <p>Then follow the instructions in the README file.</p>
+        <p>(* Probably, if you have sbt and npm/yarn already installed... 😅)</p>
+        
+        <h2 id="installation-2" class="section"><a class="anchor-link left" href="#installation-2"><i class="icofont-laika link">&#xef71;</i></a>Installation</h2>
+        <p>Tyrian is a Scala 3 Web UI library, so please set your Scala version to <code>3.3.0</code> or higher.</p>
+        <blockquote>You can use Tyrian with Scala 2 thanks to cross versions and the magic of TASTy.</blockquote>
+        <p>Please note that both the sbt and Mill instructions below assume you intend to work with some sort of web packager/bundler, and therefore emit common js modules.</p>
+        <p>The <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">examples in the Tyrian repo</a> almost all use <a href="https://parceljs.org/">Parcel.js</a> as the bundler.</p>
+        
+        <h3 id="sbt" class="section"><a class="anchor-link left" href="#sbt"><i class="icofont-laika link">&#xef71;</i></a>sbt</h3>
+        <p>Add the <a href="https://www.scala-js.org/">Scala.js</a> plugin to your <code>project/plugins.sbt</code> file.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">addSbtPlugin</span><span>(</span><span class="string-literal">&quot;org.scala-js&quot;</span><span> % </span><span class="string-literal">&quot;sbt-scalajs&quot;</span><span>  % </span><span class="string-literal">&quot;1.13.1&quot;</span><span>)</span></code></pre>
+        <p>Enable the plugin and add the Tyrian library to your <code>build.sbt</code> file.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">ScalaJSPlugin</span><span>)
+
+</span><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
+  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-io&quot;</span><span> % </span><span class="string-literal">&quot;0.7.1&quot;</span><span>
+  </span><span class="comment">// OR
+</span><span>  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-zio&quot;</span><span> % </span><span class="string-literal">&quot;0.7.1&quot;</span><span>
+)
+
+</span><span class="identifier">scalaJSLinkerConfig</span><span> ~= { </span><span class="identifier">_</span><span>.</span><span class="identifier">withModuleKind</span><span>(</span><span class="type-name">ModuleKind</span><span>.</span><span class="type-name">CommonJSModule</span><span>) }</span></code></pre>
+        <p>Optionally, you can also include the Tyrian/Indigo Bridge library if you plan to embed an Indigo game in your page:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
+  ...
+  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-indigo-bridge&quot;</span><span> % </span><span class="string-literal">&quot;0.7.1&quot;</span><span>
+)</span></code></pre>
+        
+        <h3 id="mill" class="section"><a class="anchor-link left" href="#mill"><i class="icofont-laika link">&#xef71;</i></a>Mill</h3>
+        <p>Below is a complete, basic Mill <code>build.sc</code> file including MUnit for testing.</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">$ivy</span><span>.</span><span class="identifier">`com.lihaoyi::mill-contrib-bloop:$MILL_VERSION`</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">mill</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">mill</span><span>.</span><span class="identifier">scalalib</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">mill</span><span>.</span><span class="identifier">scalajslib</span><span>.</span><span class="identifier">_</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">mill</span><span>.</span><span class="identifier">scalajslib</span><span>.</span><span class="identifier">api</span><span>.</span><span class="identifier">_</span><span>
+
+</span><span class="keyword">object</span><span> </span><span class="identifier">counter</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">ScalaJSModule</span><span> {
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">scalaVersion</span><span>   = </span><span class="string-literal">&quot;3.3.0&quot;</span><span>
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">scalaJSVersion</span><span> = </span><span class="string-literal">&quot;1.13.1&quot;</span><span>
+
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(</span><span class="string-literal">ivy&quot;io.indigoengine::tyrian::0.7.1&quot;</span><span>)
+
+  </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">moduleKind</span><span> = </span><span class="type-name">T</span><span>(</span><span class="identifier">mill</span><span>.</span><span class="identifier">scalajslib</span><span>.</span><span class="identifier">api</span><span>.</span><span class="type-name">ModuleKind</span><span>.</span><span class="type-name">CommonJSModule</span><span>)
+
+  </span><span class="keyword">object</span><span> </span><span class="identifier">test</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">Tests</span><span> {
+    </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(</span><span class="string-literal">ivy&quot;org.scalameta::munit::0.7.29&quot;</span><span>)
+
+    </span><span class="keyword">def</span><span> </span><span class="declaration-name">testFramework</span><span> = </span><span class="string-literal">&quot;munit.Framework&quot;</span><span>
+
+    </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">moduleKind</span><span> = </span><span class="type-name">T</span><span>(</span><span class="identifier">mill</span><span>.</span><span class="identifier">scalajslib</span><span>.</span><span class="identifier">api</span><span>.</span><span class="type-name">ModuleKind</span><span>.</span><span class="type-name">CommonJSModule</span><span>)
+  }
+
+}</span></code></pre>
+        <p>Optionally, you can also include the Tyrian/Indigo Bridge library if you plan to embed an Indigo game in your page:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(
+    </span><span class="string-literal">ivy&quot;io.indigoengine::tyrian::0.7.1&quot;</span><span>,
+    </span><span class="string-literal">ivy&quot;io.indigoengine::tyrian-indigo-bridge::0.7.1&quot;</span><span>
+  )</span></code></pre>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

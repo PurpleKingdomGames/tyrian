@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Rendering HTML</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Rendering HTML</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#html-syntax">HTML syntax</a></li>
+    <li class="level2 nav-leaf"><a href="#working-with-tags-attributes-and-properties">Working with Tags, Attributes and Properties</a></li>
+    <li class="level2 nav-leaf"><a href="#svg">SVG</a></li>
+    <li class="level2 nav-leaf"><a href="#css">CSS</a></li>
+    <li class="level2 nav-leaf"><a href="#rolling-your-own">Rolling your own</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="rendering-html" class="title">Rendering HTML</h1>
+        
+        <h2 id="html-syntax" class="section"><a class="anchor-link left" href="#html-syntax"><i class="icofont-laika link">&#xef71;</i></a>HTML syntax</h2>
+        <p>In Tyrian, you describe your view in Scala and the VirtualDom implementation that powers Tyrian (<a href="https://github.com/buntec/scala-js-snabbdom">Scala.js Snabbdom</a>) renders that description into HTML.</p>
+        <p>Here is a simple made up example of the syntax to give you a flavor:</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="type-name">Html</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="type-name">CSS</span><span>
+
+</span><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Greet</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">myStyles</span><span>  = </span><span class="identifier">style</span><span>(</span><span class="type-name">CSS</span><span>.</span><span class="identifier">`font-family`</span><span>(</span><span class="string-literal">&quot;Arial, Helvetica, sans-serif&quot;</span><span>))
+</span><span class="keyword">val</span><span> </span><span class="identifier">topLine</span><span> = </span><span class="identifier">p</span><span>(</span><span class="identifier">b</span><span>(</span><span class="identifier">text</span><span>(</span><span class="string-literal">&quot;This is some HTML in bold.&quot;</span><span>)))
+
+</span><span class="identifier">div</span><span>(</span><span class="identifier">id</span><span> := </span><span class="string-literal">&quot;my-container&quot;</span><span>)(
+  </span><span class="identifier">div</span><span>(</span><span class="identifier">myStyles</span><span>)(
+    </span><span class="identifier">topLine</span><span>,
+    </span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;Hello, world!&quot;</span><span>),
+    </span><span class="identifier">button</span><span>(</span><span class="identifier">onClick</span><span>(</span><span class="type-name">Msg</span><span>.</span><span class="type-name">Greet</span><span>))(</span><span class="string-literal">&quot;Say hello!&quot;</span><span>)
+  )
+)</span></code></pre>
+        
+        <h3 id="working-with-tags-attributes-and-properties" class="section"><a class="anchor-link left" href="#working-with-tags-attributes-and-properties"><i class="icofont-laika link">&#xef71;</i></a>Working with Tags, Attributes and Properties</h3>
+        <p>A vast list of the common HTML tags, attributes, and CSS property types have been generated for you, and effort has gone in to making the experience reasonably pleasant.</p>
+        <p>The arrangement of tags follows similar approaches by other compiled languages trying to represent HTML:</p>
+        <p><code>tag-name(List(attributes, ...))(List(children, ...))</code></p>
+        <p>For example, here we have a <code>span</code> with an attribute and a child element:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">span</span><span>(</span><span class="identifier">`class`</span><span> := </span><span class="string-literal">&quot;green-box&quot;</span><span>)(
+  </span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;This is some text.&quot;</span><span>)
+)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run1&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>You can omit the attributes and the syntax is valid:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">span</span><span>(
+  </span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;This is some text.&quot;</span><span>)
+)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run2&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>Note that plain text can be declare as <code>text</code> or just omitted, in other words these are equivalent:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;some text&quot;</span><span>)
+</span><span class="identifier">p</span><span>(</span><span class="identifier">text</span><span>(</span><span class="string-literal">&quot;some text&quot;</span><span>))</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run3&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>To distinguish them from similarly named tags (e.g. the <code>title</code> attribute and the <code>title</code> tag...), attributes are declared as <code>attribute-name := attribute-value</code>, e.g.:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">id</span><span> := </span><span class="string-literal">&quot;my-container&quot;</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run4&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>Some HTML attributes / properties use Scala reserved words, and so have a variety of encodings to suit all tastes. For example <code>class</code> is a Scala reserved word and you cannot use it directly, but you can use any of these instead:</p>
+        <pre class="keep-together pdf epub"><code class="text">`class`
+cls
+className
+_class</code></pre>
+        <p>Styles are also baked in, albeit it in a slightly crude way, but you will get some IDE support. You can do things like the following:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">p</span><span>(</span><span class="identifier">style</span><span>(</span><span class="type-name">CSS</span><span>.</span><span class="identifier">`font-weight`</span><span>(</span><span class="string-literal">&quot;bold&quot;</span><span>)))(</span><span class="string-literal">&quot;Hello&quot;</span><span>)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run5&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h4 id="optional-tags" class="section"><a class="anchor-link left" href="#optional-tags"><i class="icofont-laika link">&#xef71;</i></a>Optional tags</h4>
+        <p>Sometime you might want to optionally render a tag, or not. To help with this, you can use the <code>orEmpty</code> extension method:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">syntax</span><span>.*
+
+</span><span class="type-name">Option</span><span>(</span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;Show this!&quot;</span><span>)).</span><span class="identifier">orEmpty</span></code></pre>
+        <p>Or the <code>Empty</code> type:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">syntax</span><span>.*
+
+</span><span class="keyword">if</span><span> </span><span class="identifier">showIt</span><span> </span><span class="identifier">then</span><span> </span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;Show this!&quot;</span><span>) </span><span class="keyword">else</span><span> </span><span class="type-name">Empty</span></code></pre>
+        
+        <h3 id="svg" class="section"><a class="anchor-link left" href="#svg"><i class="icofont-laika link">&#xef71;</i></a>SVG</h3>
+        <p>You can also pull in SVG tags and attributes using:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="type-name">SVG</span><span>.*</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run6&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h3 id="css" class="section"><a class="anchor-link left" href="#css"><i class="icofont-laika link">&#xef71;</i></a>CSS</h3>
+        <p>Many standard CSS terms can be imported using:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="type-name">CSS</span><span>.*</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run7&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h3 id="rolling-your-own" class="section"><a class="anchor-link left" href="#rolling-your-own"><i class="icofont-laika link">&#xef71;</i></a>Rolling your own</h3>
+        <p>If you find we&#39;ve missed a tag or attribute or something, <a href="https://github.com/PurpleKingdomGames/tyrian/issues">please raise an issue</a>. In the meantime, you can always make your own. Here are just a few made up examples, each of these has numerous constructors for you to explore:</p>
+        <pre><code class="nohighlight"><span class="comment">// A &#39;canvas&#39; tag
+</span><span class="identifier">tag</span><span>(</span><span class="string-literal">&quot;canvas&quot;</span><span>)(</span><span class="identifier">id</span><span> := </span><span class="string-literal">&quot;an-id&quot;</span><span>)(</span><span class="type-name">Nil</span><span>)
+</span><span class="comment">// or
+</span><span class="type-name">Tag</span><span>(</span><span class="string-literal">&quot;canvas&quot;</span><span>, </span><span class="type-name">List</span><span>(</span><span class="identifier">id</span><span> := </span><span class="string-literal">&quot;an-id&quot;</span><span>), </span><span class="type-name">Nil</span><span>)
+
+</span><span class="comment">// An attribute
+</span><span class="identifier">attribute</span><span>(</span><span class="string-literal">&quot;my-attribute&quot;</span><span>, </span><span class="string-literal">&quot;its-value&quot;</span><span>)
+
+</span><span class="comment">// A property
+</span><span class="identifier">property</span><span>(</span><span class="string-literal">&quot;my-property&quot;</span><span>, </span><span class="string-literal">&quot;its-value&quot;</span><span>)
+
+</span><span class="comment">// Styles
+</span><span class="identifier">style</span><span>(</span><span class="string-literal">&quot;width&quot;</span><span>, </span><span class="string-literal">&quot;100px&quot;</span><span>)
+</span><span class="identifier">styles</span><span>(</span><span class="string-literal">&quot;width&quot;</span><span> -&gt; </span><span class="string-literal">&quot;100px&quot;</span><span>, </span><span class="string-literal">&quot;height&quot;</span><span> -&gt; </span><span class="string-literal">&quot;50px&quot;</span><span>)
+
+</span><span class="comment">// An event-type attribute
+</span><span class="identifier">onEvent</span><span>(</span><span class="string-literal">&quot;click&quot;</span><span>, (</span><span class="identifier">evt</span><span>: </span><span class="type-name">Tyrian</span><span>.</span><span class="type-name">Event</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Greet</span><span>)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run8&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <blockquote>Note that everything is stringly typed, and that&#39;s because in HTML everything is stringly typed too! In the generated tags, we&#39;ve added support for things like attributes accepting <code>Int</code>s and <code>Boolean</code>s and so on where they have known acceptable input types.</blockquote>
+        
+        <h4 id="known-gotcha-attributes-vs-properties" class="section"><a class="anchor-link left" href="#known-gotcha-attributes-vs-properties"><i class="icofont-laika link">&#xef71;</i></a>Known Gotcha: Attributes vs. Properties</h4>
+        <p>One occasion where you may need to make your own tags or attributes etc., is when Tyrian has an incorrectly declared definition of something or other.</p>
+        <p>A previous case of this was where the input field <code>value</code> <code>property</code> was incorrectly declared as an <code>attribute</code>, and so the value wasn&#39;t changed as expected based on model updates.</p>
+        <p>Effort has gone in to getting these things right, but if you come across any issues, <a href="https://github.com/PurpleKingdomGames/tyrian/issues">please report them</a>, and the workaround is to re-declare it yourself as above while a fix is produced.
+        &lt;script type=&quot;text/javascript&quot; src=&quot;html.md.js&quot; defer&gt;&lt;/script&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

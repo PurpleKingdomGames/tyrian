@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Tyrian vs Elm</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../../02-guides/guided-tour.md.js"></script>
+    <script src="../../02-guides/tyrian-indigo-bridge.md.js"></script>
+    <script src="../../02-guides/subs.md.js"></script>
+    <script src="../../02-guides/networking.md.js"></script>
+    <script src="../../02-guides/ssr.md.js"></script>
+    <script src="../../02-guides/html.md.js"></script>
+    <script src="../../02-guides/cmd.md.js"></script>
+    <script src="../../02-guides/goodies.md.js"></script>
+    <script src="../../02-guides/mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Tyrian vs Elm</a></p>
+
+  <ul class="nav-list">
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="tyrian-vs-elm" class="title">Tyrian vs Elm</h1>
+        <p>As you might expect, Elm is a far richer offering that Tyrian is now, and in all likelihood ever will be. It&#39;s been around a lot longer, and there are a lot more people working on and with Elm every day feeding into it&#39;s design.</p>
+        <p>Having said that: While Elm&#39;s architecture has taken on a life of it&#39;s own and influenced the state of the art of functional (and even non-FP!) UI programming, Elm itself has remained somewhat niche.</p>
+        <p>People tend to love Elm ...or hate it. A lot of that reaction can be attributed to the fact that Elm is a very opinionated language, and you either like that or you do not.</p>
+        <p>What Elm&#39;s opinionated stance buys you is an ecosystem where if your code compiles, it works! And that is an amazing thing! In the cost/benefit analysis: The benefit is an incredibly robust web development experience, at the cost of literally not being able to do anything that is not permitted (because it would break the robustness guarantees of the ecosystem).</p>
+        <p>Tyrian takes the glorious essence of Elm&#39;s architecture, but removes almost all of the opinions ...and with it of course, almost all of the safety nets!</p>
+        <ul>
+          <li>Want to break up your code into lots of files and classes? Carry on.</li>
+          <li>Want to use refined types? Ok then.</li>
+          <li>Want to use Typeclasses? No problem.</li>
+          <li>Want to bring in a heavyweight FP library? Sure thing.</li>
+          <li>Want to talk to JavaScript directly over an FFI? Go nuts.</li>
+          <li>Want to do a non-exhaustive match? I mean, you can but...</li>
+          <li>Want to throw a massive exception? ...erm ...sure...</li>
+        </ul>
+        <p>Be safe out there folks! 😀</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Tyrian-Indigo Bridge</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Tyrian-Indigo Bridge</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="#tyrian-s-indigo">Tyrian 💜&#39;s Indigo</a></li>
+    <li class="level1 nav-leaf"><a href="#runnable-example">Runnable Example</a></li>
+    <li class="level1 nav-node"><a href="#overview-making-tyrian-work-with-indigo">Overview making Tyrian work with Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="#the-bridge">The Bridge</a></li>
+    <li class="level2 nav-leaf"><a href="#establishing-a-connection">Establishing a connection</a></li>
+    <li class="level2 nav-leaf"><a href="#publishing-and-subscribing">Publishing and Subscribing</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="tyrian-indigo-bridge" class="title">Tyrian-Indigo Bridge</h1>
+        <p>What if you wanted to make a web game (or an Electron desktop game - why not!), where the main game window was rendered in WebGL, but the UI elements were all in lovely, responsive, scalable HTML5?</p>
+        <p>The main problem is how you get the two parts to talk to one another. If everything is written in JavaScript, that&#39;s not such a problem because it&#39;s all the same language, the two systems are likely to be idiomatically similar, and with JavaScript ...well, you can do pretty much anything you like.</p>
+        <p>If you want to use Scala.js, things get more complicated.</p>
+        
+        <h2 id="tyrian-s-indigo" class="section"><a class="anchor-link left" href="#tyrian-s-indigo"><i class="icofont-laika link">&#xef71;</i></a>Tyrian 💜&#39;s Indigo</h2>
+        <p>One of the reasons Tyrian was resurrected from the ashes of it&#39;s predecessor <a href="https://github.com/julienrf/scalm">Scalm</a> was that we love working with this architecture pattern, the TEA pattern. <a href="https://indigoengine.io/">Indigo</a> our game engine, uses a variation on the same design.</p>
+        <p>Both use the same language... both use the same idioms... why not join them together?</p>
+        
+        <h2 id="runnable-example" class="section"><a class="anchor-link left" href="#runnable-example"><i class="icofont-laika link">&#xef71;</i></a>Runnable Example</h2>
+        <p>Rather than go into all the details of how it works, there is an <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">example</a> you can look at the demonstrates how the two can seamlessly communicate using lovely native Scala types.</p>
+        <blockquote>Note that the example is quite simple and just uses <code>String</code> as it&#39;s message format, but you can use whatever suits your needs.</blockquote>
+        
+        <h2 id="overview-making-tyrian-work-with-indigo" class="section"><a class="anchor-link left" href="#overview-making-tyrian-work-with-indigo"><i class="icofont-laika link">&#xef71;</i></a>Overview making Tyrian work with Indigo</h2>
+        <p>Assuming you have a skeletal Tyrian project, and right next to it in the same code base a basic Indigo game (Tip: namespacing the game to its own package is a good idea... you&#39;re about to have two models!):</p>
+        
+        <h3 id="the-bridge" class="section"><a class="anchor-link left" href="#the-bridge"><i class="icofont-laika link">&#xef71;</i></a>The Bridge</h3>
+        <p>The way the bridge works is that the Tyrian side holds an instance of the bridge in it&#39;s model, and Indigo runs a subsystem for that bridge.</p>
+        <p>Indigo SubSystems are like mini-games that have most of the same functions as the main game, but can only talk via messages - sort of like background workers.</p>
+        <p>The Bridge is a JavaScript <code>EventTarget</code>, and both Indigo and Tyrian latch on. In both instances their job is to send and receive messages via the brigde event target and convert them to their native event/messaging system.</p>
+        
+        <h3 id="establishing-a-connection" class="section"><a class="anchor-link left" href="#establishing-a-connection"><i class="icofont-laika link">&#xef71;</i></a>Establishing a connection</h3>
+        <ol class="arabic">
+          <li>Indigo needs a container to latch onto, so Tyrian provides that in it&#39;s rendered view.</li>
+          <li>During <code>init</code>, you start up the bridge and put it in your model, then use a <code>Cmd.Emit</code> to tell the <code>updateModel</code> function to start the game.</li>
+          <li>An Indigo game can then be trivially launched using a <code>Cmd.SideEffect</code> that literally calls your game&#39;s launch function in plain ole Scala, injecting the bridge provided SubSystem into the game.</li>
+        </ol>
+        <p><strong><em>Important:</em></strong> The key tools you need are now all on your bridge instance. Your bridge instance will give you the Indigo <code>SubSystem</code> for you, it also has the <code>publish</code> <code>Cmd</code> and the <code>subscribe</code> <code>Sub</code> that you need.</p>
+        
+        <h3 id="publishing-and-subscribing" class="section"><a class="anchor-link left" href="#publishing-and-subscribing"><i class="icofont-laika link">&#xef71;</i></a>Publishing and Subscribing</h3>
+        <p>Note that Indigo uses the term &#39;event&#39; and Tyrian uses &#39;message&#39;. The behavior is slightly different between the two, but for our purposes here, they should be considered the same thing.</p>
+        
+        <h4 id="in-indigo" class="section"><a class="anchor-link left" href="#in-indigo"><i class="icofont-laika link">&#xef71;</i></a>In Indigo</h4>
+        <p>Indigo now has a new <code>GlobalEvent</code> type, <code>TyrianEvent</code> which can be a <code>TyrianEvent.Send(value: A)</code> or <code>TyrianEvent.Receive(value: A)</code> where the <code>A</code> type is declared with the <code>SubSystem</code>.</p>
+        <p>To listen for messages from Tyrian, you simply match on the <code>TyrianEvent.Receive(value: A)</code> in one of you update functions.</p>
+        <p>To send a message to Tyrian, you emit a message as normal, e.g.:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">indigo</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">bridge</span><span>: </span><span class="type-name">TyrianIndigoBridge</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">String</span><span>] = </span><span class="type-name">TyrianIndigoBridge</span><span>()
+</span><span class="keyword">val</span><span> </span><span class="identifier">subsystem</span><span>: </span><span class="type-name">TyrianSubSystem</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">String</span><span>] = </span><span class="type-name">TyrianSubSystem</span><span>(</span><span class="identifier">bridge</span><span>)
+</span><span class="keyword">val</span><span> </span><span class="identifier">model</span><span>: </span><span class="type-name">Int</span><span> = </span><span class="number-literal">10</span><span>
+
+</span><span class="comment">// Sending a string here, but could be anything.
+</span><span class="type-name">Outcome</span><span>(</span><span class="identifier">model</span><span>).</span><span class="identifier">addGlobalEvents</span><span>(</span><span class="identifier">subsystem</span><span>.</span><span class="type-name">TyrianEvent</span><span>.</span><span class="type-name">Send</span><span>(</span><span class="string-literal">&quot;My message&quot;</span><span>))</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>Please note that the example above is rather contrived to try and show you the code, it&#39;s better to look at <a href="https://github.com/PurpleKingdomGames/tyrian/blob/main/examples/indigo/src/main/scala/example/game/MyAwesomeGame.scala#L58">a real example</a>.</p>
+        
+        <h4 id="in-tyrian" class="section"><a class="anchor-link left" href="#in-tyrian"><i class="icofont-laika link">&#xef71;</i></a>In Tyrian</h4>
+        <p>Tyrian by now has a reference to the bridge in your model.</p>
+        <p>To listen for messages from Indigo, all you have to do is plumb in the <code>model.bridge.subscribe</code> <code>Sub[IO, Msg]</code> into your app&#39;s <code>subscriptions</code> feed, and provide an extractor to tell it how to convert the events into messages.</p>
+        <p>To send message to Indigo, you call <code>bridge.send(myMsg)</code> which provides a <code>Cmd[IO, Msg]</code> for you to plug into your <code>updateModel</code> result.</p>
+        
+        <h4 id="that-s-it" class="section"><a class="anchor-link left" href="#that-s-it"><i class="icofont-laika link">&#xef71;</i></a>That&#39;s it</h4>
+        <p>In a nutshell, that is the whole set up. Happy web game building!
+        &lt;script type=&quot;text/javascript&quot; src=&quot;tyrian-indigo-bridge.md.js&quot; defer&gt;&lt;/script&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

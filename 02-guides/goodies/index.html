@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>&quot;Built-in Goodies&quot;</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 active nav-leaf"><a href="#">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">&quot;Built-in Goodies&quot;</a></p>
+
+  <ul class="nav-list">
+    <li class="level1 nav-node"><a href="#built-in-cmd-goodies">Built-in <code>Cmd</code> goodies</a></li>
+    <li class="level2 nav-leaf"><a href="#dom"><code>Dom</code></a></li>
+    <li class="level2 nav-leaf"><a href="#filereader"><code>FileReader</code></a></li>
+    <li class="level2 nav-leaf"><a href="#http"><code>Http</code></a></li>
+    <li class="level2 nav-leaf"><a href="#imageloader"><code>ImageLoader</code></a></li>
+    <li class="level2 nav-leaf"><a href="#localstorage"><code>LocalStorage</code></a></li>
+    <li class="level2 nav-leaf"><a href="#logger"><code>Logger</code></a></li>
+    <li class="level2 nav-leaf"><a href="#random"><code>Random</code></a></li>
+    <li class="level1 nav-node"><a href="#built-in-cmd-sub-goodies">Built-in <code>Cmd</code> + <code>Sub</code> goodies</a></li>
+    <li class="level2 nav-leaf"><a href="#hotreload"><code>HotReload</code></a></li>
+    <li class="level1 nav-leaf"><a href="#built-in-pub-sub-goodies">Built-in Pub/Sub goodies</a></li>
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="built-in-goodies" class="title">&quot;Built-in Goodies&quot;</h1>
+        <p>Tyrian comes with a number of handy functions built-in that you can make use of and explore:</p>
+        
+        <h2 id="built-in-cmd-goodies" class="section"><a class="anchor-link left" href="#built-in-cmd-goodies"><i class="icofont-laika link">&#xef71;</i></a>Built-in <code>Cmd</code> goodies</h2>
+        <p>These nuggets of functionality are used as commands.</p>
+        <ul>
+          <li><code>Dom</code> - A few methods such as <code>focus</code> and <code>blur</code> to manipulate the DOM. Inspired by the Elm <a href="https://package.elm-lang.org/packages/elm/browser/latest/Browser.Dom">Browser.Dom</a> package.</li>
+          <li><code>FileReader</code> - Given the id of a file input field that has had a file selected, this Cmd will read either an image or text file to return an <code>HTMLImageElement</code> or <code>String</code> respectively.</li>
+          <li><code>Http</code> - Make HTTP requests that return their responses as a message.</li>
+          <li><code>ImageLoader</code> - Given a path, this cmd will load an image and return an <code>HTMLImageElement</code> for you to make use of.</li>
+          <li><code>LocalStorage</code> - Allows you to save and load to/from your browsers local storage.</li>
+          <li><code>Logger</code> - A simple logger that logs to the Browsers console with a few standard headers and the log message.</li>
+          <li><code>Random</code> - A Cmd to generate random values.</li>
+        </ul>
+        <p>In the examples below, we will be using this catch-all ADT, here it is for reference.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">org</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">dom</span><span>.</span><span class="identifier">html</span><span>
+
+</span><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Read</span><span>(</span><span class="identifier">contents</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">UseImage</span><span>(</span><span class="identifier">img</span><span>: </span><span class="identifier">html</span><span>.</span><span class="type-name">Image</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">RandomValue</span><span>(</span><span class="identifier">value</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Error</span><span>(</span><span class="identifier">message</span><span>: </span><span class="type-name">String</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Empty</span><span>
+  </span><span class="keyword">case</span><span> </span><span class="type-name">NoOp</span></code></pre>
+        
+        <h3 id="dom" class="section"><a class="anchor-link left" href="#dom"><i class="icofont-laika link">&#xef71;</i></a><code>Dom</code></h3>
+        <p>Assuming two messages <code>Error</code> and <code>Empty</code>, we can attempt to focus a given ID.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">cats</span><span>.</span><span class="identifier">effect</span><span>.</span><span class="type-name">IO</span><span>
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">Dom</span><span>.</span><span class="identifier">focus</span><span>(</span><span class="string-literal">&quot;my-id&quot;</span><span>) {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Left</span><span>(</span><span class="type-name">Dom</span><span>.</span><span class="type-name">NotFound</span><span>(</span><span class="identifier">id</span><span>)) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="string-literal">s&quot;ID </span><span class="substitution">$id</span><span class="string-literal"> not found&quot;</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="type-name">Right</span><span>(</span><span class="identifier">_</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Empty</span><span>
+  }</span></code></pre>
+        <p><code>Dom.blur</code> works in the same way, though, performing the opposite effect.</p>
+        
+        <h3 id="filereader" class="section"><a class="anchor-link left" href="#filereader"><i class="icofont-laika link">&#xef71;</i></a><code>FileReader</code></h3>
+        <p>Will read any file data, with build in support for text and images.</p>
+        <p>Assuming two messages <code>Error</code> and <code>Read</code>, we can attempt to read the contents of a text file.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">FileReader</span><span>.</span><span class="identifier">readText</span><span>(</span><span class="string-literal">&quot;my-file-input-field-id&quot;</span><span>) {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">FileReader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">msg</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">msg</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="type-name">FileReader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">File</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">path</span><span>, </span><span class="identifier">contents</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Read</span><span>(</span><span class="identifier">contents</span><span>)
+  }</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run2&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h3 id="http" class="section"><a class="anchor-link left" href="#http"><i class="icofont-laika link">&#xef71;</i></a><code>Http</code></h3>
+        <p>Please see <a href="../networking/">Networking</a> for details.</p>
+        
+        <h3 id="imageloader" class="section"><a class="anchor-link left" href="#imageloader"><i class="icofont-laika link">&#xef71;</i></a><code>ImageLoader</code></h3>
+        <p>Given a path, this cmd will load an image and create and return an <code>HTMLImageElement</code> for you to make use of.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">ImageLoader</span><span>.</span><span class="identifier">load</span><span>(</span><span class="string-literal">&quot;path/to/img.png&quot;</span><span>) {
+    </span><span class="keyword">case</span><span> </span><span class="type-name">ImageLoader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">ImageLoadError</span><span>(</span><span class="identifier">msg</span><span>, </span><span class="identifier">path</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">msg</span><span>)
+    </span><span class="keyword">case</span><span> </span><span class="type-name">ImageLoader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Image</span><span>(</span><span class="identifier">imageElement</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">UseImage</span><span>(</span><span class="identifier">imageElement</span><span>)
+  }</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run3&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h3 id="localstorage" class="section"><a class="anchor-link left" href="#localstorage"><i class="icofont-laika link">&#xef71;</i></a><code>LocalStorage</code></h3>
+        <p>A series of commands that mirror the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localstorage interface</a>.</p>
+        <pre><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">Batch</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>](
+    </span><span class="type-name">LocalStorage</span><span>.</span><span class="identifier">setItem</span><span>(</span><span class="string-literal">&quot;key&quot;</span><span>, </span><span class="string-literal">&quot;value&quot;</span><span>) {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Success</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NoOp</span><span>
+      </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">toString</span><span>)
+    },
+    </span><span class="type-name">LocalStorage</span><span>.</span><span class="identifier">getItem</span><span>(</span><span class="string-literal">&quot;key&quot;</span><span>) {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">Right</span><span>(</span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Found</span><span>(</span><span class="identifier">value</span><span>)) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Read</span><span>(</span><span class="identifier">value</span><span>)
+      </span><span class="keyword">case</span><span> </span><span class="type-name">Left</span><span>(</span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">NotFound</span><span>(</span><span class="identifier">e</span><span>)) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">toString</span><span>)
+    },
+    </span><span class="type-name">LocalStorage</span><span>.</span><span class="identifier">removeItem</span><span>(</span><span class="string-literal">&quot;key&quot;</span><span>) {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Success</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NoOp</span><span>
+      </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">toString</span><span>)
+    },
+    </span><span class="type-name">LocalStorage</span><span>.</span><span class="identifier">clear</span><span> {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Success</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NoOp</span><span>
+      </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">toString</span><span>)
+    },
+    </span><span class="type-name">LocalStorage</span><span>.</span><span class="identifier">key</span><span>(</span><span class="number-literal">0</span><span>) {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Key</span><span>(</span><span class="identifier">keyAtIndex0</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Read</span><span>(</span><span class="identifier">keyAtIndex0</span><span>)
+      </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">NotFound</span><span>(</span><span class="identifier">e</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">toString</span><span>)
+      </span><span class="keyword">case</span><span> </span><span class="identifier">e</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">e</span><span>.</span><span class="identifier">toString</span><span>)
+    },
+    </span><span class="type-name">LocalStorage</span><span>.</span><span class="identifier">length</span><span> {
+      </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Length</span><span>(</span><span class="identifier">value</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Read</span><span>(</span><span class="identifier">value</span><span>.</span><span class="identifier">toString</span><span>)
+    }
+  )</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run4&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h3 id="logger" class="section"><a class="anchor-link left" href="#logger"><i class="icofont-laika link">&#xef71;</i></a><code>Logger</code></h3>
+        <p>Allows you to log to your browsers JavaScript console:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">Logger</span><span>.</span><span class="identifier">info</span><span>(</span><span class="string-literal">&quot;Log this!&quot;</span><span>)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run5&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <p>If you&#39;re app is doing a lot of regular work, you can cut down the noise with the &#39;once&#39; versions:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">Logger</span><span>.</span><span class="identifier">debugOnce</span><span>(</span><span class="string-literal">&quot;Log this exact message only once!&quot;</span><span>)</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run6&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h3 id="random" class="section"><a class="anchor-link left" href="#random"><i class="icofont-laika link">&#xef71;</i></a><code>Random</code></h3>
+        <p>As you might expect, <code>Random</code> produces random values! Random works slightly differently from other commands, in that it doesn&#39;t except a conversion function to turn the result into a message. You do that by mapping over it.</p>
+        <p>Assuming a message <code>RandomValue</code>, here are a few examples:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">toMessage</span><span> = (</span><span class="identifier">v</span><span>: </span><span class="type-name">String</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">RandomValue</span><span>(</span><span class="identifier">v</span><span>)
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
+  </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">Batch</span><span>(
+    </span><span class="type-name">Random</span><span>.</span><span class="identifier">int</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">map</span><span>(</span><span class="identifier">i</span><span> =&gt; </span><span class="identifier">toMessage</span><span>(</span><span class="identifier">i</span><span>.</span><span class="identifier">value</span><span>.</span><span class="identifier">toString</span><span>)),
+    </span><span class="type-name">Random</span><span>.</span><span class="identifier">shuffle</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Int</span><span>](</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>)).</span><span class="identifier">map</span><span>(</span><span class="identifier">l</span><span> =&gt; </span><span class="identifier">toMessage</span><span>(</span><span class="identifier">l</span><span>.</span><span class="identifier">value</span><span>.</span><span class="identifier">toString</span><span>)),
+    </span><span class="type-name">Random</span><span>.</span><span class="type-name">Seeded</span><span>(</span><span class="number-literal">12l</span><span>).</span><span class="identifier">alphaNumeric</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="number-literal">5</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">a</span><span> =&gt; </span><span class="identifier">toMessage</span><span>(</span><span class="identifier">a</span><span>.</span><span class="identifier">value</span><span>.</span><span class="identifier">mkString</span><span>))
+  )</span></code></pre>
+        <p>&lt;div id=&quot;mdoc-html-run7&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        
+        <h2 id="built-in-cmd-sub-goodies" class="section"><a class="anchor-link left" href="#built-in-cmd-sub-goodies"><i class="icofont-laika link">&#xef71;</i></a>Built-in <code>Cmd</code> + <code>Sub</code> goodies</h2>
+        <p>These tools make use of a combination of commands and subscriptions to achieve a result. Note that unlike in the next section, these entries share nothing apart from, say, a key value, i.e. there is no common state to manage or store in a model.</p>
+        <ul>
+          <li><code>HotReload</code> - Store the state of your app, so you can carry on where you left off after a recompile!</li>
+        </ul>
+        
+        <h3 id="hotreload" class="section"><a class="anchor-link left" href="#hotreload"><i class="icofont-laika link">&#xef71;</i></a><code>HotReload</code></h3>
+        <p>If you&#39;re using a web bundler like Parcel.js to help you develop your site, then you&#39;ll know that recompiling your app with <code>sbt fastLinkJS</code> (for example) will trigger Parcel.js to automatically reload the site in your browser to show the latest changes. This is called &#39;hot-reloading&#39;.</p>
+        <p>However, by default the current state of your app is not preserved between sessions, meaning you have to start from the beginning on every refresh.</p>
+        <p>The <code>HotReload</code> functionality solves this problem by saving your model to local storage periodically, and loading it up again when your app starts.</p>
+        <p>You&#39;ll need to provide a way to encode and decode your model to a <code>String</code>, and some approprite <code>Msg</code>&#39;s but other wise, set up is as simple as adding a command to your <code>init</code> function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">HotReload</span><span>.</span><span class="identifier">bootstrap</span><span>(</span><span class="string-literal">&quot;my-save-data&quot;</span><span>, </span><span class="type-name">Model</span><span>.</span><span class="identifier">decode</span><span>) {
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Left</span><span>(</span><span class="identifier">msg</span><span>)    =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Log</span><span>(</span><span class="string-literal">&quot;Error during hot-reload!: &quot;</span><span> + </span><span class="identifier">msg</span><span>)
+  </span><span class="keyword">case</span><span> </span><span class="type-name">Right</span><span>(</span><span class="identifier">model</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">OverwriteModel</span><span>(</span><span class="identifier">model</span><span>)
+}</span></code></pre>
+        <p>And a <code>Sub</code> to your subscriptions:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Sub</span><span>.</span><span class="identifier">every</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="number-literal">1</span><span>.</span><span class="identifier">second</span><span>, </span><span class="identifier">hotReloadKey</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">_</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">TakeSnapshot</span><span>)</span></code></pre>
+        <p>With an update for <code>Msg.TakeSnapshot</code> (made up <code>Msg</code> name/type),  that triggers another command:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>    </span><span class="keyword">case</span><span> </span><span class="type-name">Msg</span><span>.</span><span class="type-name">TakeSnapshot</span><span> =&gt;
+      (</span><span class="identifier">model</span><span>, </span><span class="type-name">HotReload</span><span>.</span><span class="identifier">snapshot</span><span>(</span><span class="identifier">hotReloadKey</span><span>, </span><span class="identifier">model</span><span>, </span><span class="type-name">Model</span><span>.</span><span class="identifier">encode</span><span>))</span></code></pre>
+        
+        <h2 id="built-in-pub-sub-goodies" class="section"><a class="anchor-link left" href="#built-in-pub-sub-goodies"><i class="icofont-laika link">&#xef71;</i></a>Built-in Pub/Sub goodies</h2>
+        <p>These entries form a pub/sub relationship where you are required to store an object that holds state in your app&#39;s model, and which allows you to then subscribe to events and publish messages via given <code>Sub</code>s and <code>Cmd</code>s respectively.</p>
+        <ul>
+          <li><code>WebSocket</code> - Allows you to send and receive data to/from a socket server (see <a href="../networking/">Networking</a>).</li>
+          <li><code>TyrianIndigoBridge</code> - Allows your Tyrian app to communicates with embedded Indigo games.
+          &lt;script type=&quot;text/javascript&quot; src=&quot;goodies.md.js&quot; defer&gt;&lt;/script&gt;
+          &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</li>
+        </ul>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>

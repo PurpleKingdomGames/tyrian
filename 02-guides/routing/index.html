@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="generator" content="Typelevel Laika + Helium Theme" />
+  <title>Frontend Routing</title>
+  
+  
+  <meta name="description" content="website2"/>
+  
+  
+  
+  <link rel="icon" sizes="32x32" type="image/png" href="../../img/favicon.png"/>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
+  
+  <link rel="stylesheet" type="text/css" href="../../helium/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../helium/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
+  <script src="../../helium/laika-helium.js"></script>
+    <script src="../guided-tour.md.js"></script>
+    <script src="../tyrian-indigo-bridge.md.js"></script>
+    <script src="../subs.md.js"></script>
+    <script src="../networking.md.js"></script>
+    <script src="../ssr.md.js"></script>
+    <script src="../html.md.js"></script>
+    <script src="../cmd.md.js"></script>
+    <script src="../goodies.md.js"></script>
+    <script src="../mdoc.js"></script>
+  
+  
+  <script> /* for avoiding page load transitions */ </script>
+</head>
+
+  <body>
+
+    <header id="top-bar" class="light-default dark-default">
+
+  <div class="row">
+    <a id="nav-icon">
+      <i class="icofont-laika navigationMenu" title="Navigation">&#xefa2;</i>
+    </a>
+    
+    
+  </div>
+
+  <a class="image-link" href="../../"><img src="../../img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+
+  <div class="row links">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>  
+
+</header>
+    
+    <nav id="sidebar">
+
+  <div class="row">
+    
+    <a class="button-link" href="https://discord.gg/b5CD47g">Discord</a>
+    
+    <a class="button-link" href="/api">API</a>
+    
+    <a class="button-link" href="https://github.com/PurpleKingdomGames/tyrian">Github</a>
+    
+  </div>
+
+  <ul class="nav-list">
+    <li class="level1 nav-leaf"><a href="../../table-of-content/">Contents</a></li>
+    <li class="level1 nav-header">Setup &amp; Configuration</li>
+    <li class="level2 nav-leaf"><a href="../../01-installation/quickstart/">Installation</a></li>
+    <li class="level1 nav-header">Guides</li>
+    <li class="level2 nav-leaf"><a href="../bundling/">Building &amp; Bundling</a></li>
+    <li class="level2 nav-leaf"><a href="../cmd/">Commands &amp; Effects</a></li>
+    <li class="level2 nav-leaf"><a href="../goodies/">&quot;Built-in Goodies&quot;</a></li>
+    <li class="level2 nav-leaf"><a href="../guided-tour/">Guided Example</a></li>
+    <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
+    <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Frontend Routing</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
+    <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
+    <li class="level1 nav-header">Architecture</li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/the-elm-architecture/">The Elm Architecture</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-and-indigo/">Tyrian &amp; Indigo</a></li>
+    <li class="level2 nav-leaf"><a href="../../03-architecture/tyrian-vs-elm/">Tyrian vs Elm</a></li>
+    <li class="level1 nav-header">Examples</li>
+    <li class="level2 nav-leaf"><a href="../../04-examples/examples/">Examples</a></li>
+    <li class="level1 nav-header">Information &amp; Trivia</li>
+    <li class="level2 nav-leaf"><a href="../../05-information/discussion/">Discussion</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/provenance/">Provenance &amp; Thanks</a></li>
+    <li class="level2 nav-leaf"><a href="../../05-information/tyrian-purple/">Tyrian Purple</a></li>
+  </ul>
+
+</nav>
+
+    <div id="container">
+
+      
+<nav id="page-nav">
+  <p class="header"><a href="#">Frontend Routing</a></p>
+
+  <ul class="nav-list">
+  </ul>
+
+  <p class="footer"></p>
+</nav>
+
+
+      <main class="content">
+
+        <h1 id="frontend-routing" class="title">Frontend Routing</h1>
+        <p>All Tyrian apps need to implement a routing function:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">router</span><span>: </span><span class="type-name">Location</span><span> =&gt; </span><span class="type-name">Msg</span></code></pre>
+        <p>There are a few ways to implement the <code>router</code> function. Please note that in all cases, you are told if the link is considered internal or external and they are treated separately. </p>
+        <p>If your needs are simple, then the easiest way to implement the router is to use the helpers in the <code>Routing</code> module. For example, this one simply forwards on the <code>href</code>s as custom <code>Msg</code>s. As usual, note that you need to provide suitable <code>Msg</code> types:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">def</span><span> </span><span class="declaration-name">router</span><span>: </span><span class="type-name">Location</span><span> =&gt; </span><span class="type-name">Msg</span><span> = </span><span class="type-name">Routing</span><span>.</span><span class="identifier">basic</span><span>(</span><span class="type-name">Msg</span><span>.</span><span class="type-name">Msg</span><span>.</span><span class="type-name">FollowInternalLink</span><span>(</span><span class="identifier">_</span><span>), </span><span class="type-name">Msg</span><span>.</span><span class="type-name">FollowExternalLink</span><span>(</span><span class="identifier">_</span><span>))</span></code></pre>
+        <p>There are also <code>Routing.externalOnly</code> and <code>Routing.none</code> variations.</p>
+        <p>Alternatively, you can do a full route match, like this:</p>
+        <pre><code class="nohighlight"><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">router</span><span>: </span><span class="type-name">Location</span><span> =&gt; </span><span class="type-name">Msg</span><span> =
+    </span><span class="keyword">case</span><span> </span><span class="identifier">loc</span><span>: </span><span class="type-name">Location</span><span>.</span><span class="type-name">Internal</span><span> =&gt;
+      </span><span class="identifier">loc</span><span>.</span><span class="identifier">pathName</span><span> </span><span class="keyword">match</span><span>
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/&quot;</span><span>      =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page1</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/page1&quot;</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page1</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/page2&quot;</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page2</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/page3&quot;</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page3</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/page4&quot;</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page4</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/page5&quot;</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page5</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="string-literal">&quot;/page6&quot;</span><span> =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateTo</span><span>(</span><span class="type-name">Page</span><span>.</span><span class="type-name">Page6</span><span>)
+        </span><span class="keyword">case</span><span> </span><span class="identifier">_</span><span>        =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NoOp</span><span>
+
+    </span><span class="keyword">case</span><span> </span><span class="identifier">loc</span><span>: </span><span class="type-name">Location</span><span>.</span><span class="type-name">External</span><span> =&gt;
+      </span><span class="type-name">Msg</span><span>.</span><span class="type-name">NavigateToUrl</span><span>(</span><span class="identifier">loc</span><span>.</span><span class="identifier">href</span><span>)</span></code></pre>
+        <p>The <code>Location</code> type comes with all sorts of information in it for you to decide how to route, it is similar to the JavaScript <code>Location</code> type.</p>
+        <p>Once you&#39;ve done your routing, you&#39;ll want to use some of the new <code>Nav</code> cmds. </p>
+        <p>Internal links from anchor tags will automatically update the address bar, but for internal links that are not from anchor tags, you can use <code>Nav.pushUrl</code> to update the address bar (this does <em>not</em> tell the browser to change locations, it just adjusts the history and what is displayed in the address bar). For external links, you can use <code>Nav.loadUrl</code> to tell the browser to follow the link.</p>
+        <p>Happy routing!</p>
+
+        
+<hr class="footer-rule"/>
+<footer>
+  Site generated by <a href="https://typelevel.org/Laika/">Laika</a> with the Helium theme.
+</footer>
+
+
+      </main>
+
+    </div>
+
+  </body>
+
+</html>
