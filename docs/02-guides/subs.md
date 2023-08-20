@@ -1,8 +1,6 @@
----
-title: "Subscriptions"
----
+# Subscriptions
 
-## Subscriptions: A notification of change
+## A notification of change
 
 Subscriptions (`Sub`s) are used to observe something that changes over time, and to emit discrete messages when something happens.
 

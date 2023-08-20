@@ -1,7 +1,4 @@
----
-title: "Tyrian-Indigo Bridge"
-menuTitle: "Tyrian + Indigo "
----
+# Tyrian-Indigo Bridge
 
 What if you wanted to make a web game (or an Electron desktop game - why not!), where the main game window was rendered in WebGL, but the UI elements were all in lovely, responsive, scalable HTML5?
 

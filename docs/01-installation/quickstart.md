@@ -1,8 +1,4 @@
-+++
-title = "Setup & Configuration"
-menuTitle = "Installation"
-weight = 1
-+++
+# Installation
 
 ## Quick Setup with Giter8
 

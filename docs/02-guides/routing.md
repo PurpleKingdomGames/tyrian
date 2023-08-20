@@ -1,9 +1,4 @@
----
-title: "Frontend Routing"
-menuTitle: "Frontend Routing"
----
-
-## Frontend Routing
+# Frontend Routing
 
 All Tyrian apps need to implement a routing function:
 

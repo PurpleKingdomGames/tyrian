@@ -1,7 +1,4 @@
----
-title: "Building & Bundling"
-menuTitle: "Bundling"
----
+# Building & Bundling
 
 The JavaScript community don't like to use the word 'compiler', but tools that gather, parse, and link source files into deployable 'bundles' are an essential part of modern web app development.
 

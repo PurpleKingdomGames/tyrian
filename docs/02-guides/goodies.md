@@ -1,7 +1,4 @@
----
-title: "Built-in Goodies"
-menuTitle: "Goodies"
----
+# "Built-in Goodies"
 
 Tyrian comes with a number of handy functions built-in that you can make use of and explore:
 

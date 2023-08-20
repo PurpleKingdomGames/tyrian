@@ -1,9 +1,6 @@
----
-title: "Server-side Rendering (SSR)"
-menuTitle: "Server-side Rendering"
----
+# Server-side Rendering
 
-## What is server-side rendering?
+## What is server-side rendering? (SSR)
 
 These days, a normal straight-forward relationship between a frontend client and some sort of backend service, is that the client makes an HTTP request to the service, and receives some data back that it uses to render a page/view for the user. But it wasn't always so!
 

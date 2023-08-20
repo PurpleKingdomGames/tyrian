@@ -1,9 +1,4 @@
----
-title: "Commands & Effects"
-menuTitle: "Commands"
----
-
-## Commands
+# Commands & Effects
 
 Using Tyrian, you can get a long way with nothing more than a model, a view, and some messages being pumped around their endless one-way circuit.
 
@@ -18,7 +13,7 @@ These kinds of actions are called 'side-effects', and are an extremely popular t
 
 Luckily, Tyrian has a pretty elegant solution for this.
 
-### Monadic effect handling
+## Monadic effect handling
 
 > You can skip this bit of context if you like. This section has a bit of jargon in it for those who care about such things, but it's really not important if you just want to know how to use commands.
 
@@ -30,7 +25,7 @@ This is _exactly_ what a command (`Cmd`) does. While commands themselves are onl
 
 So far, this is sounding like effect handling as usual. But no. Primarily because you rarely actually see the underlying effect type.
 
-### Making things happen
+## Making things happen
 
 Commands take the form `Cmd[IO, Msg]` (`IO` is used for illustrative purposes) which is to say that they represent some sort of side effect that can produce a message to be cleanly fed back into your single page application's `updateModel` function.
 

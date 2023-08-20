@@ -1,7 +1,4 @@
----
-title: "A Guided Example"
-menuTitle: "Guided Example"
----
+# Guided Example
 
 The normal use case for Tyrian is to build a Single Page App/Application (SPA). You can also use Tyrian for Server-side Rendering (SSR), but this page will focus on SPAs.
 

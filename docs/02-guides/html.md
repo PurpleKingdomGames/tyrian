@@ -1,7 +1,4 @@
----
-title: "Rendering HTML"
-menuTitle: "Rendering HTML"
----
+# Rendering HTML
 
 ## HTML syntax
 
