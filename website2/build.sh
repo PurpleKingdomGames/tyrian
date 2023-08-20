@@ -20,5 +20,5 @@ sbt clean laikaSite
 # -----
 # Publish
 mkdir -p target/docs/site/api/
-cp -R $PROJECT_DIR/target/unidocs/site-docs. $WEBSITE_DIR/target/docs/site/api/
+cp -R $PROJECT_DIR/target/unidocs/site-docs/api/. $WEBSITE_DIR/target/docs/site/api/
 sbt makeSite ghpagesPushSite
