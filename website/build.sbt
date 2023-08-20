@@ -39,7 +39,12 @@ laikaTheme :=
   Helium.defaults.all
     .metadata(
       title = Some("Tyrian"),
-      language = Some("en")
+      description = Some("Elm-inspired Scala web UI library."),
+      identifier = Some(""),
+      authors = Seq(),
+      language = Some("en"),
+      datePublished = Some(OffsetDateTime.now),
+      version = Some("1.0.0")
     )
     .all
     .themeColors(
@@ -104,7 +109,8 @@ laikaTheme :=
     .tableOfContent(title = "Contents", depth = 2)
     .site
     .autoLinkCSS(Root / "css" / "custom.css")
-    .site.favIcons(
+    .site
+    .favIcons(
       Favicon.internal(Root / "img" / "favicon.png", sizes = "32x32")
     )
     .build
@@ -117,11 +123,11 @@ laikaPreviewConfig :=
 
 // Make site
 
-siteSourceDirectory := target.value / "docs" / "site"
+siteSourceDirectory      := target.value / "docs" / "site"
 makeSite / includeFilter := "*"
 makeSite / excludeFilter := ".DS_Store"
-git.remoteRepo := "git@github.com:PurpleKingdomGames/tyrian.git"
-ghpagesNoJekyll := true
+git.remoteRepo           := "git@github.com:PurpleKingdomGames/tyrian.git"
+ghpagesNoJekyll          := true
 
 addCommandAlias(
   "publishTyrianSite",
