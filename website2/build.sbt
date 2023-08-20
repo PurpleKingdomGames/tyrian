@@ -84,7 +84,7 @@ laikaTheme :=
       homeLink = ImageLink.internal(
         Root / "README.md",
         Image.internal(
-          Root / "img" / "tyrian-menu-logo.svg",
+          Root / "img" / "tyrian-horizontal.svg",
           alt = Some("Homepage"),
           title = Some("Tyrian"),
           width = Some(Length(150.0, LengthUnit.px)),
