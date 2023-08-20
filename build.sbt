@@ -128,7 +128,8 @@ lazy val tyrianProject =
       sandbox.js,
       indigoSandbox.js,
       firefoxTests.js,
-      chromeTests.js
+      chromeTests.js,
+      docs
     )
 
 lazy val tyrian =
