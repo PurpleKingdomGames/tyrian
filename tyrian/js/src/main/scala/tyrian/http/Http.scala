@@ -34,7 +34,7 @@ object Http:
     * @return
     *   A Cmd that describes the HTTP request
     */
-  def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: Decoder[Msg]): Cmd[F, Msg] =
+  def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: Decoder[Msg]): Cmd.Run[F, Msg, Msg] =
 
     def fetchTask(abortController: dom.AbortController): F[dom.Response] = Async[F].async_ { callback =>
 

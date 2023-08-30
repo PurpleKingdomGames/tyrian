@@ -3,8 +3,8 @@ package tyrian.runtime
 import cats.Applicative
 import tyrian.Cmd
 
-import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 object CmdHelper:
 
