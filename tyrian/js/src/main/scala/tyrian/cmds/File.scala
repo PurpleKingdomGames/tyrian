@@ -29,13 +29,13 @@ object File:
     val task = Async[F].delay {
       val input = document.createElement("input").asInstanceOf[html.Input];
       val p     = Promise[Array[dom.File]]()
+      input.setAttribute("type", "file")
+      input.setAttribute("accept", fileTypes.mkString(","))
 
-      input.`type` = "file"
-      input.multiple = multiple
-      input.accept = fileTypes.mkString(",")
+      if multiple then input.setAttribute("multiple", "multiple")
 
       input.addEventListener(
-        "click",
+        "change",
         (e: Event) =>
           e.target match {
             case elem: html.Input => if elem.files.length > 0 then p.success(elem.files.toArray) else ()
