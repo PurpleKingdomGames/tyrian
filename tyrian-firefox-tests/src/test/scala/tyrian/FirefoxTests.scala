@@ -1,8 +1,6 @@
 package tyrian
 
 import cats.effect.IO
-import io.circe.HCursor
-import io.circe.parser.*
 import tyrian.http.*
 
 class FirefoxTests extends munit.CatsEffectSuite {

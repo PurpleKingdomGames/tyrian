@@ -1,16 +1,13 @@
 package tyrian.websocket
 
 import cats.effect.kernel.Async
-import cats.effect.kernel.Sync
 import cats.effect.std.Dispatcher
 import cats.effect.syntax.all.*
 import cats.syntax.all.*
-import fs2.Stream
 import fs2.concurrent.Channel
 import org.scalajs.dom
 import tyrian.Cmd
 import tyrian.Sub
-import tyrian.websocket.WebSocketEvent
 import util.Functions
 
 import scala.concurrent.duration.*

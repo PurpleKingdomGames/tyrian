@@ -2,7 +2,6 @@ package tyrian
 
 import cats.Functor
 import cats.effect.kernel.Async
-import cats.effect.kernel.Concurrent
 import cats.effect.kernel.Fiber
 import cats.effect.kernel.Sync
 import cats.kernel.Eq
@@ -223,6 +222,7 @@ object Sub:
   /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation
     * frame.
     */
+  @nowarn("msg=discarded")
   def animationFrameTick[F[_]: Async, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
     Sub.make(
       id,
@@ -231,6 +231,7 @@ object Sub:
           dom.window.requestAnimationFrame { t =>
             cb(Right(toMsg(t / 1000)))
           }
+          ()
         }
       }
     )

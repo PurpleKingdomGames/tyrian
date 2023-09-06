@@ -5,11 +5,10 @@ import cats.implicits.*
 import org.scalajs.dom
 import org.scalajs.dom.HttpMethod
 import org.scalajs.dom.RequestInit
-import org.scalajs.dom.XMLHttpRequest
 import org.scalajs.dom.fetch
 import tyrian.Cmd
 
-import scala.annotation.targetName
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.util.Try
 
@@ -36,6 +35,7 @@ object Http:
     */
   def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: Decoder[Msg]): Cmd[F, Msg] =
 
+    @nowarn("msg=discarded")
     def fetchTask(abortController: dom.AbortController): F[dom.Response] = Async[F].async_ { callback =>
 
       val requestInit = new RequestInit {}
@@ -58,12 +58,18 @@ object Http:
       fetch(request.url, requestInit)
         .`then`(response => callback(Right(response)))
         .`catch`(error => callback(Left(errorToThrowable(error))))
+
+      ()
     }
+
+    @nowarn("msg=discarded")
     def textBodyTask(domResponse: dom.Response): F[String] = Async[F].async_ { callback =>
       domResponse
         .text()
         .`then`(text => callback(Right(text)))
         .`catch`(error => callback(Left(errorToThrowable(error))))
+
+      ()
     }
 
     val fullTask = (for {

@@ -1,8 +1,6 @@
 package tyrian
 
-import org.scalajs.dom.document
 import tyrian.Html.*
-import tyrian.runtime.TyrianRuntime
 
 class AttrTests extends munit.FunSuite {
 

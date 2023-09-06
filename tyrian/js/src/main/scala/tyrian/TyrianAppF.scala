@@ -1,14 +1,13 @@
 package tyrian
 
 import cats.effect.kernel.Async
-import cats.effect.kernel.Resource
 import org.scalajs.dom.DocumentReadyState
 import org.scalajs.dom.Element
 import org.scalajs.dom.HTMLElement
 import org.scalajs.dom.document
 import org.scalajs.dom.window
-import tyrian.runtime.TyrianRuntime
 
+import scala.annotation.nowarn
 import scala.scalajs.js.Promise
 import scala.scalajs.js.annotation.*
 
@@ -133,11 +132,13 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 object TyrianAppF:
   /** Launch app instances after DOMContentLoaded.
     */
+  @nowarn("msg=discarded")
   def onLoad[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
     val documentReady = new Promise((resolve, _reject) => {
       document.addEventListener("DOMContentLoaded", _ => resolve(()))
       if (document.readyState != DocumentReadyState.loading) {
         resolve(())
+        ()
       }
     })
     documentReady.`then`(_ => launch[F](appDirectory))
@@ -148,11 +149,10 @@ object TyrianAppF:
   /** Find data-tyrian-app HTMLElements and launch corresponding TyrianAppF instances
     */
   def launch[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
-    for {
-      element <- document.querySelectorAll("[data-tyrian-app]")
-    } yield {
+    document.querySelectorAll("[data-tyrian-app]").foreach { element =>
       val tyrianAppElement = element.asInstanceOf[HTMLElement]
       val tyrianAppName    = tyrianAppElement.dataset.get("tyrianApp")
+
       tyrianAppName.flatMap(appDirectory.get) match
         case Some(appSupplier) =>
           appSupplier.launch(tyrianAppElement, appElementFlags(tyrianAppElement))

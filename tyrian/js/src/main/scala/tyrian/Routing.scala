@@ -1,8 +1,5 @@
 package tyrian
 
-import cats.effect.kernel.Async
-import org.scalajs.dom.window
-
 /** Provides a number of convenience functions to help with routing in simple use-cases. Here the `Location` type is
   * typically hidden away and the user is expected to match on the `String` href (if at all).
   */

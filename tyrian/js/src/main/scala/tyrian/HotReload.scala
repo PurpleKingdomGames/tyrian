@@ -2,10 +2,6 @@ package tyrian
 
 import cats.effect.kernel.Async
 import org.scalajs.dom
-import util.Functions
-
-import scala.concurrent.duration.FiniteDuration
-import scala.scalajs.js
 
 /** A very simple mechanism to allow automatic loading and saving of your applications model to local storage. Uses:
   *

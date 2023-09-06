@@ -1,15 +1,5 @@
 package tyrian
 
-import cats.effect.kernel.Async
-import cats.effect.kernel.Resource
-import org.scalajs.dom.Element
-import org.scalajs.dom.PopStateEvent
-import org.scalajs.dom.document
-import org.scalajs.dom.window
-
-import scala.scalajs.js
-import scala.scalajs.js.annotation._
-
 sealed trait Location:
   def locationDetails: LocationDetails
   def isInternal: Boolean
