@@ -1,16 +1,11 @@
 package tyrian.runtime
 
-import cats.data.OptionT
 import cats.effect.kernel.Async
-import cats.effect.kernel.Ref
-import cats.effect.kernel.Resource
 import cats.effect.std.AtomicCell
 import cats.effect.std.Dispatcher
 import cats.effect.std.Queue
 import cats.effect.syntax.all.*
 import cats.syntax.all.*
-import fs2.Stream
-import fs2.concurrent.Channel
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.VNode
@@ -19,6 +14,8 @@ import tyrian.Cmd
 import tyrian.Html
 import tyrian.Location
 import tyrian.Sub
+
+import scala.annotation.nowarn
 
 object TyrianRuntime:
 
@@ -73,8 +70,10 @@ object TyrianRuntime:
         val renderLoop =
           val onMsg = (msg: Msg) => dispatcher.unsafeRunAndForget(msgQueue.offer(msg))
 
+          @nowarn("msg=discarded")
           val requestAnimationFrame = F.async_ { cb =>
             dom.window.requestAnimationFrame(_ => cb(Either.unit))
+            ()
           }
 
           def redraw(vnode: VNode) =

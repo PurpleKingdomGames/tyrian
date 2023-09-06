@@ -2,8 +2,6 @@ package tyrian
 
 import tyrian.Html.*
 
-import scala.annotation.targetName
-
 class HtmlTests extends munit.FunSuite {
 
   test("'draggable' attribute can have different types") {

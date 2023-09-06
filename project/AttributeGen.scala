@@ -91,7 +91,6 @@ object AttributeGen {
   def template(moduleName: String, fullyQualifiedPath: String, contents: String): String =
     s"""package $fullyQualifiedPath
     |
-    |import tyrian.Tyrian
     |import tyrian.Html.*
     |import scala.annotation.targetName
     |

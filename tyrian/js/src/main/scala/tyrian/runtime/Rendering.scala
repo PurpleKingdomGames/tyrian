@@ -12,7 +12,6 @@ import tyrian.Event
 import tyrian.Html
 import tyrian.Location
 import tyrian.NamedAttribute
-import tyrian.Property
 import tyrian.PropertyBoolean
 import tyrian.PropertyString
 import tyrian.RawTag

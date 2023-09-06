@@ -20,12 +20,6 @@ lazy val scalaJsDocsVersion = "1.13.1"
 lazy val scalaDocsVersion   = "3.3.0"
 lazy val indigoDocsVersion  = "0.14.0"
 
-ThisBuild / tpolecatExcludeOptions := Set(
-  ScalacOptions.warnNonUnitStatement,
-  ScalacOptions.warnValueDiscard,
-  ScalacOptions.warnUnusedImports
-)
-
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
   organization := "io.indigoengine",
