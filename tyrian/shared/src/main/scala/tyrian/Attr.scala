@@ -93,7 +93,7 @@ final case class Event[E <: Tyrian.Event, M](
     stopPropagation: Boolean,
     stopImmediatePropagation: Boolean
 ) extends Attr[M]:
-  def map[N](f: M => N): Attr[N] = this.copy(msg = msg andThen f)
+  def map[N](f: M => N): Event[E, N] = this.copy(msg = msg andThen f)
 
   def withPreventDefault(enabled: Boolean): Event[E, M] = this.copy(preventDefault = enabled)
   def usePreventDefault: Event[E, M]                    = withPreventDefault(true)
