@@ -32,6 +32,7 @@ final case class MyAwesomeGame(tyrianSubSystem: TyrianSubSystem[Task, String], c
         .noData(
           GameConfig.default
             .withViewport(gameViewport)
+            .noResize
         )
         .withSubSystems(tyrianSubSystem)
     )
