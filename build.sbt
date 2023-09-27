@@ -4,6 +4,7 @@ import scala.language.postfixOps
 import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.firefox.FirefoxOptions
 import org.scalajs.jsenv.selenium.SeleniumJSEnv
+import org.typelevel.scalacoptions.ScalacOptions
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -15,10 +16,10 @@ ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
 lazy val scala3Version      = "3.3.1"
-lazy val tyrianDocsVersion  = "0.7.1"
-lazy val scalaJsDocsVersion = "1.13.1"
+lazy val tyrianDocsVersion  = "0.8.0"
+lazy val scalaJsDocsVersion = "1.13.2"
 lazy val scalaDocsVersion   = "3.3.1"
-lazy val indigoDocsVersion  = "0.14.0"
+lazy val indigoDocsVersion  = "0.15.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
@@ -268,6 +269,11 @@ lazy val jsdocs =
         "org.http4s"      %%% "http4s-dom"           % Dependancies.http4sDom,
         "org.http4s"      %%% "http4s-circe"         % Dependancies.http4sCirce,
         "org.typelevel"   %%% "cats-effect"          % Dependancies.catsEffect
+      ),
+      Compile / tpolecatExcludeOptions ++= Set(
+        ScalacOptions.warnValueDiscard,
+        ScalacOptions.warnUnusedImports,
+        ScalacOptions.warnUnusedLocals
       )
     )
     .enablePlugins(ScalaJSPlugin)
@@ -285,6 +291,11 @@ lazy val docs =
         "VERSION"         -> tyrianDocsVersion,
         "SCALAJS_VERSION" -> scalaJsDocsVersion,
         "SCALA_VERSION"   -> scalaDocsVersion
+      ),
+      Compile / tpolecatExcludeOptions ++= Set(
+        ScalacOptions.warnValueDiscard,
+        ScalacOptions.warnUnusedImports,
+        ScalacOptions.warnUnusedLocals
       )
     )
     .settings(
