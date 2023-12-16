@@ -5,19 +5,23 @@ import scala.annotation.targetName
 /** An HTML element can be a tag or a text node */
 sealed trait Elem[+M]:
   def map[N](f: M => N): Elem[N]
+  override def toString(): String = this.render
 
 /** An Empty Node - renders nothing */
 case object Empty extends Elem[Nothing]:
   def map[N](f: Nothing => N): Empty.type = this
+  override def toString(): String         = this.render
 
 /** A text node */
 final case class Text(value: String) extends Elem[Nothing]:
   def map[N](f: Nothing => N): Text = this
+  override def toString(): String   = this.render
 
 /** Base class for HTML tags */
 sealed trait Html[+M] extends Elem[M]:
   def map[N](f: M => N): Html[N]
   def innerHtml(html: String): Html[M]
+  override def toString(): String = this.render
 
 /** Object used to provide Html syntax `import tyrian.Html.*`
   */
