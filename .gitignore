@@ -1,25 +1,44 @@
-target 
-*.class
-*.iml 
-*.ipr 
-*.iws 
-.idea 
+# mill specific
 out
-.vscode
-metals.sbt
-.metals
-.bloop
-.bsp
-*.semanticdb
-node_modules
-semanticdb.sbt
-.cache
-dist
-.DS_Store
+publish.sh
 credentials.sh
-.DS_Store
+
+# sbt specific
+sbt
+.sbt-local
+.cache
+.history
+.lib
+dist
+target
+lib_managed
+src_managed
+credentials.sbt
+
+# IDE specific
+.idea
+*.iml
+.vscode/
+.vim
+.dotty-ide-disabled
+*.swp
+
+# Scala-CLI specific
+.scala-build
+
+# Misc
+node_modules
+.metals/
+.bloop
+metals.sbt
+.bsp/
+.ammonite
+.coursier
 .parcel-cache
-website/public/
+*.class
+*.log
+.DS_Store
+null/
 
 # Direnv
 .direnv
