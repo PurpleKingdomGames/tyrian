@@ -35,10 +35,12 @@ object Html extends HtmlTags with HtmlAttributes:
   def tag[M](name: String)(attributes: List[Attr[M]])(children: List[Elem[M]]): Html[M] =
     Tag(name, attributes, children)
 
-  def raw[M](name: String)(attributes: Attr[M]*)(html: String): Html[M] =
+  def raw[M](name: String)(html: String): Html[M] =
+    RawTag(name, Nil, html)
+  def raw[M](name: String, attributes: Attr[M]*)(html: String): Html[M] =
     RawTag(name, attributes.toList, html)
   @targetName("raw-list")
-  def raw[M](name: String)(attributes: List[Attr[M]])(html: String): Html[M] =
+  def raw[M](name: String, attributes: List[Attr[M]])(html: String): Html[M] =
     RawTag(name, attributes, html)
 
   // Custom tag syntax
