@@ -1,9 +1,8 @@
-package tyrian.runtime
+package tyrian
 
 import tyrian.Html.*
-import tyrian.*
 
-class TyrianSSRTests extends munit.FunSuite {
+class HTMLRenderingTests extends munit.FunSuite {
 
   type Model = Int
   type Msg   = Unit
@@ -15,7 +14,7 @@ class TyrianSSRTests extends munit.FunSuite {
       _ => p(text("Hello, world!"))
 
     val actual =
-      TyrianSSR.render(model, view)
+      view(model).render
 
     val expected =
       "<p>Hello, world!</p>"
@@ -28,7 +27,7 @@ class TyrianSSRTests extends munit.FunSuite {
       _ => p(text("Hello, world!"))
 
     val actual =
-      TyrianSSR.render(true, model, view)
+      "<!DOCTYPE HTML>" + view(model)
 
     val expected =
       "<!DOCTYPE HTML><p>Hello, world!</p>"
@@ -45,7 +44,7 @@ class TyrianSSRTests extends munit.FunSuite {
       )
 
     val actual =
-      TyrianSSR.render(html)
+      html.render
 
     val expected =
       """<div id="my-div"><p>Hello, world!</p><span class="my-span-class" style="width:10px;height:12pt;">test</span><a href="http://tyrian">my link</a></div>"""
@@ -62,7 +61,7 @@ class TyrianSSRTests extends munit.FunSuite {
       )
 
     val actual =
-      TyrianSSR.render(elems)
+      elems.render
 
     val expected =
       "<p>a</p><span>b</span><b>c</b>"
@@ -77,7 +76,7 @@ class TyrianSSRTests extends munit.FunSuite {
       )
 
     val actual =
-      TyrianSSR.render(elems)
+      elems.render
 
     val expected =
       """<div id="my-div" hidden>some content</div>"""
@@ -92,7 +91,7 @@ class TyrianSSRTests extends munit.FunSuite {
       )
 
     val actual =
-      TyrianSSR.render(elems)
+      elems.render
 
     val expected =
       """<div id="my-div">some content</div>"""
@@ -101,7 +100,7 @@ class TyrianSSRTests extends munit.FunSuite {
   }
 
   test("Can render a simple page") {
-    val elems: Elem[Msg] =
+    val page: Html[Msg] =
       html(
         head(
           title("My Page")
@@ -112,7 +111,7 @@ class TyrianSSRTests extends munit.FunSuite {
       )
 
     val actual =
-      TyrianSSR.render(true, elems)
+      "<!DOCTYPE HTML>" + page
 
     val expected =
       "<!DOCTYPE HTML><html><head><title>My Page</title></head><body><p>Hello, world!</p></body></html>"
@@ -138,7 +137,7 @@ class TyrianSSRTests extends munit.FunSuite {
       )
 
     val actual =
-      TyrianSSR.render(elems)
+      elems.render
 
     val expected =
       """<div><button></button><button class="a"></button><button class="a"></button><button class="a"></button><button class="a">X</button><button class="a">X</button><button class="a">X</button><button class="a">X</button><button class="a">X</button><button>X</button><button>X</button><button>X</button></div>"""

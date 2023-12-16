@@ -5,6 +5,7 @@ import scala.util.Try
 /** HTML attribute */
 sealed trait Attr[+M]:
   def map[N](f: M => N): Attr[N]
+  override def toString(): String = this.render
 
 /** An attribute of an HTML tag that does not exist, used as a "do not render" placeholder
   */

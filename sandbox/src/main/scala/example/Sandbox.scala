@@ -414,6 +414,12 @@ object Sandbox extends TyrianApp[Msg, Model]:
               if false then p("Showing") else Empty
             ),
             div(
+              p("From rendered HTML:"),
+              raw("div")(
+                "<p>Hello, Bob!</p>" + p("Hello, world!")
+              )
+            ),
+            div(
               input(id := "fruitName", onInput(s => Msg.UpdateFruitInput(s))),
               button(onClick(Msg.AddFruit))(
                 text("Add Fruit")
