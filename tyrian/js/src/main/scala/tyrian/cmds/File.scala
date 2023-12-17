@@ -9,26 +9,34 @@ import tyrian.Cmd
 
 import scala.concurrent.Promise
 
-trait FileSelectedEvent:
-  val file: dom.File
-
 object File:
-  def select[F[_]: Async, Msg](fileTypes: Array[String])(
+
+  def select[F[_]: Async, Msg](fileTypes: List[String])(
       resultToMessage: dom.File => Msg
   ): Cmd[F, Msg] =
     selectFiles(fileTypes, false)(files => resultToMessage(files.head))
 
-  def selectMultiple[F[_]: Async, Msg](fileTypes: Array[String])(
-      resultToMessage: Array[dom.File] => Msg
+  def select[F[_]: Async, Msg](fileTypes: String*)(
+      resultToMessage: dom.File => Msg
+  ): Cmd[F, Msg] =
+    selectFiles(fileTypes.toList, false)(files => resultToMessage(files.head))
+
+  def selectMultiple[F[_]: Async, Msg](fileTypes: List[String])(
+      resultToMessage: List[dom.File] => Msg
   ): Cmd[F, Msg] =
     selectFiles(fileTypes, true)(resultToMessage)
 
-  private def selectFiles[F[_]: Async, Msg](fileTypes: Array[String], multiple: Boolean)(
-      resultToMessage: Array[dom.File] => Msg
+  def selectMultiple[F[_]: Async, Msg](fileTypes: String*)(
+      resultToMessage: List[dom.File] => Msg
+  ): Cmd[F, Msg] =
+    selectFiles(fileTypes.toList, true)(resultToMessage)
+
+  private def selectFiles[F[_]: Async, Msg](fileTypes: List[String], multiple: Boolean)(
+      resultToMessage: List[dom.File] => Msg
   ): Cmd[F, Msg] =
     val task = Async[F].delay {
       val input = document.createElement("input").asInstanceOf[html.Input];
-      val p     = Promise[Array[dom.File]]()
+      val p     = Promise[List[dom.File]]()
       input.setAttribute("type", "file")
       input.setAttribute("accept", fileTypes.mkString(","))
 
@@ -38,7 +46,7 @@ object File:
         "change",
         (e: Event) =>
           e.target match {
-            case elem: html.Input => if elem.files.length > 0 then p.success(elem.files.toArray) else ()
+            case elem: html.Input => if elem.files.length > 0 then p.success(elem.files.toList) else ()
             case _                => ()
           }
       )
