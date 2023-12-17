@@ -26,7 +26,7 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
     "org.typelevel" %%% "munit-cats-effect" % Dependancies.munitCatsEffect3 % Test,
-    "org.typelevel" %%% "discipline-munit"  % Dependancies.munitCatsEffect3 % Test,
+    "org.typelevel" %%% "discipline-munit"  % Dependancies.disciplineMUnit  % Test,
     "org.typelevel" %%% "cats-laws"         % Dependancies.catsLaws         % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
