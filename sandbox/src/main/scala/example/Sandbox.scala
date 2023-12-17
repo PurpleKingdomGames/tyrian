@@ -2,7 +2,6 @@ package example
 
 import cats.effect.IO
 import org.scalajs.dom
-import org.scalajs.dom.html
 import tyrian.Html.*
 import tyrian.SVG.*
 import tyrian.*
@@ -36,6 +35,7 @@ object Sandbox extends TyrianApp[Msg, Model]:
         case "/page4" => Msg.NavigateTo(Page.Page4)
         case "/page5" => Msg.NavigateTo(Page.Page5)
         case "/page6" => Msg.NavigateTo(Page.Page6)
+        case "/page7" => Msg.NavigateTo(Page.Page7)
         case _ =>
           println("Unknown route: " + loc.url)
           Msg.NoOp
@@ -316,26 +316,48 @@ object Sandbox extends TyrianApp[Msg, Model]:
     case Msg.FrameTick(t) =>
       (model.copy(time = model.time.next(t)), Cmd.None)
 
-    case Msg.SelectFile =>
-      (
-        model,
-        File.select(
-          Array("image/png", "image/jpg", "image/webp")
-        )((f: dom.File) => Msg.ReadFile(f))
-      )
+    // Image file
 
-    case Msg.ReadFile(file) =>
-      (
-        model,
-        FileReader.readImage(file)((r: FileReader.Result[html.Image]) =>
+    case Msg.SelectImageFile =>
+      val cmd: Cmd[IO, Msg] = File.select("image/png", "image/jpg", "image/webp")(f => Msg.ReadImageFile(f))
+
+      (model, cmd)
+
+    case Msg.ReadImageFile(file) =>
+      val cmd: Cmd[IO, Msg] =
+        FileReader.readImage(file)((r: FileReader.Result[String]) =>
           r match {
-            case FileReader.Result.File(_, _, d) => Msg.FileRead(d)
+            case FileReader.Result.File(_, _, d) => Msg.FileImageRead(d)
             case _                               => Msg.NoOp
           }
         )
-      )
-    case Msg.FileRead(file) =>
-      (model.copy(image = Some(file)), Cmd.None)
+
+      (model, cmd)
+
+    case Msg.FileImageRead(data) =>
+      (model.copy(loadedImage = Option(data)), Cmd.None)
+
+    // Text file
+
+    case Msg.SelectTextFile =>
+      val cmd: Cmd[IO, Msg] = File.select("text/plain")(f => Msg.ReadTextFile(f))
+
+      (model, cmd)
+
+    case Msg.ReadTextFile(file) =>
+      val cmd: Cmd[IO, Msg] =
+        FileReader.readText(file)((r: FileReader.Result[String]) =>
+          r match {
+            case FileReader.Result.File(_, _, d) => Msg.FileTextRead(d)
+            case _                               => Msg.NoOp
+          }
+        )
+
+      (model, cmd)
+
+    case Msg.FileTextRead(data) =>
+      (model.copy(loadedText = Option(data)), Cmd.None)
+
   def view(model: Model): Html[Msg] =
     val navItems =
       Page.values.toList.map { pg =>
@@ -582,12 +604,15 @@ object Sandbox extends TyrianApp[Msg, Model]:
 
         case Page.Page7 =>
           div(
-            button(onClick(Msg.SelectFile)),
+            button(onClick(Msg.SelectImageFile))("Select an image file"),
+            button(onClick(Msg.SelectTextFile))("Select a text file"),
             div(style := CSS.width("200px"))(
-              img(
-                src :=
-                  model.image.map(img => img.src).getOrElse("")
-              )
+              model.loadedImage
+                .map(data => img(src := data))
+                .toList ++
+                model.loadedText
+                  .map(data => p(data))
+                  .toList
             )
           )
 
@@ -693,9 +718,12 @@ enum Msg:
   case AddFruit
   case UpdateFruitInput(input: String)
   case ToggleFruitAvailability(name: String)
-  case SelectFile
-  case ReadFile(file: dom.File)
-  case FileRead(file: html.Image)
+  case SelectImageFile
+  case ReadImageFile(file: dom.File)
+  case FileImageRead(fileData: String)
+  case SelectTextFile
+  case ReadTextFile(file: dom.File)
+  case FileTextRead(fileData: String)
   case NoOp
 
 enum Status:
@@ -745,7 +773,8 @@ final case class Model(
     flavour: Option[String],
     fruit: List[Fruit],
     fruitInput: String,
-    image: Option[html.Image]
+    loadedImage: Option[String],
+    loadedText: Option[String]
 )
 
 final case class Fruit(name: String, available: Boolean)
@@ -799,6 +828,7 @@ object Model:
       None,
       Nil,
       "",
+      None,
       None
     )
 
