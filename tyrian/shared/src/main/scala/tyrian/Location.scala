@@ -27,10 +27,3 @@ object Location:
     if ld.protocol.isEmpty then Location.Internal(ld)
     else if ld.origin == currentLocation.origin then Location.Internal(ld)
     else Location.External(ld)
-
-  /** Location instances created from JS Location's are assumed to be internal links.
-    */
-  def fromJsLocation(location: org.scalajs.dom.Location): Location.Internal =
-    Location.Internal(
-      LocationDetails.fromUrl(location.href)
-    )
