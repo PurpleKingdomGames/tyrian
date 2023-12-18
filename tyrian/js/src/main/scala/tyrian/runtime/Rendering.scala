@@ -17,7 +17,6 @@ import tyrian.PropertyString
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
-import tyrian.fromJsLocation
 
 import scala.scalajs.js
 
