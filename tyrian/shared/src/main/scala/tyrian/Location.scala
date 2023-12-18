@@ -7,7 +7,7 @@ sealed trait Location:
   def href: String
   def url: String
 
-object Location:
+object Location extends LocationPlatform:
 
   final case class Internal(locationDetails: LocationDetails) extends Location:
     export locationDetails.*
