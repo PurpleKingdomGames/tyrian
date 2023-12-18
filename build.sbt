@@ -125,9 +125,8 @@ lazy val tyrianProject =
       tyrian.jvm,
       tyrianIO.js,
       tyrianZIO.js,
-      tyrianIndigoBridge.js,
       sandbox.js,
-      indigoSandbox.js,
+      sandboxZIO.js,
       firefoxTests.js,
       chromeTests.js,
       docs
@@ -189,21 +188,6 @@ lazy val tyrianZIO =
     )
     .dependsOn(tyrian)
 
-lazy val tyrianIndigoBridge =
-  crossProject(JSPlatform)
-    .crossType(CrossType.Pure)
-    .withoutSuffixFor(JSPlatform)
-    .in(file("tyrian-indigo-bridge"))
-    .dependsOn(tyrian)
-    .settings(
-      name := "tyrian-indigo-bridge",
-      commonSettings ++ publishSettings,
-      libraryDependencies ++= Seq(
-        "io.indigoengine" %%% "indigo" % Dependancies.indigoVersion
-      )
-    )
-    .jsSettings(commonJsSettings: _*)
-
 lazy val sandbox =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
@@ -217,23 +201,19 @@ lazy val sandbox =
       scalacOptions -= "-language:strictEquality"
     )
 
-lazy val indigoSandbox =
+lazy val sandboxZIO =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
     .withoutSuffixFor(JSPlatform)
-    .in(file("indigo-sandbox"))
-    .dependsOn(tyrianIndigoBridge)
+    .in(file("sandbox-zio"))
     .dependsOn(tyrianZIO)
     .settings(
       neverPublish,
       commonSettings,
-      name := "Indigo Sandbox",
+      name := "Sandbox ZIO",
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       libraryDependencies ++= Seq(
-        "io.indigoengine" %%% "indigo"            % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-extras"     % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe" % Dependancies.indigoVersion,
-        "dev.zio"         %%% "zio-interop-cats"  % Dependancies.zioInteropCats
+        "dev.zio" %%% "zio-interop-cats" % Dependancies.zioInteropCats
       ),
       scalacOptions -= "-language:strictEquality"
     )
@@ -246,7 +226,7 @@ lazy val unidocs =
       neverPublish,
       ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
         tyrian.jvm,
-        indigoSandbox.js,
+        sandboxZIO.js,
         sandbox.js,
         docs,
         firefoxTests.js,
@@ -265,7 +245,6 @@ lazy val jsdocs =
         "io.circe"        %%% "circe-parser"         % Dependancies.circe,
         "io.indigoengine" %%% "indigo"               % indigoDocsVersion,
         "io.indigoengine" %%% "tyrian-io"            % tyrianDocsVersion,
-        "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianDocsVersion,
         "org.http4s"      %%% "http4s-dom"           % Dependancies.http4sDom,
         "org.http4s"      %%% "http4s-circe"         % Dependancies.http4sCirce,
         "org.typelevel"   %%% "cats-effect"          % Dependancies.catsEffect
@@ -335,13 +314,13 @@ lazy val chromeTests =
 addCommandAlias(
   "sandboxBuild",
   List(
-    "sandbox/fastOptJS"
+    "sandbox/fastLinkJS"
   ).mkString("", ";", ";")
 )
 addCommandAlias(
-  "indigoSandboxBuild",
+  "sandboxZIOBuild",
   List(
-    "indigoSandbox/fastOptJS"
+    "sandboxZIO/fastLinkJS"
   ).mkString("", ";", ";")
 )
 
@@ -364,9 +343,8 @@ addCommandAlias(
     "tyrianJVM/clean",
     "tyrianIO/clean",
     "tyrianZIO/clean",
-    "tyrianIndigoBridge/clean",
     "sandbox/clean",
-    "indigoSandbox/clean",
+    "sandboxZIO/clean",
     "firefoxTests/clean",
     "chromeTests/clean"
   ).mkString(";", ";", "")
@@ -379,9 +357,8 @@ addCommandAlias(
     "tyrianJVM/compile",
     "tyrianIO/compile",
     "tyrianZIO/compile",
-    "tyrianIndigoBridge/compile",
     "sandbox/compile",
-    "indigoSandbox/compile"
+    "sandboxZIO/compile"
   ).mkString(";", ";", "")
 )
 
@@ -392,9 +369,8 @@ addCommandAlias(
     "tyrianJVM/test",
     "tyrianIO/test",
     "tyrianZIO/test",
-    "tyrianIndigoBridge/test",
     "sandbox/test",
-    "indigoSandbox/test",
+    "sandboxZIO/test",
     "firefoxTests/test",
     "chromeTests/test"
   ).mkString(";", ";", "")
@@ -407,9 +383,8 @@ addCommandAlias(
     "tyrianJVM/test",
     "tyrianIO/test",
     "tyrianZIO/test",
-    "tyrianIndigoBridge/test",
     "sandbox/test",
-    "indigoSandbox/test"
+    "sandboxZIO/test"
   ).mkString(";", ";", "")
 )
 
@@ -420,7 +395,6 @@ addCommandAlias(
     "tyrianJVM/test",
     "tyrianIO/test",
     "tyrianZIO/test",
-    "tyrianIndigoBridge/test"
   ).mkString(";", ";", "")
 )
 
