@@ -50,7 +50,7 @@ To listen for messages from Tyrian, you simply match on the `TyrianEvent.Receive
 
 To send a message to Tyrian, you emit a message as normal, e.g.:
 
-```scala mdoc:js
+```scala
 import indigo.*
 import tyrian.*
 import cats.effect.IO

@@ -42,7 +42,7 @@ object Misc {
     UsefulTask("testAll", "Test all (JS + JVM)"),
     UsefulTask("localPublish", "Locally publish the core modules (JS + JVM)"),
     UsefulTask("sandboxBuild", "Build the sandbox project"),
-    UsefulTask("indigoSandboxBuild", "Build the indigo/tyrian bridge project"),
+    UsefulTask("sandboxZIOBuild", "Build the zio sandbox project"),
     UsefulTask("gendocs", "Rebuild the API and markdown docs"),
     UsefulTask("code", "Launch VSCode"),
     UsefulTask("scalafmtCheckAll", "")
