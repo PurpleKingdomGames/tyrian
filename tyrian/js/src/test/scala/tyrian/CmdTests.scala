@@ -179,6 +179,17 @@ class CmdTests extends munit.CatsEffectSuite {
     Cmd.SideEffect(t).toTask.map(_ => actual == 1).assert
   }
 
+  test("Cmd.SideEffect toTask with non-unit return type") {
+    var actual = 0
+
+    val t: IO[Boolean] = IO {
+      actual = actual + 1
+      true
+    }
+
+    Cmd.SideEffect(t).toTask.map(_ => actual == 1).assert
+  }
+
   test("Cmd.Run toTask") {
     Cmd.Run(IO(10), _.toString).toTask.assertEquals("10")
   }
