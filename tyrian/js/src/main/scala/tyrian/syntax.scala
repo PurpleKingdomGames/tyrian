@@ -2,13 +2,14 @@ package tyrian
 
 import cats.Applicative
 import cats.effect.Async
+import cats.effect.Sync
 
 object syntax:
 
   /** Make a side effect cmd from any `F[Unit]`
     */
-  extension [F[_]](task: F[Unit])
-    def toCmd: Cmd.SideEffect[F] =
+  extension [F[_]: Sync](task: F[Unit])
+    def toCmd: Cmd.SideEffect[F, Unit] =
       Cmd.SideEffect(task)
 
   /** Make a cmd from any `F[A]`
