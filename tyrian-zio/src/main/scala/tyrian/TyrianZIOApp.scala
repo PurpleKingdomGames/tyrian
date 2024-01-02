@@ -10,7 +10,7 @@ import scala.annotation.nowarn
 /** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
-trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Model]:
+trait TyrianZIOApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Model]:
 
   private val runtime = Runtime.default
 
@@ -20,7 +20,7 @@ trait TyrianApp[Msg, Model](using Async[Task]) extends TyrianAppF[Task, Msg, Mod
       runtime.unsafe.fork(runnable)
     }
 
-object TyrianApp:
+object TyrianZIOApp:
   def onLoad(appDirectory: (String, TyrianAppF[Task, _, _])*)(using Async[Task]): Unit =
     TyrianAppF.onLoad(appDirectory: _*)
 
