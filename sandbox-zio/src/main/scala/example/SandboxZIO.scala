@@ -10,7 +10,7 @@ import zio.interop.catz.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
-object SandboxZIO extends TyrianApp[Msg, Model]:
+object SandboxZIO extends TyrianZIOApp[Msg, Model]:
 
   def router: Location => Msg = Routing.externalOnly(Msg.NoOp, Msg.FollowLink(_))
 

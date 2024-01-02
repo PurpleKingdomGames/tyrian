@@ -21,7 +21,7 @@ import scala.util.Random
 import scalajs.js
 
 @JSExportTopLevel("TyrianApp")
-object Sandbox extends TyrianApp[Msg, Model]:
+object Sandbox extends TyrianIOApp[Msg, Model]:
 
   // Here we just do a simple string match, but this could be a route matching
   // lib like: https://github.com/sherpal/url-dsl
