@@ -22,7 +22,7 @@ import scala.scalajs.js
 
 object Rendering:
 
-  private def buildNodeData[Msg](attrs: List[Attr[Msg]], onMsg: Msg => Unit): VNodeData =
+  private def buildNodeData[Msg](attrs: List[Attr[Msg]], onMsg: Msg => Unit, key: Option[String]): VNodeData =
     val as: List[(String, String)] =
       attrs.collect {
         case Attribute(n, v)   => (n, v)
@@ -51,7 +51,8 @@ object Rendering:
     VNodeData.empty.copy(
       props = props.toMap,
       attrs = as.toMap,
-      on = events.toMap
+      on = events.toMap,
+      key = key
     )
 
   private def interceptHref[Msg](attrs: List[Attr[Msg]]): Boolean =
@@ -103,8 +104,8 @@ object Rendering:
 
   def toVNode[Msg](html: Html[Msg], onMsg: Msg => Unit, router: Location => Msg): VNode =
     html match
-      case RawTag(name, attrs, html) =>
-        val data = buildNodeData(attrs, onMsg)
+      case RawTag(name, attrs, html, key) =>
+        val data = buildNodeData(attrs, onMsg, key)
         val elm  = dom.document.createElement(name)
         elm.innerHTML = html
         val vNode = snabbdom.toVNode(elm)
@@ -113,8 +114,8 @@ object Rendering:
 
       // Intercept a tags with an href and no onClick attribute to stop the
       // browser following links by default.
-      case Tag("a", attrs, children) if interceptHref(attrs) =>
-        val data = buildNodeData(attrs, onMsg)
+      case Tag("a", attrs, children, key) if interceptHref(attrs) =>
+        val data = buildNodeData(attrs, onMsg, key)
         val childrenElem: Array[VNode] =
           children.toArray.map {
             case _: Empty.type      => VNode.empty()
@@ -128,8 +129,8 @@ object Rendering:
           childrenElem
         )
 
-      case Tag(name, attrs, children) =>
-        val data = buildNodeData(attrs, onMsg)
+      case Tag(name, attrs, children, key) =>
+        val data = buildNodeData(attrs, onMsg, key)
         val childrenElem: Array[VNode] =
           children.toArray.map {
             case _: Empty.type      => VNode.empty()
