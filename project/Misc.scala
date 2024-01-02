@@ -39,6 +39,7 @@ object Misc {
   lazy val customTasksAliases = Seq(
     UsefulTask("cleanAll", "Clean all (JS + JVM)"),
     UsefulTask("compileAll", "Compile all (JS + JVM)"),
+    UsefulTask("testAllUnit", "Test all unit (JS + JVM)"),
     UsefulTask("testAll", "Test all (JS + JVM)"),
     UsefulTask("localPublish", "Locally publish the core modules (JS + JVM)"),
     UsefulTask("sandboxBuild", "Build the sandbox project"),
