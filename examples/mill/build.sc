@@ -4,7 +4,7 @@ import mill.scalalib._
 import mill.scalajslib._
 import mill.scalajslib.api._
 
-import $ivy.`io.github.davidgregory084::mill-tpolecat::0.3.2`
+import $ivy.`io.github.davidgregory084::mill-tpolecat::0.3.5`
 import io.github.davidgregory084.TpolecatModule
 
 object counter extends ScalaJSModule with TpolecatModule {
@@ -26,7 +26,7 @@ object counter extends ScalaJSModule with TpolecatModule {
 
   override def moduleKind = T(mill.scalajslib.api.ModuleKind.CommonJSModule)
 
-  object test extends Tests {
+  object test extends ScalaJSTests {
     def ivyDeps = Agg(
       ivy"org.scalameta::munit::0.7.29"
     )
@@ -50,7 +50,7 @@ object TyrianVersion {
 
         case None if levels < 3 =>
           try {
-            val v = scala.io.Source.fromFile(path).getLines.toList.head
+            val v = scala.io.Source.fromFile(path).getLines().toList.head
             rec(path, levels, Some(v))
           } catch {
             case _: Throwable =>
