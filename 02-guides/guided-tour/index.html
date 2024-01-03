@@ -138,7 +138,7 @@
 </span><span class="keyword">import</span><span> </span><span class="identifier">scala</span><span>.</span><span class="identifier">scalajs</span><span>.</span><span class="identifier">js</span><span>.</span><span class="identifier">annotation</span><span>.*
 
 </span><span class="comment">// @JSExportTopLevel(&quot;TyrianApp&quot;) // Commented out to appease mdoc..
-</span><span class="keyword">object</span><span> </span><span class="type-name">Main</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">TyrianApp</span><span>[</span><span class="type-name">Msg</span><span>, </span><span class="type-name">Model</span><span>]:
+</span><span class="keyword">object</span><span> </span><span class="type-name">Main</span><span> </span><span class="keyword">extends</span><span> </span><span class="type-name">TyrianIOApp</span><span>[</span><span class="type-name">Msg</span><span>, </span><span class="type-name">Model</span><span>]:
 
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">router</span><span>: </span><span class="type-name">Location</span><span> =&gt; </span><span class="type-name">Msg</span><span> = </span><span class="type-name">Routing</span><span>.</span><span class="identifier">none</span><span>(</span><span class="type-name">Msg</span><span>.</span><span class="type-name">NoOp</span><span>)
 
@@ -167,10 +167,10 @@
         <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
         <p>Lets go through it...</p>
         
-        <h4 id="tyrianapp" class="section"><a class="anchor-link left" href="#tyrianapp"><i class="icofont-laika link">&#xef71;</i></a><code>TyrianApp</code></h4>
+        <h4 id="tyrianioapp-tyrianzioapp" class="section"><a class="anchor-link left" href="#tyrianioapp-tyrianzioapp"><i class="icofont-laika link">&#xef71;</i></a><code>TyrianIOApp</code> / <code>TyrianZIOApp</code></h4>
         <p>Starting at the top, we have the most common imports that bring in all the basics you&#39;ll need to build your SPA.</p>
-        <p>All Tyrian SPAs must extend <code>TyrianApp</code> which is parameterized by a message type and a model type. These types can be anything you like, but typically <code>Msg</code> is an enum or ADT, and <code>Model</code> is probably a case class (in our case we&#39;re just using an <code>Int</code>, but we&#39;ll come back to that).</p>
-        <p>Extending <code>TyrianApp[Msg, Model]</code> will produce helpful compile errors that will tell you all the functions you need to implement, i.e. <code>init</code>, <code>update</code>, <code>view</code> and <code>subscriptions</code>.</p>
+        <p>All Tyrian SPAs must extend <code>TyrianIOApp</code> or <code>TyrianZIOApp</code> which is parameterized by a message type and a model type. These types can be anything you like, but typically <code>Msg</code> is an enum or ADT, and <code>Model</code> is probably a case class (in our case we&#39;re just using an <code>Int</code>, but we&#39;ll come back to that).</p>
+        <p>Extending <code>TyrianIOApp[Msg, Model]</code> will produce helpful compile errors that will tell you all the functions you need to implement, i.e. <code>init</code>, <code>update</code>, <code>view</code> and <code>subscriptions</code>.</p>
         <p>The other thing you must do is export the app using Scala.js&#39;s <code>@JSExportTopLevel(&quot;TyrianApp&quot;)</code>. You can call it anything you like, but all the examples expect the name &quot;TyrianApp&quot;.</p>
         
         <h4 id="the-model" class="section"><a class="anchor-link left" href="#the-model"><i class="icofont-laika link">&#xef71;</i></a>The model</h4>

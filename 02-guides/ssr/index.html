@@ -136,15 +136,14 @@
 </span><span class="keyword">val</span><span> </span><span class="identifier">styles</span><span>  = </span><span class="identifier">style</span><span>(</span><span class="type-name">CSS</span><span>.</span><span class="identifier">`font-family`</span><span>(</span><span class="string-literal">&quot;Arial, Helvetica, sans-serif&quot;</span><span>))
 </span><span class="keyword">val</span><span> </span><span class="identifier">topLine</span><span> = </span><span class="identifier">p</span><span>(</span><span class="identifier">b</span><span>(</span><span class="identifier">text</span><span>(</span><span class="string-literal">&quot;HTML fragment rendered by Tyrian on the server.&quot;</span><span>)))
 
-</span><span class="type-name">Tyrian</span><span>.</span><span class="identifier">render</span><span>(
+</span><span class="keyword">val</span><span> </span><span class="identifier">output</span><span>: </span><span class="type-name">String</span><span> =
   </span><span class="identifier">div</span><span>(</span><span class="identifier">styles</span><span>)(
     </span><span class="identifier">topLine</span><span>,
     </span><span class="identifier">p</span><span>(</span><span class="string-literal">&quot;Hello, world!&quot;</span><span>)
-  )
-)</span></code></pre>
+  ).</span><span class="identifier">render</span></code></pre>
         <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
         <p>As you can see, this is completely ordinary Scala, which means you can do anything that Scala lets you do in order to generate this HTML block, without having to learn a templating language like Mustache.</p>
-        <p>There are a number of variations of the <code>Tyrian.render</code> function, full details can be found in the Tyrian API docs.</p>
+        <p>The <code>.render</code> extension method is not strictly necessary since this is now the behaviour of calling <code>.toString</code> on a tag.</p>
         <p>There is an example of SRR in the <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">server-examples</a>.
         &lt;script type=&quot;text/javascript&quot; src=&quot;ssr.md.js&quot; defer&gt;&lt;/script&gt;
         &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
