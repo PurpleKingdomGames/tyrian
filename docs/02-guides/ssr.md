@@ -19,16 +19,15 @@ import tyrian.Html.*
 val styles  = style(CSS.`font-family`("Arial, Helvetica, sans-serif"))
 val topLine = p(b(text("HTML fragment rendered by Tyrian on the server.")))
 
-Tyrian.render(
+val output: String =
   div(styles)(
     topLine,
     p("Hello, world!")
-  )
-)
+  ).render
 ```
 
 As you can see, this is completely ordinary Scala, which means you can do anything that Scala lets you do in order to generate this HTML block, without having to learn a templating language like Mustache.
 
-There are a number of variations of the `Tyrian.render` function, full details can be found in the Tyrian API docs.
+The `.render` extension method is not strictly necessary since this is now the behaviour of calling `.toString` on a tag.
 
 There is an example of SRR in the [server-examples](https://github.com/PurpleKingdomGames/tyrian/tree/main/examples).

@@ -22,7 +22,7 @@ import cats.effect.IO
 import scala.scalajs.js.annotation.*
 
 // @JSExportTopLevel("TyrianApp") // Commented out to appease mdoc..
-object Main extends TyrianApp[Msg, Model]:
+object Main extends TyrianIOApp[Msg, Model]:
 
   def router: Location => Msg = Routing.none(Msg.NoOp)
 
@@ -52,13 +52,13 @@ enum Msg:
 
 Lets go through it...
 
-#### `TyrianApp`
+#### `TyrianIOApp` / `TyrianZIOApp`
 
 Starting at the top, we have the most common imports that bring in all the basics you'll need to build your SPA.
 
-All Tyrian SPAs must extend `TyrianApp` which is parameterized by a message type and a model type. These types can be anything you like, but typically `Msg` is an enum or ADT, and `Model` is probably a case class (in our case we're just using an `Int`, but we'll come back to that).
+All Tyrian SPAs must extend `TyrianIOApp` or `TyrianZIOApp` which is parameterized by a message type and a model type. These types can be anything you like, but typically `Msg` is an enum or ADT, and `Model` is probably a case class (in our case we're just using an `Int`, but we'll come back to that).
 
-Extending `TyrianApp[Msg, Model]` will produce helpful compile errors that will tell you all the functions you need to implement, i.e. `init`, `update`, `view` and `subscriptions`.
+Extending `TyrianIOApp[Msg, Model]` will produce helpful compile errors that will tell you all the functions you need to implement, i.e. `init`, `update`, `view` and `subscriptions`.
 
 The other thing you must do is export the app using Scala.js's `@JSExportTopLevel("TyrianApp")`. You can call it anything you like, but all the examples expect the name "TyrianApp".
 
