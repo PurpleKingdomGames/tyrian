@@ -25,7 +25,6 @@
     <link rel="stylesheet" type="text/css" href="../../css/custom.css" />
   <script src="../../helium/laika-helium.js"></script>
     <script src="../guided-tour.md.js"></script>
-    <script src="../tyrian-indigo-bridge.md.js"></script>
     <script src="../subs.md.js"></script>
     <script src="../networking.md.js"></script>
     <script src="../ssr.md.js"></script>
@@ -172,7 +171,6 @@
 
 </span><span class="comment">// Sending a string here, but could be anything.
 </span><span class="type-name">Outcome</span><span>(</span><span class="identifier">model</span><span>).</span><span class="identifier">addGlobalEvents</span><span>(</span><span class="identifier">subsystem</span><span>.</span><span class="type-name">TyrianEvent</span><span>.</span><span class="type-name">Send</span><span>(</span><span class="string-literal">&quot;My message&quot;</span><span>))</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
         <p>Please note that the example above is rather contrived to try and show you the code, it&#39;s better to look at <a href="https://github.com/PurpleKingdomGames/tyrian/blob/main/examples/indigo/src/main/scala/example/game/MyAwesomeGame.scala#L58">a real example</a>.</p>
         
         <h4 id="in-tyrian" class="section"><a class="anchor-link left" href="#in-tyrian"><i class="icofont-laika link">&#xef71;</i></a>In Tyrian</h4>
@@ -181,9 +179,7 @@
         <p>To send message to Indigo, you call <code>bridge.send(myMsg)</code> which provides a <code>Cmd[IO, Msg]</code> for you to plug into your <code>updateModel</code> result.</p>
         
         <h4 id="that-s-it" class="section"><a class="anchor-link left" href="#that-s-it"><i class="icofont-laika link">&#xef71;</i></a>That&#39;s it</h4>
-        <p>In a nutshell, that is the whole set up. Happy web game building!
-        &lt;script type=&quot;text/javascript&quot; src=&quot;tyrian-indigo-bridge.md.js&quot; defer&gt;&lt;/script&gt;
-        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+        <p>In a nutshell, that is the whole set up. Happy web game building!</p>
 
         
 <hr class="footer-rule"/>
