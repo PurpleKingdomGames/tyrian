@@ -14,10 +14,10 @@ object SandboxSSR extends IOApp:
     val httpApp      = Routes.routes[IO](CorvidDatabase.fakeImpl[IO]).orNotFound
     val finalHttpApp = Logger.httpApp(true, false)(httpApp)
     EmberServerBuilder
-        .default[IO]
-        .withHost(ipv4"0.0.0.0")
-        .withPort(port"8080")
-        .withHttpApp(finalHttpApp)
-        .build
-        .use(_ => IO.never)
-        .as(ExitCode.Success)
+      .default[IO]
+      .withHost(ipv4"0.0.0.0")
+      .withPort(port"8080")
+      .withHttpApp(finalHttpApp)
+      .build
+      .use(_ => IO.never)
+      .as(ExitCode.Success)
