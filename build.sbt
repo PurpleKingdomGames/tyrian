@@ -25,9 +25,9 @@ lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
-    "org.typelevel" %%% "munit-cats-effect" % Dependancies.munitCatsEffect3 % Test,
-    "org.typelevel" %%% "discipline-munit"  % Dependancies.disciplineMUnit  % Test,
-    "org.typelevel" %%% "cats-laws"         % Dependancies.catsLaws         % Test
+    "org.typelevel" %%% "munit-cats-effect" % Dependencies.munitCatsEffect3 % Test,
+    "org.typelevel" %%% "discipline-munit"  % Dependencies.disciplineMUnit  % Test,
+    "org.typelevel" %%% "cats-laws"         % Dependencies.catsLaws         % Test
   ),
   testFrameworks += new TestFramework("munit.Framework"),
   scalacOptions ++= Seq("-language:strictEquality"),
@@ -57,10 +57,10 @@ lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
 lazy val commonBrowserTestJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   scalacOptions ++= commonScalacOptions.value,
   libraryDependencies ++= Seq(
-    "org.scala-js"  %%% "scalajs-dom"  % Dependancies.scalajsDomVersion,
-    "org.typelevel" %%% "cats-effect"  % Dependancies.catsEffect,
-    "io.circe"      %%% "circe-core"   % Dependancies.circe,
-    "io.circe"      %%% "circe-parser" % Dependancies.circe
+    "org.scala-js"  %%% "scalajs-dom"  % Dependencies.scalajsDomVersion,
+    "org.typelevel" %%% "cats-effect"  % Dependencies.catsEffect,
+    "io.circe"      %%% "circe-core"   % Dependencies.circe,
+    "io.circe"      %%% "circe-parser" % Dependencies.circe
   )
 )
 
@@ -129,7 +129,10 @@ lazy val tyrianProject =
       sandboxZIO.js,
       firefoxTests.js,
       chromeTests.js,
-      docs
+      docs,
+      tyrianHtmx.js,
+      tyrianHtmx.jvm,
+      sandboxSSR.jvm
     )
 
 lazy val tyrian =
@@ -145,9 +148,9 @@ lazy val tyrian =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.typelevel"    %%% "cats-effect-kernel" % Dependancies.catsEffect,
-        "co.fs2"           %%% "fs2-core"           % Dependancies.fs2,
-        "io.github.buntec" %%% "scala-js-snabbdom"  % Dependancies.scalajsSnabbdom
+        "org.typelevel"    %%% "cats-effect-kernel" % Dependencies.catsEffect,
+        "co.fs2"           %%% "fs2-core"           % Dependencies.fs2,
+        "io.github.buntec" %%% "scala-js-snabbdom"  % Dependencies.scalajsSnabbdom
       )
     )
 
@@ -163,8 +166,8 @@ lazy val tyrianIO =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js"  %%% "scalajs-dom" % Dependancies.scalajsDomVersion,
-        "org.typelevel" %%% "cats-effect" % Dependancies.catsEffect
+        "org.scala-js"  %%% "scalajs-dom" % Dependencies.scalajsDomVersion,
+        "org.typelevel" %%% "cats-effect" % Dependencies.catsEffect
       )
     )
     .dependsOn(tyrian)
@@ -181,9 +184,9 @@ lazy val tyrianZIO =
     .jsSettings(
       commonJsSettings,
       libraryDependencies ++= Seq(
-        "org.scala-js"      %%% "scalajs-dom"     % Dependancies.scalajsDomVersion,
-        "io.github.cquiroz" %%% "scala-java-time" % Dependancies.scalaJavaTime,
-        "dev.zio"           %%% "zio"             % Dependancies.zio
+        "org.scala-js"      %%% "scalajs-dom"     % Dependencies.scalajsDomVersion,
+        "io.github.cquiroz" %%% "scala-java-time" % Dependencies.scalaJavaTime,
+        "dev.zio"           %%% "zio"             % Dependencies.zio
       )
     )
     .dependsOn(tyrian)
@@ -213,9 +216,26 @@ lazy val sandboxZIO =
       name := "Sandbox ZIO",
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       libraryDependencies ++= Seq(
-        "dev.zio" %%% "zio-interop-cats" % Dependancies.zioInteropCats
+        "dev.zio" %%% "zio-interop-cats" % Dependencies.zioInteropCats
       ),
       scalacOptions -= "-language:strictEquality"
+    )
+
+lazy val sandboxSSR =
+  crossProject(JVMPlatform)
+    .crossType(CrossType.Pure)
+    .dependsOn(tyrian, tyrianHtmx)
+    .in(file("sandbox-ssr"))
+    .settings(
+      neverPublish,
+      commonSettings,
+      name := "sandbox-ssr",
+      scalacOptions -= "-language:strictEquality",
+      libraryDependencies ++= Seq(
+        "org.http4s" %% "http4s-ember-server" % Dependencies.http4sServer,
+        "org.http4s" %% "http4s-dsl"          % Dependencies.http4sServer
+      ),
+      run / fork := true
     )
 
 lazy val unidocs =
@@ -240,14 +260,14 @@ lazy val jsdocs =
       neverPublish,
       organization := "io.indigoengine",
       libraryDependencies ++= Seq(
-        "org.scala-js"    %%% "scalajs-dom"          % Dependancies.scalajsDomVersion,
-        "io.circe"        %%% "circe-core"           % Dependancies.circe,
-        "io.circe"        %%% "circe-parser"         % Dependancies.circe,
-        "io.indigoengine" %%% "indigo"               % indigoDocsVersion,
-        "io.indigoengine" %%% "tyrian-io"            % tyrianDocsVersion,
-        "org.http4s"      %%% "http4s-dom"           % Dependancies.http4sDom,
-        "org.http4s"      %%% "http4s-circe"         % Dependancies.http4sCirce,
-        "org.typelevel"   %%% "cats-effect"          % Dependancies.catsEffect
+        "org.scala-js"    %%% "scalajs-dom"  % Dependencies.scalajsDomVersion,
+        "io.circe"        %%% "circe-core"   % Dependencies.circe,
+        "io.circe"        %%% "circe-parser" % Dependencies.circe,
+        "io.indigoengine" %%% "indigo"       % indigoDocsVersion,
+        "io.indigoengine" %%% "tyrian-io"    % tyrianDocsVersion,
+        "org.http4s"      %%% "http4s-dom"   % Dependencies.http4sDom,
+        "org.http4s"      %%% "http4s-circe" % Dependencies.http4sCirce,
+        "org.typelevel"   %%% "cats-effect"  % Dependencies.catsEffect
       ),
       Compile / tpolecatExcludeOptions ++= Set(
         ScalacOptions.warnValueDiscard,
@@ -311,6 +331,24 @@ lazy val chromeTests =
     .jsSettings(commonBrowserTestJsSettings)
     .dependsOn(tyrian)
 
+lazy val tyrianHtmx =
+  crossProject(JSPlatform, JVMPlatform)
+    .crossType(CrossType.Full)
+    .in(file("tyrian-htmx"))
+    .settings(
+      name := "tyrian-htmx",
+      commonSettings ++ publishSettings,
+      Compile / sourceGenerators += codeGen(
+        "tyrian.htmx",
+        (fullyQualifiedPath, sourceManagedDir) =>
+          List(HtmxAttributes.gen(fullyQualifiedPath, sourceManagedDir)(HtmxAttributes.htmxAttrsList))
+      ).taskValue
+    )
+    .jsSettings(
+      commonJsSettings
+    )
+    .dependsOn(tyrian)
+
 addCommandAlias(
   "sandboxBuild",
   List(
@@ -321,6 +359,18 @@ addCommandAlias(
   "sandboxZIOBuild",
   List(
     "sandboxZIO/fastLinkJS"
+  ).mkString("", ";", ";")
+)
+addCommandAlias(
+  "sandboxSSRBuild",
+  List(
+    "sandboxSSRJVM/compile"
+  ).mkString("", ";", ";")
+)
+addCommandAlias(
+  "sandboxSSRServer",
+  List(
+    "sandboxSSRJVM/run"
   ).mkString("", ";", ";")
 )
 
@@ -394,7 +444,7 @@ addCommandAlias(
     "tyrianJS/test",
     "tyrianJVM/test",
     "tyrianIO/test",
-    "tyrianZIO/test",
+    "tyrianZIO/test"
   ).mkString(";", ";", "")
 )
 

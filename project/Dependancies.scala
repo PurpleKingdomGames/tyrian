@@ -1,4 +1,4 @@
-object Dependancies {
+object Dependencies {
 
   val catsEffect        = "3.5.2"
   val circe             = "0.14.6"
@@ -13,5 +13,5 @@ object Dependancies {
   val catsLaws          = "2.10.0"
   val http4sCirce       = "0.23.24"
   val http4sDom         = "0.2.11"
-
+  val http4sServer      = "0.23.24"
 }
