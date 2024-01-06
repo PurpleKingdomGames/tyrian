@@ -115,9 +115,9 @@ lazy val indigo =
       name := "indigo-bridge",
       libraryDependencies ++= Seq(
         "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianVersion,
-        "io.indigoengine" %%% "indigo"               % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-extras"        % Dependancies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe"    % Dependancies.indigoVersion
+        "io.indigoengine" %%% "indigo"               % Dependencies.indigoVersion,
+        "io.indigoengine" %%% "indigo-extras"        % Dependencies.indigoVersion,
+        "io.indigoengine" %%% "indigo-json-circe"    % Dependencies.indigoVersion
       )
     )
 
