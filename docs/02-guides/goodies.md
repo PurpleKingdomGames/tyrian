@@ -7,7 +7,7 @@ Tyrian comes with a number of handy functions built-in that you can make use of 
 These nuggets of functionality are used as commands.
 
 - `Dom` - A few methods such as `focus` and `blur` to manipulate the DOM. Inspired by the Elm [Browser.Dom](https://package.elm-lang.org/packages/elm/browser/latest/Browser.Dom) package.
-- `FileReader` - Given the id of a file input field that has had a file selected, this Cmd will read either an image or text file to return an `HTMLImageElement` or `String` respectively.
+- `FileReader` - Given the id of a file input field that has had a file selected, this Cmd will read either raw bytes, an image or text file to return a `Vector[Byte]` or an `HTMLImageElement` or `String` respectively.
 - `Http` - Make HTTP requests that return their responses as a message.
 - `ImageLoader` - Given a path, this cmd will load an image and return an `HTMLImageElement` for you to make use of.
 - `LocalStorage` - Allows you to save and load to/from your browsers local storage.
