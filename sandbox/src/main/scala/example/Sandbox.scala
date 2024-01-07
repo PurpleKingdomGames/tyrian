@@ -337,6 +337,27 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
     case Msg.FileImageRead(data) =>
       (model.copy(loadedImage = Option(data)), Cmd.None)
 
+    // Bytes file
+    case Msg.SelectBytesFile =>
+      val cmd: Cmd[IO, Msg] = File.select("application/octet-stream")(f => Msg.ReadBytesFile(f))
+
+      (model, cmd)
+
+    case Msg.ReadBytesFile(file) =>
+      val cmd: Cmd[IO, Msg] =
+        FileReader.readBytes(file)((r: FileReader.Result[Vector[Byte]]) =>
+          r match {
+            case FileReader.Result.File(_, _, d) =>
+              Msg.FileBytesRead(d)
+            case _ => Msg.NoOp
+          }
+        )
+
+      (model, cmd)
+
+    case Msg.FileBytesRead(data) =>
+      (model.copy(loadedBytes = Option(data)), Cmd.None)
+
     // Text file
 
     case Msg.SelectTextFile =>
@@ -612,12 +633,16 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
           div(
             button(onClick(Msg.SelectImageFile))("Select an image file"),
             button(onClick(Msg.SelectTextFile))("Select a text file"),
+            button(onClick(Msg.SelectBytesFile))("Select a file as bytes"),
             div(style := CSS.width("200px"))(
               model.loadedImage
                 .map(data => img(src := data))
                 .toList ++
                 model.loadedText
                   .map(data => p(data))
+                  .toList ++
+                model.loadedBytes
+                  .map(data => p(s"Read ${data.length} bytes"))
                   .toList
             )
           )
@@ -730,6 +755,9 @@ enum Msg:
   case SelectTextFile
   case ReadTextFile(file: dom.File)
   case FileTextRead(fileData: String)
+  case SelectBytesFile
+  case ReadBytesFile(file: dom.File)
+  case FileBytesRead(fileData: Vector[Byte])
   case NoOp
 
 enum Status:
@@ -780,7 +808,8 @@ final case class Model(
     fruit: List[Fruit],
     fruitInput: String,
     loadedImage: Option[String],
-    loadedText: Option[String]
+    loadedText: Option[String],
+    loadedBytes: Option[Vector[Byte]]
 )
 
 final case class Fruit(name: String, available: Boolean)
@@ -834,6 +863,7 @@ object Model:
       None,
       Nil,
       "",
+      None,
       None,
       None
     )
