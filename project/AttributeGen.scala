@@ -296,6 +296,7 @@ object AttributeGen {
       Normal("rel"),
       NoValue("required"),
       NoValue("reversed"),
+      Normal("role"),
       Normal("rows").withTypes("String", "Int"),
       Normal("rowSpan").withTypes("String", "Int"),
       Normal("rowspan").withTypes("String", "Int"),
