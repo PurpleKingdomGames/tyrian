@@ -40,7 +40,12 @@ object HtmxAttributes {
     Normal("hxVars", "hx-vars")
   )
 
-  def htmxAttrsList: AttributesList = AttributesList(htmxAttrs, List(), "HtmxAttributes")
+  lazy val wsExtension = List(
+    Normal("wsConnect", "ws-connect"),
+    NoValue("wsSend", "ws-send")
+  )
+
+  def htmxAttrsList: AttributesList = AttributesList(htmxAttrs ++ wsExtension, List(), "HtmxAttributes")
 
   def genAttr(tag: AttributeType, isAttribute: Boolean): String =
     tag match {
