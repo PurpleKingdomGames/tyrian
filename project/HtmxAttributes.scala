@@ -52,9 +52,10 @@ object HtmxAttributes {
       case Normal("hxTrigger", Some("hx-trigger"), _) => genHtmxTrigger
       case Normal(name, attrName, types)              => AttributeGen.genNormal(name, attrName, types)
       case NoValue(name, attrName)                    => AttributeGen.genNoValue(name, attrName)
+      case EventEmitting(name, attrName, eventType)   => ""
     }
 
-  def triggerAttributeName =
+  def triggerAttributeName: String =
     s"""  final class AttributeNameTrigger(name: String):
              |    def :=(value: Trigger): Attribute = Attribute(name.toString, value.render)
              |  final class AttributeNameTriggers(name: String):
