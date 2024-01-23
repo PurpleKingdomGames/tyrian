@@ -12,7 +12,7 @@ import scala.scalajs.js
 import scala.scalajs.js.typedarray
 
 /** Given the id of a file input field that has had a file selected, this Cmd will read either raw bytes, an image or
-  * text file to return a `Vector[Byte]` or an `HTMLImageElement` or `String` respectively.
+  * text file to return a `IArray[Byte]` or an `HTMLImageElement` or `String` respectively.
   */
 object FileReader:
 
@@ -57,22 +57,22 @@ object FileReader:
     readFile(file, ReadType.AsText)(cast andThen resultToMessage)
 
   /** Reads an input file from an input field as bytes */
-  def readBytes[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[Vector[Byte]] => Msg): Cmd[F, Msg] =
-    val cast: Result[js.Any] => Result[Vector[Byte]] =
+  def readBytes[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[IArray[Byte]] => Msg): Cmd[F, Msg] =
+    val cast: Result[js.Any] => Result[IArray[Byte]] =
       case Result.Error(msg) => Result.Error(msg)
       case Result.File(n, p, d) =>
-        try Result.File(n, p, new typedarray.Int8Array(d.asInstanceOf[typedarray.ArrayBuffer]).toVector)
-        catch case _ => Result.Error("File is not bytes")
+        try Result.File(n, p, IArray.from(new typedarray.Int8Array(d.asInstanceOf[typedarray.ArrayBuffer])))
+        catch case _ => Result.Error("Could not cast loaded file data to byte array")
 
     readFromInputField(inputFieldId, ReadType.AsArrayBuffer)(cast andThen resultToMessage)
 
   /** Reads an input file as bytes */
-  def readBytes[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[Vector[Byte]] => Msg): Cmd[F, Msg] =
-    val cast: Result[js.Any] => Result[Vector[Byte]] =
+  def readBytes[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[IArray[Byte]] => Msg): Cmd[F, Msg] =
+    val cast: Result[js.Any] => Result[IArray[Byte]] =
       case Result.Error(msg) => Result.Error(msg)
       case Result.File(n, p, d) =>
-        try Result.File(n, p, new typedarray.Int8Array(d.asInstanceOf[typedarray.ArrayBuffer]).toVector)
-        catch case _ => Result.Error("File is not bytes")
+        try Result.File(n, p, IArray.from(new typedarray.Int8Array(d.asInstanceOf[typedarray.ArrayBuffer])))
+        catch case _ => Result.Error("Could not cast loaded file data to byte array")
 
     readFile(file, ReadType.AsArrayBuffer)(cast andThen resultToMessage)
 

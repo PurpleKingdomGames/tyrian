@@ -345,7 +345,7 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
 
     case Msg.ReadBytesFile(file) =>
       val cmd: Cmd[IO, Msg] =
-        FileReader.readBytes(file)((r: FileReader.Result[Vector[Byte]]) =>
+        FileReader.readBytes(file)((r: FileReader.Result[IArray[Byte]]) =>
           r match {
             case FileReader.Result.File(_, _, d) =>
               Msg.FileBytesRead(d)
@@ -642,7 +642,7 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
                   .map(data => p(data))
                   .toList ++
                 model.loadedBytes
-                  .map(data => p(s"Read ${data.length} bytes"))
+                  .map(data => p(s"Read ${data.length} bytes in an IArray"))
                   .toList
             )
           )
@@ -757,7 +757,7 @@ enum Msg:
   case FileTextRead(fileData: String)
   case SelectBytesFile
   case ReadBytesFile(file: dom.File)
-  case FileBytesRead(fileData: Vector[Byte])
+  case FileBytesRead(fileData: IArray[Byte])
   case NoOp
 
 enum Status:
@@ -809,7 +809,7 @@ final case class Model(
     fruitInput: String,
     loadedImage: Option[String],
     loadedText: Option[String],
-    loadedBytes: Option[Vector[Byte]]
+    loadedBytes: Option[IArray[Byte]]
 )
 
 final case class Fruit(name: String, available: Boolean)
