@@ -44,6 +44,8 @@ object Misc {
     UsefulTask("localPublish", "Locally publish the core modules (JS + JVM)"),
     UsefulTask("sandboxBuild", "Build the sandbox project"),
     UsefulTask("sandboxZIOBuild", "Build the zio sandbox project"),
+    UsefulTask("sandboxSSRBuild", "Build the sandbox SSR project"),
+    UsefulTask("sandboxSSRServer", "Run the sandbox SSR server"),
     UsefulTask("gendocs", "Rebuild the API and markdown docs"),
     UsefulTask("code", "Launch VSCode"),
     UsefulTask("scalafmtCheckAll", "")
