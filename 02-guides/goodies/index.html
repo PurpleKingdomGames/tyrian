@@ -87,7 +87,7 @@
     <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
     <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
     <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
-    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../ssr/">Server-side Rendering &amp; HTMX</a></li>
     <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
     <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
     <li class="level1 nav-header">Architecture</li>
@@ -137,7 +137,7 @@
         <p>These nuggets of functionality are used as commands.</p>
         <ul>
           <li><code>Dom</code> - A few methods such as <code>focus</code> and <code>blur</code> to manipulate the DOM. Inspired by the Elm <a href="https://package.elm-lang.org/packages/elm/browser/latest/Browser.Dom">Browser.Dom</a> package.</li>
-          <li><code>FileReader</code> - Given the id of a file input field that has had a file selected, this Cmd will read either an image or text file to return an <code>HTMLImageElement</code> or <code>String</code> respectively.</li>
+          <li><code>FileReader</code> - Given the id of a file input field that has had a file selected, this Cmd will read either raw bytes, an image or text file to return a <code>IArray[Byte]</code> or an <code>HTMLImageElement</code> or <code>String</code> respectively.</li>
           <li><code>Http</code> - Make HTTP requests that return their responses as a message.</li>
           <li><code>ImageLoader</code> - Given a path, this cmd will load an image and return an <code>HTMLImageElement</code> for you to make use of.</li>
           <li><code>LocalStorage</code> - Allows you to save and load to/from your browsers local storage.</li>

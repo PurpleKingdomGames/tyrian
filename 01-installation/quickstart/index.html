@@ -87,7 +87,7 @@
     <li class="level2 nav-leaf"><a href="../../02-guides/html/">Rendering HTML</a></li>
     <li class="level2 nav-leaf"><a href="../../02-guides/networking/">Networking</a></li>
     <li class="level2 nav-leaf"><a href="../../02-guides/routing/">Frontend Routing</a></li>
-    <li class="level2 nav-leaf"><a href="../../02-guides/ssr/">Server-side Rendering</a></li>
+    <li class="level2 nav-leaf"><a href="../../02-guides/ssr/">Server-side Rendering &amp; HTMX</a></li>
     <li class="level2 nav-leaf"><a href="../../02-guides/subs/">Subscriptions</a></li>
     <li class="level2 nav-leaf"><a href="../../02-guides/tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
     <li class="level1 nav-header">Architecture</li>
@@ -145,16 +145,16 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enablePlugins</span><span>(</span><span class="type-name">ScalaJSPlugin</span><span>)
 
 </span><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
-  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-io&quot;</span><span> % </span><span class="string-literal">&quot;0.9.0&quot;</span><span>
+  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-io&quot;</span><span> % </span><span class="string-literal">&quot;0.10.0&quot;</span><span>
   </span><span class="comment">// OR
-</span><span>  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-zio&quot;</span><span> % </span><span class="string-literal">&quot;0.9.0&quot;</span><span>
+</span><span>  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-zio&quot;</span><span> % </span><span class="string-literal">&quot;0.10.0&quot;</span><span>
 )
 
 </span><span class="identifier">scalaJSLinkerConfig</span><span> ~= { </span><span class="identifier">_</span><span>.</span><span class="identifier">withModuleKind</span><span>(</span><span class="type-name">ModuleKind</span><span>.</span><span class="type-name">CommonJSModule</span><span>) }</span></code></pre>
         <p>Optionally, you can also include the Tyrian/Indigo Bridge library if you plan to embed an Indigo game in your page:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
   ...
-  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-indigo-bridge&quot;</span><span> % </span><span class="string-literal">&quot;0.9.0&quot;</span><span>
+  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %%% </span><span class="string-literal">&quot;tyrian-indigo-bridge&quot;</span><span> % </span><span class="string-literal">&quot;0.10.0&quot;</span><span>
 )</span></code></pre>
         
         <h3 id="mill" class="section"><a class="anchor-link left" href="#mill"><i class="icofont-laika link">&#xef71;</i></a>Mill</h3>
@@ -169,7 +169,7 @@
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">scalaVersion</span><span>   = </span><span class="string-literal">&quot;3.3.1&quot;</span><span>
   </span><span class="keyword">def</span><span> </span><span class="declaration-name">scalaJSVersion</span><span> = </span><span class="string-literal">&quot;1.15.0&quot;</span><span>
 
-  </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(</span><span class="string-literal">ivy&quot;io.indigoengine::tyrian::0.9.0&quot;</span><span>)
+  </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(</span><span class="string-literal">ivy&quot;io.indigoengine::tyrian::0.10.0&quot;</span><span>)
 
   </span><span class="keyword">override</span><span> </span><span class="keyword">def</span><span> </span><span class="declaration-name">moduleKind</span><span> = </span><span class="type-name">T</span><span>(</span><span class="identifier">mill</span><span>.</span><span class="identifier">scalajslib</span><span>.</span><span class="identifier">api</span><span>.</span><span class="type-name">ModuleKind</span><span>.</span><span class="type-name">CommonJSModule</span><span>)
 
@@ -184,8 +184,8 @@
 }</span></code></pre>
         <p>Optionally, you can also include the Tyrian/Indigo Bridge library if you plan to embed an Indigo game in your page:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">ivyDeps</span><span> = </span><span class="type-name">Agg</span><span>(
-    </span><span class="string-literal">ivy&quot;io.indigoengine::tyrian::0.9.0&quot;</span><span>,
-    </span><span class="string-literal">ivy&quot;io.indigoengine::tyrian-indigo-bridge::0.9.0&quot;</span><span>
+    </span><span class="string-literal">ivy&quot;io.indigoengine::tyrian::0.10.0&quot;</span><span>,
+    </span><span class="string-literal">ivy&quot;io.indigoengine::tyrian-indigo-bridge::0.10.0&quot;</span><span>
   )</span></code></pre>
 
         

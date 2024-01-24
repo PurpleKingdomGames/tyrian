@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>Server-side Rendering</title>
+  <title>Server-side Rendering &amp; HTMX</title>
   
   
   <meta name="description" content="Elm-inspired Scala web UI library."/>
@@ -87,7 +87,7 @@
     <li class="level2 nav-leaf"><a href="../html/">Rendering HTML</a></li>
     <li class="level2 nav-leaf"><a href="../networking/">Networking</a></li>
     <li class="level2 nav-leaf"><a href="../routing/">Frontend Routing</a></li>
-    <li class="level2 active nav-leaf"><a href="#">Server-side Rendering</a></li>
+    <li class="level2 active nav-leaf"><a href="#">Server-side Rendering &amp; HTMX</a></li>
     <li class="level2 nav-leaf"><a href="../subs/">Subscriptions</a></li>
     <li class="level2 nav-leaf"><a href="../tyrian-indigo-bridge/">Tyrian-Indigo Bridge</a></li>
     <li class="level1 nav-header">Architecture</li>
@@ -108,11 +108,13 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">Server-side Rendering</a></p>
+  <p class="header"><a href="#">Server-side Rendering &amp; HTMX</a></p>
 
   <ul class="nav-list">
     <li class="level1 nav-leaf"><a href="#what-is-server-side-rendering-ssr">What is server-side rendering? (SSR)</a></li>
     <li class="level1 nav-leaf"><a href="#simple-ssr-with-tyrian">Simple SSR with Tyrian</a></li>
+    <li class="level1 nav-node"><a href="#what-is-htmx">What is HTMX?</a></li>
+    <li class="level2 nav-leaf"><a href="#how-does-htmx-fit-in-with-tyrian">How does HTMX fit in with Tyrian?</a></li>
   </ul>
 
   <p class="footer"></p>
@@ -121,7 +123,30 @@
 
       <main class="content">
 
-        <h1 id="server-side-rendering" class="title">Server-side Rendering</h1>
+        <h1 id="server-side-rendering-htmx" class="title">Server-side Rendering &amp; HTMX</h1>
+        <p>Tyrian&#39;s tag syntax can also be used in your JVM server side projects, for delivering re-rendered HTML to the frontend. This allows you to use the same syntax on both the client and server-sides of your application.</p>
+        <p>As well as supporting normal HTML syntax, Tyrian has an additional module to support <a href="https://htmx.org/">HTMX</a> syntax, for rendering <a href="https://en.wikipedia.org/wiki/Hypermedia">Hypermedia</a> applications.</p>
+        <p>To use Tyrian tags in a JVM project, include the JVM Tyrian library as follows:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
+  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %% </span><span class="string-literal">&quot;tyrian&quot;</span><span> % </span><span class="string-literal">&quot;0.10.0&quot;</span><span>
+)</span></code></pre>
+        <p>Then bring in the following imports:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="type-name">Html</span><span>.*</span></code></pre>
+        <p>For HTMX, it&#39;s a similar arrangement:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
+  </span><span class="string-literal">&quot;io.indigoengine&quot;</span><span> %% </span><span class="string-literal">&quot;tyrian-htmx&quot;</span><span> % </span><span class="string-literal">&quot;0.10.0&quot;</span><span>
+)</span></code></pre>
+        <p>With the following imports:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">htmx</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">htmx</span><span>.</span><span class="type-name">Html</span><span>.*</span></code></pre>
+        <p>You will also need to embed the HTMX JavaScript into your page. If you use Tyrian&#39;s syntax, it looks like this:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">html</span><span>(
+  </span><span class="identifier">head</span><span>(
+    </span><span class="identifier">script</span><span>(</span><span class="identifier">src</span><span> := </span><span class="string-literal">&quot;https://unpkg.com/htmx.org@1.9.10&quot;</span><span>)(),
+    </span><span class="identifier">script</span><span>(</span><span class="identifier">src</span><span> := </span><span class="string-literal">&quot;https://unpkg.com/htmx.org/dist/ext/ws.js&quot;</span><span>)()
+  )
+)</span></code></pre>
         
         <h2 id="what-is-server-side-rendering-ssr" class="section"><a class="anchor-link left" href="#what-is-server-side-rendering-ssr"><i class="icofont-laika link">&#xef71;</i></a>What is server-side rendering? (SSR)</h2>
         <p>These days, a normal straight-forward relationship between a frontend client and some sort of backend service, is that the client makes an HTTP request to the service, and receives some data back that it uses to render a page/view for the user. But it wasn&#39;t always so!</p>
@@ -144,7 +169,22 @@
         <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
         <p>As you can see, this is completely ordinary Scala, which means you can do anything that Scala lets you do in order to generate this HTML block, without having to learn a templating language like Mustache.</p>
         <p>The <code>.render</code> extension method is not strictly necessary since this is now the behaviour of calling <code>.toString</code> on a tag.</p>
-        <p>There is an example of SRR in the <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">server-examples</a>.
+        <p>There is an example of SRR in the <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">server-examples</a>.</p>
+        
+        <h2 id="what-is-htmx" class="section"><a class="anchor-link left" href="#what-is-htmx"><i class="icofont-laika link">&#xef71;</i></a>What is HTMX?</h2>
+        <p>From the <a href="https://htmx.org/">HTMX</a> homepage:</p>
+        <blockquote>htmx gives you access to AJAX, CSS Transitions, WebSockets and Server Sent Events directly in HTML, using attributes, so you can build modern user interfaces with the simplicity and power of hypertext.</blockquote>
+        <p>In other words, it allows you to elegantly build web applications where the logic lives on the server, rather than in the client. This is known as <a href="https://en.wikipedia.org/wiki/Hypermedia">Hypermedia</a>, and is remaniscent of how the web worked cicra 2000, but with much better tooling and more modern practices!</p>
+        <p>Please refer to the <a href="https://htmx.org/docs/">HTMX documentation</a> for guides on how to use it.</p>
+        
+        <h3 id="how-does-htmx-fit-in-with-tyrian" class="section"><a class="anchor-link left" href="#how-does-htmx-fit-in-with-tyrian"><i class="icofont-laika link">&#xef71;</i></a>How does HTMX fit in with Tyrian?</h3>
+        <p>In simple terms, it doesn&#39;t! They are two totally different models and philosophies for building interactive web pages.</p>
+        <p>You may well wonder why we&#39;ve added support for a competing library, then?</p>
+        <p>Well, there are a few reasons, but the main one is that sometimes Tyrian (or React, or Laminar, or any other client side SPA framework you care to name) is just too much. Sometimes, all you want to do is add a contact form to your otherwise static website, or serve a quick admin page with a few simple elements on it*. In those situations, building a full SPA is overkill.</p>
+        <p>As with all tools, there is a time and a place for Tyrian (full SPA&#39;s with complex client side logic) and a time for HTMX (or similar, where the client experience is simpler and the server-side can and should sensibly take the burden).</p>
+        <p>The view, at least at the time of writing, is that HTMX fills a nice solution gap between ordinary HTML, and a full SPA. As long as you&#39;re writing HTMX for / in Scala, you might as well have IDE support, and if you&#39;re going to do all that, we might as well enable you to use Tyrian&#39;s markup to do the work.</p>
+        <p>Happy Hypermedia&#39;ing!</p>
+        <p>(* HTMX can do a lot more than that, it&#39;s just an example, please refer to their docs.)
         &lt;script type=&quot;text/javascript&quot; src=&quot;ssr.md.js&quot; defer&gt;&lt;/script&gt;
         &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
 
