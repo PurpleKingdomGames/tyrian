@@ -11,7 +11,7 @@ import scalajs.js
 import concurrent.duration.DurationInt
 
 @JSExportTopLevel("TyrianApp")
-object Main extends TyrianApp[Msg, Model]:
+object Main extends TyrianIOApp[Msg, Model]:
 
   def router: Location => Msg = Routing.none(Msg.NoOp)
 

@@ -7,7 +7,7 @@ import tyrian.*
 import scala.scalajs.js.annotation.*
 import scala.util.Try
 
-object CounterApp extends TyrianApp[Msg, Model]:
+object CounterApp extends TyrianIOApp[Msg, Model]:
 
   def router: Location => Msg = Routing.none(Msg.NoOp)
 

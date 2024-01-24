@@ -18,17 +18,17 @@ object SSR:
 
   def impl[F[_]: Applicative]: SSR[F] = new SSR[F]:
     def render(in: SSR.Input): F[SSR.Output] =
-      val html = Tyrian.render(
+      val html =
         div(styles)(
           topLine,
           p(text("Was sent the following: " + in.toString))
-        )
-      )
-      (SSR.Output(html)).pure[F]
+        ).render
+
+      SSR.Output(html).pure[F]
 
     def render: F[SSR.Output] =
-      val html = Tyrian.render(div(styles)(topLine))
-      (SSR.Output(html)).pure[F]
+      val html = div(styles)(topLine).render
+      SSR.Output(html).pure[F]
 
   opaque type Input = String
   object Input:

@@ -20,7 +20,7 @@ object Routes:
 
     HttpRoutes.of[F] {
       case GET -> Root =>
-        Ok(Tyrian.render(true, HomePage.page), `Content-Type`(MediaType.text.html))
+        Ok(tyrian.DOCTYPE + HomePage.page, `Content-Type`(MediaType.text.html))
 
       case request @ GET -> Root / "spa.js" =>
         val spa = fs2.io.file.Path(

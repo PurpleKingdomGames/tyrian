@@ -6,7 +6,7 @@ import tyrian.*
 
 object Main {
   def main(args: Array[String]): Unit =
-    TyrianApp.onLoad(
+    TyrianIOApp.onLoad(
       "CounterApp" -> CounterApp,
       "ChatApp" -> ChatApp
     )

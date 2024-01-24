@@ -107,20 +107,6 @@ lazy val http4sdom =
       )
     )
 
-lazy val indigo =
-  (project in file("indigo"))
-    .enablePlugins(ScalaJSPlugin)
-    .settings(commonSettings: _*)
-    .settings(
-      name := "indigo-bridge",
-      libraryDependencies ++= Seq(
-        "io.indigoengine" %%% "tyrian-indigo-bridge" % tyrianVersion,
-        "io.indigoengine" %%% "indigo"               % Dependencies.indigoVersion,
-        "io.indigoengine" %%% "indigo-extras"        % Dependencies.indigoVersion,
-        "io.indigoengine" %%% "indigo-json-circe"    % Dependencies.indigoVersion
-      )
-    )
-
 lazy val mainlauncher =
   (project in file("main-launcher"))
     .enablePlugins(ScalaJSPlugin)
@@ -196,7 +182,6 @@ lazy val exampleProjects: List[String] =
     "fs2",
     "http",
     "http4sdom",
-    "indigo",
     "mainlauncher",
     "mario",
     "nonpm",
@@ -226,7 +211,7 @@ lazy val tyrianExamplesProject =
         UsefulTask("cleanAll", "Cleans all examples").noAlias,
         UsefulTask("compileAll", "Compiles all examples").noAlias,
         UsefulTask("testAll", "Tests all examples").noAlias,
-        UsefulTask("fastOptAll", "Compiles all examples to JS").noAlias,
+        UsefulTask("fastLinkAll", "Compiles all examples to JS").noAlias,
         UsefulTask("code", "Launch VSCode").noAlias
       ),
       logoColor        := scala.Console.MAGENTA,

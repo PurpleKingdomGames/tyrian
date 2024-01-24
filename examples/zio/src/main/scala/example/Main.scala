@@ -8,7 +8,7 @@ import zio.interop.catz.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
-object Main extends TyrianApp[Msg, Model]:
+object Main extends TyrianZIOApp[Msg, Model]:
 
   def router: Location => Msg = Routing.none(Msg.NoOp)
 
