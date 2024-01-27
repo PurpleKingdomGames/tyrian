@@ -91,7 +91,7 @@ laikaTheme :=
         Root / "README.md",
         Image.internal(
           Root / "img" / "tyrian-horizontal.svg",
-          alt = Some("Homepage"),
+          alt = Some("Tyrian, an Elm inspired frontend framework for Scala.js."),
           title = Some("Tyrian"),
           width = Some(Length(150.0, LengthUnit.px)),
           height = Some(Length(50.0, LengthUnit.px))
