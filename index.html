@@ -20,18 +20,11 @@
   
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Mono:500">
   
-  <link rel="stylesheet" type="text/css" href="helium/icofont.min.css" />
-    <link rel="stylesheet" type="text/css" href="helium/laika-helium.css" />
+  <link rel="stylesheet" type="text/css" href="helium/site/icofont.min.css" />
+    <link rel="stylesheet" type="text/css" href="helium/site/laika-helium.css" />
+    <link rel="stylesheet" type="text/css" href="helium/site/landing-page.css" />
     <link rel="stylesheet" type="text/css" href="css/custom.css" />
-  <script src="helium/laika-helium.js"></script>
-    <script src="02-guides/guided-tour.md.js"></script>
-    <script src="02-guides/subs.md.js"></script>
-    <script src="02-guides/networking.md.js"></script>
-    <script src="02-guides/ssr.md.js"></script>
-    <script src="02-guides/html.md.js"></script>
-    <script src="02-guides/cmd.md.js"></script>
-    <script src="02-guides/goodies.md.js"></script>
-    <script src="02-guides/mdoc.js"></script>
+  <script src="helium/site/laika-helium.js"></script>
   
   
   <script> /* for avoiding page load transitions */ </script>
@@ -49,7 +42,7 @@
     
   </div>
 
-  <a class="image-link" href="#"><img src="img/tyrian-horizontal.svg" alt="Homepage" title="Tyrian" width="150" height="50"></a>
+  <a class="image-link" href="#"><img src="img/tyrian-horizontal.svg" alt="Tyrian, an Elm inspired frontend framework for Scala.js." title="Tyrian" width="150" height="50"></a>
 
   <div class="row links">
     
@@ -124,12 +117,12 @@
       <main class="content">
 
         <h1 id="tyrian" class="title">Tyrian</h1>
-        <p>Tyrian is an Elm-inspired, purely functional UI library for Scala 3.</p>
-        <p>Its purpose is to make building interactive websites in Scala 3 fun! Tyrian allows you to describe web pages and complex interactions in a way that is elegant, easy to read and easy to reason about.</p>
+        <p>Tyrian is primarily an Elm-inspired, purely functional UI library for Scala 3.</p>
+        <p>Its purpose is to make building highly interactive websites in Scala 3 fun! Tyrian allows you to describe web pages and complex interactions in a way that is elegant, easy to read and easy to reason about.</p>
         <p>Tyrian is not designed to work alone, the intention is that you will use it alongside a web bundler to look after things like your media assets and stylesheets. (All our examples use <a href="https://parceljs.org/">Parcel</a>.)</p>
         
         <h2 id="tyrian-s-indigo" class="section"><a class="anchor-link left" href="#tyrian-s-indigo"><i class="icofont-laika link">&#xef71;</i></a>Tyrian 💜&#39;s Indigo</h2>
-        <p>Tyrian is by the maintainers of <a href="https://indigoengine.io/">Indigo</a>, a Scala 3 game engine. As such, Indigo web games are first class citizens in Tyrian, allowing easy embedding and seamless communication between their respective event/messaging systems.</p>
+        <p>Tyrian is by the maintainers of <a href="https://indigoengine.io/">Indigo</a>, a Scala 3 game engine. As such, Indigo web games are easily embedded into Tyrian apps, allowing easy embedding and seamless communication between their respective event/messaging systems (via the bridge module).</p>
         
         <h2 id="when-should-i-consider-using-tyrian" class="section"><a class="anchor-link left" href="#when-should-i-consider-using-tyrian"><i class="icofont-laika link">&#xef71;</i></a>When should I consider using Tyrian?</h2>
         <p>Tyrian is designed for building SPAs (Single Page Applications): Web pages with lots of interactive elements.</p>
@@ -137,13 +130,20 @@
         <p>You can also use Tyrian to do Server-side Rendering (SSR) in conjunction with your favorite Scala HTTP framework in place of, say, a templating library.</p>
         
         <h2 id="what-should-i-avoid-using-tyrian-for" class="section"><a class="anchor-link left" href="#what-should-i-avoid-using-tyrian-for"><i class="icofont-laika link">&#xef71;</i></a>What should I avoid using Tyrian for?</h2>
-        <p>Tyrian is not a great candidate for static websites - like this one! - where the content is there to be read, not interacted / played / engaged with.</p>
+        <p>Tyrian&#39;s frontend framework is not a great candidate for static websites - like this one! - where the content is there to be read, not interacted / played / engaged with.</p>
+        <p>Tyrian&#39;s SSR and <a href="https://htmx.org/">HTMX</a> support offers a middle ground between static HTML and full blown SPAs.</p>
         
         <h2 id="why-shouldn-t-i-just-use-some-scala-js-react-based-thingy-instead" class="section"><a class="anchor-link left" href="#why-shouldn-t-i-just-use-some-scala-js-react-based-thingy-instead"><i class="icofont-laika link">&#xef71;</i></a>Why shouldn&#39;t I just use some Scala.js-React-based-thingy instead?</h2>
-        <p>You can! Quite frankly, you probably should!</p>
-        <p>In fact there are a good number of Scala.js alternatives to Tyrian, such as <a href="https://github.com/outwatch/outwatch">Outwatch</a>, <a href="https://github.com/japgolly/scalajs-react">scalajs-react</a>, <a href="https://slinky.dev/">Slinky</a>, and <a href="https://laminar.dev/">Laminar</a> to name a few.</p>
-        <p>React in particular is an industry standard framework these days, and so there are lots and lots of resources out there to help you use it. In that regard at least, React (via Slinky or scalajs-react) is probably a good choice for beginners.</p>
-        <p>Functional programmers may be more into something like Laminar, which is based on Functional Reactive Programming (FRP). Laminar looks to be well made and well maintained, and there are some great talks out there about it.</p>
+        <p>In fact there are a good number of well made Scala.js alternatives to Tyrian, including:</p>
+        <ul>
+          <li><a href="https://laminar.dev/">Laminar</a></li>
+          <li><a href="https://github.com/armanbilge/calico">Calico</a></li>
+          <li><a href="https://github.com/outwatch/outwatch">Outwatch</a></li>
+          <li><a href="https://github.com/japgolly/scalajs-react">scalajs-react</a></li>
+          <li><a href="https://slinky.dev/">Slinky</a></li>
+        </ul>
+        <p>Functional programmers may prefer Laminar or Calico, which are based on a Functional Reactive Programming (FRP) model that is quite different to the way Tyrian works.</p>
+        <p>React is an industry standard framework these days, and so there are lots and lots of resources out there to help you use it.</p>
         <p>Tyrian works fundamentally differently to those other frameworks. In the authors very opinionated opinion: The Elm Architecture upon which it is based, is the most productive, fun, and <em>sane</em> frontend architectural approach there is.</p>
         <p>This library exists because we don&#39;t want to work any other way. We encourage you to try a few different approaches and decide what works best for you. 😊</p>
 
