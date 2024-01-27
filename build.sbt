@@ -284,7 +284,6 @@ lazy val docs =
     .settings(
       neverPublish,
       organization       := "io.indigoengine",
-      mdocExtraArguments := List("--no-link-hygiene"),
       mdocJS             := Some(jsdocs),
       mdocVariables := Map(
         "VERSION"         -> tyrianDocsVersion,
