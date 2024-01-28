@@ -10,6 +10,14 @@ An Elm-inspired Scala UI library for Scala 3.
 The main documentation site, complete with installation instructions, is available here:
 [tyrian.indigoengine.io/](https://tyrian.indigoengine.io/)
 
+## Thank you, to our sponsors! 💜
+
+Thank you to all our wonderful sponsors, and particularly to [dedipresta](https://www.dedipresta.com/) for their generous support.
+
+![dedipresta](sponsors/dedipresta.png)
+
+If you'd like to help advance our work, we are ever grateful for all forms of contribution, either by volunteering time or [financial backing](https://github.com/sponsors/PurpleKingdomGames?o=esb). 
+
 ## Local build instructions
 
 Tyrian is fairly straight forward to build locally, run the following commands from your terminal in the project root:
