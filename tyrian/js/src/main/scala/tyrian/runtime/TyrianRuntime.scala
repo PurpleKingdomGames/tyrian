@@ -4,6 +4,7 @@ import cats.effect.kernel.Async
 import cats.effect.std.AtomicCell
 import cats.effect.std.Dispatcher
 import cats.effect.std.Queue
+import cats.effect.std.Semaphore
 import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import org.scalajs.dom
@@ -28,8 +29,17 @@ object TyrianRuntime:
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   )(using F: Async[F]): F[Nothing] = Dispatcher.sequential[F].use { dispatcher =>
-    (F.ref(ModelHolder(initModel, true)), AtomicCell[F].of(List.empty[(String, F[Unit])]), Queue.unbounded[F, Msg])
-      .flatMapN { (model, currentSubs, msgQueue) =>
+    (
+      F.ref(ModelHolder(initModel, true)),             // model
+      Semaphore[F](0),                                 // modelUpdateCounter
+      AtomicCell[F].of(List.empty[(String, F[Unit])]), // currentSubs
+      Queue.unbounded[F, Msg]                          // msgQueue
+    )
+      .flatMapN { (model, modelUpdateCounter, currentSubs, msgQueue) =>
+
+        val incrementModelUpdateCount = modelUpdateCounter.release
+        val resetModelUpdateCount     = modelUpdateCounter.available.flatMap(modelUpdateCounter.releaseN(_))
+        val awaitModelUpdate          = modelUpdateCounter.acquire
 
         def runCmd(cmd: Cmd[F, Msg]): F[Unit] =
           CmdHelper.cmdToTaskList(cmd).foldMapM { task =>
@@ -55,15 +65,14 @@ object TyrianRuntime:
 
         val msgLoop = msgQueue.take.flatMap { msg =>
           model
-            .modify { case ModelHolder(oldModel, _) =>
+            .flatModify { case ModelHolder(oldModel, _) =>
               val (newModel, cmd) = update(oldModel)(msg)
               val sub             = subscriptions(newModel)
-              (ModelHolder(newModel, true), (cmd, sub))
+              (
+                ModelHolder(newModel, true),
+                incrementModelUpdateCount *> runCmd(cmd) *> runSub(sub)
+              )
             }
-            .flatMap { (cmd, sub) =>
-              runCmd(cmd) *> runSub(sub)
-            }
-            .void
         }.foreverM
         // end msgLoop
 
@@ -83,7 +92,9 @@ object TyrianRuntime:
             }
 
           def loop(vnode: VNode): F[Nothing] =
-            requestAnimationFrame *> redraw(vnode).flatMap(loop(_))
+            requestAnimationFrame *>
+              resetModelUpdateCount *>
+              redraw(vnode).flatMap(awaitModelUpdate *> loop(_))
 
           F.delay(toVNode(node)).flatMap(loop)
         // end renderLoop
