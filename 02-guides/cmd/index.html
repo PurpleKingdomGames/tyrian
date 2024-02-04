@@ -153,19 +153,19 @@
   </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">SideEffect</span><span> {
     </span><span class="identifier">println</span><span>(</span><span class="identifier">msg</span><span>)
   }</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run1&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run1" data-mdoc-js></div>
         <p>But commands can also return values in the form of messages. The <code>Random</code> command looks like this:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="type-name">Random</span><span>.</span><span class="identifier">double</span><span>[</span><span class="type-name">IO</span><span>]</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run2&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run2" data-mdoc-js></div>
         <p>...and produces an instance of <code>RandomValue</code>, but this leads to a problem since <code>RandomValue</code> is almost certainly not your app&#39;s <code>Msg</code> type, and so we must map over the result:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enum</span><span> </span><span class="type-name">MyMsg</span><span>:
   </span><span class="keyword">case</span><span> </span><span class="type-name">MyRandom</span><span>(</span><span class="identifier">d</span><span>: </span><span class="type-name">Double</span><span>) </span><span class="keyword">extends</span><span> </span><span class="type-name">MyMsg</span><span>
 
 </span><span class="type-name">Random</span><span>.</span><span class="identifier">double</span><span>[</span><span class="type-name">IO</span><span>].</span><span class="identifier">map</span><span>(</span><span class="identifier">next</span><span> =&gt; </span><span class="type-name">MyMsg</span><span>.</span><span class="type-name">MyRandom</span><span>(</span><span class="identifier">next</span><span>.</span><span class="identifier">value</span><span>))</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run3&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run3" data-mdoc-js></div>
         <p>These are simple examples, but there are much more complicated uses for commands. One great use of commands is for making <a href="https://github.com/PurpleKingdomGames/tyrian/tree/main/examples">HTTP requests where the response is decoded into a <code>Msg</code>.</a>
-        &lt;script type=&quot;text/javascript&quot; src=&quot;cmd.md.js&quot; defer&gt;&lt;/script&gt;
-        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+        <script type="text/javascript" src="cmd.md.js" defer></script>
+        <script type="text/javascript" src="mdoc.js" defer></script></p>
 
         
 <hr class="footer-rule"/>

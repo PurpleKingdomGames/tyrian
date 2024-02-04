@@ -170,7 +170,7 @@
     </span><span class="keyword">case</span><span> </span><span class="type-name">FileReader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">msg</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">msg</span><span>)
     </span><span class="keyword">case</span><span> </span><span class="type-name">FileReader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">File</span><span>(</span><span class="identifier">name</span><span>, </span><span class="identifier">path</span><span>, </span><span class="identifier">contents</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Read</span><span>(</span><span class="identifier">contents</span><span>)
   }</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run2&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run2" data-mdoc-js></div>
         
         <h3 id="http" class="section"><a class="anchor-link left" href="#http"><i class="icofont-laika link">&#xef71;</i></a><code>Http</code></h3>
         <p>Please see <a href="../networking/">Networking</a> for details.</p>
@@ -184,7 +184,7 @@
     </span><span class="keyword">case</span><span> </span><span class="type-name">ImageLoader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">ImageLoadError</span><span>(</span><span class="identifier">msg</span><span>, </span><span class="identifier">path</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Error</span><span>(</span><span class="identifier">msg</span><span>)
     </span><span class="keyword">case</span><span> </span><span class="type-name">ImageLoader</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Image</span><span>(</span><span class="identifier">imageElement</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">UseImage</span><span>(</span><span class="identifier">imageElement</span><span>)
   }</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run3&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run3" data-mdoc-js></div>
         
         <h3 id="localstorage" class="section"><a class="anchor-link left" href="#localstorage"><i class="icofont-laika link">&#xef71;</i></a><code>LocalStorage</code></h3>
         <p>A series of commands that mirror the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localstorage interface</a>.</p>
@@ -217,7 +217,7 @@
       </span><span class="keyword">case</span><span> </span><span class="type-name">LocalStorage</span><span>.</span><span class="type-name">Result</span><span>.</span><span class="type-name">Length</span><span>(</span><span class="identifier">value</span><span>) =&gt; </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Read</span><span>(</span><span class="identifier">value</span><span>.</span><span class="identifier">toString</span><span>)
     }
   )</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run4&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run4" data-mdoc-js></div>
         
         <h3 id="logger" class="section"><a class="anchor-link left" href="#logger"><i class="icofont-laika link">&#xef71;</i></a><code>Logger</code></h3>
         <p>Allows you to log to your browsers JavaScript console:</p>
@@ -225,13 +225,13 @@
 
 </span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
   </span><span class="type-name">Logger</span><span>.</span><span class="identifier">info</span><span>(</span><span class="string-literal">&quot;Log this!&quot;</span><span>)</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run5&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run5" data-mdoc-js></div>
         <p>If you&#39;re app is doing a lot of regular work, you can cut down the noise with the &#39;once&#39; versions:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">tyrian</span><span>.</span><span class="identifier">cmds</span><span>.*
 
 </span><span class="keyword">val</span><span> </span><span class="identifier">cmd</span><span>: </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>] =
   </span><span class="type-name">Logger</span><span>.</span><span class="identifier">debugOnce</span><span>(</span><span class="string-literal">&quot;Log this exact message only once!&quot;</span><span>)</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run6&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run6" data-mdoc-js></div>
         
         <h3 id="random" class="section"><a class="anchor-link left" href="#random"><i class="icofont-laika link">&#xef71;</i></a><code>Random</code></h3>
         <p>As you might expect, <code>Random</code> produces random values! Random works slightly differently from other commands, in that it doesn&#39;t except a conversion function to turn the result into a message. You do that by mapping over it.</p>
@@ -246,7 +246,7 @@
     </span><span class="type-name">Random</span><span>.</span><span class="identifier">shuffle</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Int</span><span>](</span><span class="type-name">List</span><span>(</span><span class="number-literal">1</span><span>, </span><span class="number-literal">2</span><span>, </span><span class="number-literal">3</span><span>)).</span><span class="identifier">map</span><span>(</span><span class="identifier">l</span><span> =&gt; </span><span class="identifier">toMessage</span><span>(</span><span class="identifier">l</span><span>.</span><span class="identifier">value</span><span>.</span><span class="identifier">toString</span><span>)),
     </span><span class="type-name">Random</span><span>.</span><span class="type-name">Seeded</span><span>(</span><span class="number-literal">12l</span><span>).</span><span class="identifier">alphaNumeric</span><span>[</span><span class="type-name">IO</span><span>](</span><span class="number-literal">5</span><span>).</span><span class="identifier">map</span><span>(</span><span class="identifier">a</span><span> =&gt; </span><span class="identifier">toMessage</span><span>(</span><span class="identifier">a</span><span>.</span><span class="identifier">value</span><span>.</span><span class="identifier">mkString</span><span>))
   )</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run7&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run7" data-mdoc-js></div>
         
         <h2 id="built-in-cmd-sub-goodies" class="section"><a class="anchor-link left" href="#built-in-cmd-sub-goodies"><i class="icofont-laika link">&#xef71;</i></a>Built-in <code>Cmd</code> + <code>Sub</code> goodies</h2>
         <p>These tools make use of a combination of commands and subscriptions to achieve a result. Note that unlike in the next section, these entries share nothing apart from, say, a key value, i.e. there is no common state to manage or store in a model.</p>
@@ -274,8 +274,8 @@
         <ul>
           <li><code>WebSocket</code> - Allows you to send and receive data to/from a socket server (see <a href="../networking/">Networking</a>).</li>
           <li><code>TyrianIndigoBridge</code> - Allows your Tyrian app to communicates with embedded Indigo games.
-          &lt;script type=&quot;text/javascript&quot; src=&quot;goodies.md.js&quot; defer&gt;&lt;/script&gt;
-          &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</li>
+          <script type="text/javascript" src="goodies.md.js" defer></script>
+          <script type="text/javascript" src="mdoc.js" defer></script></li>
         </ul>
 
         

@@ -156,7 +156,7 @@
 
 </span><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
   </span><span class="keyword">case</span><span> </span><span class="type-name">Increment</span><span>, </span><span class="type-name">Decrement</span><span>, </span><span class="type-name">NoOp</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run0&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run0" data-mdoc-js></div>
         <p>Lets go through it...</p>
         
         <h4 id="tyrianioapp-tyrianzioapp" class="section"><a class="anchor-link left" href="#tyrianioapp-tyrianzioapp"><i class="icofont-laika link">&#xef71;</i></a><code>TyrianIOApp</code> / <code>TyrianZIOApp</code></h4>
@@ -167,7 +167,7 @@
         
         <h4 id="the-model" class="section"><a class="anchor-link left" href="#the-model"><i class="icofont-laika link">&#xef71;</i></a>The model</h4>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">type</span><span> </span><span class="type-name">Model</span><span> = </span><span class="type-name">Int</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run1&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run1" data-mdoc-js></div>
         <p>Our app is a counter, so we need a number we can increment and decrement. In this super simple example, an <code>Int</code> is all that we need for our whole model. Normally you&#39;d probably have a <code>case class</code> or something instead. To make it fit nicely, we&#39;ve allocated our <code>Int</code> to a <code>Model</code> type alias.</p>
         <blockquote>The version in the examples uses an opaque type, but here we&#39;ve reduced it to a type alias.</blockquote>
         <p>To use our model, we&#39;re going to have to initialize it!</p>
@@ -178,7 +178,7 @@
 </span><span class="keyword">type</span><span> </span><span class="type-name">Model</span><span> = </span><span class="type-name">Int</span></code></pre>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">init</span><span>(</span><span class="identifier">flags</span><span>: </span><span class="type-name">Map</span><span>[</span><span class="type-name">String</span><span>, </span><span class="type-name">String</span><span>]): (</span><span class="type-name">Model</span><span>, </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>]) =
     (</span><span class="number-literal">0</span><span>, </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">None</span><span>)</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run3&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run3" data-mdoc-js></div>
         <p>There&#39;s a few things going on here, the only bit we <em>really</em> care about here is the <code>0</code> because that is going to be the starting value of our &#39;model&#39;.</p>
         <p>Some of the other things you can see here:</p>
         <ul>
@@ -195,7 +195,7 @@
       </span><span class="identifier">div</span><span>(</span><span class="identifier">model</span><span>.</span><span class="identifier">toString</span><span>),
       </span><span class="identifier">button</span><span>(</span><span class="string-literal">&quot;+&quot;</span><span>)
     )</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run4&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run4" data-mdoc-js></div>
         <p>Here we make a div, add a <code>-</code> button, the another div containing the count (i.e. the model) as plain text, and finally another <code>+</code> button. If you&#39;re familiar with HTML this should all look pretty familiar.</p>
         <p>If you wanted to add an <code>id</code> attribute to the div, you would do so like this:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">view</span><span>(</span><span class="identifier">model</span><span>: </span><span class="type-name">Model</span><span>): </span><span class="type-name">Html</span><span>[</span><span class="type-name">Msg</span><span>] =
@@ -204,7 +204,7 @@
       </span><span class="identifier">div</span><span>(</span><span class="identifier">model</span><span>.</span><span class="identifier">toString</span><span>),
       </span><span class="identifier">button</span><span>(</span><span class="string-literal">&quot;+&quot;</span><span>)
     )</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run5&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run5" data-mdoc-js></div>
         <p>Of course a button isn&#39;t much use unless it does something, and what we can do is emit an event, called a message, when the button is clicked. For that we need to declare our message type which we&#39;ll do as a simple enum that represents the two actions we want to perform:</p>
         <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">enum</span><span> </span><span class="type-name">Msg</span><span>:
   </span><span class="keyword">case</span><span> </span><span class="type-name">Increment</span><span>, </span><span class="type-name">Decrement</span></code></pre>
@@ -215,7 +215,7 @@
       </span><span class="identifier">div</span><span>(</span><span class="identifier">model</span><span>.</span><span class="identifier">toString</span><span>),
       </span><span class="identifier">button</span><span>(</span><span class="identifier">onClick</span><span>(</span><span class="type-name">Msg</span><span>.</span><span class="type-name">Increment</span><span>))(</span><span class="string-literal">&quot;+&quot;</span><span>)
     )</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run7&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run7" data-mdoc-js></div>
         <blockquote>Note the return type of view is <code>Html[Msg]</code>. This is because unlike normal JavaScript, the <code>onClick</code> is not directly instigating a normal callback, the HTML elements are mapped through and produce messages as values that are passed back to Tyrian.</blockquote>
         
         <h4 id="updating-the-counter-s-value" class="section"><a class="anchor-link left" href="#updating-the-counter-s-value"><i class="icofont-laika link">&#xef71;</i></a>Updating the counter&#39;s value</h4>
@@ -223,13 +223,13 @@
         <pre class="keep-together pdf epub"><code class="nohighlight"><span>  </span><span class="keyword">def</span><span> </span><span class="declaration-name">update</span><span>(</span><span class="identifier">model</span><span>: </span><span class="type-name">Model</span><span>): </span><span class="type-name">Msg</span><span> =&gt; (</span><span class="type-name">Model</span><span>, </span><span class="type-name">Cmd</span><span>[</span><span class="type-name">IO</span><span>, </span><span class="type-name">Msg</span><span>]) =
     </span><span class="keyword">case</span><span> </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Increment</span><span> =&gt; (</span><span class="identifier">model</span><span> + </span><span class="number-literal">1</span><span>, </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">None</span><span>)
     </span><span class="keyword">case</span><span> </span><span class="type-name">Msg</span><span>.</span><span class="type-name">Decrement</span><span> =&gt; (</span><span class="identifier">model</span><span> - </span><span class="number-literal">1</span><span>, </span><span class="type-name">Cmd</span><span>.</span><span class="type-name">None</span><span>)</span></code></pre>
-        <p>&lt;div id=&quot;mdoc-html-run8&quot; data-mdoc-js&gt;&lt;/div&gt;</p>
+        <div id="mdoc-html-run8" data-mdoc-js></div>
         <p>Recall that our &#39;model&#39; is just a type alias for an <code>Int</code>, so all we do is match on the <code>Msg</code> enum type, and either increment or decrement the model - done!</p>
         
         <h4 id="subscriptions" class="section"><a class="anchor-link left" href="#subscriptions"><i class="icofont-laika link">&#xef71;</i></a>Subscriptions</h4>
         <p>Subscriptions are part of the standard requirements, but this example doesn&#39;t use them for anything. They allow you to &quot;subscribe&quot; to processes that emit events over time.
-        &lt;script type=&quot;text/javascript&quot; src=&quot;guided-tour.md.js&quot; defer&gt;&lt;/script&gt;
-        &lt;script type=&quot;text/javascript&quot; src=&quot;mdoc.js&quot; defer&gt;&lt;/script&gt;</p>
+        <script type="text/javascript" src="guided-tour.md.js" defer></script>
+        <script type="text/javascript" src="mdoc.js" defer></script></p>
 
         
 <hr class="footer-rule"/>
