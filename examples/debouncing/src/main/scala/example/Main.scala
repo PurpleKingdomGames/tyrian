@@ -11,7 +11,7 @@ import scala.scalajs.js.annotation.*
 object Main extends TyrianIOApp[Msg, Model]:
 
   val DEBOUNCING_MILLIS: Int = 500
-  val TICK_INTERVAL: Int = 100
+  val TICK_INTERVAL: Int     = 100
 
   def router: Location => Msg = Routing.none(Msg.NoOp)
 
@@ -21,14 +21,17 @@ object Main extends TyrianIOApp[Msg, Model]:
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
     case Msg.UpdateValue(v) =>
       (model.copy(debouncer = Some(v, DEBOUNCING_MILLIS)), Cmd.None)
+
     case Msg.TimePassed =>
       model.debouncer match
+        case Some((v, time)) if time < 0 =>
+          (model.copy(value = v, debouncer = None), Cmd.None)
+
         case Some((v, time)) =>
-          if (time < 0)
-            (model.copy(value = v, debouncer = None), Cmd.None)
-          else
-            (model.copy(debouncer = Some((v, time - TICK_INTERVAL))), Cmd.None)
+          (model.copy(debouncer = Some((v, time - TICK_INTERVAL))), Cmd.None)
+
         case None => (model, Cmd.None)
+
     case _ => (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
