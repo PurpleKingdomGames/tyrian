@@ -10,8 +10,8 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object Main extends TyrianIOApp[Msg, Model]:
 
-  val DEBOUNCING_MILLIS: Int = 500
-  val TICK_INTERVAL: Int     = 100
+  val DebouncingMillis: Int = 500
+  val TickInterval: Int     = 100
 
   def router: Location => Msg = Routing.none(Msg.NoOp)
 
@@ -20,7 +20,7 @@ object Main extends TyrianIOApp[Msg, Model]:
 
   def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
     case Msg.UpdateValue(v) =>
-      (model.copy(debouncer = Some(v, DEBOUNCING_MILLIS)), Cmd.None)
+      (model.copy(debouncer = Some(v, DebouncingMillis)), Cmd.None)
 
     case Msg.TimePassed =>
       model.debouncer match
@@ -28,11 +28,11 @@ object Main extends TyrianIOApp[Msg, Model]:
           (model.copy(value = v, debouncer = None), Cmd.None)
 
         case Some((v, time)) =>
-          (model.copy(debouncer = Some((v, time - TICK_INTERVAL))), Cmd.None)
+          (model.copy(debouncer = Some((v, time - TickInterval))), Cmd.None)
 
         case None => (model, Cmd.None)
 
-    case _ => (model, Cmd.None)
+    case Msg.NoOp => (model, Cmd.None)
 
   def view(model: Model): Html[Msg] =
     div()(
@@ -57,7 +57,7 @@ object Main extends TyrianIOApp[Msg, Model]:
     model match
       case Model(_, Some(_)) =>
         Sub
-          .every[IO](TICK_INTERVAL.millis, "tick")
+          .every[IO](TickInterval.millis, "tick")
           .map(_ => Msg.TimePassed)
       case _ =>
         Sub.None
