@@ -58,6 +58,12 @@ lazy val counter =
     .settings(commonSettings: _*)
     .settings(name := "counter")
 
+lazy val debouncing =
+  (project in file("debouncing"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "debouncing")
+
 lazy val electron =
   (project in file("electron"))
     .enablePlugins(ScalaJSPlugin)
@@ -177,6 +183,7 @@ lazy val exampleProjects: List[String] =
     "bundler",
     "clock",
     "counter",
+    "debouncing",
     "electron",
     "field",
     "fs2",
