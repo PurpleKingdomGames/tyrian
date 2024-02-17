@@ -25,7 +25,7 @@ object Main extends TyrianIOApp[Msg, Model]:
       model.debouncer match
         case Some((v, time)) =>
           if (time < 0)
-            (model.copy(value = v), Cmd.None)
+            (model.copy(value = v, debouncer = None), Cmd.None)
           else
             (model.copy(debouncer = Some((v, time - TICK_INTERVAL))), Cmd.None)
         case None => (model, Cmd.None)
