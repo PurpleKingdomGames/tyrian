@@ -8,7 +8,8 @@ import $ivy.`io.github.davidgregory084::mill-tpolecat::0.3.5`
 import io.github.davidgregory084.TpolecatModule
 
 object counter extends ScalaJSModule with TpolecatModule {
-  def scalaVersion   = "3.3.1"
+
+  def scalaVersion   = "3.3.3"
   def scalaJSVersion = "1.16.0"
 
   def buildSite() =
