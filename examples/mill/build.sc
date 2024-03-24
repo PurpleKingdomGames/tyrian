@@ -9,7 +9,7 @@ import io.github.davidgregory084.TpolecatModule
 
 object counter extends ScalaJSModule with TpolecatModule {
   def scalaVersion   = "3.3.1"
-  def scalaJSVersion = "1.15.0"
+  def scalaJSVersion = "1.16.0"
 
   def buildSite() =
     T.command {
