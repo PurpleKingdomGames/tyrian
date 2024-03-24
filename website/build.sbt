@@ -15,7 +15,7 @@ import scala.concurrent.duration.DurationInt
 import laika.sbt.LaikaPreviewConfig
 import java.time.OffsetDateTime
 
-ThisBuild / scalaVersion := "3.3.1"
+ThisBuild / scalaVersion := "3.3.3"
 
 enablePlugins(LaikaPlugin, GhpagesPlugin)
 
