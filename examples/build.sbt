@@ -144,6 +144,12 @@ lazy val subcomponents =
     .settings(commonSettings: _*)
     .settings(name := "subcomponents")
 
+lazy val tailwind =
+  (project in file("tailwind"))
+    .enablePlugins(ScalaJSPlugin)
+    .settings(commonSettings: _*)
+    .settings(name := "tailwind")
+
 lazy val websocket =
   (project in file("websocket"))
     .enablePlugins(ScalaJSPlugin)
@@ -193,6 +199,7 @@ lazy val exampleProjects: List[String] =
     "mario",
     "nonpm",
     "subcomponents",
+    "tailwind",
     "websocket",
     "zio"
   )
