@@ -3,20 +3,9 @@ package tyrian.runtime
 import org.scalajs.dom
 import org.scalajs.dom.Element
 import org.scalajs.dom.window
-import snabbdom._
-import snabbdom.modules._
-import tyrian.Attr
-import tyrian.Attribute
-import tyrian.Empty
-import tyrian.Event
-import tyrian.Html
-import tyrian.Location
-import tyrian.NamedAttribute
-import tyrian.PropertyBoolean
-import tyrian.PropertyString
-import tyrian.RawTag
-import tyrian.Tag
-import tyrian.Text
+import snabbdom.*
+import snabbdom.modules.*
+import tyrian.*
 
 import scala.scalajs.js
 
