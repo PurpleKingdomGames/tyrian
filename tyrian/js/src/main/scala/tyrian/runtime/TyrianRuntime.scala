@@ -16,8 +16,6 @@ import tyrian.Html
 import tyrian.Location
 import tyrian.Sub
 
-import scala.annotation.nowarn
-
 object TyrianRuntime:
 
   def apply[F[_], Model, Msg](
@@ -30,18 +28,18 @@ object TyrianRuntime:
       subscriptions: Model => Sub[F, Msg]
   )(using F: Async[F]): F[Nothing] =
     Dispatcher.sequential[F].use { dispatcher =>
-      val loop        = mainLoop(dispatcher, router, node, initModel, initCmd, update, view, subscriptions)
+      val loop        = mainLoop(dispatcher, router, initModel, initCmd, update, view, subscriptions)
       val model       = F.ref(initModel)
       val currentSubs = AtomicCell[F].of(List.empty[(String, F[Unit])])
       val msgQueue    = Queue.unbounded[F, Msg]
+      val vnode       = F.ref(toVNode(node))
 
-      (model, currentSubs, msgQueue).flatMapN(loop)
+      (model, currentSubs, msgQueue, vnode).flatMapN(loop)
     }
 
   def mainLoop[F[_], Model, Msg](
       dispatcher: Dispatcher[F],
       router: Location => Msg,
-      node: Element,
       initModel: Model,
       initCmd: Cmd[F, Msg],
       update: Model => Msg => (Model, Cmd[F, Msg]),
@@ -50,44 +48,31 @@ object TyrianRuntime:
   )(
       model: Ref[F, Model],
       currentSubs: AtomicCell[F, List[(String, F[Unit])]],
-      msgQueue: Queue[F, Msg]
+      msgQueue: Queue[F, Msg],
+      vnode: Ref[F, VNode]
   )(using F: Async[F]): F[Nothing] =
     val runCmd: Cmd[F, Msg] => F[Unit] = runCommands(msgQueue)
     val runSub: Sub[F, Msg] => F[Unit] = runSubscriptions(currentSubs, msgQueue, dispatcher)
     val onMsg: Msg => Unit             = postMsg(dispatcher, msgQueue)
 
-    val renderLoop: F[Nothing] =
-      def redraw(vnode: VNode): F[VNode] =
-        model.get.flatMap { m =>
-          F.delay(Rendering.render(vnode, m, view, onMsg, router))
-        }
-
-      def loop(vnode: VNode): F[Nothing] =
-        model.get.flatMap { m =>
-          requestAnimationFrame *> redraw(vnode).flatMap(loop)
-        }
-
-      F.delay(toVNode(node)).flatMap(loop)
-
     val msgLoop: F[Nothing] =
       msgQueue.take.flatMap { msg =>
-        model
-          .modify { oldModel =>
+        for {
+          cmdsAndSubs <- model.modify { oldModel =>
             val (newModel, cmd) = update(oldModel)(msg)
             val sub             = subscriptions(newModel)
 
             (newModel, (cmd, sub))
           }
-          .flatMap { (cmd, sub) =>
-            runCmd(cmd) *> runSub(sub)
-          }
-          .void
+
+          _ <- runCmd(cmdsAndSubs._1) *> runSub(cmdsAndSubs._2)
+          m <- model.get
+          _ <- vnode.update(node => Rendering.render(node, m, view, onMsg, router))
+        } yield ()
       }.foreverM
 
-    renderLoop.background.surround {
-      msgLoop.background.surround {
-        runCmd(initCmd) *> F.never
-      }
+    msgLoop.background.surround {
+      runCmd(initCmd) *> F.never
     }
 
   def runCommands[F[_], Msg](msgQueue: Queue[F, Msg])(cmd: Cmd[F, Msg])(using F: Async[F]): F[Unit] =
@@ -117,14 +102,5 @@ object TyrianRuntime:
       discarded.foldMapM(_.start.void) *> newSubs.map(_ ++ stillAlive)
     }
 
-  // Triggers another render tick, but otherwise does nothing.
-  @nowarn("msg=discarded")
-  def requestAnimationFrame[F[_]](using F: Async[F]): F[Unit] =
-    F.async_ { cb =>
-      dom.window.requestAnimationFrame(_ => cb(Either.unit))
-      ()
-    }
-
-  // Send messages to the queue.
   def postMsg[F[_], Msg](dispatcher: Dispatcher[F], msgQueue: Queue[F, Msg]): Msg => Unit =
     msg => dispatcher.unsafeRunAndForget(msgQueue.offer(msg))
