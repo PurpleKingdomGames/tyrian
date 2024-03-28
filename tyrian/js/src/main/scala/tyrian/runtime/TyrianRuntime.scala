@@ -9,7 +9,6 @@ import cats.effect.syntax.all.*
 import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.Element
-import snabbdom.VNode
 import snabbdom.toVNode
 import tyrian.Cmd
 import tyrian.Html
@@ -27,15 +26,17 @@ object TyrianRuntime:
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   )(using F: Async[F]): F[Nothing] =
-    Dispatcher.sequential[F].use { dispatcher =>
-      val loop        = mainLoop(dispatcher, router, initCmd, update, view, subscriptions)
-      val model       = F.ref(initModel)
-      val currentSubs = AtomicCell[F].of(List.empty[(String, F[Unit])])
-      val msgQueue    = Queue.unbounded[F, Msg]
-      val vnode       = F.ref(toVNode(node))
+    Dispatcher
+      .sequential[F]
+      .both(Renderer.init(toVNode(node)))
+      .use { case (d, r) =>
+        val loop        = mainLoop(d, router, initCmd, update, view, subscriptions)
+        val model       = F.ref(initModel)
+        val currentSubs = AtomicCell[F].of(List.empty[(String, F[Unit])])
+        val msgQueue    = Queue.unbounded[F, Msg]
 
-      (model, currentSubs, msgQueue, vnode).flatMapN(loop)
-    }
+        (model, currentSubs, msgQueue, r).flatMapN(loop)
+      }
 
   def mainLoop[F[_], Model, Msg](
       dispatcher: Dispatcher[F],
@@ -48,7 +49,7 @@ object TyrianRuntime:
       model: Ref[F, Model],
       currentSubs: AtomicCell[F, List[(String, F[Unit])]],
       msgQueue: Queue[F, Msg],
-      vnode: Ref[F, VNode]
+      renderer: Ref[F, Renderer]
   )(using F: Async[F]): F[Nothing] =
     val runCmd: Cmd[F, Msg] => F[Unit] = runCommands(msgQueue)
     val runSub: Sub[F, Msg] => F[Unit] = runSubscriptions(currentSubs, msgQueue, dispatcher)
@@ -66,7 +67,7 @@ object TyrianRuntime:
 
           _ <- runCmd(cmdsAndSubs._1) *> runSub(cmdsAndSubs._2)
           m <- model.get
-          _ <- vnode.update(node => Rendering.render(node, m, view, onMsg, router))
+          _ <- renderer.update(_.redraw(m, view, onMsg, router))
         } yield ()
       }.foreverM
 
