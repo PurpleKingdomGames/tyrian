@@ -7,8 +7,9 @@ import snabbdom.VNode
 import tyrian.Html
 import tyrian.Location
 
-final case class Renderer(vnode: VNode, state: RendererState, lastTriggered: Double):
+final case class Renderer(vnode: VNode, state: RendererState, lastTriggered: Long):
   def redraw[Model, Msg](
+      time: Long,
       model: Model,
       view: Model => Html[Msg],
       onMsg: Msg => Unit,
@@ -17,7 +18,7 @@ final case class Renderer(vnode: VNode, state: RendererState, lastTriggered: Dou
     this.copy(
       vnode = Rendering.render(vnode, model, view, onMsg, router),
       state = RendererState.Running,
-      lastTriggered = 0
+      lastTriggered = time
     )
 
 object Renderer:

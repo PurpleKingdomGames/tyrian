@@ -1,6 +1,7 @@
 package tyrian.runtime
 
 import cats.effect.kernel.Async
+import cats.effect.kernel.Clock
 import cats.effect.kernel.Ref
 import cats.effect.std.AtomicCell
 import cats.effect.std.Dispatcher
@@ -50,7 +51,7 @@ object TyrianRuntime:
       currentSubs: AtomicCell[F, List[(String, F[Unit])]],
       msgQueue: Queue[F, Msg],
       renderer: Ref[F, Renderer]
-  )(using F: Async[F]): F[Nothing] =
+  )(using F: Async[F], clock: Clock[F]): F[Nothing] =
     val runCmd: Cmd[F, Msg] => F[Unit] = runCommands(msgQueue)
     val runSub: Sub[F, Msg] => F[Unit] = runSubscriptions(currentSubs, msgQueue, dispatcher)
     val onMsg: Msg => Unit             = postMsg(dispatcher, msgQueue)
@@ -67,7 +68,8 @@ object TyrianRuntime:
 
           _ <- runCmd(cmdsAndSubs._1) *> runSub(cmdsAndSubs._2)
           m <- model.get
-          _ <- renderer.update(_.redraw(m, view, onMsg, router))
+          t <- clock.realTime.map(_.toMillis)
+          _ <- renderer.update(_.redraw(t, m, view, onMsg, router))
         } yield ()
       }.foreverM
 
