@@ -31,7 +31,7 @@ object TyrianRuntime:
   )(using F: Async[F]): F[Nothing] =
     Dispatcher.sequential[F].use { dispatcher =>
       val loop        = mainLoop(dispatcher, router, node, initModel, initCmd, update, view, subscriptions)
-      val model       = F.ref(ModelHolder(initModel, true))
+      val model       = F.ref(initModel)
       val currentSubs = AtomicCell[F].of(List.empty[(String, F[Unit])])
       val msgQueue    = Queue.unbounded[F, Msg]
 
@@ -48,7 +48,7 @@ object TyrianRuntime:
       view: Model => Html[Msg],
       subscriptions: Model => Sub[F, Msg]
   )(
-      model: Ref[F, ModelHolder[Model]],
+      model: Ref[F, Model],
       currentSubs: AtomicCell[F, List[(String, F[Unit])]],
       msgQueue: Queue[F, Msg]
   )(using F: Async[F]): F[Nothing] =
@@ -58,16 +58,13 @@ object TyrianRuntime:
 
     val renderLoop: F[Nothing] =
       def redraw(vnode: VNode): F[VNode] =
-        model
-          .getAndUpdate(m => ModelHolder(m.model, false))
-          .flatMap { m =>
-            F.delay(Rendering.render(vnode, m.model, view, onMsg, router))
-          }
+        model.get.flatMap { m =>
+          F.delay(Rendering.render(vnode, m, view, onMsg, router))
+        }
 
       def loop(vnode: VNode): F[Nothing] =
         model.get.flatMap { m =>
-          if m.updated then requestAnimationFrame *> redraw(vnode).flatMap(loop)
-          else requestAnimationFrame *> loop(vnode)
+          requestAnimationFrame *> redraw(vnode).flatMap(loop)
         }
 
       F.delay(toVNode(node)).flatMap(loop)
@@ -75,11 +72,11 @@ object TyrianRuntime:
     val msgLoop: F[Nothing] =
       msgQueue.take.flatMap { msg =>
         model
-          .modify { case ModelHolder(oldModel, _) =>
+          .modify { oldModel =>
             val (newModel, cmd) = update(oldModel)(msg)
             val sub             = subscriptions(newModel)
 
-            (ModelHolder(newModel, true), (cmd, sub))
+            (newModel, (cmd, sub))
           }
           .flatMap { (cmd, sub) =>
             runCmd(cmd) *> runSub(sub)
