@@ -28,7 +28,7 @@ object TyrianRuntime:
       subscriptions: Model => Sub[F, Msg]
   )(using F: Async[F]): F[Nothing] =
     Dispatcher.sequential[F].use { dispatcher =>
-      val loop        = mainLoop(dispatcher, router, initModel, initCmd, update, view, subscriptions)
+      val loop        = mainLoop(dispatcher, router, initCmd, update, view, subscriptions)
       val model       = F.ref(initModel)
       val currentSubs = AtomicCell[F].of(List.empty[(String, F[Unit])])
       val msgQueue    = Queue.unbounded[F, Msg]
@@ -40,7 +40,6 @@ object TyrianRuntime:
   def mainLoop[F[_], Model, Msg](
       dispatcher: Dispatcher[F],
       router: Location => Msg,
-      initModel: Model,
       initCmd: Cmd[F, Msg],
       update: Model => Msg => (Model, Cmd[F, Msg]),
       view: Model => Html[Msg],
