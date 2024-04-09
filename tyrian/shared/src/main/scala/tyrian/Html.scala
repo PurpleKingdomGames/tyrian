@@ -71,7 +71,7 @@ object Html extends HtmlTags with HtmlAttributes:
         Property("type", "radio"),
         Property("name", name),
         if checked then Property("checked", "checked") else Property.empty
-      ) ++ attributes: _*
+      ) ++ attributes*
     )
 
   def text(plainText: String): Text = Text(plainText)

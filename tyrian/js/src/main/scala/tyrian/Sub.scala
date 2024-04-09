@@ -43,8 +43,8 @@ sealed trait Sub[+F[_], +Msg]:
 
 object Sub:
 
-  given CanEqual[Option[_], Option[_]] = CanEqual.derived
-  given CanEqual[Sub[_, _], Sub[_, _]] = CanEqual.derived
+  given CanEqual[Option[?], Option[?]] = CanEqual.derived
+  given CanEqual[Sub[?, ?], Sub[?, ?]] = CanEqual.derived
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Sub[F, Msg], b: Sub[F, LubMsg]): Sub[F, LubMsg] =
     (a, b) match {

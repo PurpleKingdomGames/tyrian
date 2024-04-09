@@ -18,7 +18,7 @@ object InfiniteScroll:
         table(hxIndicator := ".htmx-indicator")(
           thead(tr(th("Name"), th("Id"))),
           tbody(
-            rows: _*
+            rows*
           )
         )
       )
