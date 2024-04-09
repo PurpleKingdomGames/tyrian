@@ -6,7 +6,7 @@ import sbtwelcome._
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.3.3"
+lazy val scala3Version = "3.4.1"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,

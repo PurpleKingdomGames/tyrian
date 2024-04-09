@@ -32,7 +32,7 @@ extension [Msg](html: Html[Msg])
 
         s"""<${tag.name}$attributes>$children</${tag.name}>"""
 
-extension (a: Attr[_])
+extension (a: Attr[?])
   def render: String =
     a match
       case _: Event[_, _]         => ""

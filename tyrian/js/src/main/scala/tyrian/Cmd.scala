@@ -27,7 +27,7 @@ sealed trait Cmd[+F[_], +Msg]:
     Cmd.merge(this, other)
 
 object Cmd:
-  given CanEqual[Cmd[_, _], Cmd[_, _]] = CanEqual.derived
+  given CanEqual[Cmd[?, ?], Cmd[?, ?]] = CanEqual.derived
 
   final def merge[F[_], Msg, LubMsg >: Msg](a: Cmd[F, Msg], b: Cmd[F, LubMsg]): Cmd[F, LubMsg] =
     (a, b) match {

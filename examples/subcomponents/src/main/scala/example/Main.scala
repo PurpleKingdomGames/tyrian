@@ -43,7 +43,7 @@ object Main extends TyrianIOApp[Msg, Model]:
       button(onClick(Msg.Insert))(text("insert"))
     ) ++ counters
 
-    div()(elems: _*)
+    div()(elems*)
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None

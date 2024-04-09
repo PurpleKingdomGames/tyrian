@@ -11,8 +11,8 @@ trait TyrianIOApp[Msg, Model] extends TyrianAppF[IO, Msg, Model]:
   val run: IO[Nothing] => Unit = _.unsafeRunAndForget()
 
 object TyrianIOApp:
-  def onLoad(appDirectory: (String, TyrianAppF[IO, _, _])*): Unit =
-    TyrianAppF.onLoad(appDirectory: _*)
+  def onLoad(appDirectory: (String, TyrianAppF[IO, ?, ?])*): Unit =
+    TyrianAppF.onLoad(appDirectory*)
 
-  def launch(appDirectory: Map[String, TyrianAppF[IO, _, _]]): Unit =
+  def launch(appDirectory: Map[String, TyrianAppF[IO, ?, ?]]): Unit =
     TyrianAppF.launch(appDirectory)

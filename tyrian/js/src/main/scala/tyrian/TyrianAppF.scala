@@ -133,7 +133,7 @@ object TyrianAppF:
   /** Launch app instances after DOMContentLoaded.
     */
   @nowarn("msg=discarded")
-  def onLoad[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
+  def onLoad[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, ?, ?]]): Unit =
     val documentReady = new Promise((resolve, _reject) => {
       document.addEventListener("DOMContentLoaded", _ => resolve(()))
       if (document.readyState != DocumentReadyState.loading) {
@@ -143,12 +143,12 @@ object TyrianAppF:
     })
     documentReady.`then`(_ => launch[F](appDirectory))
 
-  def onLoad[F[_]: Async](appDirectory: (String, TyrianAppF[F, _, _])*): Unit =
+  def onLoad[F[_]: Async](appDirectory: (String, TyrianAppF[F, ?, ?])*): Unit =
     onLoad(appDirectory.toMap)
 
   /** Find data-tyrian-app HTMLElements and launch corresponding TyrianAppF instances
     */
-  def launch[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, _, _]]): Unit =
+  def launch[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, ?, ?]]): Unit =
     document.querySelectorAll("[data-tyrian-app]").foreach { element =>
       val tyrianAppElement = element.asInstanceOf[HTMLElement]
       val tyrianAppName    = tyrianAppElement.dataset.get("tyrianApp")
