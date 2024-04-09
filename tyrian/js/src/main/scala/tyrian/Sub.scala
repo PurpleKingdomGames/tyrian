@@ -222,7 +222,7 @@ object Sub:
   /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation
     * frame.
     */
-  @nowarn("msg=discarded")
+  @nowarn("msg=unused")
   def animationFrameTick[F[_]: Async, Msg](id: String)(toMsg: Double => Msg): Sub[F, Msg] =
     Sub.make(
       id,

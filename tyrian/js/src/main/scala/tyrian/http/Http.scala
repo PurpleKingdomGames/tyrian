@@ -35,7 +35,7 @@ object Http:
     */
   def send[F[_]: Async, A, Msg](request: Request[A], resultToMessage: Decoder[Msg]): Cmd.Run[F, Msg, Msg] =
 
-    @nowarn("msg=discarded")
+    @nowarn("msg=unused")
     def fetchTask(abortController: dom.AbortController): F[dom.Response] = Async[F].async_ { callback =>
 
       val requestInit = new RequestInit {}
@@ -62,7 +62,7 @@ object Http:
       ()
     }
 
-    @nowarn("msg=discarded")
+    @nowarn("msg=unused")
     def textBodyTask(domResponse: dom.Response): F[String] = Async[F].async_ { callback =>
       domResponse
         .text()

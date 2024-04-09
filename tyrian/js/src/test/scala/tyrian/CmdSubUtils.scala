@@ -23,7 +23,7 @@ object CmdSubUtils:
   extension [A](sub: Sub[IO, A]) def run: (Either[Throwable, A] => Unit) => IO[Unit] = runSub(sub)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
-  @nowarn("msg=discarded")
+  @nowarn("msg=unused")
   def runSub[A, Msg](sub: Sub[IO, Msg])(callback: Either[Throwable, A] => Unit): IO[Unit] =
     sub match
       case s: Sub.Observe[IO, A, Msg] @unchecked =>

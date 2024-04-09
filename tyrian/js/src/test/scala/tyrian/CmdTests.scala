@@ -62,8 +62,10 @@ class CmdTests extends munit.CatsEffectSuite {
           .map(_ * 10)
       )
 
-    mapped.cmd1.run.assertEquals(1000)
-    mapped.cmd2.run.assertEquals(100)
+    for {
+      _ <- mapped.cmd1.run.assertEquals(1000)
+      _ <- mapped.cmd2.run.assertEquals(100)
+    } yield ()
   }
 
   test("map - Batch") {
