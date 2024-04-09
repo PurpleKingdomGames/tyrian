@@ -19,7 +19,6 @@ lazy val scala3Version      = "3.4.1"
 lazy val tyrianDocsVersion  = "0.10.0"
 lazy val scalaJsDocsVersion = "1.16.0"
 lazy val scalaDocsVersion   = "3.4.1"
-lazy val indigoDocsVersion  = "0.16.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
@@ -263,7 +262,6 @@ lazy val jsdocs =
         "org.scala-js"    %%% "scalajs-dom"  % Dependencies.scalajsDomVersion,
         "io.circe"        %%% "circe-core"   % Dependencies.circe,
         "io.circe"        %%% "circe-parser" % Dependencies.circe,
-        "io.indigoengine" %%% "indigo"       % indigoDocsVersion,
         "io.indigoengine" %%% "tyrian-io"    % tyrianDocsVersion,
         "org.http4s"      %%% "http4s-dom"   % Dependencies.http4sDom,
         "org.http4s"      %%% "http4s-circe" % Dependencies.http4sCirce,
