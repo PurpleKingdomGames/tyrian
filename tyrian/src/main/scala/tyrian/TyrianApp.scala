@@ -15,7 +15,7 @@ import scala.scalajs.js.annotation.*
 /** The TyrianApp trait can be extended to conveniently prompt you for all the methods needed for a Tyrian app, as well
   * as providing a number of standard app launching methods.
   */
-trait TyrianAppF[F[_]: Async, Msg, Model]:
+trait TyrianApp[F[_]: Async, Msg, Model]:
 
   /** Specifies the number of queued tasks that can be consumed at any one time. Default is 1024 which is assumed to be
     * more than sufficient, however the value can be tweaked in your app by overriding this value.
@@ -111,7 +111,7 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
 
   def ready(node: Element, flags: Map[String, String]): Unit =
     run(
-      TyrianAppF.start[F, Model, Msg](
+      TyrianApp.start[F, Model, Msg](
         node,
         router,
         _init(flags),
@@ -130,11 +130,11 @@ trait TyrianAppF[F[_]: Async, Msg, Model]:
       case None =>
         throw new Exception(s"Missing Element! Could not find an element with id '$containerId' on the page.")
 
-object TyrianAppF:
+object TyrianApp:
   /** Launch app instances after DOMContentLoaded.
     */
   @nowarn("msg=discarded")
-  def onLoad[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, ?, ?]]): Unit =
+  def onLoad[F[_]: Async](appDirectory: Map[String, TyrianApp[F, ?, ?]]): Unit =
     val documentReady = new Promise((resolve, _reject) => {
       document.addEventListener("DOMContentLoaded", _ => resolve(()))
       if (document.readyState != DocumentReadyState.loading) {
@@ -144,12 +144,12 @@ object TyrianAppF:
     })
     documentReady.`then`(_ => launch[F](appDirectory))
 
-  def onLoad[F[_]: Async](appDirectory: (String, TyrianAppF[F, ?, ?])*): Unit =
+  def onLoad[F[_]: Async](appDirectory: (String, TyrianApp[F, ?, ?])*): Unit =
     onLoad(appDirectory.toMap)
 
-  /** Find data-tyrian-app HTMLElements and launch corresponding TyrianAppF instances
+  /** Find data-tyrian-app HTMLElements and launch corresponding TyrianApp instances
     */
-  def launch[F[_]: Async](appDirectory: Map[String, TyrianAppF[F, ?, ?]]): Unit =
+  def launch[F[_]: Async](appDirectory: Map[String, TyrianApp[F, ?, ?]]): Unit =
     document.querySelectorAll("[data-tyrian-app]").foreach { element =>
       val tyrianAppElement = element.asInstanceOf[HTMLElement]
       val tyrianAppName    = tyrianAppElement.dataset.get("tyrianApp")
