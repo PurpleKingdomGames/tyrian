@@ -403,8 +403,9 @@ addCommandAlias(
   "cleanAll",
   List(
     "clean",
-    "tyrianJS/clean",
-    "tyrianJVM/clean",
+    "tyrianTagsJS/clean",
+    "tyrianTagsJVM/clean",
+    "tyrian/clean",
     "tyrianIO/clean",
     "tyrianZIO/clean",
     "sandbox/clean",
@@ -417,8 +418,9 @@ addCommandAlias(
 addCommandAlias(
   "compileAll",
   List(
-    "tyrianJS/compile",
-    "tyrianJVM/compile",
+    "tyrianTagsJS/compile",
+    "tyrianTagsJVM/compile",
+    "tyrian/compile",
     "tyrianIO/compile",
     "tyrianZIO/compile",
     "sandbox/compile",
@@ -429,8 +431,9 @@ addCommandAlias(
 addCommandAlias(
   "testAll",
   List(
-    "tyrianJS/test",
-    "tyrianJVM/test",
+    "tyrianTagsJS/test",
+    "tyrianTagsJVM/test",
+    "tyrian/test",
     "tyrianIO/test",
     "tyrianZIO/test",
     "sandbox/test",
@@ -443,8 +446,9 @@ addCommandAlias(
 addCommandAlias(
   "testAllUnit",
   List(
-    "tyrianJS/test",
-    "tyrianJVM/test",
+    "tyrianTagsJS/test",
+    "tyrianTagsJVM/test",
+    "tyrian/test",
     "tyrianIO/test",
     "tyrianZIO/test",
     "sandbox/test",
@@ -455,8 +459,9 @@ addCommandAlias(
 addCommandAlias(
   "testRelease",
   List(
-    "tyrianJS/test",
-    "tyrianJVM/test",
+    "tyrianTagsJS/test",
+    "tyrianTagsJVM/test",
+    "tyrian/test",
     "tyrianIO/test",
     "tyrianZIO/test"
   ).mkString(";", ";", "")
