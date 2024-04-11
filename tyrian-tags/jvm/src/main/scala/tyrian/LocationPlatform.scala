@@ -1,4 +1,3 @@
 package tyrian
 
 trait LocationPlatform
-
