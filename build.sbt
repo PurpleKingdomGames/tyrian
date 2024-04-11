@@ -120,8 +120,9 @@ lazy val tyrianProject =
       logoSettings(version)
     )
     .aggregate(
+      tyrianTags.js,
+      tyrianTags.jvm,
       tyrian.js,
-      tyrian.jvm,
       tyrianIO.js,
       tyrianZIO.js,
       sandbox.js,
@@ -134,15 +135,31 @@ lazy val tyrianProject =
       sandboxSSR.jvm
     )
 
-lazy val tyrian =
+lazy val tyrianTags =
   crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full)
+    .in(file("tyrian-tags"))
     .settings(
-      name := "tyrian",
+      name := "tyrian-tags",
       commonSettings ++ publishSettings,
       Compile / sourceGenerators += codeGen("tyrian", TagGen.gen).taskValue,
       Compile / sourceGenerators += codeGen("tyrian", AttributeGen.gen).taskValue,
       Compile / sourceGenerators += codeGen("CSS", "tyrian", CSSGen.gen).taskValue
+    )
+    .jsSettings(
+      commonJsSettings,
+      libraryDependencies ++= Seq(
+        "org.scala-js" %%% "scalajs-dom" % Dependencies.scalajsDomVersion
+      )
+    )
+
+lazy val tyrian =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .settings(
+      name := "tyrian",
+      commonSettings ++ publishSettings
     )
     .jsSettings(
       commonJsSettings,
@@ -152,6 +169,7 @@ lazy val tyrian =
         "io.github.buntec" %%% "scala-js-snabbdom"  % Dependencies.scalajsSnabbdom
       )
     )
+    .dependsOn(tyrianTags)
 
 lazy val tyrianIO =
   crossProject(JSPlatform)
@@ -223,7 +241,7 @@ lazy val sandboxZIO =
 lazy val sandboxSSR =
   crossProject(JVMPlatform)
     .crossType(CrossType.Pure)
-    .dependsOn(tyrian, tyrianHtmx)
+    .dependsOn(tyrianTags, tyrianHtmx)
     .in(file("sandbox-ssr"))
     .settings(
       neverPublish,
@@ -244,7 +262,6 @@ lazy val unidocs =
       name := "Tyrian",
       neverPublish,
       ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-        tyrian.jvm,
         sandboxZIO.js,
         sandbox.js,
         docs,
@@ -344,7 +361,7 @@ lazy val tyrianHtmx =
     .jsSettings(
       commonJsSettings
     )
-    .dependsOn(tyrian)
+    .dependsOn(tyrianTags)
 
 addCommandAlias(
   "sandboxBuild",
