@@ -51,6 +51,9 @@ object Http:
         case (Body.PlainText(contentType, body), method) if !Set(Method.Get, Method.Head).contains(method) =>
           headers.append("Content-Type", contentType)
           requestInit.body = body
+        case (Body.File(contentType, body), method) if !Set(Method.Get, Method.Head).contains(method) =>
+          headers.append("Content-Type", contentType)
+          requestInit.body = body
         case _ =>
 
       requestInit.headers = headers
