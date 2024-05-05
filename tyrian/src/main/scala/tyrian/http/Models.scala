@@ -1,5 +1,7 @@
 package tyrian.http
 
+import org.scalajs.dom.BodyInit
+
 /** An Error will be returned if something goes wrong with an HTTP request. */
 enum HttpError:
   /** A BadRequest means that the provide request was not valid for some reason.
@@ -41,6 +43,7 @@ enum Body derives CanEqual:
     *   the content of the body
     */
   case PlainText(contentType: String, body: String) extends Body
+  case File(contentType: String, body: BodyInit) extends Body
 
 object Body:
   def html(body: String): Body      = Body.PlainText("text/html", body)
