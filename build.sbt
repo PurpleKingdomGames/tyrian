@@ -15,10 +15,10 @@ ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.4.1"
+lazy val scala3Version      = "3.4.2"
 lazy val tyrianDocsVersion  = "0.10.0"
 lazy val scalaJsDocsVersion = "1.16.0"
-lazy val scalaDocsVersion   = "3.4.1"
+lazy val scalaDocsVersion   = "3.4.2"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
