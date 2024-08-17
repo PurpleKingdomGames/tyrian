@@ -1,6 +1,7 @@
 package tyrian.cmds
 
 import cats.effect.kernel.Async
+import cats.syntax.all.*
 import org.scalajs.dom
 import org.scalajs.dom.Event
 import org.scalajs.dom.document
@@ -40,39 +41,38 @@ object FileReader:
 
   /** Reads an input file from an input field as base64 encoded image data */
   def readImage[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
-    readFile(inputFieldId, ReadType.AsDataUrl)(readImageCast andThen resultToMessage)
+    readFile(getFileFromInput(inputFieldId), ReadType.AsDataUrl)(readImageCast andThen resultToMessage)
 
   /** Reads an input file as base64 encoded image data */
   def readImage[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
-    readFile(file, ReadType.AsDataUrl)(readImageCast andThen resultToMessage)
+    readFile(Some(file).pure[F], ReadType.AsDataUrl)(readImageCast andThen resultToMessage)
 
   /** Reads an input file from an input field as plain text */
   def readText[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
-    readFile(inputFieldId, ReadType.AsText)(readTextCast andThen resultToMessage)
+    readFile(getFileFromInput(inputFieldId), ReadType.AsText)(readTextCast andThen resultToMessage)
 
   /** Reads an input file as plain text */
   def readText[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[String] => Msg): Cmd[F, Msg] =
-    readFile(file, ReadType.AsText)(readTextCast andThen resultToMessage)
+    readFile(Some(file).pure[F], ReadType.AsText)(readTextCast andThen resultToMessage)
 
   /** Reads an input file from an input field as bytes */
   def readBytes[F[_]: Async, Msg](inputFieldId: String)(resultToMessage: Result[IArray[Byte]] => Msg): Cmd[F, Msg] =
-    readFile(inputFieldId, ReadType.AsArrayBuffer)(readBytesCast andThen resultToMessage)
+    readFile(getFileFromInput(inputFieldId), ReadType.AsArrayBuffer)(readBytesCast andThen resultToMessage)
 
   /** Reads an input file as bytes */
   def readBytes[F[_]: Async, Msg](file: dom.File)(resultToMessage: Result[IArray[Byte]] => Msg): Cmd[F, Msg] =
-    readFile(file, ReadType.AsArrayBuffer)(readBytesCast andThen resultToMessage)
+    readFile(Some(file).pure[F], ReadType.AsArrayBuffer)(readBytesCast andThen resultToMessage)
 
-  private def readFile[F[_]: Async, Msg](fileOrInputId: dom.File | String, readAsType: ReadType)(
+  private def getFileFromInput[F[_]: Async](inputFieldId: String): F[Option[dom.File]] =
+    Async[F].delay(document.getElementById(inputFieldId).asInstanceOf[html.Input].files.headOption)
+
+  private def readFile[F[_]: Async, Msg](maybeGetFile: F[Option[dom.File]], readAsType: ReadType)(
       resultToMessage: Result[js.Any] => Msg
   ): Cmd[F, Msg] =
-    val task = Async[F].delay {
-      val maybeFile = fileOrInputId match
-        case f: dom.File => Some(f)
-        case inputId: String =>
-          document.getElementById(inputId).asInstanceOf[html.Input].files.headOption
-      maybeFile match
-        case None => Future.successful(Result.NoFile("No files on specified input"))
-        case Some(file) =>
+    val task = maybeGetFile.flatMap {
+      case None => Future.successful(Result.NoFile("No files on specified input")).pure[F]
+      case Some(file) =>
+        Async[F].delay {
           val p          = Promise[Result[js.Any]]()
           val fileReader = new dom.FileReader()
           fileReader.addEventListener(
@@ -99,6 +99,7 @@ object FileReader:
             case ReadType.AsDataUrl => fileReader.readAsDataURL(file)
 
           p.future
+        }
     }
 
     Cmd.Run(Async[F].fromFuture(task), resultToMessage)
