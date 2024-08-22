@@ -630,7 +630,7 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
           )
 
         case Page.Page7 =>
-          div(
+          div(attr("custom-a") := "attr", prop("custom-b") := false, attribute("x", "y"))(
             button(onClick(Msg.SelectImageFile))("Select an image file"),
             button(onClick(Msg.SelectTextFile))("Select a text file"),
             button(onClick(Msg.SelectBytesFile))("Select a file as bytes"),

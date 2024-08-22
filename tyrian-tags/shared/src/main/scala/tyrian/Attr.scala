@@ -117,3 +117,58 @@ object Event:
       stopPropagation = true,
       stopImmediatePropagation = true
     )
+
+trait AttributeSyntax:
+
+  final def attr(name: String): AttributeName = AttributeName(name)
+  final def prop(name: String): PropertyName  = PropertyName(name)
+
+  def attribute(name: String, value: String): Attr[Nothing]                 = AttributeSyntax.attribute(name, value)
+  def attributes(as: (String, String)*): List[Attr[Nothing]]                = AttributeSyntax.attributes(as.toList)
+  def property(name: String, value: Boolean | String): Attr[Nothing]        = AttributeSyntax.property(name, value)
+  def properties(ps: (String, Boolean | String)*): List[Attr[Nothing]]      = AttributeSyntax.properties(ps.toList)
+  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Event[E, M] = AttributeSyntax.onEvent(name, msg)
+
+object AttributeSyntax:
+
+  def attribute(name: String, value: String): Attr[Nothing]                 = Attribute(name, value)
+  def attributes(as: List[(String, String)]): List[Attr[Nothing]]           = as.map(p => Attribute(p._1, p._2))
+  def property(name: String, value: Boolean | String): Attr[Nothing]        = Property(name, value)
+  def properties(ps: List[(String, Boolean | String)]): List[Attr[Nothing]] = ps.map(p => Property(p._1, p._2))
+
+  def onEvent[E <: Tyrian.Event, M](name: String, msg: E => M): Event[E, M] = Event(name, msg)
+
+final class AttributeName(name: String):
+  def :=(value: String | Int | Double | Boolean): Attribute =
+    value match
+      case x: String  => Attribute(name.toString, x)
+      case x: Int     => Attribute(name.toString, x.toString)
+      case x: Double  => Attribute(name.toString, x.toString)
+      case x: Boolean => Attribute(name.toString, x.toString)
+
+final class PropertyName(name: String):
+  def :=(value: String | Boolean): Attribute =
+    value match
+      case x: String  => Attribute(name.toString, x)
+      case x: Boolean => Attribute(name.toString, x.toString)
+
+final class AttributeNameString(name: String):
+  def :=(value: String): Attribute = Attribute(name.toString, value)
+
+final class AttributeNameInt(name: String):
+  def :=(value: Int): Attribute = Attribute(name.toString, value.toString)
+
+final class AttributeNameDouble(name: String):
+  def :=(value: Double): Attribute = Attribute(name.toString, value.toString)
+
+final class AttributeNameBoolean(name: String):
+  def :=(value: Boolean): Attribute = Attribute(name.toString, value.toString)
+
+final class AttributeNameStyle(name: String):
+  def :=(value: Style): Attribute = Attribute(name.toString, value.toString)
+
+final class PropertyNameString(name: String):
+  def :=(value: String): PropertyString = PropertyString(name.toString, value)
+
+final class PropertyNameBoolean(name: String):
+  def :=(value: Boolean): PropertyBoolean = PropertyBoolean(name.toString, value)
