@@ -18,21 +18,21 @@ import scala.scalajs.js.typedarray
   */
 object FileReader:
 
-  val readImageCast: Result[js.Any] => Result[String] =
+  private val readImageCast: Result[js.Any] => Result[String] =
     case Result.Error(msg)  => Result.Error(msg)
     case Result.NoFile(msg) => Result.NoFile(msg)
     case Result.File(n, p, d) =>
       try Result.File(n, p, d.asInstanceOf[String])
       catch case _ => Result.Error("File is not a base64 string of image data")
 
-  val readTextCast: Result[js.Any] => Result[String] =
+  private val readTextCast: Result[js.Any] => Result[String] =
     case Result.Error(msg)  => Result.Error(msg)
     case Result.NoFile(msg) => Result.NoFile(msg)
     case Result.File(n, p, d) =>
       try Result.File(n, p, d.asInstanceOf[String])
       catch case _ => Result.Error("File is not text")
 
-  val readBytesCast: Result[js.Any] => Result[IArray[Byte]] =
+  private val readBytesCast: Result[js.Any] => Result[IArray[Byte]] =
     case Result.Error(msg)  => Result.Error(msg)
     case Result.NoFile(msg) => Result.NoFile(msg)
     case Result.File(n, p, d) =>
