@@ -5,14 +5,14 @@ object CSSGen {
 
   def genCssProp(name: String): String = {
     val cssProp = s"""  def `$name`(value: String): Style = Style("$name", value)"""
-    if (!name.contains("-") || name.contains("@")) { 
+    if (!name.contains("-") || name.contains("@")) {
       cssProp
     } else {
       val nameCC: String = name.split("-").toList match {
         case Nil =>
-  	  throw new Exception(s"CSS property '$name' was unexpectedly empty")
+          throw new Exception(s"CSS property '$name' was unexpectedly empty")
         case head :: tail =>
-  	  (head :: tail.map(_.capitalize)).mkString
+          (head :: tail.map(_.capitalize)).mkString
       }
       s"""$cssProp 
       |  def ${nameCC}(value: String): Style = Style("$name", value)

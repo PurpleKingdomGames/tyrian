@@ -76,14 +76,13 @@ object Model:
   val init: Model =
     Model(EchoSocket.init, Nil)
 
-/** Encapsulates and manages our socket connection, cleanly proxies methods, and
-  * knows how to draw the right connnect/disconnect button.
+/** Encapsulates and manages our socket connection, cleanly proxies methods, and knows how to draw the right
+  * connnect/disconnect button.
   */
 final case class EchoSocket(socketUrl: String, socket: Option[WebSocket[IO]]):
 
   def connectDisconnectButton =
-    if socket.isDefined then
-      button(onClick(EchoSocket.Status.Disconnecting.asMsg))("Disconnect")
+    if socket.isDefined then button(onClick(EchoSocket.Status.Disconnecting.asMsg))("Disconnect")
     else button(onClick(EchoSocket.Status.Connecting.asMsg))("Connect")
 
   def update(status: EchoSocket.Status): (EchoSocket, Cmd[IO, Msg]) =

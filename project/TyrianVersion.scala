@@ -3,7 +3,7 @@ object TyrianVersion {
     def rec(path: String, levels: Int, version: Option[String]): String = {
       val msg = "ERROR: Couldn't find Tyrian version."
       version match {
-        case Some(v) => 
+        case Some(v) =>
           println(s"""Tyrian version set to '$v'""")
           v
 
@@ -21,7 +21,7 @@ object TyrianVersion {
           throw new Exception(msg)
       }
     }
-    
+
     rec(".tyrian-version", 0, None)
   }
 }

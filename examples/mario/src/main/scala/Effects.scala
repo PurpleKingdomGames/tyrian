@@ -30,15 +30,13 @@ object Effects:
     }
 
   def keyPressSub(keyCode: Int): Sub[IO, KeyboardEvent] =
-    Sub.fromEvent[IO, KeyboardEvent, KeyboardEvent]("keydown", dom.window) {
-      event =>
-        if event.keyCode == keyCode then Some(event) else None
+    Sub.fromEvent[IO, KeyboardEvent, KeyboardEvent]("keydown", dom.window) { event =>
+      if event.keyCode == keyCode then Some(event) else None
     }
 
   def keyReleaseSub(keyCode: Int): Sub[IO, KeyboardEvent] =
-    Sub.fromEvent[IO, KeyboardEvent, KeyboardEvent]("keyup", dom.window) {
-      event =>
-        if event.keyCode == keyCode then Some(event) else None
+    Sub.fromEvent[IO, KeyboardEvent, KeyboardEvent]("keyup", dom.window) { event =>
+      if event.keyCode == keyCode then Some(event) else None
     }
 
   val UNDER_FRONT_MARIO  = (true, true)
