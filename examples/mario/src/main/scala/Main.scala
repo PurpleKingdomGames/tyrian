@@ -104,9 +104,8 @@ final case class Mario(
     dir: Direction
 )
 object Mario:
-  val gravity = 0.25
-  val applyGravity: Mario => Mario = mario =>
-    mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
+  val gravity                      = 0.25
+  val applyGravity: Mario => Mario = mario => mario.copy(vy = if (mario.y > 0) mario.vy - gravity else 0)
   val applyMotion: Mario => Mario = mario =>
     mario.copy(
       x = mario.x + mario.vx,

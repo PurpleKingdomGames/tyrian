@@ -15,7 +15,7 @@ object ExampleServer:
     for {
       client <- Stream.resource(EmberClientBuilder.default[F].build)
 
-      httpApp = (Routes.routes[F](SSR.impl[F])).orNotFound
+      httpApp = Routes.routes[F](SSR.impl[F]).orNotFound
 
       finalHttpApp = Logger.httpApp(true, true)(httpApp)
 
