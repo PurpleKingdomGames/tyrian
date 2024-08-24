@@ -2,7 +2,6 @@ package com.example.example
 
 import cats.Applicative
 import cats.implicits.*
-import org.http4s.EntityEncoder
 import tyrian.*
 import tyrian.Html.*
 

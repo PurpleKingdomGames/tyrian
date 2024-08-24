@@ -3,7 +3,6 @@ package example
 import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
-import tyrian.cmds.Logger
 
 import scala.concurrent.duration.*
 import scala.scalajs.js.annotation.*
