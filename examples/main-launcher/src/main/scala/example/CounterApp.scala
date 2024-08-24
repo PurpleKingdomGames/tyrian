@@ -4,7 +4,6 @@ import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
 
-import scala.scalajs.js.annotation.*
 import scala.util.Try
 
 object CounterApp extends TyrianIOApp[Msg, Model]:

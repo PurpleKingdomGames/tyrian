@@ -1,5 +1,3 @@
-import {
-  TyrianApp
-} from './target/scala-3.3.1/field-fastopt/main.js';
+import { TyrianApp } from "./target/scala-3.5.0/field-fastopt/main.js";
 
 TyrianApp.launch("myapp");

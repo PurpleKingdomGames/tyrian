@@ -1,6 +1,5 @@
 package tyrian.http
 
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration._
 
 /** Describes an HTTP request.

@@ -4,9 +4,6 @@ import cats.effect.IO
 import tyrian.Html.*
 import tyrian.*
 
-import scala.scalajs.js
-import scala.scalajs.js.annotation.*
-
 object ChatApp extends TyrianIOApp[ChatAppMsg, ChatAppModel]:
 
   def router: Location => ChatAppMsg = Routing.none(ChatAppMsg.NoOp)
