@@ -41,11 +41,20 @@ object Rendering:
         (n, EventHandler(callback))
       }
 
+    val hooks: Option[Hooks] =
+      Some(Hooks(postpatch = Some { (oldV, newV) =>
+        val elm = oldV.node.asInstanceOf[js.Dictionary[Any]]
+        props.foreach { (k, v) =>
+          elm(k) = v
+        }
+      }))
+
     VNodeData.empty.copy(
       props = props.toMap,
       attrs = as.map((k, v) => k -> AttrValue(v)).toMap,
       on = events.toMap,
-      key = key
+      key = key,
+      hook = hooks
     )
 
   private def interceptHref[Msg](attrs: List[Attr[Msg]]): Boolean =
