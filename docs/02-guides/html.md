@@ -145,3 +145,23 @@ One occasion where you may need to make your own tags or attributes etc., is whe
 A previous case of this was where the input field `value` `property` was incorrectly declared as an `attribute`, and so the value wasn't changed as expected based on model updates.
 
 Effort has gone in to getting these things right, but if you come across any issues, [please report them](https://github.com/PurpleKingdomGames/tyrian/issues), and the workaround is to re-declare it yourself as above while a fix is produced.
+
+#### Known Gotcha: Eager Property Setting
+
+It's possible that sometimes properties of elements will appear inconsistently applied due to how changes are applied to the DOM.
+For example, if you have a `select` element that is regularly changing its `option` children as well as its `value` property at the same time, you might occasionally see the selected value be inaccurate.
+
+You can hint to Tyrian that you would like it to delay setting properties on a particular element until after other elements have been updated by using the `.setLazy` method on any `Html` element:
+
+```scala mdoc:js
+val myValue = "test-value"
+val myElem = select(value := myValue)(
+  option(value := "test-value")("Test Value"),
+  option(value := "other-value")("Other Value")
+)
+
+// In this case, applies the `value` property after the rest of the page finishes rendering
+myElem.setLazy
+```
+
+You will typically not need to do this for most elements, but it is a useful workaround for some edge cases.
