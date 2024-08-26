@@ -16,10 +16,10 @@ object Rendering:
       onMsg: Msg => Unit,
       key: Option[String]
   ): VNodeData =
-    val as: List[(String, String)] =
+    val as: List[(String, AttrValue)] =
       attrs.collect {
-        case Attribute(n, v)   => (n, v)
-        case NamedAttribute(n) => (n, "")
+        case Attribute(n, v)   => (n, AttrValue(v))
+        case NamedAttribute(n) => (n, AttrValue(""))
       }
 
     val props: List[(String, PropValue)] =
@@ -43,7 +43,7 @@ object Rendering:
 
     VNodeData.empty.copy(
       props = props.toMap,
-      attrs = as.map((k, v) => k -> AttrValue(v)).toMap,
+      attrs = as.toMap,
       on = events.toMap,
       key = key
     )
