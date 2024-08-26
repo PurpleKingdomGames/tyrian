@@ -14,7 +14,8 @@ object Rendering:
   private def buildNodeData[Msg](
       attrs: List[Attr[Msg]],
       onMsg: Msg => Unit,
-      key: Option[String]
+      key: Option[String],
+      isLazy: Boolean
   ): VNodeData =
     val as: List[(String, String)] =
       attrs.collect {
@@ -42,15 +43,16 @@ object Rendering:
       }
 
     val hooks: Option[Hooks] =
-      Some(Hooks(postpatch = Some { (oldV, newV) =>
-        val elm = oldV.node.asInstanceOf[js.Dictionary[Any]]
-        props.foreach { (k, v) =>
-          elm(k) = v
-        }
-      }))
+      if isLazy then
+        Some(
+          Hooks(
+            postpatch = Props.module.update.map(updateHook => (oldV, newV) => updateHook(oldV, newV.toVNode))
+          )
+        )
+      else None
 
     VNodeData.empty.copy(
-      props = props.toMap,
+      props = if isLazy then Map.empty else props.toMap,
       attrs = as.map((k, v) => k -> AttrValue(v)).toMap,
       on = events.toMap,
       key = key,
@@ -106,8 +108,8 @@ object Rendering:
 
   def toVNode[Msg](html: Html[Msg], onMsg: Msg => Unit, router: Location => Msg): VNode =
     html match
-      case RawTag(name, attrs, html, key) =>
-        val data = buildNodeData(attrs, onMsg, key)
+      case RawTag(name, attrs, html, key, isLazy) =>
+        val data = buildNodeData(attrs, onMsg, key, isLazy)
         val elm  = dom.document.createElement(name)
         elm.innerHTML = html
         snabbdom.toVNode(elm) match
@@ -116,8 +118,8 @@ object Rendering:
 
       // Intercept a tags with an href and no onClick attribute to stop the
       // browser following links by default.
-      case Tag("a", attrs, children, key) if interceptHref(attrs) =>
-        val data = buildNodeData(attrs, onMsg, key)
+      case Tag("a", attrs, children, key, isLazy) if interceptHref(attrs) =>
+        val data = buildNodeData(attrs, onMsg, key, isLazy)
         val childrenElem: List[VNode] =
           children.map {
             case _: Empty.type      => VNode.empty
@@ -131,8 +133,8 @@ object Rendering:
           childrenElem
         )
 
-      case Tag(name, attrs, children, key) =>
-        val data = buildNodeData(attrs, onMsg, key)
+      case Tag(name, attrs, children, key, isLazy) =>
+        val data = buildNodeData(attrs, onMsg, key, isLazy)
         val childrenElem: List[VNode] =
           children.map {
             case _: Empty.type      => VNode.empty

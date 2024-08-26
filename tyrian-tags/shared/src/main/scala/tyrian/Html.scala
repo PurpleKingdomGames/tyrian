@@ -34,6 +34,9 @@ sealed trait Html[+M] extends Elem[M]:
   /** Clear a key value that was being used to help the virtual-dom understand what has changed. */
   def clearKey: Html[M]
 
+  /** Set this node to apply attribute and property changes later, after the rest of the page has finished updating. */
+  def setLazy: Html[M]
+
   override def toString(): String = this.render
 
 /** Object used to provide Html syntax `import tyrian.Html.*`
@@ -105,8 +108,13 @@ object SVG extends SVGTags with SVGAttributes
 object Aria extends AriaAttributes
 
 /** An HTML tag */
-final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List[Elem[M]], key: Option[String])
-    extends Html[M]:
+final case class Tag[+M](
+    name: String,
+    attributes: List[Attr[M]],
+    children: List[Elem[M]],
+    key: Option[String],
+    isLazy: Boolean
+) extends Html[M]:
   def map[N](f: M => N): Tag[N] =
     this.copy(
       attributes = attributes.map(_.map(f)),
@@ -123,22 +131,30 @@ final case class Tag[+M](name: String, attributes: List[Attr[M]], children: List
   def clearKey: Tag[M] =
     this.copy(key = None)
 
+  def setLazy: Tag[M] =
+    this.copy(isLazy = true)
+
 object Tag:
   def apply[M](name: String, attributes: List[Attr[M]], children: List[Elem[M]]): Tag[M] =
-    Tag(name, attributes, children, None)
+    Tag(name, attributes, children, None, isLazy = false)
 
 /** An HTML tag with raw HTML rendered inside. Beware that the inner HTML is not validated to be correct, nor does it
   * get modified as a response to messages in any way.
   */
-final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: String, key: Option[String])
-    extends Html[M]:
+final case class RawTag[+M](
+    name: String,
+    attributes: List[Attr[M]],
+    innerHTML: String,
+    key: Option[String],
+    isLazy: Boolean
+) extends Html[M]:
   def map[N](f: M => N): RawTag[N] =
     this.copy(
       attributes = attributes.map(_.map(f))
     )
 
   def innerHtml(html: String): RawTag[M] =
-    RawTag(name, attributes, html, key)
+    RawTag(name, attributes, html, key, isLazy)
 
   def withKey(value: Option[String]): RawTag[M] =
     this.copy(key = value)
@@ -147,6 +163,9 @@ final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: 
   def clearKey: RawTag[M] =
     this.copy(key = None)
 
+  def setLazy: RawTag[M] =
+    this.copy(isLazy = true)
+
 object RawTag:
   def apply[M](name: String, attributes: List[Attr[M]], innerHTML: String): RawTag[M] =
-    RawTag(name, attributes, innerHTML, None)
+    RawTag(name, attributes, innerHTML, None, isLazy = false)
