@@ -6,18 +6,18 @@ import cats.effect.kernel.Ref
 import cats.effect.std.Dispatcher
 import cats.syntax.all.*
 import org.scalajs.dom
-import snabbdom.VNode
+import snabbdom.PatchedVNode
 import tyrian.Html
 import tyrian.Location
 
-final case class Renderer(vnode: VNode, state: RendererState):
+final case class Renderer(vnode: PatchedVNode, state: RendererState):
 
   def runningAt(t: Long): Renderer =
     this.copy(state = RendererState.Running(t))
 
 object Renderer:
 
-  def init[F[_]](vnode: VNode)(using F: Async[F]): F[Ref[F, Renderer]] =
+  def init[F[_]](vnode: PatchedVNode)(using F: Async[F]): F[Ref[F, Renderer]] =
     F.ref(
       Renderer(vnode, RendererState.Idle)
     )
