@@ -34,7 +34,9 @@ sealed trait Html[+M] extends Elem[M]:
   /** Clear a key value that was being used to help the virtual-dom understand what has changed. */
   def clearKey: Html[M]
 
-  /** Set this node to apply attribute and property changes later, after the rest of the page has finished updating. */
+  /** Set this node to apply property changes later, after the rest of the page has finished updating. Only use this if
+    * you are experiencing strange behavior where properties such as 'value' are not updated as you would expect.
+    */
   def setLazy: Html[M]
 
   override def toString(): String = this.render
