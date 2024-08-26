@@ -11,7 +11,11 @@ import scala.scalajs.js
 
 object Rendering:
 
-  private def buildNodeData[Msg](attrs: List[Attr[Msg]], onMsg: Msg => Unit, key: Option[String]): VNodeData =
+  private def buildNodeData[Msg](
+      attrs: List[Attr[Msg]],
+      onMsg: Msg => Unit,
+      key: Option[String]
+  ): VNodeData =
     val as: List[(String, String)] =
       attrs.collect {
         case Attribute(n, v)   => (n, v)
@@ -39,7 +43,7 @@ object Rendering:
 
     VNodeData.empty.copy(
       props = props.toMap,
-      attrs = as.toMap,
+      attrs = as.map((k, v) => k -> AttrValue(v)).toMap,
       on = events.toMap,
       key = key
     )
@@ -97,17 +101,17 @@ object Rendering:
         val data = buildNodeData(attrs, onMsg, key)
         val elm  = dom.document.createElement(name)
         elm.innerHTML = html
-        val vNode = snabbdom.toVNode(elm)
-        vNode.data = data
-        vNode
+        snabbdom.toVNode(elm) match
+          case e: snabbdom.PatchedVNode.Element => e.copy(data = data).toVNode
+          case other                            => other.toVNode
 
       // Intercept a tags with an href and no onClick attribute to stop the
       // browser following links by default.
       case Tag("a", attrs, children, key) if interceptHref(attrs) =>
         val data = buildNodeData(attrs, onMsg, key)
-        val childrenElem: Array[VNode] =
-          children.toArray.map {
-            case _: Empty.type      => VNode.empty()
+        val childrenElem: List[VNode] =
+          children.map {
+            case _: Empty.type      => VNode.empty
             case t: Text            => VNode.text(t.value)
             case subHtml: Html[Msg] => toVNode(subHtml, onMsg, router)
           }
@@ -120,9 +124,9 @@ object Rendering:
 
       case Tag(name, attrs, children, key) =>
         val data = buildNodeData(attrs, onMsg, key)
-        val childrenElem: Array[VNode] =
-          children.toArray.map {
-            case _: Empty.type      => VNode.empty()
+        val childrenElem: List[VNode] =
+          children.map {
+            case _: Empty.type      => VNode.empty
             case t: Text            => VNode.text(t.value)
             case subHtml: Html[Msg] => toVNode(subHtml, onMsg, router)
           }
@@ -142,12 +146,12 @@ object Rendering:
     )
 
   def render[Model, Msg](
-      oldNode: Element | VNode,
+      oldNode: Element | PatchedVNode,
       model: Model,
       view: Model => Html[Msg],
       onMsg: Msg => Unit,
       router: Location => Msg
-  ): VNode =
+  ): PatchedVNode =
     oldNode match
-      case em: Element => patch(em, Rendering.toVNode(view(model), onMsg, router))
-      case vn: VNode   => patch(vn, Rendering.toVNode(view(model), onMsg, router))
+      case em: Element      => patch(em, Rendering.toVNode(view(model), onMsg, router))
+      case vn: PatchedVNode => patch(vn, Rendering.toVNode(view(model), onMsg, router))
