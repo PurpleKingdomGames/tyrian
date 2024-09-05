@@ -1,7 +1,7 @@
 package tyrian.cmds
 
 import cats.effect.kernel.Async
-import cats.syntax.bifunctor._
+import cats.syntax.bifunctor.*
 import org.scalajs.dom
 import tyrian.Cmd
 

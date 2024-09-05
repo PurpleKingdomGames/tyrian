@@ -1,6 +1,6 @@
 package tyrian.http
 
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 /** Describes an HTTP request.
   * @param method

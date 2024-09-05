@@ -2,9 +2,9 @@ package example
 
 import cats.effect.IO
 import org.scalajs.dom
+import tyrian.*
 import tyrian.Html.*
 import tyrian.SVG.*
-import tyrian.*
 import tyrian.cmds.Dom
 import tyrian.cmds.File
 import tyrian.cmds.FileReader

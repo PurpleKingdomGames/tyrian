@@ -1,7 +1,7 @@
 package example
 
-import tyrian.Html.*
 import tyrian.*
+import tyrian.Html.*
 import tyrian.cmds.Logger
 import tyrian.cmds.Random
 import zio.*
