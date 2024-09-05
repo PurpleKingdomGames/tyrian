@@ -11,23 +11,23 @@ extension [Msg](elem: Elem[Msg])
     elem match
       case _: Empty.type => ""
       case t: Text       => t.value
-      case h: Html[_]    => h.render
+      case h: Html[?]    => h.render
 
 extension [Msg](html: Html[Msg])
   def render: String =
     html match
-      case tag: RawTag[_] =>
+      case tag: RawTag[?] =>
         val attributes =
           spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
         s"""<${tag.name}$attributes>${tag.innerHTML}</${tag.name}>"""
-      case tag: Tag[_] =>
+      case tag: Tag[?] =>
         val attributes =
           spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
 
         val children = tag.children.map {
           case _: Empty.type => ""
           case t: Text       => t.value
-          case h: Html[_]    => h.render
+          case h: Html[?]    => h.render
         }.mkString
 
         s"""<${tag.name}$attributes>$children</${tag.name}>"""
@@ -35,7 +35,7 @@ extension [Msg](html: Html[Msg])
 extension (a: Attr[?])
   def render: String =
     a match
-      case _: Event[_, _]         => ""
+      case _: Event[?, ?]         => ""
       case a: Attribute           => a.render
       case p: Property            => p.render
       case a: NamedAttribute      => a.name

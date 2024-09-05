@@ -19,7 +19,7 @@ object WebSocketsPage:
       row    <- 0 until game.height
       column <- 0 until game.width
       isLive = game.cells.contains(Point(column, row))
-      color  = if (isLive) "#000000" else "#AAAAAA"
+      color  = if isLive then "#000000" else "#AAAAAA"
     } yield rect(
       width  := cellSize - 1,
       height := cellSize - 1,

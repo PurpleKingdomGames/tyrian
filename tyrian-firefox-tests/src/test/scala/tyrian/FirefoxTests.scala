@@ -10,7 +10,7 @@ class FirefoxTests extends munit.CatsEffectSuite {
 
   private def runCmd[Msg](cmd: Cmd[IO, Msg]): IO[Msg] =
     cmd match
-      case c: Cmd.Run[IO, _, _] =>
+      case c: Cmd.Run[IO, ?, ?] =>
         c.task.map(c.toMsg)
 
       case Cmd.Emit(msg) =>

@@ -11,7 +11,7 @@ object CmdSubUtils:
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   def runCmd[Msg](cmd: Cmd[IO, Msg]): IO[Msg] =
     cmd match
-      case c: Cmd.Run[IO, _, _] =>
+      case c: Cmd.Run[IO, ?, ?] =>
         c.task.map(c.toMsg)
 
       case Cmd.Emit(msg) =>

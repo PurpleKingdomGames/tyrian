@@ -26,7 +26,7 @@ object Logger:
   private val errorString: String => Unit = message => println(formatMessage(ERROR, message))
 
   private val errorOnceString: String => Unit = message =>
-    if (!errorLogs.contains(message)) {
+    if !errorLogs.contains(message) then {
       errorLogs += message
       println(formatMessage(ERROR, message))
     }
@@ -34,7 +34,7 @@ object Logger:
   private val debugString: String => Unit = message => println(formatMessage(DEBUG, message))
 
   private val debugOnceString: String => Unit = message =>
-    if (!debugLogs.contains(message)) {
+    if !debugLogs.contains(message) then {
       debugLogs += message
       println(formatMessage(DEBUG, message))
     }

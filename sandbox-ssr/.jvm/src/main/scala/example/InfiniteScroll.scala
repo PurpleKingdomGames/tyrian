@@ -25,7 +25,7 @@ object InfiniteScroll:
     }
 
   private def row(index: Long, lastRow: Boolean, nextPage: Long): Html[Nothing] =
-    val attrs = if (lastRow) {
+    val attrs = if lastRow then {
       List(hxGet := s"/scroll?page=$nextPage", hxTrigger := "revealed", hxSwap := "afterend", hxTarget := "this")
     } else {
       List()

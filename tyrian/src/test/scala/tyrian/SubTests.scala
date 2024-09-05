@@ -124,7 +124,7 @@ class SubTests extends munit.CatsEffectSuite {
       )
 
     batched.subs match
-      case s1 :: (ss: Sub.Combine[IO, _]) :: Nil =>
+      case s1 :: (ss: Sub.Combine[IO, ?]) :: Nil =>
         IO.both(
           s1.run(callback).map(_ => state == 10).assert,
           IO.both(

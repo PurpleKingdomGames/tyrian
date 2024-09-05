@@ -22,15 +22,15 @@ object CmdHelper:
             case Cmd.None =>
               rec(cmds)
 
-            case c: Cmd.Emit[_] =>
+            case c: Cmd.Emit[?] =>
               acc += Applicative[F].map(c.toTask)(Option.apply)
               rec(cmds)
 
-            case c: Cmd.SideEffect[_, _] =>
+            case c: Cmd.SideEffect[?, ?] =>
               acc += Applicative[F].map(c.toTask)(_ => Option.empty[Msg])
               rec(cmds)
 
-            case c: Cmd.Run[_, _, _] =>
+            case c: Cmd.Run[?, ?, ?] =>
               acc += Applicative[F].map(c.toTask)(Option.apply)
               rec(cmds)
 

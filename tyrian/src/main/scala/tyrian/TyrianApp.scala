@@ -137,7 +137,7 @@ object TyrianApp:
   def onLoad[F[_]: Async](appDirectory: Map[String, TyrianApp[F, ?, ?]]): Unit =
     val documentReady = new Promise((resolve, _reject) => {
       document.addEventListener("DOMContentLoaded", _ => resolve(()))
-      if (document.readyState != DocumentReadyState.loading) {
+      if document.readyState != DocumentReadyState.loading then {
         resolve(())
         ()
       }
