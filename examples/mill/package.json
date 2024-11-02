@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "start": "mill counter.buildSite && parcel index.html --no-cache --dist-dir dist --log-level info",
-    "build": "mill clean counter && mill counter.buildSite && parcel build index.html --dist-dir dist --log-level info"
-  },
-  "devDependencies": {
-    "parcel": "^2.1.0"
-  }
-}
