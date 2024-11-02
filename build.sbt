@@ -16,9 +16,6 @@ ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion      = TyrianVersion.getVersion
 lazy val scala3Version      = "3.5.0"
-lazy val tyrianDocsVersion  = "0.11.0"
-lazy val scalaJsDocsVersion = "1.17.0"
-lazy val scalaDocsVersion   = "3.5.0"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
   version      := tyrianVersion,
@@ -110,12 +107,6 @@ lazy val tyrianProject =
       neverPublish,
       commonSettings,
       name := "Tyrian",
-      code := codeTaskDefinition,
-      copyApiDocs := copyApiDocsTaskDefinition(
-        scala3Version,
-        (unidocs / Compile / target).value,
-        (Compile / target).value
-      ),
       usefulTasks := customTasksAliases,
       logoSettings(version)
     )
@@ -129,7 +120,6 @@ lazy val tyrianProject =
       sandboxZIO.js,
       firefoxTests.js,
       chromeTests.js,
-      docs,
       tyrianHtmx.js,
       tyrianHtmx.jvm,
       sandboxSSR.jvm
@@ -255,66 +245,6 @@ lazy val sandboxSSR =
       run / fork := true
     )
 
-lazy val unidocs =
-  project
-    .enablePlugins(ScalaJSPlugin, ScalaUnidocPlugin)
-    .settings(
-      name := "Tyrian",
-      neverPublish,
-      ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(
-        sandboxZIO.js,
-        sandbox.js,
-        docs,
-        firefoxTests.js,
-        chromeTests.js
-      )
-    )
-
-lazy val jsdocs =
-  project
-    .settings(
-      neverPublish,
-      organization := "io.indigoengine",
-      libraryDependencies ++= Seq(
-        "org.scala-js"    %%% "scalajs-dom"  % Dependencies.scalajsDomVersion,
-        "io.circe"        %%% "circe-core"   % Dependencies.circe,
-        "io.circe"        %%% "circe-parser" % Dependencies.circe,
-        "io.indigoengine" %%% "tyrian-io"    % tyrianDocsVersion,
-        "org.http4s"      %%% "http4s-dom"   % Dependencies.http4sDom,
-        "org.http4s"      %%% "http4s-circe" % Dependencies.http4sCirce,
-        "org.typelevel"   %%% "cats-effect"  % Dependencies.catsEffect
-      ),
-      Compile / tpolecatExcludeOptions ++= Set(
-        ScalacOptions.warnValueDiscard,
-        ScalacOptions.warnUnusedImports,
-        ScalacOptions.warnUnusedLocals
-      )
-    )
-    .enablePlugins(ScalaJSPlugin)
-
-lazy val docs =
-  project
-    .in(file("tyrian-docs"))
-    .enablePlugins(MdocPlugin)
-    .settings(
-      neverPublish,
-      organization := "io.indigoengine",
-      mdocJS       := Some(jsdocs),
-      mdocVariables := Map(
-        "VERSION"         -> tyrianDocsVersion,
-        "SCALAJS_VERSION" -> scalaJsDocsVersion,
-        "SCALA_VERSION"   -> scalaDocsVersion
-      ),
-      Compile / tpolecatExcludeOptions ++= Set(
-        ScalacOptions.warnValueDiscard,
-        ScalacOptions.warnUnusedImports,
-        ScalacOptions.warnUnusedLocals
-      )
-    )
-    .settings(
-      run / fork := true
-    )
-
 lazy val firefoxTests =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
@@ -386,17 +316,6 @@ addCommandAlias(
   List(
     "sandboxSSRJVM/run"
   ).mkString("", ";", ";")
-)
-
-addCommandAlias(
-  "gendocs",
-  List(
-    "clean",
-    "compile",        // Make sure we generate sources
-    "unidocs/unidoc", // Docs in ./target/scala-3.x.x/unidoc/
-    "copyApiDocs",    // Copied to ./target/unidocs/site-docs
-    "docs/mdoc"       // Content docs in ./tyrian-docs/target/mdoc
-  ).mkString(";", ";", "")
 )
 
 addCommandAlias(

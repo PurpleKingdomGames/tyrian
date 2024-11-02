@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "build": "parcel build index.html --dist-dir dist --log-level info --public-url ."
-  },
-  "devDependencies": {
-    "parcel": "^2.1.0",
-    "process": "^0.11.10"
-  }
-}
