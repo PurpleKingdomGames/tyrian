@@ -2,23 +2,19 @@ package example
 
 import cats.effect.IO
 import org.scalajs.dom
+import org.scalajs.dom.document
 import tyrian.*
 import tyrian.Html.*
 import tyrian.SVG.*
-import tyrian.cmds.Dom
-import tyrian.cmds.File
-import tyrian.cmds.FileReader
-import tyrian.cmds.LocalStorage
-import tyrian.cmds.Logger
+import tyrian.cmds.*
 import tyrian.http.*
 import tyrian.syntax.*
 import tyrian.websocket.*
 
 import scala.concurrent.duration.*
+import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 import scala.util.Random
-
-import scalajs.js
 
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianIOApp[Msg, Model]:
@@ -379,6 +375,23 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
     case Msg.FileTextRead(data) =>
       (model.copy(loadedText = Option(data)), Cmd.None)
 
+    case Msg.LoadImage =>
+      val cmd: Cmd[IO, Msg] = ImageLoader.load(model.imageLoadingUrl)(Msg.ImageLoaded(_))
+
+      (model, cmd)
+
+    case Msg.ImageLoaded(ImageLoader.Result.ImageLoadError(message, _)) =>
+      (model.copy(imageLoadingError = Some(message)), Cmd.None)
+    case Msg.ImageLoaded(ImageLoader.Result.Image(img)) =>
+      (
+        model.copy(imageLoadingError = None),
+        Cmd.SideEffect {
+          document.getElementById("loaded_images").append(img)
+        }
+      )
+    case Msg.UpdateImageUrl(url) =>
+      (model.copy(imageLoadingUrl = url), Cmd.None)
+
   def view(model: Model): Html[Msg] =
     val navItems =
       Page.values.toList.map { pg =>
@@ -644,7 +657,13 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
                 model.loadedBytes
                   .map(data => p(s"Read ${data.length} bytes in an IArray"))
                   .toList
-            )
+            ),
+            div()(
+              input(placeholder := "Image url", onInput(Msg.UpdateImageUrl(_)), value := model.imageLoadingUrl),
+              text(model.imageLoadingError.getOrElse(""))
+            ),
+            button(onClick(Msg.LoadImage))("Load an image from the internet"),
+            div(id := "loaded_images")()
           )
 
     div(
@@ -758,6 +777,9 @@ enum Msg:
   case SelectBytesFile
   case ReadBytesFile(file: dom.File)
   case FileBytesRead(fileData: IArray[Byte])
+  case LoadImage
+  case UpdateImageUrl(url: String)
+  case ImageLoaded(result: ImageLoader.Result)
   case NoOp
 
 enum Status:
@@ -809,7 +831,9 @@ final case class Model(
     fruitInput: String,
     loadedImage: Option[String],
     loadedText: Option[String],
-    loadedBytes: Option[IArray[Byte]]
+    loadedBytes: Option[IArray[Byte]],
+    imageLoadingUrl: String,
+    imageLoadingError: Option[String]
 )
 
 final case class Fruit(name: String, available: Boolean)
@@ -865,6 +889,8 @@ object Model:
       "",
       None,
       None,
+      None,
+      "https://openmoji.org/php/download_asset.php?type=emoji&emoji_hexcode=1F9A6&emoji_variant=color",
       None
     )
 

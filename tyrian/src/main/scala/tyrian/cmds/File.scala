@@ -7,8 +7,6 @@ import org.scalajs.dom.document
 import org.scalajs.dom.html
 import tyrian.Cmd
 
-import scala.concurrent.Promise
-
 object File:
 
   def select[F[_]: Async, Msg](fileTypes: List[String])(
@@ -34,25 +32,27 @@ object File:
   private def selectFiles[F[_]: Async, Msg](fileTypes: List[String], multiple: Boolean)(
       resultToMessage: List[dom.File] => Msg
   ): Cmd[F, Msg] =
-    val task = Async[F].delay {
-      val input = document.createElement("input").asInstanceOf[html.Input];
-      val p     = Promise[List[dom.File]]()
-      input.setAttribute("type", "file")
-      input.setAttribute("accept", fileTypes.mkString(","))
+    val task = Async[F].async[List[dom.File]] { callback =>
+      Async[F].delay {
+        val input = document.createElement("input").asInstanceOf[html.Input]
+        input.setAttribute("type", "file")
+        input.setAttribute("accept", fileTypes.mkString(","))
 
-      if multiple then input.setAttribute("multiple", "multiple")
+        if multiple then input.setAttribute("multiple", "multiple")
 
-      input.addEventListener(
-        "change",
-        (e: Event) =>
-          e.target match {
-            case elem: html.Input => if elem.files.length > 0 then p.success(elem.files.toList) else ()
-            case _                => ()
-          }
-      )
+        input.addEventListener(
+          "change",
+          (e: Event) =>
+            e.target match {
+              case elem: html.Input => if elem.files.length > 0 then callback(Right(elem.files.toList)) else ()
+              case _                => ()
+            }
+        )
 
-      input.click();
-      p.future
+        input.click()
+
+        None
+      }
     }
 
-    Cmd.Run(Async[F].fromFuture(task), resultToMessage)
+    Cmd.Run(task, resultToMessage)

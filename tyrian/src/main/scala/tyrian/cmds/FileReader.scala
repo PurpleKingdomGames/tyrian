@@ -8,8 +8,6 @@ import org.scalajs.dom.document
 import org.scalajs.dom.html
 import tyrian.Cmd
 
-import scala.concurrent.Future
-import scala.concurrent.Promise
 import scala.scalajs.js
 import scala.scalajs.js.typedarray
 
@@ -69,40 +67,43 @@ object FileReader:
   private def readFile[F[_]: Async, Msg](maybeGetFile: F[Option[dom.File]], readAsType: ReadType)(
       resultToMessage: Result[js.Any] => Msg
   ): Cmd[F, Msg] =
-    val task = maybeGetFile.flatMap {
-      case None => Future.successful(Result.NoFile("No files on specified input")).pure[F]
+    val task: F[Result[js.Any]] = maybeGetFile.flatMap {
+      case None => Result.NoFile("No files on specified input").pure[F]
       case Some(file) =>
-        Async[F].delay {
-          val p          = Promise[Result[js.Any]]()
-          val fileReader = new dom.FileReader()
-          fileReader.addEventListener(
-            "load",
-            (e: Event) =>
-              p.success(
-                Result.File(
-                  name = file.name,
-                  path = readAsType match
-                    case ReadType.AsDataUrl => e.target.asInstanceOf[js.Dynamic].result.asInstanceOf[String]
-                    case _                  => ""
-                  ,
-                  data = fileReader.result
-                )
-              ),
-            false
-          )
-          fileReader.onerror = _ => p.success(Result.Error(s"Error reading from file"))
+        Async[F].async { callback =>
+          Async[F].delay {
+            val fileReader = new dom.FileReader()
+            fileReader.addEventListener(
+              "load",
+              (e: Event) =>
+                callback(
+                  Right(
+                    Result.File(
+                      name = file.name,
+                      path = readAsType match
+                        case ReadType.AsDataUrl => e.target.asInstanceOf[js.Dynamic].result.asInstanceOf[String]
+                        case _                  => ""
+                      ,
+                      data = fileReader.result
+                    )
+                  )
+                ),
+              false
+            )
+            fileReader.onerror = _ => callback(Right(Result.Error(s"Error reading from file")))
 
-          readAsType match
-            case ReadType.AsText => fileReader.readAsText(file)
-            case ReadType.AsArrayBuffer =>
-              fileReader.readAsArrayBuffer(file)
-            case ReadType.AsDataUrl => fileReader.readAsDataURL(file)
+            readAsType match
+              case ReadType.AsText => fileReader.readAsText(file)
+              case ReadType.AsArrayBuffer =>
+                fileReader.readAsArrayBuffer(file)
+              case ReadType.AsDataUrl => fileReader.readAsDataURL(file)
 
-          p.future
+            None
+          }
         }
     }
 
-    Cmd.Run(Async[F].fromFuture(task), resultToMessage)
+    Cmd.Run(task, resultToMessage)
 
   private enum ReadType derives CanEqual:
     case AsText
