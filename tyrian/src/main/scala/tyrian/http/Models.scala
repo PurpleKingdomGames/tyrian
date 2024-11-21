@@ -43,7 +43,7 @@ enum Body derives CanEqual:
     *   the content of the body
     */
   case PlainText(contentType: String, body: String) extends Body
-  case File(contentType: String, body: BodyInit) extends Body
+  case File(contentType: String, body: BodyInit)    extends Body
 
 object Body:
   def html(body: String): Body      = Body.PlainText("text/html", body)
