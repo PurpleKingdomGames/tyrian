@@ -15,8 +15,6 @@ object ImageLoader:
     val task: F[Result] =
       Async[F].async { callback =>
         Async[F].delay {
-          println("Used ImageLoader!")
-
           val image: html.Image = document.createElement("img").asInstanceOf[html.Image]
           image.src = path
           image.onload = { (_: Event) =>
