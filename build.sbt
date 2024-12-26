@@ -14,10 +14,10 @@ ThisBuild / versionScheme := Some("early-semver")
 
 ThisBuild / scalaVersion := scala3Version
 
-lazy val tyrianVersion      = TyrianVersion.getVersion
-lazy val scala3Version      = "3.5.0"
+lazy val tyrianVersion = TyrianVersion.getVersion
+lazy val scala3Version = "3.6.2"
 
-lazy val commonSettings: Seq[sbt.Def.Setting[_]] = Seq(
+lazy val commonSettings: Seq[sbt.Def.Setting[?]] = Seq(
   version      := tyrianVersion,
   organization := "io.indigoengine",
   libraryDependencies ++= Seq(
@@ -45,12 +45,12 @@ lazy val commonScalacOptions = Def.setting {
   }
 }
 
-lazy val commonJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+lazy val commonJsSettings: Seq[sbt.Def.Setting[?]] = Seq(
   Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
   scalacOptions ++= commonScalacOptions.value
 )
 
-lazy val commonBrowserTestJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+lazy val commonBrowserTestJsSettings: Seq[sbt.Def.Setting[?]] = Seq(
   scalacOptions ++= commonScalacOptions.value,
   libraryDependencies ++= Seq(
     "org.scala-js"  %%% "scalajs-dom"  % Dependencies.scalajsDomVersion,
@@ -60,7 +60,7 @@ lazy val commonBrowserTestJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   )
 )
 
-lazy val firefoxJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+lazy val firefoxJsSettings: Seq[sbt.Def.Setting[?]] = Seq(
   jsEnv := {
     val options = new FirefoxOptions()
     options.setHeadless(true)
@@ -68,7 +68,7 @@ lazy val firefoxJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
   }
 )
 
-lazy val chromeJsSettings: Seq[sbt.Def.Setting[_]] = Seq(
+lazy val chromeJsSettings: Seq[sbt.Def.Setting[?]] = Seq(
   jsEnv := {
     val options = new ChromeOptions()
     options.setHeadless(true)
@@ -106,7 +106,7 @@ lazy val tyrianProject =
     .settings(
       neverPublish,
       commonSettings,
-      name := "Tyrian",
+      name        := "Tyrian",
       usefulTasks := customTasksAliases,
       logoSettings(version)
     )

@@ -65,7 +65,7 @@ object TyrianRuntime:
           }
 
           _ <- runCmd(cmdsAndSubs._1) *> runSub(cmdsAndSubs._2)
-          _ <- Renderer.redraw(dispatcher, renderer, model, view, onMsg, router)
+          _ <- Renderer.redraw(dispatcher, renderer, model, view, onMsg, router)(using F, clock)
         } yield ()
       }.foreverM
 
