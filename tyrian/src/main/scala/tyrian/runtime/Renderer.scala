@@ -41,7 +41,7 @@ object Renderer:
             r.runningAt(time.toMillis) ->
               F.delay(
                 dom.window.requestAnimationFrame(_ =>
-                  render(dispatcher, renderer, model, view, onMsg, router)(time.toMillis)
+                  render(dispatcher, renderer, model, view, onMsg, router, clock)(time.toMillis)
                 )
               ).void
 
@@ -57,8 +57,9 @@ object Renderer:
       model: Ref[F, Model],
       view: Model => Html[Msg],
       onMsg: Msg => Unit,
-      router: Location => Msg
-  )(t: Long)(using F: Async[F], clock: Clock[F]): Unit =
+      router: Location => Msg,
+      clock: Clock[F]
+  )(t: Long)(using F: Async[F]): Unit =
     dispatcher.unsafeRunAndForget {
       for {
         time <- clock.realTime.map(_.toMillis)
@@ -81,7 +82,7 @@ object Renderer:
                   F.delay(
                     // Loop
                     dom.window.requestAnimationFrame(_ =>
-                      render(dispatcher, renderer, model, view, onMsg, router)(time)
+                      render(dispatcher, renderer, model, view, onMsg, router, clock)(time)
                     )
                   ).void
         }.flatten

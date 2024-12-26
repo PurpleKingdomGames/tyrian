@@ -2,7 +2,6 @@ package example
 
 import cats.Applicative
 import cats.implicits.*
-import tyrian.Attribute
 import tyrian.Html
 import tyrian.Html.*
 import tyrian.htmx.Html.*
