@@ -84,4 +84,30 @@ class HtmlTests extends munit.FunSuite {
 
   }
 
+  test("literal values : text, number implicit conversion") {
+    import tyrian.syntax.given
+
+    trait Msg
+
+    val example1: Html[Msg] = div[Msg](cls := "container")(
+      "text abc ",
+      "Total  are: ",
+      28,
+      div(cls := "inner")(99.99)
+    )
+
+    val example2 = button(
+      tpe := "button",
+      cls := "inline-flex items-center p"
+    )(
+      "Messages",
+      span(
+        cls := "inline-flex items-center"
+      )(2)
+    )
+
+    println(example1.render)
+    println(example2.render)
+  }
+
 }
