@@ -16,7 +16,6 @@ object Misc {
     UsefulTask("sandboxZIOBuild", "Build the zio sandbox project"),
     UsefulTask("sandboxSSRBuild", "Build the sandbox SSR project"),
     UsefulTask("sandboxSSRServer", "Run the sandbox SSR server"),
-    UsefulTask("code", "Launch VSCode"),
     UsefulTask("scalafmtCheckAll", "")
   )
 
