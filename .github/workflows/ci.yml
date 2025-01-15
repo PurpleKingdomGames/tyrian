@@ -9,5 +9,6 @@ jobs:
     - uses: coursier/setup-action@v1
       with:
         java-version: adopt@1.11
+    - uses: sbt/setup-sbt@v1
     - name: Tyrian Compile & Test
       run: sbt clean compile scalafmtCheckAll test

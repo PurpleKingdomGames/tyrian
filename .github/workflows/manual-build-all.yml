@@ -11,6 +11,7 @@ jobs:
     - uses: jodersky/setup-mill@master
       with:
         mill-version: 0.10.10
+    - uses: sbt/setup-sbt@v1
     - name: Tyrian Compile & Test
       run: sbt compile scalafmtCheckAll test +publishLocal gendocs
     - name: Build SBT Examples
