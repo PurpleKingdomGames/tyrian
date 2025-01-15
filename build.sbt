@@ -96,7 +96,9 @@ lazy val publishSettings = {
         email = "indigo@purplekingdomgames.com",
         url = url("https://github.com/davesmith00000")
       )
-    )
+    ),
+    sonatypeCredentialHost := "oss.sonatype.org",
+    sonatypeRepository := "https://oss.sonatype.org/service/local"
   )
 }
 
