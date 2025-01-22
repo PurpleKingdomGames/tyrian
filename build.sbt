@@ -15,7 +15,7 @@ ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.6.2"
+lazy val scala3Version = "3.6.3"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[?]] = Seq(
   version      := tyrianVersion,
@@ -98,7 +98,7 @@ lazy val publishSettings = {
       )
     ),
     sonatypeCredentialHost := "oss.sonatype.org",
-    sonatypeRepository := "https://oss.sonatype.org/service/local"
+    sonatypeRepository     := "https://oss.sonatype.org/service/local"
   )
 }
 
