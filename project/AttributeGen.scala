@@ -1,5 +1,5 @@
-import sbt._
-import scala.sys.process._
+import sbt.*
+import scala.sys.process.*
 
 object AttributeGen {
 
@@ -44,7 +44,7 @@ object AttributeGen {
   def genEventEmitting(attrName: String, realName: Option[String], eventType: Option[String]): String = {
     val attr = realName.getOrElse {
       val n = attrName.toLowerCase
-      if (n.startsWith("on")) n.substring(2)
+      if n.startsWith("on") then n.substring(2)
       else n
     }
     eventType match {
@@ -78,7 +78,7 @@ object AttributeGen {
       val file: File =
         sourceManagedDir / s"$name.scala"
 
-      if (!file.exists()) {
+      if !file.exists() then {
         println("Generating Html Attributes")
 
         val contents: String =

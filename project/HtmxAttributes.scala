@@ -1,5 +1,5 @@
-import sbt._
-import scala.sys.process._
+import sbt.*
+import scala.sys.process.*
 
 object HtmxAttributes {
   lazy val htmxAttrs = List(
@@ -94,7 +94,7 @@ object HtmxAttributes {
         val file: File =
           sourceManagedDir / s"$name.scala"
 
-        if (!file.exists()) {
+        if !file.exists() then {
           println("Generating Html Attributes")
 
           val contents: String =

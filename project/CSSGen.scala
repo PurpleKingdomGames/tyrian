@@ -1,11 +1,11 @@
-import sbt._
-import scala.sys.process._
+import sbt.*
+import scala.sys.process.*
 
 object CSSGen {
 
   def genCssProp(name: String): String = {
     val cssProp = s"""  def `$name`(value: String): Style = Style("$name", value)"""
-    if (!name.contains("-") || name.contains("@")) {
+    if !name.contains("-") || name.contains("@") then {
       cssProp
     } else {
       val nameCC: String = name.split("-").toList match {
@@ -37,7 +37,7 @@ object CSSGen {
     val file: File =
       sourceManagedDir / (moduleName + ".scala")
 
-    if (!file.exists()) {
+    if !file.exists() then {
       println("Generating CSS Properties")
 
       val contents: String =

@@ -1,5 +1,5 @@
-import sbt._
-import scala.sys.process._
+import sbt.*
+import scala.sys.process.*
 
 object TagGen {
 
@@ -74,7 +74,7 @@ object TagGen {
       val file: File =
         sourceManagedDir / s"$name.scala"
 
-      if (!file.exists()) {
+      if !file.exists() then {
         println("Generating Html Tags")
 
         val contents: String =

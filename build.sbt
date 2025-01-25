@@ -98,7 +98,7 @@ lazy val publishSettings = {
       )
     ),
     sonatypeCredentialHost := "oss.sonatype.org",
-    sonatypeRepository := "https://oss.sonatype.org/service/local"
+    sonatypeRepository     := "https://oss.sonatype.org/service/local"
   )
 }
 

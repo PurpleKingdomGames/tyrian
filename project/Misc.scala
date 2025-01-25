@@ -1,8 +1,8 @@
-import sbt.{Def, _}
+import sbt.{Def, *}
 import sbtwelcome.UsefulTask
-import sbtwelcome.WelcomePlugin.autoImport._
+import sbtwelcome.WelcomePlugin.autoImport.*
 
-import scala.sys.process._
+import scala.sys.process.*
 
 object Misc {
 
