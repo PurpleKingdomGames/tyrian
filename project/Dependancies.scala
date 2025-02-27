@@ -7,7 +7,7 @@ object Dependencies {
   val munitCatsEffect3  = "2.0.0"
   val disciplineMUnit   = "2.0.0"
   val scalajsSnabbdom   = "0.2.0-M3"
-  val zio               = "2.1.14"
+  val zio               = "2.1.16"
   val zioInteropCats    = "23.1.0.3"
   val scalaJavaTime     = "2.6.0"
   val catsLaws          = "2.13.0"
