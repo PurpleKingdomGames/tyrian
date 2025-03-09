@@ -15,7 +15,7 @@ ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.6.3"
+lazy val scala3Version = "3.6.4"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[?]] = Seq(
   version      := tyrianVersion,
