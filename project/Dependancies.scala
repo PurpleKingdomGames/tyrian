@@ -1,14 +1,14 @@
 object Dependencies {
 
-  val catsEffect        = "3.5.7"
+  val catsEffect        = "3.6.1"
   val circe             = "0.14.13"
-  val fs2               = "3.11.0"
+  val fs2               = "3.12.0"
   val scalajsDomVersion = "2.8.0"
-  val munitCatsEffect3  = "2.0.0"
+  val munitCatsEffect3  = "2.1.0"
   val disciplineMUnit   = "2.0.0"
   val scalajsSnabbdom   = "0.2.0-M3"
   val zio               = "2.1.16"
-  val zioInteropCats    = "23.1.0.3"
+  val zioInteropCats    = "23.1.0.5"
   val scalaJavaTime     = "2.6.0"
   val catsLaws          = "2.13.0"
   val http4sCirce       = "0.23.30"
