@@ -7,7 +7,7 @@ import org.scalajs.jsenv.selenium.SeleniumJSEnv
 import org.typelevel.scalacoptions.ScalacOptions
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
-Global / semanticdbEnabled := true
+Global / semanticdbEnabled    := true
 
 Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots"
 
@@ -119,8 +119,10 @@ lazy val tyrianProject =
       tyrian.js,
       tyrianIO.js,
       tyrianZIO.js,
+      tyrianUI.js,
       sandbox.js,
       sandboxZIO.js,
+      sandboxUI.js,
       firefoxTests.js,
       chromeTests.js,
       tyrianHtmx.js,
@@ -201,6 +203,24 @@ lazy val tyrianZIO =
     )
     .dependsOn(tyrian)
 
+lazy val tyrianUI =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("tyrian-ui"))
+    .settings(
+      name := "tyrian-ui",
+      commonSettings ++ publishSettings
+    )
+    .jsSettings(
+      commonJsSettings,
+      libraryDependencies ++= Seq(
+        "org.scala-js"  %%% "scalajs-dom" % Dependencies.scalajsDomVersion,
+        "org.typelevel" %%% "cats-effect" % Dependencies.catsEffect
+      )
+    )
+    .dependsOn(tyrian)
+
 lazy val sandbox =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
@@ -228,6 +248,20 @@ lazy val sandboxZIO =
       libraryDependencies ++= Seq(
         "dev.zio" %%% "zio-interop-cats" % Dependencies.zioInteropCats
       ),
+      scalacOptions -= "-language:strictEquality"
+    )
+
+lazy val sandboxUI =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .dependsOn(tyrianIO, tyrianUI)
+    .in(file("sandbox-ui"))
+    .settings(
+      neverPublish,
+      commonSettings,
+      name := "sandbox-ui",
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       scalacOptions -= "-language:strictEquality"
     )
 
@@ -309,6 +343,12 @@ addCommandAlias(
   ).mkString("", ";", ";")
 )
 addCommandAlias(
+  "sandboxUIBuild",
+  List(
+    "sandboxUI/fastLinkJS"
+  ).mkString("", ";", ";")
+)
+addCommandAlias(
   "sandboxSSRBuild",
   List(
     "sandboxSSRJVM/compile"
@@ -330,8 +370,10 @@ addCommandAlias(
     "tyrian/clean",
     "tyrianIO/clean",
     "tyrianZIO/clean",
+    "tyrianUI/clean",
     "sandbox/clean",
     "sandboxZIO/clean",
+    "sandboxUI/clean",
     "firefoxTests/clean",
     "chromeTests/clean"
   ).mkString(";", ";", "")
@@ -345,8 +387,10 @@ addCommandAlias(
     "tyrian/compile",
     "tyrianIO/compile",
     "tyrianZIO/compile",
+    "tyrianUI/compile",
     "sandbox/compile",
-    "sandboxZIO/compile"
+    "sandboxZIO/compile",
+    "sandboxUI/compile"
   ).mkString(";", ";", "")
 )
 
@@ -358,8 +402,10 @@ addCommandAlias(
     "tyrian/test",
     "tyrianIO/test",
     "tyrianZIO/test",
+    "tyrianUI/test",
     "sandbox/test",
     "sandboxZIO/test",
+    "sandboxUI/test",
     "firefoxTests/test",
     "chromeTests/test"
   ).mkString(";", ";", "")
@@ -373,8 +419,10 @@ addCommandAlias(
     "tyrian/test",
     "tyrianIO/test",
     "tyrianZIO/test",
+    "tyrianUI/test",
     "sandbox/test",
-    "sandboxZIO/test"
+    "sandboxZIO/test",
+    "sandboxUI/test"
   ).mkString(";", ";", "")
 )
 
@@ -385,7 +433,8 @@ addCommandAlias(
     "tyrianTagsJVM/test",
     "tyrian/test",
     "tyrianIO/test",
-    "tyrianZIO/test"
+    "tyrianZIO/test",
+    "tyrianUI/test"
   ).mkString(";", ";", "")
 )
 
