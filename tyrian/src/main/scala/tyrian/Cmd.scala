@@ -101,7 +101,7 @@ object Cmd:
     def empty: Cmd[F, Msg]                                   = Cmd.None
     def combine(a: Cmd[F, Msg], b: Cmd[F, Msg]): Cmd[F, Msg] = Cmd.merge(a, b)
 
-  given [F[_]: Applicative, Msg: Eq](using ev: Eq[F[Option[Msg]]]): Eq[Cmd[F, Msg]] with
+  given [F[_]: Applicative, Msg](using ev: Eq[F[Option[Msg]]]): Eq[Cmd[F, Msg]] with
     def eqv(x: Cmd[F, Msg], y: Cmd[F, Msg]): Boolean =
       CmdHelper.cmdToTaskList(x) === CmdHelper.cmdToTaskList(y)
 

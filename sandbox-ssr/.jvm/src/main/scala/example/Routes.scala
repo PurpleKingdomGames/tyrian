@@ -5,7 +5,6 @@ import cats.effect.Ref
 import cats.implicits.*
 import fs2.Pipe
 import fs2.Stream
-import fs2.io.file.Files
 import org.http4s.Header
 import org.http4s.HttpRoutes
 import org.http4s.MediaType
@@ -24,7 +23,7 @@ object ScrollQueryParamMatcher extends QueryParamDecoderMatcher[Long]("page")
 
 object Routes:
 
-  def routes[F[_]: Async: Files](
+  def routes[F[_]: Async](
       db: CorvidDatabase[F],
       gameState: Ref[F, GameOfLife],
       wsb: WebSocketBuilder2[F]

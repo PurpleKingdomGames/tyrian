@@ -32,14 +32,14 @@ object SubHelper:
 
     rec(List(sub), Nil)
 
-  def aliveAndDead[F[_]: Concurrent, Msg](
+  def aliveAndDead[F[_], Msg](
       subs: List[Sub.Observe[F, ?, Msg]],
       current: List[(String, F[Unit])]
   ): (List[(String, F[Unit])], List[F[Unit]]) =
     val (a, d) = current.partition { case (id, _) => subs.exists(_.id == id) }
     (a, d.map(_._2))
 
-  def findNewSubs[F[_]: Concurrent, Msg](
+  def findNewSubs[F[_], Msg](
       subs: List[Sub.Observe[F, ?, Msg]],
       alive: List[String],
       inProgress: List[String]

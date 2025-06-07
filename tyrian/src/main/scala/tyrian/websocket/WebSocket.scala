@@ -28,7 +28,7 @@ final class WebSocket[F[_]: Async](liveSocket: LiveSocket[F]):
     else Sub.emit(f(WebSocketEvent.Error("Connection not ready")))
 
 /** The running instance of the WebSocket */
-final class LiveSocket[F[_]: Async](
+final class LiveSocket[F[_]](
     val socket: dom.WebSocket,
     val subs: Sub[F, WebSocketEvent]
 )
@@ -168,7 +168,7 @@ object WebSocket:
         Sub.every(settings.timeout, "[tyrian-ws-heartbeat]").as(WebSocketEvent.Heartbeat)
       else Sub.None
 
-sealed trait WebSocketConnect[F[_]: Async]
+sealed trait WebSocketConnect[F[_]]
 object WebSocketConnect:
-  final case class Error[F[_]: Async](msg: String)              extends WebSocketConnect[F]
-  final case class Socket[F[_]: Async](webSocket: WebSocket[F]) extends WebSocketConnect[F]
+  final case class Error[F[_]](msg: String)              extends WebSocketConnect[F]
+  final case class Socket[F[_]](webSocket: WebSocket[F]) extends WebSocketConnect[F]

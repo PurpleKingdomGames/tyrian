@@ -13,7 +13,7 @@ class SubLawsTests extends munit.DisciplineSuite {
   given [A: Arbitrary]: Arbitrary[Sub[IO, A]] =
     Arbitrary(Arbitrary.arbitrary[A].map(Sub.emit))
 
-  given [A: Cogen]: Cogen[Sub[IO, A]] =
+  given [A]: Cogen[Sub[IO, A]] =
     Cogen[List[String]].contramap(SubHelper.flatten(_).map(_.id))
 
   checkAll("Eq[Sub]", EqTests[Sub[IO, Int]].eqv)
