@@ -21,12 +21,12 @@ object Style:
   val empty: Style = Style("", "")
 
   def combine(a: Style, b: Style): Style =
-    a.toString + b.toString
+    a.asString + b.asString
 
   def combineAll(styles: List[Style]): Style =
     styles.foldLeft(Style.empty)(combine)
 
   extension (style: Style)
-    def toString: String = style
+    def asString: String = style
     def |+|(other: Style) =
       combine(style, other)

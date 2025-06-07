@@ -8,7 +8,6 @@ import cats.effect.std.Dispatcher
 import cats.effect.std.Queue
 import cats.effect.syntax.all.*
 import cats.syntax.all.*
-import org.scalajs.dom
 import org.scalajs.dom.Element
 import snabbdom.toVNode
 import tyrian.Cmd

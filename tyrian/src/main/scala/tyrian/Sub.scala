@@ -245,7 +245,7 @@ object Sub:
     def empty: Sub[F, Msg]                                   = Sub.None
     def combine(a: Sub[F, Msg], b: Sub[F, Msg]): Sub[F, Msg] = Sub.merge(a, b)
 
-  given [F[_], Msg: Eq]: Eq[Sub[F, Msg]] with
+  given [F[_], Msg]: Eq[Sub[F, Msg]] with
     def eqv(x: Sub[F, Msg], y: Sub[F, Msg]): Boolean = (x, y) match {
       case (Sub.None, Sub.None)                             => true
       case (Sub.Observe(id1, _, _), Sub.Observe(id2, _, _)) => id1 === id2
