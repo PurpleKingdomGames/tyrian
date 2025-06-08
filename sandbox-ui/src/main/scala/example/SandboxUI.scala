@@ -2,7 +2,7 @@ package example
 
 import cats.effect.IO
 import tyrian.*
-import tyrian.Html.*
+import tyrian.ui.*
 
 import scala.scalajs.js.annotation.*
 
@@ -19,8 +19,12 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
     case Msg.NoOp =>
       (model, Cmd.None)
 
+  given Theme = Theme.default
+
   def view(model: Model): Html[Msg] =
-    p("Hello")
+    Button(Msg.NoOp)
+      .withLabel("Click me!")
+      .toHtml
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
