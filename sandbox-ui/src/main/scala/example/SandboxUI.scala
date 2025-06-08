@@ -22,9 +22,12 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
   given Theme = Theme.default
 
   def view(model: Model): Html[Msg] =
-    Button(Msg.NoOp)
-      .withLabel("Click me!")
-      .toHtml
+    tyrian.Html.div()(
+      ui.Text("Hello, Tyrian!").toHtml,
+      Button(Msg.NoOp)
+        .withLabel("Click me!")
+        .toHtml
+    )
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
