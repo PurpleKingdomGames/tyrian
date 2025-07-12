@@ -25,3 +25,13 @@ object syntax:
       Sub.make(id, stream)
 
   extension [M](oa: Option[Elem[M]]) def orEmpty: Elem[M] = oa.getOrElse(tyrian.Empty)
+
+  // TODO: Any of this relevant?
+  // extension [A](values: Option[A])
+  //   // def toBatch: List[A]                          = Batch.fromOption(values)
+  //   def toOutcome[F[_], Msg](error: => Throwable): Outcome[F, A, Msg] = Outcome.fromOption(values, error)
+
+  //   extension [A](b: Batch[Outcome[A]]) def sequence: Outcome[Batch[A]]                 = Outcome.sequenceBatch(b)
+  //   extension [A](b: NonEmptyBatch[Outcome[A]]) def sequence: Outcome[NonEmptyBatch[A]] = Outcome.sequenceNonEmptyBatch(b)
+  //   extension [A](l: List[Outcome[A]]) def sequence: Outcome[List[A]]                   = Outcome.sequenceList(l)
+  //   extension [A](l: NonEmptyList[Outcome[A]]) def sequence: Outcome[NonEmptyList[A]]   = Outcome.sequenceNonEmptyList(l)
