@@ -1,0 +1,3 @@
+package tyrian
+
+trait GlobalMsg
