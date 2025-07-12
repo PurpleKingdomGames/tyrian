@@ -7,7 +7,7 @@ import org.scalajs.jsenv.selenium.SeleniumJSEnv
 import org.typelevel.scalacoptions.ScalacOptions
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
-Global / semanticdbEnabled := true
+Global / semanticdbEnabled    := true
 
 Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots"
 
@@ -120,6 +120,7 @@ lazy val tyrianProject =
       tyrianIO.js,
       tyrianZIO.js,
       sandbox.js,
+      sandboxIORemix.js,
       sandboxZIO.js,
       firefoxTests.js,
       chromeTests.js,
@@ -214,6 +215,20 @@ lazy val sandbox =
       scalacOptions -= "-language:strictEquality"
     )
 
+lazy val sandboxIORemix =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("sandbox-io-remix"))
+    .dependsOn(tyrianIO)
+    .settings(
+      neverPublish,
+      commonSettings,
+      name := "sandbox-io-remix",
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+      scalacOptions -= "-language:strictEquality"
+    )
+
 lazy val sandboxZIO =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
@@ -303,6 +318,12 @@ addCommandAlias(
   ).mkString("", ";", ";")
 )
 addCommandAlias(
+  "sandboxIORemix",
+  List(
+    "sandboxIORemix/fastLinkJS"
+  ).mkString("", ";", ";")
+)
+addCommandAlias(
   "sandboxZIOBuild",
   List(
     "sandboxZIO/fastLinkJS"
@@ -331,6 +352,7 @@ addCommandAlias(
     "tyrianIO/clean",
     "tyrianZIO/clean",
     "sandbox/clean",
+    "sandboxIORemix/clean",
     "sandboxZIO/clean",
     "firefoxTests/clean",
     "chromeTests/clean"
@@ -346,6 +368,7 @@ addCommandAlias(
     "tyrianIO/compile",
     "tyrianZIO/compile",
     "sandbox/compile",
+    "sandboxIORemix/compile",
     "sandboxZIO/compile"
   ).mkString(";", ";", "")
 )
@@ -359,6 +382,7 @@ addCommandAlias(
     "tyrianIO/test",
     "tyrianZIO/test",
     "sandbox/test",
+    "sandboxIORemix/test",
     "sandboxZIO/test",
     "firefoxTests/test",
     "chromeTests/test"
@@ -374,6 +398,7 @@ addCommandAlias(
     "tyrianIO/test",
     "tyrianZIO/test",
     "sandbox/test",
+    "sandboxIORemix/test",
     "sandboxZIO/test"
   ).mkString(";", ";", "")
 )
