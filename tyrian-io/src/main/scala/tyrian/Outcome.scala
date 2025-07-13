@@ -1,6 +1,7 @@
 package tyrian
 
 import cats.effect.IO
+import tyrian.syntax.*
 
 import scala.annotation.tailrec
 import scala.annotation.targetName
@@ -18,36 +19,36 @@ sealed trait Outcome[+A] derives CanEqual:
   def getOrElse[B >: A](b: => B): B
   def orElse[B >: A](b: => Outcome[B]): Outcome[B]
 
-  def unsafeActions: List[Action]
-  def actionsOrNil: List[Action]
+  def unsafeActions: Batch[Action]
+  def actionsOrNil: Batch[Action]
 
   def handleError[B >: A](recoverWith: Throwable => Outcome[B]): Outcome[B]
 
   def logCrash(reporter: PartialFunction[Throwable, String]): Outcome[A]
 
   def addActions(newActions: Action*): Outcome[A]
-  def addActions(newActions: List[Action]): Outcome[A]
+  def addActions(newActions: Batch[Action]): Outcome[A]
   @targetName("Outcome-addActions-fromCmd-repeat")
   def addActions(newCmds: Cmd[IO, GlobalMsg]*): Outcome[A] =
-    addActions(newCmds.map(Action.fromCmd).toList)
+    addActions(newCmds.map(Action.fromCmd).toBatch)
   @targetName("Outcome-addActions-fromCmd-list")
-  def addActions(newCmds: List[Cmd[IO, GlobalMsg]]): Outcome[A] =
+  def addActions(newCmds: Batch[Cmd[IO, GlobalMsg]]): Outcome[A] =
     addActions(newCmds.map(Action.fromCmd))
 
   def addCmds(newCmds: Cmd[IO, GlobalMsg]*): Outcome[A] =
-    addActions(newCmds.toList)
-  def addCmds(newCmds: List[Cmd[IO, GlobalMsg]]): Outcome[A] =
+    addActions(newCmds.toBatch)
+  def addCmds(newCmds: Batch[Cmd[IO, GlobalMsg]]): Outcome[A] =
     addActions(newCmds)
 
-  def createActions(f: A => List[Action]): Outcome[A]
+  def createActions(f: A => Batch[Action]): Outcome[A]
 
   def clearActions: Outcome[A]
 
-  def replaceActions(f: List[Action] => List[Action]): Outcome[A]
+  def replaceActions(f: Batch[Action] => Batch[Action]): Outcome[A]
 
-  def actionsAsOutcome: Outcome[List[Action]]
+  def actionsAsOutcome: Outcome[Batch[Action]]
 
-  def mapAll[B](f: A => B, g: List[Action] => List[Action]): Outcome[B]
+  def mapAll[B](f: A => B, g: Batch[Action] => Batch[Action]): Outcome[B]
 
   def map[B](f: A => B): Outcome[B]
 
@@ -63,7 +64,7 @@ sealed trait Outcome[+A] derives CanEqual:
 
 object Outcome:
 
-  final case class Result[+A](state: A, actions: List[Action]) extends Outcome[A] {
+  final case class Result[+A](state: A, actions: Batch[Action]) extends Outcome[A] {
 
     def isResult: Boolean = true
     def isError: Boolean  = false
@@ -75,9 +76,9 @@ object Outcome:
     def orElse[B >: A](b: => Outcome[B]): Outcome[B] =
       this
 
-    def unsafeActions: List[Action] =
+    def unsafeActions: Batch[Action] =
       actions
-    def actionsOrNil: List[Action] =
+    def actionsOrNil: Batch[Action] =
       actions
 
     def handleError[B >: A](recoverWith: Throwable => Outcome[B]): Outcome[B] =
@@ -87,24 +88,24 @@ object Outcome:
       this
 
     def addActions(newActions: Action*): Outcome[A] =
-      addActions(newActions.toList)
+      addActions(newActions.toBatch)
 
-    def addActions(newActions: List[Action]): Outcome[A] =
+    def addActions(newActions: Batch[Action]): Outcome[A] =
       Outcome(state, actions ++ newActions)
 
-    def createActions(f: A => List[Action]): Outcome[A] =
+    def createActions(f: A => Batch[Action]): Outcome[A] =
       Outcome(state, actions ++ f(state))
 
     def clearActions: Outcome[A] =
       Outcome(state)
 
-    def replaceActions(f: List[Action] => List[Action]): Outcome[A] =
+    def replaceActions(f: Batch[Action] => Batch[Action]): Outcome[A] =
       Outcome(state, f(actions))
 
-    def actionsAsOutcome: Outcome[List[Action]] =
+    def actionsAsOutcome: Outcome[Batch[Action]] =
       Outcome(actions)
 
-    def mapAll[B](f: A => B, g: List[Action] => List[Action]): Outcome[B] =
+    def mapAll[B](f: A => B, g: Batch[Action] => Batch[Action]): Outcome[B] =
       Outcome(f(state), g(actions))
 
     def map[B](f: A => B): Outcome[B] =
@@ -158,10 +159,10 @@ object Outcome:
     def orElse[B >: Nothing](b: => Outcome[B]): Outcome[B] =
       b
 
-    def unsafeActions: List[Action] =
+    def unsafeActions: Batch[Action] =
       throw e
-    def actionsOrNil: List[Action] =
-      List.empty
+    def actionsOrNil: Batch[Action] =
+      Batch.empty
 
     def handleError[B >: Nothing](recoverWith: Throwable => Outcome[B]): Outcome[B] =
       recoverWith(e)
@@ -175,12 +176,12 @@ object Outcome:
       }(e)
 
     def addActions(newActions: Action*): Error                             = this
-    def addActions(newActions: List[Action]): Error                        = this
-    def createActions(f: Nothing => List[Action]): Error                   = this
+    def addActions(newActions: Batch[Action]): Error                        = this
+    def createActions(f: Nothing => Batch[Action]): Error                   = this
     def clearActions: Error                                                = this
-    def replaceActions(f: List[Action] => List[Action]): Error             = this
-    def actionsAsOutcome: Outcome[List[Action]]                            = this
-    def mapAll[B](f: Nothing => B, g: List[Action] => List[Action]): Error = this
+    def replaceActions(f: Batch[Action] => Batch[Action]): Error             = this
+    def actionsAsOutcome: Outcome[Batch[Action]]                            = this
+    def mapAll[B](f: Nothing => B, g: Batch[Action] => Batch[Action]): Error = this
     def map[B](f: Nothing => B): Error                                     = this
     def mapActions(f: Action => Action): Error                             = this
     def ap[B](of: Outcome[Nothing => B]): Outcome[B]                       = this
@@ -195,7 +196,7 @@ object Outcome:
       Error(e, { case (ee: Throwable) => ee.getMessage })
   }
 
-  extension [A](l: List[Outcome[A]]) def sequence: Outcome[List[A]] = Outcome.sequenceList(l)
+  extension [A](l: Batch[Outcome[A]]) def sequence: Outcome[Batch[A]] = Outcome.sequenceBatch(l)
 
   extension [A, B](t: (Outcome[A], Outcome[B]))
     def combine: Outcome[(A, B)] =
@@ -230,20 +231,20 @@ object Outcome:
       merge(f)
 
   def apply[A](state: => A): Outcome[A] =
-    try Outcome.Result[A](state, List.empty)
+    try Outcome.Result[A](state, Batch.empty)
     catch {
       case NonFatal(e) =>
         Outcome.Error(e)
     }
 
-  def apply[A](state: => A, actions: => List[Action]): Outcome[A] =
+  def apply[A](state: => A, actions: => Batch[Action]): Outcome[A] =
     try Outcome.Result[A](state, actions)
     catch {
       case NonFatal(e) =>
         Outcome.Error(e)
     }
 
-  def unapply[A](outcome: Outcome[A]): Option[(A, List[Action])] =
+  def unapply[A](outcome: Outcome[A]): Option[(A, Batch[Action])] =
     outcome match {
       case Outcome.Error(_, _) =>
         None
@@ -260,11 +261,11 @@ object Outcome:
   def raiseError(throwable: Throwable): Outcome.Error =
     Outcome.Error(throwable)
 
-  // def sequenceBatch[A](l: List[Outcome[A]]): Outcome[List[A]] =
+  // def sequenceBatch[A](l: Batch[Outcome[A]]): Outcome[Batch[A]] =
   //   given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
 
   //   @tailrec
-  //   def rec(remaining: List[Outcome[A]], accA: List[A], accActions: List[Action]): Outcome[List[A]] =
+  //   def rec(remaining: Batch[Outcome[A]], accA: Batch[A], accActions: Batch[Action]): Outcome[Batch[A]] =
   //     if remaining.isEmpty then Outcome(accA).addActions(accActions)
   //     else
   //       val h = remaining.head
@@ -272,33 +273,31 @@ object Outcome:
   //       h match
   //         case Error(e, r) => Error(e, r)
   //         case Result(s, es) =>
-  //           rec(t, accA ++ List(s), accActions ++ es)
+  //           rec(t, accA ++ Batch(s), accActions ++ es)
 
-  //   rec(l, List.empty, List.empty)
+  //   rec(l, Batch.empty, Batch.empty)
 
   // def sequenceNonEmptyBatch[A](l: NonEmptyBatch[Outcome[A]]): Outcome[NonEmptyBatch[A]] =
   //   sequence(l.toBatch).map(bb => NonEmptyBatch.fromBatch(bb).get) // Use of get is safe, we know it is non-empty
 
-  def sequenceList[A](l: List[Outcome[A]]): Outcome[List[A]] =
+  def sequenceBatch[A](l: Batch[Outcome[A]]): Outcome[Batch[A]] =
     given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
 
     @tailrec
-    def rec(remaining: List[Outcome[A]], accA: List[A], accActions: List[Action]): Outcome[List[A]] =
-      remaining match {
-        case Nil =>
-          Outcome(accA).addActions(accActions)
+    def rec(remaining: Batch[Outcome[A]], accA: Batch[A], accActions: Batch[Action]): Outcome[Batch[A]] =
+      if remaining.isEmpty then Outcome(accA).addActions(accActions)
+      else
+        val h = remaining.head
+        val t = remaining.tail
+        h match
+          case Error(e, r) => Error(e, r)
+          case Result(s, es) =>
+            rec(t, accA ++ Batch(s), accActions ++ es)
 
-        case Error(e, r) :: _ =>
-          Error(e, r)
+    rec(l, Batch.empty, Batch.empty)
 
-        case Result(s, es) :: xs =>
-          rec(xs, accA ++ List(s), accActions ++ es.toList)
-      }
-
-    rec(l, Nil, Nil)
-
-  // def sequenceNonEmptyList[A](l: NonEmptyList[Outcome[A]]): Outcome[NonEmptyList[A]] =
-  //   sequence(l.toList).map(ll => NonEmptyList.fromList(ll).get) // Use of get is safe, we know it is non-empty
+  // def sequenceNonEmptyBatch[A](l: NonEmptyBatch[Outcome[A]]): Outcome[NonEmptyBatch[A]] =
+  //   sequence(l.toBatch).map(ll => NonEmptyBatch.fromBatch(ll).get) // Use of get is safe, we know it is non-empty
 
   def merge[A, B, C](oa: Outcome[A], ob: Outcome[B])(f: (A, B) => C): Outcome[C] =
     oa.merge(ob)(f)

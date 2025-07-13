@@ -86,8 +86,8 @@ trait TyrianIO[Model]:
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   private def _init(flags: Map[String, String]): (Model, Cmd[IO, GlobalMsg]) =
     init(flags) match
-      case Outcome.Result(state, cmds) =>
-        (state, Action.Batch(cmds).toCmd |+| routeCurrentLocation(router))
+      case Outcome.Result(state, actions) =>
+        (state, Action.Many(actions).toCmd |+| routeCurrentLocation(router))
 
       case e @ Outcome.Error(err, _) =>
         // TODO: Will this do?
@@ -100,8 +100,8 @@ trait TyrianIO[Model]:
   ): GlobalMsg => (Model, Cmd[IO, GlobalMsg]) =
     case msg =>
       update(model)(msg) match
-        case Outcome.Result(state, cmds) =>
-          state -> Action.Batch(cmds).toCmd
+        case Outcome.Result(state, actions) =>
+          state -> Action.Many(actions).toCmd
 
         case e @ Outcome.Error(err, _) =>
           // TODO: Will this do?
