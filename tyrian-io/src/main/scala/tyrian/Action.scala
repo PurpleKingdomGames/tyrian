@@ -35,8 +35,8 @@ object Action:
       case Cmd.Emit(msg)        => Action.Emit(msg)
       case Cmd.Run(task, toMsg) => Action.Run(task, toMsg)
       case Cmd.SideEffect(task) => Action.SideEffect(task)
-      case Cmd.Combine(a, b)    => Action.Combine(fromCmd(a), fromCmd(b))
-      case Cmd.Batch(cmds)      => Action.Batch(cmds.map(fromCmd))
+      case Cmd.Combine(a, b)    => Action.Many(Batch(fromCmd(a), fromCmd(b)))
+      case Cmd.Batch(cmds)      => Action.Many(Batch.fromList(cmds).map(fromCmd))
 
   def emit(msg: GlobalMsg): Action =
     fromCmd(Cmd.Emit(msg))
@@ -99,34 +99,23 @@ object Action:
     def apply(task: IO[GlobalMsg]): Run[GlobalMsg] =
       Run(task, identity)
 
-  /** Merge two commands into a single one */
-  case class Combine(cmd1: Action, cmd2: Action) extends Action:
-    def map(f: GlobalMsg => GlobalMsg): Combine =
-      Combine(cmd1.map(f), cmd2.map(f))
-
-    def toBatch: Action.Batch =
-      Action.Batch(List(cmd1, cmd2))
-
-    def toCmd: Cmd[IO, GlobalMsg] =
-      Cmd.Combine(cmd1.toCmd, cmd2.toCmd)
-
   /** Treat many commands as one */
-  case class Batch(cmds: List[Action]) extends Action:
-    def map(f: GlobalMsg => GlobalMsg): Batch = this.copy(cmds = cmds.map(_.map(f)))
-    def ++(other: Batch): Batch               = Batch(cmds ++ other.cmds)
-    def ::(cmd: Action): Batch                = Batch(cmd :: cmds)
-    def +:(cmd: Action): Batch                = Batch(cmd +: cmds)
-    def :+(cmd: Action): Batch                = Batch(cmds :+ cmd)
+  case class Many(cmds: Batch[Action]) extends Action:
+    def map(f: GlobalMsg => GlobalMsg): Many = this.copy(cmds = cmds.map(_.map(f)))
+    def ++(other: Many): Many               = Many(cmds ++ other.cmds)
+    def ::(cmd: Action): Many                = Many(cmd :: cmds)
+    def +:(cmd: Action): Many                = Many(cmd +: cmds)
+    def :+(cmd: Action): Many                = Many(cmds :+ cmd)
 
     def toCmd: Cmd[IO, GlobalMsg] =
-      Cmd.Batch(cmds.map(_.toCmd))
+      Cmd.Batch(cmds.map(_.toCmd).toList)
 
-  object Batch:
-    def apply(cmds: Action*): Batch =
-      Batch(cmds.toList)
+  object Many:
+    def apply(cmds: Action*): Many =
+      Many(Batch.fromSeq(cmds))
 
-  def combineAll[A](list: List[Action]): Action =
-    Monoid[Action].combineAll(list)
+  def combineAll[A](list: Batch[Action]): Action =
+    Monoid[Action].combineAll(list.toJSArray)
 
   // Cats' typeclass instances
 
