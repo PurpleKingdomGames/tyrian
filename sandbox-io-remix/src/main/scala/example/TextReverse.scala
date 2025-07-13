@@ -5,9 +5,12 @@ import tyrian.Html.*
 
 final case class TextReverse(textToReverse: String):
 
-  def update: TextReverseEvent => Outcome[TextReverse] =
+  def update: GlobalMsg => Outcome[TextReverse] =
     case TextReverseEvent.NewContent(value) =>
       Outcome(this.copy(textToReverse = value))
+
+    case _ =>
+      Outcome(this)
 
   def view: Elem[GlobalMsg] =
     div(

@@ -1,6 +1,9 @@
 package tyrian
 
+import cats.effect.IO
+
 import scala.annotation.tailrec
+import scala.annotation.targetName
 import scala.util.control.NonFatal
 
 /** An `Outcome` represents the result of some part of a frame update. It contains a value or an error (exception), and
@@ -23,8 +26,18 @@ sealed trait Outcome[+A] derives CanEqual:
   def logCrash(reporter: PartialFunction[Throwable, String]): Outcome[A]
 
   def addActions(newActions: Action*): Outcome[A]
+  def addActions(newActions: List[Action]): Outcome[A]
+  @targetName("Outcome-addActions-fromCmd-repeat")
+  def addActions(newCmds: Cmd[IO, GlobalMsg]*): Outcome[A] =
+    addActions(newCmds.map(Action.fromCmd).toList)
+  @targetName("Outcome-addActions-fromCmd-list")
+  def addActions(newCmds: List[Cmd[IO, GlobalMsg]]): Outcome[A] =
+    addActions(newCmds.map(Action.fromCmd))
 
-  def addActions(newActions: => List[Action]): Outcome[A]
+  def addCmds(newCmds: Cmd[IO, GlobalMsg]*): Outcome[A] =
+    addActions(newCmds.toList)
+  def addCmds(newCmds: List[Cmd[IO, GlobalMsg]]): Outcome[A] =
+    addActions(newCmds)
 
   def createActions(f: A => List[Action]): Outcome[A]
 
@@ -76,7 +89,7 @@ object Outcome:
     def addActions(newActions: Action*): Outcome[A] =
       addActions(newActions.toList)
 
-    def addActions(newActions: => List[Action]): Outcome[A] =
+    def addActions(newActions: List[Action]): Outcome[A] =
       Outcome(state, actions ++ newActions)
 
     def createActions(f: A => List[Action]): Outcome[A] =
@@ -162,11 +175,11 @@ object Outcome:
       }(e)
 
     def addActions(newActions: Action*): Error                             = this
-    def addActions(newActions: => List[Action]): Error                     = this
+    def addActions(newActions: List[Action]): Error                        = this
     def createActions(f: Nothing => List[Action]): Error                   = this
     def clearActions: Error                                                = this
     def replaceActions(f: List[Action] => List[Action]): Error             = this
-    def actionsAsOutcome: Outcome[List[Action]]                               = this
+    def actionsAsOutcome: Outcome[List[Action]]                            = this
     def mapAll[B](f: Nothing => B, g: List[Action] => List[Action]): Error = this
     def map[B](f: Nothing => B): Error                                     = this
     def mapActions(f: Action => Action): Error                             = this

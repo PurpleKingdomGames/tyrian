@@ -15,13 +15,14 @@ import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
 
+// TODO: I think these should delegate to Sub a lot more, rather than duplicating logic.
+
 /** A subscription describes a resource that an application is interested in.
   *
   * Examples:
   *
   *   - a timeout notifies its subscribers when it expires,
   *   - a video being played notifies its subscribers with subtitles.
-  *
   */
 sealed trait Watch:
 
@@ -41,20 +42,20 @@ sealed trait Watch:
 object Watch:
 
   given CanEqual[Option[?], Option[?]] = CanEqual.derived
-  given CanEqual[Watch, Watch] = CanEqual.derived
+  given CanEqual[Watch, Watch]         = CanEqual.derived
 
   final def merge(a: Watch, b: Watch): Watch =
     (a, b) match {
       case (Watch.None, Watch.None) => Watch.None
-      case (Watch.None, s2)       => s2
-      case (s1, Watch.None)       => s1
-      case (s1, s2)             => Watch.Combine(s1, s2)
-    } 
+      case (Watch.None, s2)         => s2
+      case (s1, Watch.None)         => s1
+      case (s1, s2)                 => Watch.Combine(s1, s2)
+    }
 
   /** The empty subscription represents the absence of subscriptions */
   case object None extends Watch:
     def map(f: GlobalMsg => GlobalMsg): None.type = this
-    
+
     def toSub: Sub[IO, GlobalMsg] =
       Sub.None
 
@@ -84,9 +85,9 @@ object Watch:
         observable,
         toMsg.andThen(_.map(f))
       )
-    
+
     def toSub: Sub[IO, GlobalMsg] =
-      Sub.Observe[IO, A, GlobalMsg](id,observable, toMsg)
+      Sub.Observe[IO, A, GlobalMsg](id, observable, toMsg)
 
   object Observe:
 
@@ -160,8 +161,8 @@ object Watch:
   /** Merge two subscriptions into a single one */
   final case class Combine(sub1: Watch, sub2: Watch) extends Watch:
     def map(f: GlobalMsg => GlobalMsg): Watch = Combine(sub1.map(f), sub2.map(f))
-    def toBatch: Watch.Batch                          = Watch.Batch(List(sub1, sub2))
-    
+    def toBatch: Watch.Batch                  = Watch.Batch(List(sub1, sub2))
+
     def toSub: Sub[IO, GlobalMsg] =
       Sub.Combine(sub1.toSub, sub2.toSub)
 
@@ -169,10 +170,10 @@ object Watch:
   final case class Batch(subs: List[Watch]) extends Watch:
     def map(f: GlobalMsg => GlobalMsg): Batch = this.copy(subs = subs.map(_.map(f)))
     def ++(other: Batch): Batch               = Batch(subs ++ other.subs)
-    def ::(sub: Watch): Batch                  = Batch(sub :: subs)
-    def +:(sub: Watch): Batch                   = Batch(sub +: subs)
-    def :+(sub: Watch): Batch                   = Batch(subs :+ sub)
-    
+    def ::(sub: Watch): Batch                 = Batch(sub :: subs)
+    def +:(sub: Watch): Batch                 = Batch(sub +: subs)
+    def :+(sub: Watch): Batch                 = Batch(subs :+ sub)
+
     def toSub: Sub[IO, GlobalMsg] =
       Sub.Batch(subs.map(_.toSub))
 
@@ -254,8 +255,8 @@ object Watch:
 
   // Cats' typeclass instances
 
-  given  Monoid[Watch] with
-    def empty: Watch                                   = Watch.None
+  given Monoid[Watch] with
+    def empty: Watch                       = Watch.None
     def combine(a: Watch, b: Watch): Watch = Watch.merge(a, b)
 
   given (using subEq: Eq[Sub[IO, GlobalMsg]]): Eq[Watch] with

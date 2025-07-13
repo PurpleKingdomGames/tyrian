@@ -8,6 +8,8 @@ import cats.kernel.Monoid
 import scala.annotation.targetName
 import scala.concurrent.duration.FiniteDuration
 
+// TODO: I think these should delegate to Cmd a lot more, rather than duplicating logic.
+
 /** A command describes some side-effect to perform.
   */
 sealed trait Action:
@@ -112,9 +114,9 @@ object Action:
   case class Batch(cmds: List[Action]) extends Action:
     def map(f: GlobalMsg => GlobalMsg): Batch = this.copy(cmds = cmds.map(_.map(f)))
     def ++(other: Batch): Batch               = Batch(cmds ++ other.cmds)
-    def ::(cmd: Action): Batch                 = Batch(cmd :: cmds)
-    def +:(cmd: Action): Batch                 = Batch(cmd +: cmds)
-    def :+(cmd: Action): Batch                 = Batch(cmds :+ cmd)
+    def ::(cmd: Action): Batch                = Batch(cmd :: cmds)
+    def +:(cmd: Action): Batch                = Batch(cmd +: cmds)
+    def :+(cmd: Action): Batch                = Batch(cmds :+ cmd)
 
     def toCmd: Cmd[IO, GlobalMsg] =
       Cmd.Batch(cmds.map(_.toCmd))
@@ -129,7 +131,7 @@ object Action:
   // Cats' typeclass instances
 
   given Monoid[Action] with
-    def empty: Action                       = Action.None
+    def empty: Action                         = Action.None
     def combine(a: Action, b: Action): Action = a.combine(b)
 
   given (using eq: Eq[Cmd[IO, GlobalMsg]]): Eq[Action] with

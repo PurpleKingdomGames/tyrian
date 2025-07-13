@@ -5,6 +5,9 @@ import tyrian.Html.*
 
 final case class TopNav():
 
+  def update: GlobalMsg => Outcome[TopNav] =
+    case _ => Outcome(this)
+
   def view: Elem[GlobalMsg] =
     div(
       a(href := "/another-page")("Internal link (will be ignored)"),
