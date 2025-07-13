@@ -5,7 +5,7 @@ import tyrian.Html.*
 
 final case class CounterManager(counters: List[Counter]):
 
-  def update: CounterManagerEvent => Outcome[CounterManager] =
+  def update: GlobalMsg => Outcome[CounterManager] =
     case CounterManagerEvent.Modify(index, msg) =>
       val cs = counters.zipWithIndex.map { case (c, i) =>
         if i == index then c.update(msg) else c
@@ -22,6 +22,9 @@ final case class CounterManager(counters: List[Counter]):
 
     case CounterManagerEvent.Remove =>
       Outcome(this.copy(counters = counters.drop(1)))
+
+    case _ =>
+      Outcome(this)
 
   def view: Elem[GlobalMsg] =
     div(
