@@ -19,8 +19,8 @@ object SandboxIORemix extends TyrianIO[Model]:
     case e =>
       model.update(e)
 
-  def view(model: Model): Html[GlobalMsg] =
-    model.view
+  def view(model: Model): HtmlRoot =
+    HtmlRoot.div(model.view)
 
   def watchers(model: Model): Watch =
     Watch.None

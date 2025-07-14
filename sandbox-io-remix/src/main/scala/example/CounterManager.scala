@@ -26,15 +26,18 @@ final case class CounterManager(counters: List[Counter]):
     case _ =>
       Outcome(this)
 
-  def view: Elem[GlobalMsg] =
-    div(
-      List(
-        button(onClick(CounterManagerEvent.Remove))(text("remove")),
-        button(onClick(CounterManagerEvent.Insert))(text("insert"))
-      ) ++
-        counters.zipWithIndex.map { case (c, i) =>
-          c.view.map(msg => CounterManagerEvent.Modify(i, msg))
-        }
+  def view: HtmlFragment =
+    HtmlFragment.Insert(
+      MarkerIds.counters,
+      div(
+        List(
+          button(onClick(CounterManagerEvent.Remove))(text("remove")),
+          button(onClick(CounterManagerEvent.Insert))(text("insert"))
+        ) ++
+          counters.zipWithIndex.map { case (c, i) =>
+            c.view.map(msg => CounterManagerEvent.Modify(i, msg))
+          }
+      )
     )
 
 object CounterManager:

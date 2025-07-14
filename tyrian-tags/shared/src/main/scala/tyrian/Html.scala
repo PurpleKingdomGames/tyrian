@@ -3,7 +3,7 @@ package tyrian
 import scala.annotation.targetName
 
 /** An HTML element can be a tag or a text node */
-sealed trait Elem[+M]:
+sealed trait Elem[+M] derives CanEqual:
   def map[N](f: M => N): Elem[N]
   override def toString(): String = this.render
 
@@ -16,6 +16,26 @@ case object Empty extends Elem[Nothing]:
 final case class Text(value: String) extends Elem[Nothing]:
   def map[N](f: Nothing => N): Text = this
   override def toString(): String   = this.render
+
+/** A marker in the Html for Tyrian to latch onto, that is never seen by the VirtualDom. */
+final case class Marker[+M](id: MarkerId, children: List[Html[M]]) extends Elem[M]:
+  def map[N](f: M => N): Marker[N] =
+    this.copy(
+      children = children.map(_.map(f))
+    )
+object Marker:
+  def apply[M](id: MarkerId): Marker[M] =
+    Marker(id, Nil)
+
+  def apply[M](id: MarkerId, html: Html[M]): Marker[M] =
+    Marker(id, List(html))
+
+opaque type MarkerId = String
+object MarkerId:
+  given CanEqual[MarkerId, MarkerId] = CanEqual.derived
+
+  def apply(id: String): MarkerId             = id
+  extension (mid: MarkerId) def value: String = mid
 
 /** Base class for HTML tags */
 sealed trait Html[+M] extends Elem[M]:
