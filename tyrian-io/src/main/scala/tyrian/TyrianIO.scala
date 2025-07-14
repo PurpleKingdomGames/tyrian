@@ -32,7 +32,7 @@ trait TyrianIO[Model]:
 
   /** Used to render your current model into an HTML view.
     */
-  def view(model: Model): Html[GlobalMsg]
+  def view(model: Model): HtmlRoot
 
   /** Subscriptions are typically processes that run for a period of time and emit discrete events based on some world
     * event, e.g. a mouse moving might emit it's coordinates.
@@ -109,7 +109,7 @@ trait TyrianIO[Model]:
           throw err
 
   private def _view(model: Model): Html[GlobalMsg] =
-    view(model)
+    view(model).toHtml
 
   private def onUrlChange(router: Location => GlobalMsg): Watch =
     def makeMsg = Option(router(Location.fromJsLocation(window.location)))

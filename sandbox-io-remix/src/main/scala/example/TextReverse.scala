@@ -12,10 +12,13 @@ final case class TextReverse(textToReverse: String):
     case _ =>
       Outcome(this)
 
-  def view: Elem[GlobalMsg] =
-    div(
-      input(placeholder := "Text to reverse", onInput(s => TextReverseEvent.NewContent(s)), myStyle),
-      div(myStyle)(text(textToReverse.reverse))
+  def view: HtmlFragment =
+    HtmlFragment.Insert(
+      MarkerIds.textReverse,
+      div(
+        input(placeholder := "Text to reverse", onInput(s => TextReverseEvent.NewContent(s)), myStyle),
+        div(myStyle)(text(textToReverse.reverse))
+      )
     )
 
   private def myStyle =

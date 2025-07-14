@@ -29,12 +29,16 @@ final case class Model(
         counters = cs
       )
 
-  def view: Html[GlobalMsg] =
-    div(
-      topNav.view,
-      textReverse.view,
-      counters.view
-    )
+  def view: HtmlFragment =
+    topNav.view |+|
+      HtmlFragment(
+        div(                                        // TODO: Hmmm.. Marker is Elem not Html..
+          Marker[GlobalMsg](MarkerIds.textReverse), // TODO: Booo [GlobalMsg]
+          Marker[GlobalMsg](MarkerIds.counters)
+        )
+      ) |+|
+      counters.view |+| // Out of order.
+      textReverse.view
 
 object Model:
   val init: Model =
