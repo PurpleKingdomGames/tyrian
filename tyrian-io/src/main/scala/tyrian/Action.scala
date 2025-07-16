@@ -102,7 +102,7 @@ object Action:
   /** Treat many commands as one */
   case class Many(cmds: Batch[Action]) extends Action:
     def map(f: GlobalMsg => GlobalMsg): Many = this.copy(cmds = cmds.map(_.map(f)))
-    def ++(other: Many): Many               = Many(cmds ++ other.cmds)
+    def ++(other: Many): Many                = Many(cmds ++ other.cmds)
     def ::(cmd: Action): Many                = Many(cmd :: cmds)
     def +:(cmd: Action): Many                = Many(cmd +: cmds)
     def :+(cmd: Action): Many                = Many(cmds :+ cmd)

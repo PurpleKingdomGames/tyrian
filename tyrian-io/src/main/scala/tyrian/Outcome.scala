@@ -175,19 +175,19 @@ object Outcome:
         e.getMessage + "\n" + e.getStackTrace.mkString("\n")
       }(e)
 
-    def addActions(newActions: Action*): Error                             = this
-    def addActions(newActions: Batch[Action]): Error                        = this
-    def createActions(f: Nothing => Batch[Action]): Error                   = this
-    def clearActions: Error                                                = this
+    def addActions(newActions: Action*): Error                               = this
+    def addActions(newActions: Batch[Action]): Error                         = this
+    def createActions(f: Nothing => Batch[Action]): Error                    = this
+    def clearActions: Error                                                  = this
     def replaceActions(f: Batch[Action] => Batch[Action]): Error             = this
-    def actionsAsOutcome: Outcome[Batch[Action]]                            = this
+    def actionsAsOutcome: Outcome[Batch[Action]]                             = this
     def mapAll[B](f: Nothing => B, g: Batch[Action] => Batch[Action]): Error = this
-    def map[B](f: Nothing => B): Error                                     = this
-    def mapActions(f: Action => Action): Error                             = this
-    def ap[B](of: Outcome[Nothing => B]): Outcome[B]                       = this
-    def merge[B, C](other: Outcome[B])(f: (Nothing, B) => C): Error        = this
-    def combine[B](other: Outcome[B]): Error                               = this
-    def flatMap[B](f: Nothing => Outcome[B]): Error                        = this
+    def map[B](f: Nothing => B): Error                                       = this
+    def mapActions(f: Action => Action): Error                               = this
+    def ap[B](of: Outcome[Nothing => B]): Outcome[B]                         = this
+    def merge[B, C](other: Outcome[B])(f: (Nothing, B) => C): Error          = this
+    def combine[B](other: Outcome[B]): Error                                 = this
+    def flatMap[B](f: Nothing => Outcome[B]): Error                          = this
 
   }
 
