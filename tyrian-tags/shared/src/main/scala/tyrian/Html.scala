@@ -5,10 +5,10 @@ import scala.annotation.targetName
 /** An HTML element can be an HTML tag, or represent a utlility node within a tag's child list, for example an empty
   * node.
   *
-  * The distiction between an Elem and an Html node is that Html instances can always be resolved to a single html
-  * tag, where-as Elems (as utility nodes) aren't necessariliy renderable as a single node, or at all. As such, they often form part
-  * of a list of child nodes. This is an important detail to the rendering process, which relies on ultimately being
-  * able to make a single virtual node.
+  * The distiction between an Elem and an Html node is that Html instances can always be resolved to a single html tag,
+  * where-as Elems (as utility nodes) aren't necessariliy renderable as a single node, or at all. As such, they often
+  * form part of a list of child nodes. This is an important detail to the rendering process, which relies on ultimately
+  * being able to make a single virtual node.
   */
 sealed trait Elem[+M] derives CanEqual:
   def map[N](f: M => N): Elem[N]
@@ -24,25 +24,9 @@ final case class Text(value: String) extends Elem[Nothing]:
   def map[N](f: Nothing => N): Text = this
   override def toString(): String   = this.render
 
-/** A marker in the Html for Tyrian to latch onto, that is never seen by the VirtualDom. */
-final case class Marker[+M](id: MarkerId, children: List[Html[M]]) extends Elem[M]:
-  def map[N](f: M => N): Marker[N] =
-    this.copy(
-      children = children.map(_.map(f))
-    )
-object Marker:
-  def apply[M](id: MarkerId): Marker[M] =
-    Marker(id, Nil)
-
-  def apply[M](id: MarkerId, html: Html[M]): Marker[M] =
-    Marker(id, List(html))
-
-opaque type MarkerId = String
-object MarkerId:
-  given CanEqual[MarkerId, MarkerId] = CanEqual.derived
-
-  def apply(id: String): MarkerId             = id
-  extension (mid: MarkerId) def value: String = mid
+trait CustomElem[+M] extends Elem[M]:
+  def toElems: List[Elem[M]]
+  def map[N](f: M => N): CustomElem[N]
 
 /** Base class for HTML tags */
 sealed trait Html[+M] extends Elem[M]:
@@ -177,3 +161,6 @@ final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: 
 object RawTag:
   def apply[M](name: String, attributes: List[Attr[M]], innerHTML: String): RawTag[M] =
     RawTag(name, attributes, innerHTML, None)
+
+trait CustomHtml[+M] extends Html[M]:
+  def toHtml: Html[M]

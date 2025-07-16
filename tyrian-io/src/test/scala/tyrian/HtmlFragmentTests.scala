@@ -54,5 +54,6 @@ class HtmlFragmentTests extends munit.FunSuite {
   // addHtml
   // withHtml
   // toHtml
+  // map function. What happens on merge?
 
 }

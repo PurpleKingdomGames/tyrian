@@ -4,6 +4,14 @@ enum HtmlFragment:
   case MarkUp(entries: Batch[Html[GlobalMsg]])
   case Insert(markerId: MarkerId, entries: Batch[Html[GlobalMsg]])
 
+  def map(f: GlobalMsg => GlobalMsg): HtmlFragment =
+    this match
+      case MarkUp(entries) =>
+        MarkUp(entries.map(_.map(f)))
+
+      case hf @ Insert(_, entries) =>
+        hf.copy(entries = entries.map(_.map(f)))
+
   def withMarkerId(mid: MarkerId): HtmlFragment =
     this match
       case MarkUp(entries) => HtmlFragment.Insert(mid, entries)
@@ -63,17 +71,23 @@ object HtmlFragment:
         case t: Text =>
           t
 
-        case m: Marker[GlobalMsg] if m.id == at =>
+        case m: Marker if m.id == at =>
           m.copy(children = m.children ++ entries.toList)
 
-        case m: Marker[GlobalMsg] =>
-          m.copy(children = m.children.map(recHtml))
+        case m: Marker =>
+          m.copy(children = m.children.map(recElem))
 
         case t: Tag[GlobalMsg] =>
           t.copy(children = t.children.map(recElem))
 
         case r: RawTag[GlobalMsg] =>
           r
+
+        case c: CustomElem[GlobalMsg] =>
+          c
+
+        case c: CustomHtml[GlobalMsg] =>
+          c
 
     def recHtml(into: Html[GlobalMsg]): Html[GlobalMsg] =
       into match
@@ -82,6 +96,9 @@ object HtmlFragment:
 
         case r: RawTag[GlobalMsg] =>
           r
+
+        case c: CustomHtml[GlobalMsg] =>
+          c
 
     into.map(recHtml)
 

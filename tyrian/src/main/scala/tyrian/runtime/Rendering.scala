@@ -111,12 +111,7 @@ object Rendering:
       case Tag("a", attrs, children, key) if interceptHref(attrs) =>
         val data = buildNodeData(attrs, onMsg, key)
         val childrenElem: List[VNode] =
-          children.flatMap {
-            case _: Empty.type      => Nil
-            case t: Text            => List(VNode.text(t.value))
-            case subHtml: Html[Msg] => List(toVNode(subHtml, onMsg, router))
-            case Marker(_, cs)      => cs.map(c => toVNode(c, onMsg, router))
-          }
+          children.flatMap(c => elemToVNodes(c, onMsg, router))
 
         h(
           "a",
@@ -127,14 +122,19 @@ object Rendering:
       case Tag(name, attrs, children, key) =>
         val data = buildNodeData(attrs, onMsg, key)
         val childrenElem: List[VNode] =
-          children.flatMap {
-            case _: Empty.type      => Nil
-            case t: Text            => List(VNode.text(t.value))
-            case subHtml: Html[Msg] => List(toVNode(subHtml, onMsg, router))
-            case Marker(_, cs)      => cs.map(c => toVNode(c, onMsg, router))
-          }
+          children.flatMap(c => elemToVNodes(c, onMsg, router))
 
         h(name, data, childrenElem)
+
+      case c: CustomHtml[Msg] =>
+        toVNode(c.toHtml, onMsg, router)
+
+  private def elemToVNodes[Msg](elem: Elem[Msg], onMsg: Msg => Unit, router: Location => Msg): List[VNode] =
+    elem match
+      case _: Empty.type      => Nil
+      case t: Text            => List(VNode.text(t.value))
+      case subHtml: Html[Msg] => List(toVNode(subHtml, onMsg, router))
+      case c: CustomElem[Msg] => c.toElems.flatMap(cc => elemToVNodes(cc, onMsg, router))
 
   private lazy val patch: Patch =
     snabbdom.init(
