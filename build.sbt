@@ -318,7 +318,7 @@ addCommandAlias(
   ).mkString("", ";", ";")
 )
 addCommandAlias(
-  "sandboxIORemix",
+  "sandboxIORemixBuild",
   List(
     "sandboxIORemix/fastLinkJS"
   ).mkString("", ";", ";")
