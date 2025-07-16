@@ -4,8 +4,6 @@ import tyrian.*
 
 import scala.scalajs.js.annotation.*
 
-// TODO: Think about 'out of order' rendering: HtmlFragment?
-
 @JSExportTopLevel("TyrianApp")
 object SandboxIORemix extends TyrianIO[Model]:
 

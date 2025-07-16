@@ -2,7 +2,14 @@ package tyrian
 
 import scala.annotation.targetName
 
-/** An HTML element can be a tag or a text node */
+/** An HTML element can be an HTML tag, or represent a utlility node within a tag's child list, for example an empty
+  * node.
+  *
+  * The distiction between an Elem and an Html node is that Html instances can always be resolved to a single html
+  * tag, where-as Elems (as utility nodes) aren't necessariliy renderable as a single node, or at all. As such, they often form part
+  * of a list of child nodes. This is an important detail to the rendering process, which relies on ultimately being
+  * able to make a single virtual node.
+  */
 sealed trait Elem[+M] derives CanEqual:
   def map[N](f: M => N): Elem[N]
   override def toString(): String = this.render

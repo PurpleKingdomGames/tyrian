@@ -32,7 +32,7 @@ final case class Model(
   def view: HtmlFragment =
     topNav.view |+|
       HtmlFragment(
-        div(                                        // TODO: Hmmm.. Marker is Elem not Html..
+        div(
           Marker[GlobalMsg](MarkerIds.textReverse), // TODO: Booo [GlobalMsg]
           Marker[GlobalMsg](MarkerIds.counters)
         )

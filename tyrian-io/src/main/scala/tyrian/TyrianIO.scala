@@ -90,7 +90,6 @@ trait TyrianIO[Model]:
         (state, Action.Many(actions).toCmd |+| routeCurrentLocation(router))
 
       case e @ Outcome.Error(err, _) =>
-        // TODO: Will this do?
         println(e.reportCrash)
         throw err
 
@@ -104,7 +103,6 @@ trait TyrianIO[Model]:
           state -> Action.Many(actions).toCmd
 
         case e @ Outcome.Error(err, _) =>
-          // TODO: Will this do?
           println(e.reportCrash)
           throw err
 
