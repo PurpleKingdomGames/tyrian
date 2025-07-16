@@ -33,8 +33,8 @@ final case class Model(
     topNav.view |+|
       HtmlFragment(
         div(
-          Marker[GlobalMsg](MarkerIds.textReverse), // TODO: Booo [GlobalMsg]
-          Marker[GlobalMsg](MarkerIds.counters)
+          Marker(MarkerIds.textReverse),
+          Marker(MarkerIds.counters)
         )
       ) |+|
       counters.view |+| // Out of order.
