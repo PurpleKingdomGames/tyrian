@@ -41,7 +41,7 @@ object syntax:
   // extension [A](b: NonEmptyBatch[Option[A]]) def sequence: Option[NonEmptyBatch[A]] = NonEmptyBatch.sequenceOption(b)
   extension [A](l: List[Option[A]]) def sequence: Option[List[A]] = Batch.sequenceListOption(l)
   // extension [A](l: NonEmptyList[Option[A]]) def sequence: Option[NonEmptyList[A]]   = NonEmptyList.sequenceOption(l)
-  
+
   extension [A](values: scalajs.js.Array[A]) def toBatch: Batch[A] = Batch.fromJSArray(values)
   extension [A](values: Array[A]) def toBatch: Batch[A]            = Batch.fromArray(values)
   extension [A](values: List[A]) def toBatch: Batch[A]             = Batch.fromList(values)
