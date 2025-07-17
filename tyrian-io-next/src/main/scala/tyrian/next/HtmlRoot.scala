@@ -25,3 +25,9 @@ object HtmlRoot:
       childNodes => tyrian.Html.div(childNodes.toList),
       fragment
     )
+
+  def span(fragment: HtmlFragment): HtmlRoot =
+    HtmlRoot(
+      childNodes => tyrian.Html.span(childNodes.toList),
+      fragment
+    )
