@@ -110,7 +110,7 @@ object Action:
     def apply(cmds: Action*): Many =
       Many(Batch.fromSeq(cmds))
 
-  def combineAll[A](list: Batch[Action]): Action =
+  def combineAll(list: Batch[Action]): Action =
     Action.fromCmd(
       Cmd.combineAll[IO, GlobalMsg](list.toList.map(_.toCmd))
     )
