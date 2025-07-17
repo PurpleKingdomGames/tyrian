@@ -262,25 +262,6 @@ object Outcome:
   def raiseError(throwable: Throwable): Outcome.Error =
     Outcome.Error(throwable)
 
-  // def sequenceBatch[A](l: Batch[Outcome[A]]): Outcome[Batch[A]] =
-  //   given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
-
-  //   @tailrec
-  //   def rec(remaining: Batch[Outcome[A]], accA: Batch[A], accActions: Batch[Action]): Outcome[Batch[A]] =
-  //     if remaining.isEmpty then Outcome(accA).addActions(accActions)
-  //     else
-  //       val h = remaining.head
-  //       val t = remaining.tail
-  //       h match
-  //         case Error(e, r) => Error(e, r)
-  //         case Result(s, es) =>
-  //           rec(t, accA ++ Batch(s), accActions ++ es)
-
-  //   rec(l, Batch.empty, Batch.empty)
-
-  // def sequenceNonEmptyBatch[A](l: NonEmptyBatch[Outcome[A]]): Outcome[NonEmptyBatch[A]] =
-  //   sequence(l.toBatch).map(bb => NonEmptyBatch.fromBatch(bb).get) // Use of get is safe, we know it is non-empty
-
   def sequenceBatch[A](l: Batch[Outcome[A]]): Outcome[Batch[A]] =
     given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
 
@@ -297,8 +278,23 @@ object Outcome:
 
     rec(l, Batch.empty, Batch.empty)
 
-  // def sequenceNonEmptyBatch[A](l: NonEmptyBatch[Outcome[A]]): Outcome[NonEmptyBatch[A]] =
-  //   sequence(l.toBatch).map(ll => NonEmptyBatch.fromBatch(ll).get) // Use of get is safe, we know it is non-empty
+  def sequenceList[A](l: List[Outcome[A]]): Outcome[List[A]] =
+    given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
+
+    @tailrec
+    def rec(remaining: List[Outcome[A]], accA: List[A], accEvents: List[Action]): Outcome[List[A]] =
+      remaining match {
+        case Nil =>
+          Outcome(accA).addActions(Batch.fromList(accEvents))
+
+        case Error(e, r) :: _ =>
+          Error(e, r)
+
+        case Result(s, es) :: xs =>
+          rec(xs, accA ++ List(s), accEvents ++ es.toList)
+      }
+
+    rec(l, Nil, Nil)
 
   def merge[A, B, C](oa: Outcome[A], ob: Outcome[B])(f: (A, B) => C): Outcome[C] =
     oa.merge(ob)(f)
