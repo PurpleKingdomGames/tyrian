@@ -1,0 +1,25 @@
+package example
+
+import tyrian.*
+import tyrian.next.*
+
+import scala.scalajs.js.annotation.*
+
+@JSExportTopLevel("TyrianApp")
+object SandboxIONext extends TyrianIONext[Model]:
+
+  def router: Location => GlobalMsg =
+    Routing.externalOnly(AppEvent.NoOp, AppEvent.FollowLink(_))
+
+  def init(flags: Map[String, String]): Outcome[Model] =
+    Outcome(Model.init)
+
+  def update(model: Model): GlobalMsg => Outcome[Model] =
+    case e =>
+      model.update(e)
+
+  def view(model: Model): HtmlRoot =
+    HtmlRoot.div(model.view)
+
+  def watchers(model: Model): Watch =
+    Watch.None
