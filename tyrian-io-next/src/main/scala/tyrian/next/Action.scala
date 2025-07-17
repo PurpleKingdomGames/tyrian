@@ -6,10 +6,14 @@ import tyrian.Cmd
 import scala.annotation.targetName
 import scala.concurrent.duration.FiniteDuration
 
-/** A command describes some side-effect to perform.
+/** An action describes some side-effect that can be performed as a result of a model update or other GlobalMsg being
+  * processed.
+  *
+  * Actions are Cmd's with the `F` type fixed to a known effect type, like `IO` or `Task`, and the `Msg` type fixed to
+  * `GlobalMsg`.
   */
 sealed trait Action:
-  /** Transforms the type of messages produced by the command */
+  /** Transforms the type of messages produced by the action */
   def map(f: GlobalMsg => GlobalMsg): Action
 
   def toCmd: Cmd[IO, GlobalMsg]
@@ -40,7 +44,7 @@ object Action:
   def emitAfterDelay(msg: GlobalMsg, delay: FiniteDuration): Action =
     Action.Run(IO.pure(msg).delayBy(delay), identity)
 
-  /** The empty command represents the absence of any command to perform */
+  /** The empty action represents the absence of any action to perform */
   case object None extends Action:
     def map(f: GlobalMsg => GlobalMsg): None.type =
       this
