@@ -12,7 +12,8 @@ import tyrian.runtime.CmdHelper
 import scala.annotation.targetName
 import scala.concurrent.duration.FiniteDuration
 
-/** A command describes some side-effect to perform.
+/** A command describes some side-effect that can be performed as a result of a model update or other Msg being
+  * processed.
   */
 sealed trait Cmd[+F[_], +Msg]:
   /** Transforms the type of messages produced by the command */
