@@ -81,7 +81,7 @@ object Cmd:
     def toBatch: Cmd.Batch[F, Msg]                              = Cmd.Batch(List(cmd1, cmd2))
 
   /** Treat many commands as one */
-  case class Batch[F[_], Msg](cmds: List[Cmd[F, Msg]]) extends Cmd[F, Msg]:
+  final case class Batch[F[_], Msg](cmds: List[Cmd[F, Msg]]) extends Cmd[F, Msg]:
     def map[OtherMsg](f: Msg => OtherMsg): Batch[F, OtherMsg] = this.copy(cmds = cmds.map(_.map(f)))
     def ++(other: Batch[F, Msg]): Batch[F, Msg]               = Batch(cmds ++ other.cmds)
     def ::(cmd: Cmd[F, Msg]): Batch[F, Msg]                   = Batch(cmd :: cmds)
