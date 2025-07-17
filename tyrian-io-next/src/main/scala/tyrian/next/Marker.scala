@@ -2,7 +2,6 @@ package tyrian.next
 
 import tyrian.CustomElem
 import tyrian.Elem
-import tyrian.Html
 
 import scala.annotation.nowarn
 
@@ -35,5 +34,5 @@ object Marker:
   def apply(id: MarkerId): Marker =
     Marker(id, Nil)
 
-  def apply(id: MarkerId, html: Html[GlobalMsg]): Marker =
-    Marker(id, List(html))
+  def apply(id: MarkerId, children: Elem[GlobalMsg]*): Marker =
+    Marker(id, children.toList)

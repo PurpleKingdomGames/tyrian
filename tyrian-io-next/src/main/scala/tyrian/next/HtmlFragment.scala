@@ -68,6 +68,9 @@ object HtmlFragment:
       case (HtmlFragment.Insert(id, esA), HtmlFragment.MarkUp(esB)) =>
         HtmlFragment.Insert(id, esA ++ esB)
 
+      case (HtmlFragment.Insert(idA, esA), HtmlFragment.Insert(idB, esB)) if idA == idB =>
+        HtmlFragment.Insert(idA, esA ++ esB)
+
       case (HtmlFragment.Insert(idA, esA), HtmlFragment.Insert(idB, esB)) =>
         HtmlFragment.Insert(idA, insert(esB, esA, idB))
 
@@ -119,10 +122,10 @@ object HtmlFragment:
 
   object MarkUp:
 
-    def apply(markup: Html[GlobalMsg]): HtmlFragment.MarkUp =
-      HtmlFragment.MarkUp(Batch(markup))
+    def apply(markup: Html[GlobalMsg]*): HtmlFragment.MarkUp =
+      HtmlFragment.MarkUp(Batch.fromSeq(markup))
 
   object Insert:
 
-    def apply(id: MarkerId, markup: Html[GlobalMsg]): HtmlFragment.Insert =
-      HtmlFragment.Insert(id, Batch(markup))
+    def apply(id: MarkerId, markup: Html[GlobalMsg]*): HtmlFragment.Insert =
+      HtmlFragment.Insert(id, Batch.fromSeq(markup))
