@@ -1,16 +1,11 @@
 package tyrian.next
 
 import cats.effect.IO
-import cats.effect.kernel.Async
-import cats.effect.kernel.Fiber
 import fs2.Stream
-import org.scalajs.dom
 import org.scalajs.dom.EventTarget
 import tyrian.Sub
-import util.Functions
 
 import java.util.concurrent.TimeUnit
-import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
 
@@ -91,8 +86,6 @@ object Watch:
 
   object Observe:
 
-    // TODO: Can the applys and makes and so on be delegated to the Sub companion?
-
     /** Construct a cancelable observable watcher by describing how to acquire and release the resource, and optionally
       * produce a message
       */
@@ -118,42 +111,36 @@ object Watch:
   def make[A, R](id: String)(acquire: (Either[Throwable, A] => Unit) => IO[R])(
       release: R => IO[Unit]
   )(toMsg: A => Option[GlobalMsg]): Watch =
-    val task = IO.delay {
-      def cancel(res: R) = Option(release(res))
-      (cb: Either[Throwable, A] => Unit) => acquire(cb).map(cancel)
-    }
-    Observe[A](id, task, toMsg)
+    Watch.fromSub(
+      Sub.make[IO, A, GlobalMsg, R](id)(acquire)(release)(toMsg)
+    )
 
   /** Make a watcher based on an fs2.Stream. The stream is cancelled when it it removed from the list of watchers.
     */
   def make[A](id: String, stream: Stream[IO, A])(
-      toMsg: A => Option[GlobalMsg]
+      toMsg: A => GlobalMsg
   ): Watch =
-    make[A, Fiber[IO, Throwable, Unit]](id) { cb =>
-      Async[IO].start(stream.attempt.foreach(result => IO.delay(cb(result))).compile.drain)
-    }(_.cancel)(toMsg)
+    Watch.fromSub(
+      Sub.make[IO, A](id, stream).map(toMsg)
+    )
 
   /** Make a watcher based on an fs2.Stream with additional custom clean up. The stream itself is always cancelled when
     * it it removed from the list of watchers, even if no particular clean up is defined.
     */
   def make[A](id: String)(stream: Stream[IO, A])(cleanUp: IO[Unit])(
-      toMsg: A => Option[GlobalMsg]
+      toMsg: A => GlobalMsg
   ): Watch =
-    make[A, Fiber[IO, Throwable, Unit]](id) { cb =>
-      Async[IO].start(stream.attempt.foreach(result => IO.delay(cb(result))).compile.drain)
-    }(_.cancel.flatMap(_ => cleanUp))(toMsg)
-
-  private def _forget: Unit => IO[Option[IO[Unit]]] =
-    (_: Unit) => IO.delay(Option(IO.delay(())))
+    Watch.fromSub(
+      Sub.make[IO, A](id)(stream)(cleanUp).map(toMsg)
+    )
 
   /** Make an uncancelable watcher that produces am optional message */
   def forever[A](acquire: (Either[Throwable, A] => Unit) => Unit)(
       toMsg: A => Option[GlobalMsg]
   ): Watch =
-    val task =
-      IO.delay(acquire andThen _forget)
-
-    Observe[A]("<none>", task, toMsg)
+    Watch.fromSub(
+      Sub.forever[IO, A, GlobalMsg](acquire)(toMsg)
+    )
 
   /** Treat many watchers as one */
   final case class Many(watchers: List[Watch]) extends Watch:
@@ -176,16 +163,9 @@ object Watch:
 
   /** A watcher that produces a `msg` after a `duration`. */
   def timeout(duration: FiniteDuration, msg: GlobalMsg, id: String): Watch =
-    def task(callback: Either[Throwable, GlobalMsg] => Unit): IO[Option[IO[Unit]]] =
-      val handle = dom.window.setTimeout(
-        Functions.fun0(() => callback(Right(msg))),
-        duration.toMillis.toDouble
-      )
-      IO.delay {
-        Option(IO.delay(dom.window.clearTimeout(handle)))
-      }
-
-    Observe(id, IO.pure(task), Option.apply)
+    Watch.fromSub(
+      Sub.timeout[IO, GlobalMsg](duration, msg, id)
+    )
 
   /** A watcher that produces a `msg` after a `duration`. */
   def timeout(duration: FiniteDuration, msg: GlobalMsg): Watch =
@@ -193,16 +173,9 @@ object Watch:
 
   /** A watcher that repeatedly produces a `msg` based on an `interval`. */
   def every(interval: FiniteDuration, id: String, toMsg: js.Date => GlobalMsg): Watch =
-    Watch.make[js.Date, Int](id) { callback =>
-      IO.delay {
-        dom.window.setInterval(
-          Functions.fun0(() => callback(Right(new js.Date()))),
-          interval.toMillis.toDouble
-        )
-      }
-    } { handle =>
-      IO.delay(dom.window.clearTimeout(handle))
-    }(d => Option(toMsg(d)))
+    Watch.fromSub(
+      Sub.every[IO](interval, id).map(toMsg)
+    )
 
   /** A watcher that repeatedly produces a `msg` based on an `interval`. */
   def every(interval: FiniteDuration, toMsg: js.Date => GlobalMsg): Watch =
@@ -210,33 +183,16 @@ object Watch:
 
   /** A watcher that emits a `msg` based on an a JavaScript event. */
   def fromEvent[A](name: String, target: EventTarget)(extract: A => Option[GlobalMsg]): Watch =
-    Watch.make[A, js.Function1[A, Unit]](name + target.hashCode) { callback =>
-      IO.delay {
-        val listener = Functions.fun { (a: A) =>
-          callback(Right(a))
-        }
-        target.addEventListener(name, listener)
-        listener
-      }
-    } { listener =>
-      IO.delay(target.removeEventListener(name, listener))
-    }(extract)
+    Watch.fromSub(
+      Sub.fromEvent[IO, A, GlobalMsg](name, target)(extract)
+    )
 
   /** A watcher that emits a `msg` based on the running time in seconds whenever the browser renders an animation frame.
     */
-  @nowarn("msg=unused")
   def animationFrameTick(id: String)(toMsg: Double => GlobalMsg): Watch =
-    val stream =
-      Stream.repeatEval {
-        IO.async_ { (cb: Either[Throwable, Double] => Unit) =>
-          dom.window.requestAnimationFrame { t =>
-            cb(Right(t / 1000))
-          }
-          ()
-        }
-      }
-
-    Watch.make(id, stream)(t => Option(toMsg(t)))
+    Watch.fromSub(
+      Sub.animationFrameTick[IO, GlobalMsg](id)(toMsg)
+    )
 
   def combineAll(list: Batch[Watch]): Watch =
     Watch.fromSub(
