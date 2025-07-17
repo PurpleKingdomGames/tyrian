@@ -3,8 +3,6 @@ package tyrian.next
 import cats.effect.IO
 import cats.effect.kernel.Async
 import cats.effect.kernel.Fiber
-import cats.kernel.Eq
-import cats.kernel.Monoid
 import fs2.Stream
 import org.scalajs.dom
 import org.scalajs.dom.EventTarget
@@ -16,18 +14,19 @@ import scala.annotation.nowarn
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js
 
-// TODO: I think these should delegate to Sub a lot more, rather than duplicating logic.
-
-/** A subscription describes a resource that an application is interested in.
+/** A watcher describes a resource that an application is interested in.
   *
   * Examples:
   *
   *   - a timeout notifies its subscribers when it expires,
   *   - a video being played notifies its subscribers with subtitles.
+  *
+  * Watch instances are Sub's with the `F` type fixed to a known effect type, like `IO` or `Task`, and the `Msg` type
+  * fixed to `GlobalMsg`.
   */
 sealed trait Watch:
 
-  /** Transforms the type of messages produced by the subscription */
+  /** Transforms the type of messages produced by the watcher */
   def map(f: GlobalMsg => GlobalMsg): Watch
 
   def toSub: Sub[IO, GlobalMsg]
@@ -50,22 +49,22 @@ object Watch:
       case (Watch.None, Watch.None) => Watch.None
       case (Watch.None, s2)         => s2
       case (s1, Watch.None)         => s1
-      case (s1, s2)                 => Watch.Combine(s1, s2)
+      case (s1, s2)                 => Watch.Many(s1, s2)
     }
 
-  /** The empty subscription represents the absence of subscriptions */
+  /** The empty watcher represents the absence of watchers */
   case object None extends Watch:
     def map(f: GlobalMsg => GlobalMsg): None.type = this
 
     def toSub: Sub[IO, GlobalMsg] =
       Sub.None
 
-  /** A subscription that forwards the notifications produced by the given `observable`
+  /** A watcher that forwards the notifications produced by the given `observable`
     * @param id
-    *   Globally unique identifier for this subscription
+    *   Globally unique identifier for this watcher
     * @param observable
     *   Observable and cancellable/closable effect that produces notifications. Encoded as a callback with an effect
-    *   describing how to optionally close the subscription.
+    *   describing how to optionally close the watcher.
     * @param toMsg
     *   a function that turns every notification value into a possible message
     * @tparam IO
@@ -73,7 +72,7 @@ object Watch:
     * @tparam A
     *   type of notification values produced by the observable
     * @tparam GlobalMsg
-    *   type of message produced by the subscription
+    *   type of message produced by the watcher
     */
   final case class Observe[A](
       id: String,
@@ -92,7 +91,9 @@ object Watch:
 
   object Observe:
 
-    /** Construct a cancelable observable sub by describing how to acquire and release the resource, and optionally
+    // TODO: Can the applys and makes and so on be delegated to the Sub companion?
+
+    /** Construct a cancelable observable watcher by describing how to acquire and release the resource, and optionally
       * produce a message
       */
     def apply[A, R](
@@ -107,11 +108,13 @@ object Watch:
       }
       Observe[A](id, task, toMsg)
 
-    /** Construct a cancelable observable sub of a value */
-    // def apply[A](id: String, observable: IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]]): Watch =
-    //   Observe(id, observable, Option.apply)
+    /** Construct a cancelable observable watcher of a value */
+    def apply[A](id: String, toMsg: A => Option[GlobalMsg])(
+        observable: IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]]
+    ): Watch =
+      Observe(id, observable, toMsg)
 
-  /** Make a cancelable subscription that produces an optional message */
+  /** Make a cancelable watcher that produces an optional message */
   def make[A, R](id: String)(acquire: (Either[Throwable, A] => Unit) => IO[R])(
       release: R => IO[Unit]
   )(toMsg: A => Option[GlobalMsg]): Watch =
@@ -121,14 +124,7 @@ object Watch:
     }
     Observe[A](id, task, toMsg)
 
-  /** Make a cancelable subscription that returns a value (to be mapped into a GlobalMsg) */
-  // def make[A, R](id: String)(acquire: (Either[Throwable, A] => Unit) => IO[R])(
-  //     release: R => IO[Unit]
-  // ): Watch =
-  //   make[A, R](id)(acquire)(release)(Option.apply)
-
-  /** Make a subscription based on an fs2.Stream. The stream is cancelled when it it removed from the list of
-    * subscriptions.
+  /** Make a watcher based on an fs2.Stream. The stream is cancelled when it it removed from the list of watchers.
     */
   def make[A](id: String, stream: Stream[IO, A])(
       toMsg: A => Option[GlobalMsg]
@@ -137,8 +133,8 @@ object Watch:
       Async[IO].start(stream.attempt.foreach(result => IO.delay(cb(result))).compile.drain)
     }(_.cancel)(toMsg)
 
-  /** Make a subscription based on an fs2.Stream with additional custom clean up. The stream itself is always cancelled
-    * when it it removed from the list of subscriptions, even if no particular clean up is defined.
+  /** Make a watcher based on an fs2.Stream with additional custom clean up. The stream itself is always cancelled when
+    * it it removed from the list of watchers, even if no particular clean up is defined.
     */
   def make[A](id: String)(stream: Stream[IO, A])(cleanUp: IO[Unit])(
       toMsg: A => Option[GlobalMsg]
@@ -150,7 +146,7 @@ object Watch:
   private def _forget: Unit => IO[Option[IO[Unit]]] =
     (_: Unit) => IO.delay(Option(IO.delay(())))
 
-  /** Make an uncancelable subscription that produces am optional message */
+  /** Make an uncancelable watcher that produces am optional message */
   def forever[A](acquire: (Either[Throwable, A] => Unit) => Unit)(
       toMsg: A => Option[GlobalMsg]
   ): Watch =
@@ -159,34 +155,26 @@ object Watch:
 
     Observe[A]("<none>", task, toMsg)
 
-  /** Merge two subscriptions into a single one */
-  final case class Combine(sub1: Watch, sub2: Watch) extends Watch:
-    def map(f: GlobalMsg => GlobalMsg): Watch = Combine(sub1.map(f), sub2.map(f))
-    def toBatch: Watch.Batch                  = Watch.Batch(List(sub1, sub2))
+  /** Treat many watchers as one */
+  final case class Many(watchers: List[Watch]) extends Watch:
+    def map(f: GlobalMsg => GlobalMsg): Many = this.copy(watchers = watchers.map(_.map(f)))
+    def ++(other: Many): Many                = Many(watchers ++ other.watchers)
+    def ::(watcher: Watch): Many             = Many(watcher :: watchers)
+    def +:(watcher: Watch): Many             = Many(watcher +: watchers)
+    def :+(watcher: Watch): Many             = Many(watchers :+ watcher)
 
     def toSub: Sub[IO, GlobalMsg] =
-      Sub.Combine(sub1.toSub, sub2.toSub)
+      Sub.Batch(watchers.map(_.toSub))
 
-  /** Treat many subscriptions as one */
-  final case class Batch(subs: List[Watch]) extends Watch:
-    def map(f: GlobalMsg => GlobalMsg): Batch = this.copy(subs = subs.map(_.map(f)))
-    def ++(other: Batch): Batch               = Batch(subs ++ other.subs)
-    def ::(sub: Watch): Batch                 = Batch(sub :: subs)
-    def +:(sub: Watch): Batch                 = Batch(sub +: subs)
-    def :+(sub: Watch): Batch                 = Batch(subs :+ sub)
+  object Many:
+    def apply(watchers: Watch*): Many =
+      Many(watchers.toList)
 
-    def toSub: Sub[IO, GlobalMsg] =
-      Sub.Batch(subs.map(_.toSub))
-
-  object Batch:
-    def apply(subs: Watch*): Batch =
-      Batch(subs.toList)
-
-  /** A subscription that emits a msg once. Identical to timeout with a duration of 0. */
+  /** A watcher that emits a msg once. Identical to timeout with a duration of 0. */
   def emit(msg: GlobalMsg): Watch =
     timeout(FiniteDuration(0, TimeUnit.MILLISECONDS), msg, msg.toString)
 
-  /** A subscription that produces a `msg` after a `duration`. */
+  /** A watcher that produces a `msg` after a `duration`. */
   def timeout(duration: FiniteDuration, msg: GlobalMsg, id: String): Watch =
     def task(callback: Either[Throwable, GlobalMsg] => Unit): IO[Option[IO[Unit]]] =
       val handle = dom.window.setTimeout(
@@ -199,11 +187,11 @@ object Watch:
 
     Observe(id, IO.pure(task), Option.apply)
 
-  /** A subscription that produces a `msg` after a `duration`. */
+  /** A watcher that produces a `msg` after a `duration`. */
   def timeout(duration: FiniteDuration, msg: GlobalMsg): Watch =
-    timeout(duration, msg, "[tyrian-sub-every] " + duration.toString + msg.toString)
+    timeout(duration, msg, "[tyrian-watcher-timout] " + duration.toString + msg.toString)
 
-  /** A subscription that repeatedly produces a `msg` based on an `interval`. */
+  /** A watcher that repeatedly produces a `msg` based on an `interval`. */
   def every(interval: FiniteDuration, id: String, toMsg: js.Date => GlobalMsg): Watch =
     Watch.make[js.Date, Int](id) { callback =>
       IO.delay {
@@ -216,11 +204,11 @@ object Watch:
       IO.delay(dom.window.clearTimeout(handle))
     }(d => Option(toMsg(d)))
 
-  /** A subscription that repeatedly produces a `msg` based on an `interval`. */
+  /** A watcher that repeatedly produces a `msg` based on an `interval`. */
   def every(interval: FiniteDuration, toMsg: js.Date => GlobalMsg): Watch =
-    every(interval, "[tyrian-sub-every] " + interval.toString, toMsg)
+    every(interval, "[tyrian-watcher-every] " + interval.toString, toMsg)
 
-  /** A subscription that emits a `msg` based on an a JavaScript event. */
+  /** A watcher that emits a `msg` based on an a JavaScript event. */
   def fromEvent[A](name: String, target: EventTarget)(extract: A => Option[GlobalMsg]): Watch =
     Watch.make[A, js.Function1[A, Unit]](name + target.hashCode) { callback =>
       IO.delay {
@@ -234,8 +222,7 @@ object Watch:
       IO.delay(target.removeEventListener(name, listener))
     }(extract)
 
-  /** A subscription that emits a `msg` based on the running time in seconds whenever the browser renders an animation
-    * frame.
+  /** A watcher that emits a `msg` based on the running time in seconds whenever the browser renders an animation frame.
     */
   @nowarn("msg=unused")
   def animationFrameTick(id: String)(toMsg: Double => GlobalMsg): Watch =
@@ -251,29 +238,21 @@ object Watch:
 
     Watch.make(id, stream)(t => Option(toMsg(t)))
 
-  def combineAll(list: List[Watch]): Watch =
-    Monoid[Watch].combineAll(list)
+  def combineAll(list: Batch[Watch]): Watch =
+    Watch.fromSub(
+      Sub.combineAll[IO, GlobalMsg](list.toList.map(_.toSub))
+    )
 
-  // Cats' typeclass instances
-
-  given Monoid[Watch] with
-    def empty: Watch                       = Watch.None
-    def combine(a: Watch, b: Watch): Watch = Watch.merge(a, b)
-
-  given (using subEq: Eq[Sub[IO, GlobalMsg]]): Eq[Watch] with
-    def eqv(x: Watch, y: Watch): Boolean =
-      subEq.eqv(x.toSub, y.toSub)
-
-  def fromSub(sub: Sub[IO, GlobalMsg]): Watch =
-    sub match
+  def fromSub(watcher: Sub[IO, GlobalMsg]): Watch =
+    watcher match
       case Sub.None =>
         Watch.None
 
       case Sub.Observe(id, observable, toMsg) =>
         Watch.Observe(id, observable, toMsg)
 
-      case Sub.Combine(x, y) =>
-        Watch.Combine(fromSub(x), fromSub(y))
+      case Sub.Combine(a, b) =>
+        Watch.Many(fromSub(a), fromSub(b))
 
-      case Sub.Batch(subs) =>
-        Watch.Batch(subs.map(fromSub))
+      case Sub.Batch(watchers) =>
+        Watch.Many(watchers.map(fromSub))

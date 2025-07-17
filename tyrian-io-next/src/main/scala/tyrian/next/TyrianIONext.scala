@@ -111,7 +111,7 @@ trait TyrianIONext[Model]:
 
   private def onUrlChange(router: Location => GlobalMsg): Watch =
     def makeMsg = Option(router(Location.fromJsLocation(window.location)))
-    Watch.Batch(
+    Watch.Many(
       Watch.fromEvent("DOMContentLoaded", window)(_ => makeMsg),
       Watch.fromEvent("popstate", window)(_ => makeMsg)
     )
