@@ -1,6 +1,14 @@
 package tyrian.next
 
+import cats.effect.IO
+import tyrian.Cmd
+import tyrian.Sub
+
 object syntax:
+
+  extension (cmd: Cmd[IO, GlobalMsg]) def toAction: Action = Action.fromCmd(cmd)
+
+  extension (sub: Sub[IO, GlobalMsg]) def toWatch: Watch = Watch.fromSub(sub)
 
   val ==: = Batch.==:
   val :== = Batch.:==
