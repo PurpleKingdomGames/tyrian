@@ -1,15 +1,10 @@
 package tyrian.next
 
-import cats.Applicative
 import cats.effect.IO
-import cats.kernel.Eq
-import cats.kernel.Monoid
 import tyrian.Cmd
 
 import scala.annotation.targetName
 import scala.concurrent.duration.FiniteDuration
-
-// TODO: I think these should delegate to Cmd a lot more, rather than duplicating logic.
 
 /** A command describes some side-effect to perform.
   */
@@ -19,11 +14,11 @@ sealed trait Action:
 
   def toCmd: Cmd[IO, GlobalMsg]
 
-  /** Infix operation for combining two Cmds into one. */
+  /** Infix operation for combining two Actions into one. */
   def combine(other: Action): Action =
     Action.fromCmd(Cmd.merge(this.toCmd, other.toCmd))
 
-  /** Infix operator for combining two Cmds into one. */
+  /** Infix operator for combining two Actions into one. */
   def |+|(other: Action): Action =
     combine(other)
 
@@ -72,8 +67,8 @@ object Action:
     def map(f: GlobalMsg => GlobalMsg): Emit =
       Emit(f(msg))
 
-    def toTask[F[_]: Applicative]: F[GlobalMsg] =
-      Applicative[F].pure(msg)
+    def toTask: IO[GlobalMsg] =
+      IO(msg)
 
     def toCmd: Cmd[IO, GlobalMsg] =
       Cmd.Emit[GlobalMsg](msg)
@@ -100,8 +95,8 @@ object Action:
     def apply(task: IO[GlobalMsg]): Run[GlobalMsg] =
       Run(task, identity)
 
-  /** Treat many commands as one */
-  case class Many(cmds: Batch[Action]) extends Action:
+  /** Treat many actions as one */
+  final case class Many(cmds: Batch[Action]) extends Action:
     def map(f: GlobalMsg => GlobalMsg): Many = this.copy(cmds = cmds.map(_.map(f)))
     def ++(other: Many): Many                = Many(cmds ++ other.cmds)
     def ::(cmd: Action): Many                = Many(cmd :: cmds)
@@ -116,14 +111,6 @@ object Action:
       Many(Batch.fromSeq(cmds))
 
   def combineAll[A](list: Batch[Action]): Action =
-    Monoid[Action].combineAll(list.toJSArray)
-
-  // Cats' typeclass instances
-
-  given Monoid[Action] with
-    def empty: Action                         = Action.None
-    def combine(a: Action, b: Action): Action = a.combine(b)
-
-  given (using eq: Eq[Cmd[IO, GlobalMsg]]): Eq[Action] with
-    def eqv(x: Action, y: Action): Boolean =
-      eq(x, y)
+    Action.fromCmd(
+      Cmd.combineAll[IO, GlobalMsg](list.toList.map(_.toCmd))
+    )
