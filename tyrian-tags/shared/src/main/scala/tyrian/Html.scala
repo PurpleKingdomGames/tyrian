@@ -2,8 +2,15 @@ package tyrian
 
 import scala.annotation.targetName
 
-/** An HTML element can be a tag or a text node */
-sealed trait Elem[+M]:
+/** An HTML element can be an HTML tag, or represent a utlility node within a tag's child list, for example an empty
+  * node.
+  *
+  * The distiction between an Elem and an Html node is that Html instances can always be resolved to a single html tag,
+  * where-as Elems (as utility nodes) aren't necessariliy renderable as a single node, or at all. As such, they often
+  * form part of a list of child nodes. This is an important detail to the rendering process, which relies on ultimately
+  * being able to make a single virtual node.
+  */
+sealed trait Elem[+M] derives CanEqual:
   def map[N](f: M => N): Elem[N]
   override def toString(): String = this.render
 
@@ -16,6 +23,10 @@ case object Empty extends Elem[Nothing]:
 final case class Text(value: String) extends Elem[Nothing]:
   def map[N](f: Nothing => N): Text = this
   override def toString(): String   = this.render
+
+trait CustomElem[+M] extends Elem[M]:
+  def toElems: List[Elem[M]]
+  def map[N](f: M => N): CustomElem[N]
 
 /** Base class for HTML tags */
 sealed trait Html[+M] extends Elem[M]:
@@ -150,3 +161,6 @@ final case class RawTag[+M](name: String, attributes: List[Attr[M]], innerHTML: 
 object RawTag:
   def apply[M](name: String, attributes: List[Attr[M]], innerHTML: String): RawTag[M] =
     RawTag(name, attributes, innerHTML, None)
+
+trait CustomHtml[+M] extends Html[M]:
+  def toHtml: Html[M]
