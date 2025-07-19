@@ -38,6 +38,9 @@ object Action:
       case Cmd.Combine(a, b)    => Action.Many(Batch(fromCmd(a), fromCmd(b)))
       case Cmd.Batch(cmds)      => Action.Many(Batch.fromList(cmds).map(fromCmd))
 
+  def apply(cmd: Cmd[IO, GlobalMsg]): Action =
+    fromCmd(cmd)
+
   def emit(msg: GlobalMsg): Action =
     fromCmd(Cmd.Emit(msg))
 
@@ -100,15 +103,15 @@ object Action:
       Run(task, identity)
 
   /** Treat many actions as one */
-  final case class Many(cmds: Batch[Action]) extends Action:
-    def map(f: GlobalMsg => GlobalMsg): Many = this.copy(cmds = cmds.map(_.map(f)))
-    def ++(other: Many): Many                = Many(cmds ++ other.cmds)
-    def ::(cmd: Action): Many                = Many(cmd :: cmds)
-    def +:(cmd: Action): Many                = Many(cmd +: cmds)
-    def :+(cmd: Action): Many                = Many(cmds :+ cmd)
+  final case class Many(actions: Batch[Action]) extends Action:
+    def map(f: GlobalMsg => GlobalMsg): Many = this.copy(actions = actions.map(_.map(f)))
+    def ++(other: Many): Many                = Many(actions ++ other.actions)
+    def ::(action: Action): Many             = Many(action :: actions)
+    def +:(action: Action): Many             = Many(action +: actions)
+    def :+(action: Action): Many             = Many(actions :+ action)
 
     def toCmd: Cmd[IO, GlobalMsg] =
-      Cmd.Batch(cmds.map(_.toCmd).toList)
+      Cmd.Batch(actions.map(_.toCmd).toList)
 
   object Many:
     def apply(cmds: Action*): Many =

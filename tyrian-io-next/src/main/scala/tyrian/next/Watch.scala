@@ -39,13 +39,29 @@ object Watch:
   given CanEqual[Option[?], Option[?]] = CanEqual.derived
   given CanEqual[Watch, Watch]         = CanEqual.derived
 
+  def fromSub(sub: Sub[IO, GlobalMsg]): Watch =
+    sub match
+      case Sub.None =>
+        Watch.None
+
+      case Sub.Observe(id, observable, toMsg) =>
+        Watch.Observe(id, observable, toMsg)
+
+      case Sub.Combine(a, b) =>
+        Watch.Many(fromSub(a), fromSub(b))
+
+      case Sub.Batch(watchers) =>
+        Watch.Many(watchers.map(fromSub))
+
+  def apply(sub: Sub[IO, GlobalMsg]): Watch =
+    fromSub(sub)
+
   final def merge(a: Watch, b: Watch): Watch =
-    (a, b) match {
+    (a, b) match
       case (Watch.None, Watch.None) => Watch.None
       case (Watch.None, s2)         => s2
       case (s1, Watch.None)         => s1
       case (s1, s2)                 => Watch.Many(s1, s2)
-    }
 
   /** The empty watcher represents the absence of watchers */
   case object None extends Watch:
@@ -198,17 +214,3 @@ object Watch:
     Watch.fromSub(
       Sub.combineAll[IO, GlobalMsg](list.toList.map(_.toSub))
     )
-
-  def fromSub(watcher: Sub[IO, GlobalMsg]): Watch =
-    watcher match
-      case Sub.None =>
-        Watch.None
-
-      case Sub.Observe(id, observable, toMsg) =>
-        Watch.Observe(id, observable, toMsg)
-
-      case Sub.Combine(a, b) =>
-        Watch.Many(fromSub(a), fromSub(b))
-
-      case Sub.Batch(watchers) =>
-        Watch.Many(watchers.map(fromSub))
