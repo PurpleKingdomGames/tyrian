@@ -3,16 +3,16 @@ package tyrian.next
 import cats.effect.IO
 
 @SuppressWarnings(Array("scalafix:DisableSyntax.throw", "scalafix:DisableSyntax.var"))
-class WatchTests extends munit.CatsEffectSuite {
+class WatcherTests extends munit.CatsEffectSuite {
 
   type Obs[A] = IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]]
 
   final case class IntMsg(i: Int) extends GlobalMsg
 
-  import ActionWatchUtils.*
+  import ActionWatcherUtils.*
 
   test("map - Empty") {
-    assertEquals(Watch.None.map(_ => IntMsg(10)), Watch.None)
+    assertEquals(Watcher.None.map(_ => IntMsg(10)), Watcher.None)
   }
 
   test("Run") {
@@ -29,7 +29,7 @@ class WatchTests extends munit.CatsEffectSuite {
     }
 
     val runnable =
-      Watch.Observe("test", observable, i => Option(IntMsg(i)))
+      Watcher.Observe("test", observable, i => Option(IntMsg(i)))
 
     runnable.run(callback).map(_ => state == 10).assert
   }

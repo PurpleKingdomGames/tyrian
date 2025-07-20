@@ -15,81 +15,81 @@ import scala.scalajs.js
   *   - a timeout notifies its subscribers when it expires,
   *   - a video being played notifies its subscribers with subtitles.
   *
-  * Watch instances are Sub's with the `F` type fixed to a known effect type, like `IO` or `Task`, and the `Msg` type
+  * Watcher instances are Sub's with the `F` type fixed to a known effect type, like `IO` or `Task`, and the `Msg` type
   * fixed to `GlobalMsg`. However, they're a cut down version of Sub, exposing only common functions. If you need to
-  * make a complex custom Watch, then you'll need to make a Sub and wrap it in a Watch instance.
+  * make a complex custom Watcher, then you'll need to make a Sub and wrap it in a Watcher instance.
   */
-sealed trait Watch:
+sealed trait Watcher:
 
   /** Transforms the type of messages produced by the watcher */
-  def map(f: GlobalMsg => GlobalMsg): Watch
+  def map(f: GlobalMsg => GlobalMsg): Watcher
 
   def toSub: Sub[IO, GlobalMsg]
 
-object Watch:
+object Watcher:
 
   given CanEqual[Option[?], Option[?]] = CanEqual.derived
-  given CanEqual[Watch, Watch]         = CanEqual.derived
+  given CanEqual[Watcher, Watcher]     = CanEqual.derived
 
-  def none: Watch =
-    Watch.None
+  def none: Watcher =
+    Watcher.None
 
-  def fromSub(sub: Sub[IO, GlobalMsg]): Watch =
+  def fromSub(sub: Sub[IO, GlobalMsg]): Watcher =
     sub match
       case Sub.None =>
-        Watch.None
+        Watcher.None
 
       case Sub.Observe(id, observable, toMsg) =>
-        Watch.Observe(id, observable, toMsg)
+        Watcher.Observe(id, observable, toMsg)
 
       case Sub.Combine(a, b) =>
-        Watch.Many(fromSub(a), fromSub(b))
+        Watcher.Many(fromSub(a), fromSub(b))
 
       case Sub.Batch(watchers) =>
-        Watch.Many(Batch.fromList(watchers).map(fromSub))
+        Watcher.Many(Batch.fromList(watchers).map(fromSub))
 
-  def apply(sub: Sub[IO, GlobalMsg]): Watch =
+  def apply(sub: Sub[IO, GlobalMsg]): Watcher =
     fromSub(sub)
 
   /** A watcher that emits a msg once. Identical to timeout with a duration of 0. */
-  def emit(msg: GlobalMsg): Watch =
+  def emit(msg: GlobalMsg): Watcher =
     timeout(FiniteDuration(0, TimeUnit.MILLISECONDS), msg, msg.toString)
 
   /** A watcher that produces a `msg` after a `duration`. */
-  def timeout(duration: FiniteDuration, msg: GlobalMsg, id: String): Watch =
-    Watch.fromSub(
+  def timeout(duration: FiniteDuration, msg: GlobalMsg, id: String): Watcher =
+    Watcher.fromSub(
       Sub.timeout[IO, GlobalMsg](duration, msg, id)
     )
 
   /** A watcher that produces a `msg` after a `duration`. */
-  def timeout(duration: FiniteDuration, msg: GlobalMsg): Watch =
+  def timeout(duration: FiniteDuration, msg: GlobalMsg): Watcher =
     timeout(duration, msg, "[tyrian-watcher-timout] " + duration.toString + msg.toString)
 
   /** A watcher that repeatedly produces a `msg` based on an `interval`. */
-  def every(interval: FiniteDuration, id: String, toMsg: js.Date => GlobalMsg): Watch =
-    Watch.fromSub(
+  def every(interval: FiniteDuration, id: String, toMsg: js.Date => GlobalMsg): Watcher =
+    Watcher.fromSub(
       Sub.every[IO](interval, id).map(toMsg)
     )
 
   /** A watcher that repeatedly produces a `msg` based on an `interval`. */
-  def every(interval: FiniteDuration, toMsg: js.Date => GlobalMsg): Watch =
+  def every(interval: FiniteDuration, toMsg: js.Date => GlobalMsg): Watcher =
     every(interval, "[tyrian-watcher-every] " + interval.toString, toMsg)
 
   /** A watcher that emits a `msg` based on an a JavaScript event. */
-  def fromEvent[A](name: String, target: EventTarget)(extract: A => Option[GlobalMsg]): Watch =
-    Watch.fromSub(
+  def fromEvent[A](name: String, target: EventTarget)(extract: A => Option[GlobalMsg]): Watcher =
+    Watcher.fromSub(
       Sub.fromEvent[IO, A, GlobalMsg](name, target)(extract)
     )
 
   /** A watcher that emits a `msg` based on the running time in seconds whenever the browser renders an animation frame.
     */
-  def animationFrameTick(id: String)(toMsg: Double => GlobalMsg): Watch =
-    Watch.fromSub(
+  def animationFrameTick(id: String)(toMsg: Double => GlobalMsg): Watcher =
+    Watcher.fromSub(
       Sub.animationFrameTick[IO, GlobalMsg](id)(toMsg)
     )
 
   /** The empty watcher represents the absence of watchers */
-  private[next] case object None extends Watch:
+  private[next] case object None extends Watcher:
     def map(f: GlobalMsg => GlobalMsg): None.type = this
 
     def toSub: Sub[IO, GlobalMsg] =
@@ -114,8 +114,8 @@ object Watch:
       id: String,
       observable: IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]],
       toMsg: A => Option[GlobalMsg]
-  ) extends Watch:
-    def map(f: GlobalMsg => GlobalMsg): Watch =
+  ) extends Watcher:
+    def map(f: GlobalMsg => GlobalMsg): Watcher =
       Observe(
         id,
         observable,
@@ -135,7 +135,7 @@ object Watch:
         acquire: (Either[Throwable, A] => Unit) => IO[R],
         release: R => IO[Unit],
         toMsg: A => Option[GlobalMsg]
-    ): Watch =
+    ): Watcher =
       val task = IO.delay {
         def cancel(res: R) = Option(release(res))
         (cb: Either[Throwable, A] => Unit) => acquire(cb).map(cancel)
@@ -145,20 +145,20 @@ object Watch:
     /** Construct a cancelable observable watcher of a value */
     def apply[A](id: String, toMsg: A => Option[GlobalMsg])(
         observable: IO[(Either[Throwable, A] => Unit) => IO[Option[IO[Unit]]]]
-    ): Watch =
+    ): Watcher =
       Observe(id, observable, toMsg)
 
   /** Treat many watchers as one */
-  private[next] final case class Many(watchers: Batch[Watch]) extends Watch:
+  private[next] final case class Many(watchers: Batch[Watcher]) extends Watcher:
     def map(f: GlobalMsg => GlobalMsg): Many = this.copy(watchers = watchers.map(_.map(f)))
     def ++(other: Many): Many                = Many(watchers ++ other.watchers)
-    def ::(watcher: Watch): Many             = Many(watcher :: watchers)
-    def +:(watcher: Watch): Many             = Many(watcher +: watchers)
-    def :+(watcher: Watch): Many             = Many(watchers :+ watcher)
+    def ::(watcher: Watcher): Many           = Many(watcher :: watchers)
+    def +:(watcher: Watcher): Many           = Many(watcher +: watchers)
+    def :+(watcher: Watcher): Many           = Many(watchers :+ watcher)
 
     def toSub: Sub[IO, GlobalMsg] =
       Sub.Batch(watchers.map(_.toSub).toList)
 
   private[next] object Many:
-    def apply(watchers: Watch*): Many =
+    def apply(watchers: Watcher*): Many =
       Many(Batch.fromSeq(watchers))

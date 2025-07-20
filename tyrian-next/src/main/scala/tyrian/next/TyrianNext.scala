@@ -16,17 +16,15 @@ trait TyrianNext[Model]:
     */
   def MaxConcurrentTasks: Int = 1024
 
-  val run: IO[Nothing] => Unit = _.unsafeRunAndForget()
-
   def router: Location => GlobalMsg
 
-  /** Used to initialise your app. Accepts simple flags and produces the initial model state, along with any commands to
+  /** Used to initialise your app. Accepts simple flags and produces the initial model state, along with any actions to
     * run at start up, in order to trigger other processes.
     */
   def init(flags: Map[String, String]): Outcome[Model]
 
   /** The update method allows you to modify the model based on incoming messages (events). As well as an updated model,
-    * you can also produce commands to run.
+    * you can also produce actions to run.
     */
   def update(model: Model): GlobalMsg => Outcome[Model]
 
@@ -34,10 +32,10 @@ trait TyrianNext[Model]:
     */
   def view(model: Model): HtmlRoot
 
-  /** Subscriptions are typically processes that run for a period of time and emit discrete events based on some world
-    * event, e.g. a mouse moving might emit it's coordinates.
+  /** Watchers are typically processes that run for a period of time and emit discrete events based on some world event,
+    * e.g. a mouse moving might emit it's coordinates.
     */
-  def watchers(model: Model): Batch[Watch]
+  def watchers(model: Model): Batch[Watcher]
 
   /** Launch the app and attach it to an element with the given id. Can be called from Scala or JavaScript.
     */
@@ -76,6 +74,8 @@ trait TyrianNext[Model]:
   def launch(node: Element, flags: Map[String, String]): Unit =
     ready(node, flags)
 
+  val run: IO[Nothing] => Unit = _.unsafeRunAndForget()
+
   private def routeCurrentLocation(router: Location => GlobalMsg): Cmd[IO, GlobalMsg] =
     val task =
       IO.delay {
@@ -109,15 +109,15 @@ trait TyrianNext[Model]:
   private def _view(model: Model): Html[GlobalMsg] =
     view(model).toHtml
 
-  private def onUrlChange(router: Location => GlobalMsg): Watch =
+  private def onUrlChange(router: Location => GlobalMsg): Watcher =
     def makeMsg = Option(router(Location.fromJsLocation(window.location)))
-    Watch.Many(
-      Watch.fromEvent("DOMContentLoaded", window)(_ => makeMsg),
-      Watch.fromEvent("popstate", window)(_ => makeMsg)
+    Watcher.Many(
+      Watcher.fromEvent("DOMContentLoaded", window)(_ => makeMsg),
+      Watcher.fromEvent("popstate", window)(_ => makeMsg)
     )
 
   private def _subscriptions(model: Model): Sub[IO, GlobalMsg] =
-    Watch
+    Watcher
       .Many(
         onUrlChange(router) :: watchers(model)
       )

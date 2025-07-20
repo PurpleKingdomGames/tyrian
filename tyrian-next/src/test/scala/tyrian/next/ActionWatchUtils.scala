@@ -6,7 +6,7 @@ import tyrian.Sub
 
 import scala.annotation.nowarn
 
-object ActionWatchUtils:
+object ActionWatcherUtils:
 
   extension (a: Action) def run: IO[GlobalMsg] = runCmd(a.toCmd)
 
@@ -22,7 +22,7 @@ object ActionWatchUtils:
       case _ =>
         throw new Exception("failed, was not a run task")
 
-  extension [A](w: Watch) def run: (Either[Throwable, A] => Unit) => IO[Unit] = runSub(w.toSub)
+  extension [A](w: Watcher) def run: (Either[Throwable, A] => Unit) => IO[Unit] = runSub(w.toSub)
 
   @SuppressWarnings(Array("scalafix:DisableSyntax.throw"))
   @nowarn("msg=unused")

@@ -21,5 +21,5 @@ object SandboxNext extends TyrianNext[Model]:
   def view(model: Model): HtmlRoot =
     HtmlRoot.div(model.view)
 
-  def watchers(model: Model): Batch[Watch] =
+  def watchers(model: Model): Batch[Watcher] =
     Batch.empty
