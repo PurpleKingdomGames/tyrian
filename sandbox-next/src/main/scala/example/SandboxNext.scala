@@ -6,7 +6,7 @@ import tyrian.next.*
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
-object SandboxIONext extends TyrianIONext[Model]:
+object SandboxNext extends TyrianNext[Model]:
 
   def router: Location => GlobalMsg =
     Routing.externalOnly(AppEvent.NoOp, AppEvent.FollowLink(_))
