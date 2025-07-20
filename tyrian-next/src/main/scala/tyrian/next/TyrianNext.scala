@@ -9,7 +9,7 @@ import tyrian.*
 
 import scala.scalajs.js.annotation.*
 
-trait TyrianIONext[Model]:
+trait TyrianNext[Model]:
 
   /** Specifies the number of queued tasks that can be consumed at any one time. Default is 1024 which is assumed to be
     * more than sufficient, however the value can be tweaked in your app by overriding this value.
