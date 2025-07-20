@@ -37,7 +37,7 @@ trait TyrianNext[Model]:
   /** Subscriptions are typically processes that run for a period of time and emit discrete events based on some world
     * event, e.g. a mouse moving might emit it's coordinates.
     */
-  def watchers(model: Model): Watch
+  def watchers(model: Model): Batch[Watch]
 
   /** Launch the app and attach it to an element with the given id. Can be called from Scala or JavaScript.
     */
@@ -117,7 +117,11 @@ trait TyrianNext[Model]:
     )
 
   private def _subscriptions(model: Model): Sub[IO, GlobalMsg] =
-    (onUrlChange(router) |+| watchers(model)).toSub
+    Watch
+      .Many(
+        onUrlChange(router) :: watchers(model)
+      )
+      .toSub
 
   def ready(node: Element, flags: Map[String, String]): Unit =
     run(

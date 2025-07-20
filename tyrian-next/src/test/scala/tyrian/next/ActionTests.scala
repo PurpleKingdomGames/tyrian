@@ -174,7 +174,7 @@ class ActionTests extends munit.CatsEffectSuite {
   }
 
   test("Action.Run produces message directly") {
-    Action.Run(IO(StringMsg("testing"))).toTask.assertEquals(StringMsg("testing"))
+    Action.Run(() => StringMsg("testing")).toTask.assertEquals(StringMsg("testing"))
   }
 
 }
