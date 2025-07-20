@@ -186,7 +186,7 @@ object Sub:
 
   /** A subscription that produces a `msg` after a `duration`. */
   def timeout[F[_]: Sync, Msg](duration: FiniteDuration, msg: Msg): Sub[F, Msg] =
-    timeout(duration, msg, "[tyrian-sub-every] " + duration.toString + msg.toString)
+    timeout(duration, msg, "[tyrian-sub-timeout] " + duration.toString + msg.toString)
 
   /** A subscription that repeatedly produces a `msg` based on an `interval`. */
   def every[F[_]: Sync](interval: FiniteDuration, id: String): Sub[F, js.Date] =
