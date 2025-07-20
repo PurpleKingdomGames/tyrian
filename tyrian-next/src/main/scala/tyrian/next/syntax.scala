@@ -8,7 +8,7 @@ object syntax:
 
   extension (cmd: Cmd[IO, GlobalMsg]) def toAction: Action = Action.fromCmd(cmd)
 
-  extension (sub: Sub[IO, GlobalMsg]) def toWatch: Watch = Watch.fromSub(sub)
+  extension (sub: Sub[IO, GlobalMsg]) def toWatcher: Watcher = Watcher.fromSub(sub)
 
   val ==: = Batch.==:
   val :== = Batch.:==

@@ -11,7 +11,7 @@ class ActionTests extends munit.CatsEffectSuite {
   final case class IntMsg(i: Int)       extends GlobalMsg
   final case class StringMsg(s: String) extends GlobalMsg
 
-  import ActionWatchUtils.*
+  import ActionWatcherUtils.*
 
   test("map - Empty") {
     assertEquals(Action.None.map(_ => IntMsg(10)), Action.None)
