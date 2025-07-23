@@ -3,7 +3,7 @@ object Dependencies {
   val catsEffect        = "3.6.3"
   val circe             = "0.14.14"
   val fs2               = "3.12.0"
-  val scalajsDomVersion = "2.8.0"
+  val scalajsDomVersion = "2.8.1"
   val munitCatsEffect3  = "2.1.0"
   val disciplineMUnit   = "2.0.0"
   val scalajsSnabbdom   = "0.2.0-M3"
