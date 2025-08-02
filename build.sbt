@@ -7,7 +7,7 @@ import org.scalajs.jsenv.selenium.SeleniumJSEnv
 import org.typelevel.scalacoptions.ScalacOptions
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
-Global / semanticdbEnabled := true
+Global / semanticdbEnabled    := true
 
 Global / resolvers += "Sonatype S01 OSS Snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots"
 
@@ -16,7 +16,7 @@ ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalaVersion := scala3Version
 
 lazy val tyrianVersion = TyrianVersion.getVersion
-lazy val scala3Version = "3.7.1"
+lazy val scala3Version = "3.7.2"
 
 lazy val commonSettings: Seq[sbt.Def.Setting[?]] = Seq(
   version      := tyrianVersion,
