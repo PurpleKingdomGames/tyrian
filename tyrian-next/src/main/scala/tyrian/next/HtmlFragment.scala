@@ -4,14 +4,13 @@ import tyrian.CustomElem
 import tyrian.CustomHtml
 import tyrian.Elem
 import tyrian.Empty
-import tyrian.Html
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
 
 enum HtmlFragment:
-  case MarkUp(entries: Batch[Html[GlobalMsg]])
-  case Insert(markerId: MarkerId, entries: Batch[Html[GlobalMsg]])
+  case MarkUp(entries: Batch[Elem[GlobalMsg]])
+  case Insert(markerId: MarkerId, entries: Batch[Elem[GlobalMsg]])
 
   def map(f: GlobalMsg => GlobalMsg): HtmlFragment =
     this match
@@ -31,18 +30,18 @@ enum HtmlFragment:
       case hf: MarkUp         => hf
       case Insert(_, entries) => HtmlFragment.MarkUp(entries)
 
-  def addHtml(more: Batch[Html[GlobalMsg]]): HtmlFragment =
+  def addHtml(more: Batch[Elem[GlobalMsg]]): HtmlFragment =
     this match
       case hf: MarkUp => hf.copy(entries = hf.entries ++ more)
       case hf: Insert => hf.copy(entries = hf.entries ++ more)
-  def addHtml(more: Html[GlobalMsg]*): HtmlFragment =
+  def addHtml(more: Elem[GlobalMsg]*): HtmlFragment =
     addHtml(Batch.fromSeq(more))
 
-  def withHtml(newEntries: Batch[Html[GlobalMsg]]): HtmlFragment =
+  def withHtml(newEntries: Batch[Elem[GlobalMsg]]): HtmlFragment =
     this match
       case hf: MarkUp => hf.copy(entries = newEntries)
       case hf: Insert => hf.copy(entries = newEntries)
-  def withHtml(newEntries: Html[GlobalMsg]*): HtmlFragment =
+  def withHtml(newEntries: Elem[GlobalMsg]*): HtmlFragment =
     withHtml(Batch.fromSeq(newEntries))
 
   def combine(other: HtmlFragment): HtmlFragment =
@@ -50,7 +49,7 @@ enum HtmlFragment:
   def |+|(other: HtmlFragment): HtmlFragment =
     HtmlFragment.combine(this, other)
 
-  def toHtml: Batch[Html[GlobalMsg]] =
+  def toHtml: Batch[Elem[GlobalMsg]] =
     this match
       case MarkUp(entries)    => entries
       case Insert(_, entries) => entries
@@ -74,7 +73,7 @@ object HtmlFragment:
       case (HtmlFragment.Insert(idA, esA), HtmlFragment.Insert(idB, esB)) =>
         HtmlFragment.Insert(idA, insert(esB, esA, idB))
 
-  def insert(entries: Batch[Html[GlobalMsg]], into: Batch[Html[GlobalMsg]], at: MarkerId): Batch[Html[GlobalMsg]] =
+  def insert(entries: Batch[Elem[GlobalMsg]], into: Batch[Elem[GlobalMsg]], at: MarkerId): Batch[Elem[GlobalMsg]] =
     def recElem(elem: Elem[GlobalMsg]): Elem[GlobalMsg] =
       elem match
         case Empty =>
@@ -101,31 +100,20 @@ object HtmlFragment:
         case c: CustomHtml[GlobalMsg] =>
           c
 
-    def recHtml(into: Html[GlobalMsg]): Html[GlobalMsg] =
-      into match
-        case t: Tag[GlobalMsg] =>
-          t.copy(children = t.children.map(recElem))
-
-        case r: RawTag[GlobalMsg] =>
-          r
-
-        case c: CustomHtml[GlobalMsg] =>
-          c
-
-    into.map(recHtml)
+    into.map(recElem)
 
   def empty: HtmlFragment =
     HtmlFragment.MarkUp(Batch.empty)
 
-  def apply(markup: Html[GlobalMsg]*): HtmlFragment =
+  def apply(markup: Elem[GlobalMsg]*): HtmlFragment =
     HtmlFragment.MarkUp(Batch.fromSeq(markup))
 
   object MarkUp:
 
-    def apply(markup: Html[GlobalMsg]*): HtmlFragment.MarkUp =
+    def apply(markup: Elem[GlobalMsg]*): HtmlFragment.MarkUp =
       HtmlFragment.MarkUp(Batch.fromSeq(markup))
 
   object Insert:
 
-    def apply(id: MarkerId, markup: Html[GlobalMsg]*): HtmlFragment.Insert =
+    def apply(id: MarkerId, markup: Elem[GlobalMsg]*): HtmlFragment.Insert =
       HtmlFragment.Insert(id, Batch.fromSeq(markup))
