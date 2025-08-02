@@ -1,8 +1,9 @@
 package tyrian.next
 
+import tyrian.Elem
 import tyrian.Html
 
-final case class HtmlRoot(surround: Batch[Html[GlobalMsg]] => Html[GlobalMsg], fragment: HtmlFragment):
+final case class HtmlRoot(surround: Batch[Elem[GlobalMsg]] => Html[GlobalMsg], fragment: HtmlFragment):
 
   def withHtmlFragment(value: HtmlFragment): HtmlRoot =
     this.copy(fragment = value)
@@ -17,17 +18,17 @@ final case class HtmlRoot(surround: Batch[Html[GlobalMsg]] => Html[GlobalMsg], f
 
 object HtmlRoot:
 
-  def apply(surround: Batch[Html[GlobalMsg]] => Html[GlobalMsg]): HtmlRoot =
+  def apply(surround: Batch[Elem[GlobalMsg]] => Html[GlobalMsg]): HtmlRoot =
     HtmlRoot(surround, HtmlFragment.empty)
 
   def div(fragment: HtmlFragment): HtmlRoot =
     HtmlRoot(
-      childNodes => tyrian.Html.div(childNodes.toList),
+      childNodes => Html.div(childNodes.toList),
       fragment
     )
 
   def span(fragment: HtmlFragment): HtmlRoot =
     HtmlRoot(
-      childNodes => tyrian.Html.span(childNodes.toList),
+      childNodes => Html.span(childNodes.toList),
       fragment
     )
