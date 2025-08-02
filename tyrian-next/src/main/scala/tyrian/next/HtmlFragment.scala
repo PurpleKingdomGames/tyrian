@@ -4,6 +4,7 @@ import tyrian.CustomElem
 import tyrian.CustomHtml
 import tyrian.Elem
 import tyrian.Empty
+import tyrian.Html
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
@@ -49,10 +50,10 @@ enum HtmlFragment:
   def |+|(other: HtmlFragment): HtmlFragment =
     HtmlFragment.combine(this, other)
 
-  def toHtml: Batch[Elem[GlobalMsg]] =
-    this match
-      case MarkUp(entries)    => entries
-      case Insert(_, entries) => entries
+  def toHtmlRoot(surround: Batch[Elem[GlobalMsg]] => Html[GlobalMsg]): HtmlRoot =
+    HtmlRoot(surround, this)
+  def toHtmlRoot: HtmlRoot =
+    HtmlRoot(this)
 
 object HtmlFragment:
 
