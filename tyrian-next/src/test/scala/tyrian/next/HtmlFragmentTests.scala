@@ -227,14 +227,16 @@ class HtmlFragmentTests extends munit.FunSuite {
       )
     )
 
-    val actual = fragment.toHtml
+    val actual =
+      fragment.toHtmlRoot.toHtml
 
-    val expected = Batch(
-      div(id := "a")(
-        div(id := "b")(),
-        div(id := "c")()
+    val expected =
+      div(
+        div(id := "a")(
+          div(id := "b")(),
+          div(id := "c")()
+        )
       )
-    )
 
     assertEquals(actual, expected)
   }
