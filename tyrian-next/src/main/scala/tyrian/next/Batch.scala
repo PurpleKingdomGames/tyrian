@@ -268,12 +268,15 @@ object Batch:
   given CanEqual[Batch.Wrapped[?], Batch.Combine[?]] = CanEqual.derived
   given CanEqual[Batch.Wrapped[?], Batch.Wrapped[?]] = CanEqual.derived
 
+  /** Creates a Batch containing a single element. */
   def apply[A](value: A): Batch[A] =
     Wrapped(js.Array(value))
 
+  /** Creates a Batch from a JavaScript array. */
   def apply[A](values: js.Array[A]): Batch[A] =
     Wrapped(values)
 
+  /** Creates a Batch from a variable number of elements. */
   def apply[A](values: A*): Batch[A] =
     Wrapped(values.toJSArray)
 
@@ -294,27 +297,35 @@ object Batch:
         Some(r.tail.reverse -> r.head)
   }
 
+  /** Creates a Batch with n copies of the given element. */
   def fill[A](n: Int)(elem: => A): Batch[A] =
     Batch.fromList(List.fill[A](n)(elem))
 
+  /** Creates a Batch from a JavaScript array. */
   def fromJSArray[A](values: js.Array[A]): Batch[A] =
     Wrapped(values)
 
+  /** Creates a Batch from a Scala array. */
   def fromArray[A](values: Array[A]): Batch[A] =
     Wrapped(values.toJSArray)
 
+  /** Creates a Batch from a List. */
   def fromList[A](values: List[A]): Batch[A] =
     Wrapped(values.toJSArray)
 
+  /** Creates a Batch from a Set. */
   def fromSet[A](values: Set[A]): Batch[A] =
     Wrapped(values.toJSArray)
 
+  /** Creates a Batch from any Seq. */
   def fromSeq[A](values: Seq[A]): Batch[A] =
     Wrapped(values.toJSArray)
 
+  /** Creates a Batch from an IndexedSeq. */
   def fromIndexedSeq[A](values: IndexedSeq[A]): Batch[A] =
     Wrapped(values.toJSArray)
 
+  /** Creates a Batch from an Iterator. */
   def fromIterator[A](values: Iterator[A]): Batch[A] =
     Wrapped(values.toJSArray)
 
@@ -327,12 +338,15 @@ object Batch:
   def fromRange[A](value: Range): Batch[Int] =
     Wrapped(value.toJSArray)
 
+  /** Creates an empty Batch. */
   def empty[A]: Batch[A] =
     Batch()
 
+  /** Combines two batches by concatenation. */
   def combine[A](batch1: Batch[A], batch2: Batch[A]): Batch[A] =
     batch1 ++ batch2
 
+  /** Combines multiple batches by concatenation. */
   def combineAll[A](batches: Batch[A]*): Batch[A] =
     batches.foldLeft(Batch.empty[A])(_ ++ _)
 

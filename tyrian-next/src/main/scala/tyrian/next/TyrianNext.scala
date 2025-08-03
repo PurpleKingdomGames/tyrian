@@ -16,6 +16,10 @@ trait TyrianNext[Model]:
     */
   def MaxConcurrentTasks: Int = 1024
 
+  /** The `routing` function is typically implemented using the `Routing` helper. Used to decide how to manage what
+    * happens when the user clicks a link. Links are split in the `Location` object into 'internal' and 'external'
+    * types.
+    */
   def router: Location => GlobalMsg
 
   /** Used to initialise your app. Accepts simple flags and produces the initial model state, along with any actions to
