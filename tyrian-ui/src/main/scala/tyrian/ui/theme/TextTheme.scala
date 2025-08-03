@@ -14,7 +14,7 @@ final case class TextTheme(
 
   def toStyles(theme: Theme): Style =
     Style(
-      "font-family"  -> theme.fonts.body,
+      "font-family" -> theme.fonts.body,
       "font-size"   -> fontSize,
       "font-weight" -> fontWeight,
       "color"       -> color,
