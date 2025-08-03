@@ -30,4 +30,3 @@ object Theme:
       button = ButtonTheme.default,
       text = TextTheme.default
     )
-
