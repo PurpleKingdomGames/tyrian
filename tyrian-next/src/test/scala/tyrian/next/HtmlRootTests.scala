@@ -9,7 +9,7 @@ final class HtmlRootTests extends munit.FunSuite:
       HtmlFragment(
         p("Hello")
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -20,10 +20,10 @@ final class HtmlRootTests extends munit.FunSuite:
       div(
         p("Hello")
       )
-      
+
     assertEquals(actual, expected)
   }
-  
+
   test("resolve - multiple markups") {
     val frag =
       HtmlFragment(
@@ -33,7 +33,7 @@ final class HtmlRootTests extends munit.FunSuite:
           p("c")
         )
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -46,7 +46,7 @@ final class HtmlRootTests extends munit.FunSuite:
         p("b"),
         p("c")
       )
-      
+
     assertEquals(actual, expected)
   }
 
@@ -58,7 +58,7 @@ final class HtmlRootTests extends munit.FunSuite:
         MarkerId("1"),
         p("a")
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -69,10 +69,10 @@ final class HtmlRootTests extends munit.FunSuite:
       div(
         p("Hello")
       )
-      
+
     assertEquals(actual, expected)
   }
-  
+
   test("resolve - single markup, different marker, one insert") {
     val frag =
       HtmlFragment(
@@ -82,7 +82,7 @@ final class HtmlRootTests extends munit.FunSuite:
         MarkerId("1"),
         p("a")
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -93,7 +93,7 @@ final class HtmlRootTests extends munit.FunSuite:
       div(
         p("Hello")
       )
-      
+
     assertEquals(actual, expected)
   }
 
@@ -106,7 +106,7 @@ final class HtmlRootTests extends munit.FunSuite:
         MarkerId("1"),
         p("a")
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -118,7 +118,7 @@ final class HtmlRootTests extends munit.FunSuite:
         p("Hello"),
         p("a")
       )
-      
+
     assertEquals(actual, expected)
   }
 
@@ -127,7 +127,7 @@ final class HtmlRootTests extends munit.FunSuite:
       HtmlFragment(
         p("Hello"),
         Marker(MarkerId("1")),
-        Marker(MarkerId("2")),
+        Marker(MarkerId("2"))
       ).insert(
         MarkerId("1"),
         p("a")
@@ -135,7 +135,7 @@ final class HtmlRootTests extends munit.FunSuite:
         MarkerId("2"),
         p("b")
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -148,10 +148,10 @@ final class HtmlRootTests extends munit.FunSuite:
         p("a"),
         p("b")
       )
-      
+
     assertEquals(actual, expected)
   }
-  
+
   test("resolve - single markup, matching marker, two inserts, nested") {
     val frag =
       HtmlFragment(
@@ -165,7 +165,7 @@ final class HtmlRootTests extends munit.FunSuite:
         MarkerId("2"),
         p("b")
       )
-    
+
     val root =
       HtmlRoot(frag)
 
@@ -178,6 +178,6 @@ final class HtmlRootTests extends munit.FunSuite:
         p("a"),
         p("b")
       )
-      
+
     assertEquals(actual, expected)
   }

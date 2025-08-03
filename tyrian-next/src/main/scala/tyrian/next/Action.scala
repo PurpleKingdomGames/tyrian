@@ -46,9 +46,11 @@ object Action:
   /** Creates an action that runs a side effect without producing a message. */
   def sideEffect(thunk: => Unit): Action =
     Action.SideEffect(thunk)
+
   /** Alias for sideEffect. */
   def fireAndForget(thunk: => Unit): Action =
     sideEffect(thunk)
+
   /** Alias for sideEffect. */
   def thunk(run: => Unit): Action =
     sideEffect(run)
@@ -56,6 +58,7 @@ object Action:
   /** Creates an action that runs a process and emits the result as a message. */
   def run(process: () => GlobalMsg): Action =
     Action.Run(process)
+
   /** Creates an action that runs a process and transforms the result into a message. */
   def run[A](process: () => A)(toMsg: A => GlobalMsg): Action =
     Action.Run(process)(toMsg)
