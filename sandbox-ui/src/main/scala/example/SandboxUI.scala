@@ -3,6 +3,8 @@ package example
 import cats.effect.IO
 import tyrian.*
 import tyrian.ui.*
+import tyrian.ui.datatypes.RGBA
+import tyrian.ui.text.Text
 
 import scala.scalajs.js.annotation.*
 
@@ -23,7 +25,9 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
 
   def view(model: Model): Html[Msg] =
     tyrian.Html.div()(
-      ui.Text("Hello, Tyrian!").toHtml,
+      Text("Hello, Tyrian!")
+        .withColor(RGBA.Blue)
+        .toHtml,
       Button(Msg.NoOp)
         .withLabel("Click me!")
         .toHtml

@@ -1,12 +1,13 @@
 package tyrian.ui
 
+import tyrian.ui.text.*
 import tyrian.ui.theme.*
 
 final case class Theme(
     colors: ThemeColors,
     fonts: ThemeFonts,
     button: ButtonTheme,
-    text: TextTheme
+    text: TextThemes
 ):
 
   def withColors(colors: ThemeColors): Theme =
@@ -18,7 +19,10 @@ final case class Theme(
   def withButtonTheme(button: ButtonTheme): Theme =
     this.copy(button = button)
 
-  def withTextTheme(text: TextTheme): Theme =
+  def withTextTheme(text: TextThemes): Theme =
+    this.copy(text = text)
+
+  def withTextThemes(text: TextThemes): Theme =
     this.copy(text = text)
 
 object Theme:
@@ -28,5 +32,5 @@ object Theme:
       colors = ThemeColors.default,
       fonts = ThemeFonts.default,
       button = ButtonTheme.default,
-      text = TextTheme.default
+      text = TextThemes.default
     )
