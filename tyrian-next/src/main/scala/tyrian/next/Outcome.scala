@@ -305,9 +305,11 @@ object Outcome:
   /** Combines two outcomes by applying a function to their values. */
   def merge[A, B, C](oa: Outcome[A], ob: Outcome[B])(f: (A, B) => C): Outcome[C] =
     oa.merge(ob)(f)
+
   /** Combines two outcomes by applying a function to their values. (Alias for merge) */
   def map2[A, B, C](oa: Outcome[A], ob: Outcome[B])(f: (A, B) => C): Outcome[C] =
     merge(oa, ob)(f)
+
   /** Combines three outcomes by applying a function to their values. */
   def merge3[A, B, C, D](oa: Outcome[A], ob: Outcome[B], oc: Outcome[C])(f: (A, B, C) => D): Outcome[D] =
     for {
