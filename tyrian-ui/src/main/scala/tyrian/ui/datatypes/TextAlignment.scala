@@ -11,4 +11,5 @@ enum TextAlignment derives CanEqual:
 
 object TextAlignment:
 
-  val default: TextAlignment = Left
+  val default: TextAlignment =
+    TextAlignment.Left

@@ -11,4 +11,5 @@ enum TextDecoration derives CanEqual:
 
 object TextDecoration:
 
-  val default: TextDecoration = None
+  val default: TextDecoration =
+    TextDecoration.None
