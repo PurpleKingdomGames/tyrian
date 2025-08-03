@@ -10,5 +10,5 @@ enum TextAlignment derives CanEqual:
     case Justify => "justify"
 
 object TextAlignment:
-  
+
   val default: TextAlignment = Left
