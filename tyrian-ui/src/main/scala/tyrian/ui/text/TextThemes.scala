@@ -25,7 +25,9 @@ object TextThemes:
       color = RGBA.fromHexString("#333333"),
       textAlign = "left",
       lineHeight = "1.5",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val paragraph: TextTheme =
@@ -35,7 +37,9 @@ object TextThemes:
       color = RGBA.fromHexString("#333333"),
       textAlign = "left",
       lineHeight = "1.5",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val heading1: TextTheme =
@@ -45,7 +49,9 @@ object TextThemes:
       color = RGBA.fromHexString("#1a1a1a"),
       textAlign = "left",
       lineHeight = "1.2",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val heading2: TextTheme =
@@ -55,7 +61,9 @@ object TextThemes:
       color = RGBA.fromHexString("#1a1a1a"),
       textAlign = "left",
       lineHeight = "1.2",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val heading3: TextTheme =
@@ -65,7 +73,9 @@ object TextThemes:
       color = RGBA.fromHexString("#1a1a1a"),
       textAlign = "left",
       lineHeight = "1.3",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val heading4: TextTheme =
@@ -75,7 +85,9 @@ object TextThemes:
       color = RGBA.fromHexString("#1a1a1a"),
       textAlign = "left",
       lineHeight = "1.3",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val heading5: TextTheme =
@@ -85,7 +97,9 @@ object TextThemes:
       color = RGBA.fromHexString("#1a1a1a"),
       textAlign = "left",
       lineHeight = "1.4",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val heading6: TextTheme =
@@ -95,7 +109,9 @@ object TextThemes:
       color = RGBA.fromHexString("#1a1a1a"),
       textAlign = "left",
       lineHeight = "1.4",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val caption: TextTheme =
@@ -105,7 +121,9 @@ object TextThemes:
       color = RGBA.fromHexString("#666666"),
       textAlign = "left",
       lineHeight = "1.4",
-      wrap = true
+      wrap = true,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val code: TextTheme =
@@ -115,7 +133,9 @@ object TextThemes:
       color = RGBA.fromHexString("#d73a49"),
       textAlign = "left",
       lineHeight = "1.4",
-      wrap = false
+      wrap = false,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val label: TextTheme =
@@ -125,7 +145,9 @@ object TextThemes:
       color = RGBA.fromHexString("#333333"),
       textAlign = "left",
       lineHeight = "1.4",
-      wrap = false
+      wrap = false,
+      fontStyle = None,
+      textDecoration = None
     )
 
   val default: TextThemes =

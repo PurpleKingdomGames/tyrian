@@ -11,8 +11,8 @@ final case class TextTheme(
     textAlign: String,
     lineHeight: String,
     wrap: Boolean,
-    fontStyle: Option[String] = None,
-    textDecoration: Option[String] = None
+    fontStyle: Option[String],
+    textDecoration: Option[String]
 ):
 
   def toStyles(theme: Theme): Style =
