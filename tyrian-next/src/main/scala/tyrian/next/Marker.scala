@@ -27,12 +27,15 @@ final case class Marker(id: MarkerId, children: List[Elem[GlobalMsg]]) extends C
       case _ =>
         throw new IllegalArgumentException("Marker.map: Only GlobalMsg => GlobalMsg supported")
 
+  /** Extract the child elements from the marker. */
   def toElems: List[Elem[GlobalMsg]] =
     children
 
 object Marker:
+  /** Creates a marker without child elements. */
   def apply(id: MarkerId): Marker =
     Marker(id, Nil)
 
+  /** Creates a marker with child elements. */
   def apply(id: MarkerId, children: Elem[GlobalMsg]*): Marker =
     Marker(id, children.toList)

@@ -15,14 +15,17 @@ sealed trait Action:
   /** Transforms the type of messages produced by the action */
   def map(f: GlobalMsg => GlobalMsg): Action
 
+  /** Converts an Action into a Cmd */
   def toCmd: Cmd[IO, GlobalMsg]
 
 object Action:
   given CanEqual[Action, Action] = CanEqual.derived
 
+  /** The empty action that performs no side effects. */
   def none: Action =
     Action.None
 
+  /** Converts a Cmd into an Action. */
   def fromCmd(cmd: Cmd[IO, GlobalMsg]): Action =
     cmd match
       case Cmd.None             => Action.None
@@ -32,21 +35,28 @@ object Action:
       case Cmd.Combine(a, b)    => Action.Many(Batch(fromCmd(a), fromCmd(b)))
       case Cmd.Batch(cmds)      => Action.Many(Batch.fromList(cmds).map(fromCmd))
 
+  /** Creates an action that immediately emits a message. */
   def emit(msg: GlobalMsg): Action =
     fromCmd(Cmd.Emit(msg))
 
+  /** Creates an action that emits a message after a specified delay. */
   def emitAfterDelay(msg: GlobalMsg, delay: FiniteDuration): Action =
     Action.Run(IO.pure(msg).delayBy(delay), identity)
 
+  /** Creates an action that runs a side effect without producing a message. */
   def sideEffect(thunk: => Unit): Action =
     Action.SideEffect(thunk)
+  /** Alias for sideEffect. */
   def fireAndForget(thunk: => Unit): Action =
     sideEffect(thunk)
+  /** Alias for sideEffect. */
   def thunk(run: => Unit): Action =
     sideEffect(run)
 
+  /** Creates an action that runs a process and emits the result as a message. */
   def run(process: () => GlobalMsg): Action =
     Action.Run(process)
+  /** Creates an action that runs a process and transforms the result into a message. */
   def run[A](process: () => A)(toMsg: A => GlobalMsg): Action =
     Action.Run(process)(toMsg)
 

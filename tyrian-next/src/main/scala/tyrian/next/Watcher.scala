@@ -24,6 +24,7 @@ sealed trait Watcher:
   /** Transforms the type of messages produced by the watcher */
   def map(f: GlobalMsg => GlobalMsg): Watcher
 
+  /** Converts a Watcher into a Sub */
   def toSub: Sub[IO, GlobalMsg]
 
 object Watcher:
@@ -31,9 +32,11 @@ object Watcher:
   given CanEqual[Option[?], Option[?]] = CanEqual.derived
   given CanEqual[Watcher, Watcher]     = CanEqual.derived
 
+  /** The empty watcher that produces no messages. */
   def none: Watcher =
     Watcher.None
 
+  /** Converts a Sub into a Watcher. */
   def fromSub(sub: Sub[IO, GlobalMsg]): Watcher =
     sub match
       case Sub.None =>
@@ -48,41 +51,41 @@ object Watcher:
       case Sub.Batch(watchers) =>
         Watcher.Many(Batch.fromList(watchers).map(fromSub))
 
+  /** Creates a watcher from a Sub. */
   def apply(sub: Sub[IO, GlobalMsg]): Watcher =
     fromSub(sub)
 
-  /** A watcher that emits a msg once. Identical to timeout with a duration of 0. */
+  /** Creates a watcher that emits a message immediately. */
   def emit(msg: GlobalMsg): Watcher =
     timeout(FiniteDuration(0, TimeUnit.MILLISECONDS), msg, msg.toString)
 
-  /** A watcher that produces a `msg` after a `duration`. */
+  /** Creates a watcher that emits a message after a specified duration. */
   def timeout(duration: FiniteDuration, msg: GlobalMsg, id: String): Watcher =
     Watcher.fromSub(
       Sub.timeout[IO, GlobalMsg](duration, msg, id)
     )
 
-  /** A watcher that produces a `msg` after a `duration`. */
+  /** Creates a watcher that emits a message after a specified duration. */
   def timeout(duration: FiniteDuration, msg: GlobalMsg): Watcher =
     timeout(duration, msg, "[tyrian-watcher-timout] " + duration.toString + msg.toString)
 
-  /** A watcher that repeatedly produces a `msg` based on an `interval`. */
+  /** Creates a watcher that repeatedly emits messages at regular intervals. */
   def every(interval: FiniteDuration, id: String, toMsg: js.Date => GlobalMsg): Watcher =
     Watcher.fromSub(
       Sub.every[IO](interval, id).map(toMsg)
     )
 
-  /** A watcher that repeatedly produces a `msg` based on an `interval`. */
+  /** Creates a watcher that repeatedly emits messages at regular intervals. */
   def every(interval: FiniteDuration, toMsg: js.Date => GlobalMsg): Watcher =
     every(interval, "[tyrian-watcher-every] " + interval.toString, toMsg)
 
-  /** A watcher that emits a `msg` based on an a JavaScript event. */
+  /** Creates a watcher that listens for JavaScript events and emits messages based on them. */
   def fromEvent[A](name: String, target: EventTarget)(extract: A => Option[GlobalMsg]): Watcher =
     Watcher.fromSub(
       Sub.fromEvent[IO, A, GlobalMsg](name, target)(extract)
     )
 
-  /** A watcher that emits a `msg` based on the running time in seconds whenever the browser renders an animation frame.
-    */
+  /** Creates a watcher that emits messages on each animation frame with elapsed time in seconds. */
   def animationFrameTick(id: String)(toMsg: Double => GlobalMsg): Watcher =
     Watcher.fromSub(
       Sub.animationFrameTick[IO, GlobalMsg](id)(toMsg)

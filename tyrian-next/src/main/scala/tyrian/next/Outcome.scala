@@ -231,6 +231,7 @@ object Outcome:
     def map3[D](f: (A, B, C) => D): Outcome[D] =
       merge(f)
 
+  /** Creates an outcome from a value, catching any exceptions and converting them to Error outcomes. */
   def apply[A](state: => A): Outcome[A] =
     try Outcome.Result[A](state, Batch.empty)
     catch {
@@ -238,6 +239,7 @@ object Outcome:
         Outcome.Error(e)
     }
 
+  /** Creates an outcome from a value and actions, catching any exceptions and converting them to Error outcomes. */
   def apply[A](state: => A, actions: => Batch[Action]): Outcome[A] =
     try Outcome.Result[A](state, actions)
     catch {
@@ -254,14 +256,17 @@ object Outcome:
         Some((s, es))
     }
 
+  /** Converts an Option into an Outcome, using the provided error for None values. */
   def fromOption[A](opt: Option[A], error: => Throwable): Outcome[A] =
     opt match
       case None        => Outcome.raiseError(error)
       case Some(value) => Outcome(value)
 
+  /** Creates an Error outcome with the given throwable. */
   def raiseError(throwable: Throwable): Outcome.Error =
     Outcome.Error(throwable)
 
+  /** Converts a Batch of outcomes into an outcome containing a Batch. */
   def sequenceBatch[A](l: Batch[Outcome[A]]): Outcome[Batch[A]] =
     given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
 
@@ -278,6 +283,7 @@ object Outcome:
 
     rec(l, Batch.empty, Batch.empty)
 
+  /** Converts a list of outcomes into an outcome containing a list. */
   def sequenceList[A](l: List[Outcome[A]]): Outcome[List[A]] =
     given CanEqual[Outcome[A], Outcome[A]] = CanEqual.derived
 
@@ -296,10 +302,13 @@ object Outcome:
 
     rec(l, Nil, Nil)
 
+  /** Combines two outcomes by applying a function to their values. */
   def merge[A, B, C](oa: Outcome[A], ob: Outcome[B])(f: (A, B) => C): Outcome[C] =
     oa.merge(ob)(f)
+  /** Combines two outcomes by applying a function to their values. (Alias for merge) */
   def map2[A, B, C](oa: Outcome[A], ob: Outcome[B])(f: (A, B) => C): Outcome[C] =
     merge(oa, ob)(f)
+  /** Combines three outcomes by applying a function to their values. */
   def merge3[A, B, C, D](oa: Outcome[A], ob: Outcome[B], oc: Outcome[C])(f: (A, B, C) => D): Outcome[D] =
     for {
       aa <- oa
