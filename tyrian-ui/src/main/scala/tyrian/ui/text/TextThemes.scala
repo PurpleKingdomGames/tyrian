@@ -1,6 +1,12 @@
 package tyrian.ui.text
 
+import tyrian.ui.datatypes.FontSize
+import tyrian.ui.datatypes.FontWeight
+import tyrian.ui.datatypes.LineHeight
 import tyrian.ui.datatypes.RGBA
+import tyrian.ui.datatypes.TextAlignment
+import tyrian.ui.datatypes.TextDecoration
+import tyrian.ui.datatypes.TextStyle
 
 final case class TextThemes(
     normal: TextTheme,
@@ -20,134 +26,134 @@ object TextThemes:
 
   val normal: TextTheme =
     TextTheme(
-      fontSize = "16px",
-      fontWeight = "400",
+      fontSize = FontSize.Medium,
+      weight = FontWeight.Normal,
       color = RGBA.fromHexString("#333333"),
-      textAlign = "left",
-      lineHeight = "1.5",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Relaxed,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val paragraph: TextTheme =
     TextTheme(
-      fontSize = "16px",
-      fontWeight = "400",
+      fontSize = FontSize.Medium,
+      weight = FontWeight.Normal,
       color = RGBA.fromHexString("#333333"),
-      textAlign = "left",
-      lineHeight = "1.5",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Relaxed,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val heading1: TextTheme =
     TextTheme(
-      fontSize = "32px",
-      fontWeight = "600",
+      fontSize = FontSize.heading1,
+      weight = FontWeight.SemiBold,
       color = RGBA.fromHexString("#1a1a1a"),
-      textAlign = "left",
-      lineHeight = "1.2",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Tight,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val heading2: TextTheme =
     TextTheme(
-      fontSize = "28px",
-      fontWeight = "600",
+      fontSize = FontSize.heading2,
+      weight = FontWeight.SemiBold,
       color = RGBA.fromHexString("#1a1a1a"),
-      textAlign = "left",
-      lineHeight = "1.2",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Tight,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val heading3: TextTheme =
     TextTheme(
-      fontSize = "24px",
-      fontWeight = "600",
+      fontSize = FontSize.heading3,
+      weight = FontWeight.SemiBold,
       color = RGBA.fromHexString("#1a1a1a"),
-      textAlign = "left",
-      lineHeight = "1.3",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Custom("1.3"),
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val heading4: TextTheme =
     TextTheme(
-      fontSize = "20px",
-      fontWeight = "600",
+      fontSize = FontSize.heading4,
+      weight = FontWeight.SemiBold,
       color = RGBA.fromHexString("#1a1a1a"),
-      textAlign = "left",
-      lineHeight = "1.3",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Custom("1.3"),
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val heading5: TextTheme =
     TextTheme(
-      fontSize = "18px",
-      fontWeight = "600",
+      fontSize = FontSize.heading5,
+      weight = FontWeight.SemiBold,
       color = RGBA.fromHexString("#1a1a1a"),
-      textAlign = "left",
-      lineHeight = "1.4",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Normal,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val heading6: TextTheme =
     TextTheme(
-      fontSize = "16px",
-      fontWeight = "600",
+      fontSize = FontSize.heading6,
+      weight = FontWeight.SemiBold,
       color = RGBA.fromHexString("#1a1a1a"),
-      textAlign = "left",
-      lineHeight = "1.4",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Normal,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val caption: TextTheme =
     TextTheme(
-      fontSize = "12px",
-      fontWeight = "400",
+      fontSize = FontSize.XSmall,
+      weight = FontWeight.Normal,
       color = RGBA.fromHexString("#666666"),
-      textAlign = "left",
-      lineHeight = "1.4",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Normal,
       wrap = true,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val code: TextTheme =
     TextTheme(
-      fontSize = "14px",
-      fontWeight = "400",
+      fontSize = FontSize.Small,
+      weight = FontWeight.Normal,
       color = RGBA.fromHexString("#d73a49"),
-      textAlign = "left",
-      lineHeight = "1.4",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Normal,
       wrap = false,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val label: TextTheme =
     TextTheme(
-      fontSize = "14px",
-      fontWeight = "500",
+      fontSize = FontSize.Small,
+      weight = FontWeight.Medium,
       color = RGBA.fromHexString("#333333"),
-      textAlign = "left",
-      lineHeight = "1.4",
+      alignment = TextAlignment.Left,
+      lineHeight = LineHeight.Normal,
       wrap = false,
-      fontStyle = None,
-      textDecoration = None
+      style = TextStyle.Normal,
+      decoration = TextDecoration.None
     )
 
   val default: TextThemes =

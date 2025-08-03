@@ -2,7 +2,13 @@ package tyrian.ui.text
 
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
+import tyrian.ui.datatypes.FontSize
+import tyrian.ui.datatypes.FontWeight
+import tyrian.ui.datatypes.LineHeight
 import tyrian.ui.datatypes.RGBA
+import tyrian.ui.datatypes.TextAlignment
+import tyrian.ui.datatypes.TextDecoration
+import tyrian.ui.datatypes.TextStyle
 
 final case class Text(
     value: String,
@@ -25,21 +31,24 @@ final case class Text(
   def toCode: Text     = this.copy(variant = TextVariant.Code)
   def toLabel: Text    = this.copy(variant = TextVariant.Label)
 
-  // TODO: Add clearBold - or maybe just 'normal'?
-  def bold: Text = modifyTextTheme(_.copy(fontWeight = "bold"))
-  // TODO: Add clearItalic - or maybe just 'normal'?
-  def italic: Text = modifyTextTheme(_.copy(fontStyle = Some("italic")))
-  // TODO: Add clearUnderlined - or maybe just 'normal'?
-  def underlined: Text = modifyTextTheme(_.copy(textDecoration = Some("underline")))
-  // TODO: Strikethrough?
-  def withColor(color: RGBA): Text = modifyTextTheme(_.copy(color = color))
-  def withSize(size: String): Text = modifyTextTheme(_.copy(fontSize = size))
-  def wrap: Text                   = modifyTextTheme(_.copy(wrap = true))
-  def noWrap: Text                 = modifyTextTheme(_.copy(wrap = false))
+  def bold: Text                               = modifyTextTheme(_.withWeight(FontWeight.Bold))
+  def italic: Text                             = modifyTextTheme(_.withStyle(TextStyle.Italic))
+  def underlined: Text                         = modifyTextTheme(_.withDecoration(TextDecoration.Underline))
+  def strikethrough: Text                      = modifyTextTheme(_.withDecoration(TextDecoration.Strikethrough))
+  def withColor(color: RGBA): Text             = modifyTextTheme(_.withColor(color))
+  def withSize(size: FontSize): Text           = modifyTextTheme(_.withFontSize(size))
+  def withLineHeight(height: LineHeight): Text = modifyTextTheme(_.withLineHeight(height))
+  def wrap: Text                               = modifyTextTheme(_.withWrap(true))
+  def noWrap: Text                             = modifyTextTheme(_.withWrap(false))
 
-  def alignLeft: Text   = modifyTextTheme(_.copy(textAlign = "left"))
-  def alignCenter: Text = modifyTextTheme(_.copy(textAlign = "center"))
-  def alignRight: Text  = modifyTextTheme(_.copy(textAlign = "right"))
+  def clearWeight: Text     = modifyTextTheme(_.withWeight(FontWeight.Normal))
+  def clearStyle: Text      = modifyTextTheme(_.withStyle(TextStyle.Normal))
+  def clearDecoration: Text = modifyTextTheme(_.withDecoration(TextDecoration.None))
+
+  def alignLeft: Text    = modifyTextTheme(_.withAlignment(TextAlignment.Left))
+  def alignCenter: Text  = modifyTextTheme(_.withAlignment(TextAlignment.Center))
+  def alignRight: Text   = modifyTextTheme(_.withAlignment(TextAlignment.Right))
+  def alignJustify: Text = modifyTextTheme(_.withAlignment(TextAlignment.Justify))
 
   def modifyTheme(f: Theme => Theme): Text =
     this.copy(_modifyTheme = Some(f))
