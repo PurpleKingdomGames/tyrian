@@ -27,7 +27,7 @@ final case class CounterManager(counters: List[Counter]):
       Outcome(this)
 
   def view: HtmlFragment =
-    HtmlFragment.Insert(
+    HtmlFragment.insert(
       MarkerIds.counters,
       div(
         List(

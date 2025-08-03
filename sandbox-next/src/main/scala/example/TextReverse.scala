@@ -14,7 +14,7 @@ final case class TextReverse(textToReverse: String):
       Outcome(this)
 
   def view: HtmlFragment =
-    HtmlFragment.Insert(
+    HtmlFragment.insert(
       MarkerIds.textReverse,
       div(
         input(placeholder := "Text to reverse", onInput(s => TextReverseEvent.NewContent(s)), myStyle),
