@@ -26,6 +26,16 @@ final case class HtmlRoot(
   def withHtmlFragment(value: HtmlFragment): HtmlRoot =
     this.copy(fragment = value)
 
+  /** Append a batch of HtmlFragments to the existing fragment */
+  def addHtmlFragments(fragments: Batch[HtmlFragment]): HtmlRoot =
+    withHtmlFragment(
+      fragments.foldLeft(fragment)(_ |+| _)
+    )
+
+  /** Append a sequence of HtmlFragments to the existing fragment */
+  def addHtmlFragments(fragments: HtmlFragment*): HtmlRoot =
+    addHtmlFragments(Batch.fromSeq(fragments))
+
   /** Process the HtmlFragment into HTML that can be rendered by the VirtualDom */
   def toHtml: Html[GlobalMsg] =
     HtmlRoot.resolve(this)
@@ -43,7 +53,17 @@ object HtmlRoot:
       fragment
     )
 
-  /** Resolves an HtmlRoot into final HTML by replacing all markers with their corresponding inserts. If the Marker contains children, they are prepended to the output. */
+  /** Creates an HtmlRoot by combining a Batch of HtmlFragments and wrapping them in a div */
+  def apply(fragments: Batch[HtmlFragment]): HtmlRoot =
+    HtmlRoot(fragments.foldLeft(HtmlFragment.empty)(_ |+| _))
+
+  /** Creates an HtmlRoot by combining a repeating number of HtmlFragments and wrapping them in a div */
+  def apply(fragments: HtmlFragment*): HtmlRoot =
+    HtmlRoot(Batch.fromSeq(fragments))
+
+  /** Resolves an HtmlRoot into final HTML by replacing all markers with their corresponding inserts. If the Marker
+    * contains children, they are prepended to the output.
+    */
   def resolve(root: HtmlRoot): Html[GlobalMsg] =
     def toHtml: Batch[Elem[GlobalMsg]] =
       root.fragment.markup.flatMap(m => resolveMarkersForElem(m, root.fragment.inserts))
