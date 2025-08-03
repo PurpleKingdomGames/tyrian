@@ -1,120 +1,119 @@
 package tyrian.next
 
-import tyrian.CustomElem
-import tyrian.CustomHtml
 import tyrian.Elem
-import tyrian.Empty
 import tyrian.Html
-import tyrian.RawTag
-import tyrian.Tag
-import tyrian.Text
 
-enum HtmlFragment:
-  case MarkUp(entries: Batch[Elem[GlobalMsg]])
-  case Insert(markerId: MarkerId, entries: Batch[Elem[GlobalMsg]])
+/** An HtmlFragment represents a chunk of Html that will potentially make up part of the final DOM output. Though it
+  * aids 'out-of-order' dom tree construction, it is not the same as a template (which in Tyrian Next is any function of
+  * some data to Elem[GlobalMsg]). Instead it is either a) markup to be appended, and / or b) markup to inserted.
+  *
+  * The normal form of an HtmlFragment is as a number of chunks of markup, that will ultimately be appended to some
+  * parent div, typically a div. This is the top level structure of your page.
+  *
+  * HtmlFragments can be combined using the `combine` method (or `|+|` operator, which is an alias for combine).
+  *
+  * If you'd like, in some separate process, to be able to render something that goes into that top level structure,
+  * than you can add a placeholder tag to your top level markup called a `Marker`. When you render the html to be
+  * associated with the marker, you add it to an HtmlFragment fragment using the `insert` method (or constructor) and
+  * give it the same ID as your placeholder Marker tag.
+  *
+  * Markers have an ID, and can also include child elements. When your HtmlFragments are resolved by the `HtmlRoot` it
+  * attempts to replace markers with an insert that has the same id.
+  */
+final case class HtmlFragment(markup: Batch[Elem[GlobalMsg]], inserts: Map[MarkerId, Batch[Elem[GlobalMsg]]]):
 
-  def map(f: GlobalMsg => GlobalMsg): HtmlFragment =
-    this match
-      case MarkUp(entries) =>
-        MarkUp(entries.map(_.map(f)))
+  /** Add elements to the top level Markup */
+  def append(additional: Batch[Elem[GlobalMsg]]): HtmlFragment =
+    this.copy(markup = markup ++ additional)
 
-      case hf @ Insert(_, entries) =>
-        hf.copy(entries = entries.map(_.map(f)))
+  /** Add elements to the top level Markup */
+  def append(additional: Elem[GlobalMsg]*): HtmlFragment =
+    append(Batch.fromSeq(additional))
 
-  def withMarkerId(mid: MarkerId): HtmlFragment =
-    this match
-      case MarkUp(entries) => HtmlFragment.Insert(mid, entries)
-      case hf: Insert      => hf.copy(markerId = mid)
+  /** Replace the current top level Markup elements with new ones */
+  def replace(newMarkup: Batch[Elem[GlobalMsg]]): HtmlFragment =
+    this.copy(markup = newMarkup)
 
-  def clearMarkerId: HtmlFragment =
-    this match
-      case hf: MarkUp         => hf
-      case Insert(_, entries) => HtmlFragment.MarkUp(entries)
+  /** Replace the current top level Markup elements with new ones */
+  def replace(newMarkup: Elem[GlobalMsg]*): HtmlFragment =
+    replace(Batch.fromSeq(newMarkup))
 
-  def addHtml(more: Batch[Elem[GlobalMsg]]): HtmlFragment =
-    this match
-      case hf: MarkUp => hf.copy(entries = hf.entries ++ more)
-      case hf: Insert => hf.copy(entries = hf.entries ++ more)
-  def addHtml(more: Elem[GlobalMsg]*): HtmlFragment =
-    addHtml(Batch.fromSeq(more))
+  /** Adds elements to the insert map, which is used to resolve markers before rendering */
+  def insert(at: MarkerId, elements: Batch[Elem[GlobalMsg]]): HtmlFragment =
+    this.copy(inserts = inserts ++ Map(at -> elements))
 
-  def withHtml(newEntries: Batch[Elem[GlobalMsg]]): HtmlFragment =
-    this match
-      case hf: MarkUp => hf.copy(entries = newEntries)
-      case hf: Insert => hf.copy(entries = newEntries)
-  def withHtml(newEntries: Elem[GlobalMsg]*): HtmlFragment =
-    withHtml(Batch.fromSeq(newEntries))
+  /** Adds elements to the insert map, which is used to resolve markers before rendering */
+  def insert(at: MarkerId, elements: Elem[GlobalMsg]*): HtmlFragment =
+    insert(at, Batch.fromSeq(elements))
 
+  /** Removes 'insert' elements from the marker look up data by ID */
+  def remove(markerId: MarkerId): HtmlFragment =
+    this.copy(inserts = inserts.removed(markerId))
+
+  /** Filters 'insert' elements in the marker look up data by ID */
+  def filter(p: MarkerId => Boolean): HtmlFragment =
+    this.copy(inserts = inserts.view.filterKeys(p).toMap)
+
+  /** Performs a negative filter on 'insert' elements in the marker look up data by ID */
+  def filterNot(p: MarkerId => Boolean): HtmlFragment =
+    this.copy(inserts = inserts.view.filterKeys(k => !p(k)).toMap)
+
+  /** Combines two HtmlFragments by appending / merging their markup elements and insert data respectively. */
   def combine(other: HtmlFragment): HtmlFragment =
     HtmlFragment.combine(this, other)
+
+  /** Combines two HtmlFragments by appending / merging their markup elements and insert data respectively. */
   def |+|(other: HtmlFragment): HtmlFragment =
     HtmlFragment.combine(this, other)
 
+  /** Convery this HtmlFragment into an HtmlRoot by supplying a surround function */
   def toHtmlRoot(surround: Batch[Elem[GlobalMsg]] => Html[GlobalMsg]): HtmlRoot =
     HtmlRoot(surround, this)
+
+  /** Convery this HtmlFragment into an HtmlRoot by surrounding the elements with a `div` tag */
   def toHtmlRoot: HtmlRoot =
     HtmlRoot(this)
 
 object HtmlFragment:
 
+  /** Merges two HtmlFragments by concatenating their markup sequences and combining their insert maps. When both
+    * fragments contain inserts for the same MarkerId, the second fragment's insert will override the first.
+    */
   def combine(a: HtmlFragment, b: HtmlFragment): HtmlFragment =
-    (a, b) match
-      case (HtmlFragment.MarkUp(esA), HtmlFragment.MarkUp(esB)) =>
-        HtmlFragment.MarkUp(esA ++ esB)
+    HtmlFragment(
+      a.markup ++ b.markup,
+      a.inserts ++ b.inserts
+    )
 
-      case (HtmlFragment.MarkUp(esA), HtmlFragment.Insert(id, esB)) =>
-        HtmlFragment.MarkUp(insert(esB, esA, id))
+  private val emptyInserts: Map[MarkerId, Batch[Elem[GlobalMsg]]] =
+    Map.empty[MarkerId, Batch[Elem[GlobalMsg]]]
 
-      case (HtmlFragment.Insert(id, esA), HtmlFragment.MarkUp(esB)) =>
-        HtmlFragment.Insert(id, esA ++ esB)
-
-      case (HtmlFragment.Insert(idA, esA), HtmlFragment.Insert(idB, esB)) if idA == idB =>
-        HtmlFragment.Insert(idA, esA ++ esB)
-
-      case (HtmlFragment.Insert(idA, esA), HtmlFragment.Insert(idB, esB)) =>
-        HtmlFragment.Insert(idA, insert(esB, esA, idB))
-
-  def insert(entries: Batch[Elem[GlobalMsg]], into: Batch[Elem[GlobalMsg]], at: MarkerId): Batch[Elem[GlobalMsg]] =
-    def recElem(elem: Elem[GlobalMsg]): Elem[GlobalMsg] =
-      elem match
-        case Empty =>
-          Empty
-
-        case t: Text =>
-          t
-
-        case m: Marker if m.id == at =>
-          m.copy(children = m.children ++ entries.toList)
-
-        case m: Marker =>
-          m.copy(children = m.children.map(recElem))
-
-        case t: Tag[GlobalMsg] =>
-          t.copy(children = t.children.map(recElem))
-
-        case r: RawTag[GlobalMsg] =>
-          r
-
-        case c: CustomElem[GlobalMsg] =>
-          c
-
-        case c: CustomHtml[GlobalMsg] =>
-          c
-
-    into.map(recElem)
-
+  /** Creates an empty HtmlFragment with no markup elements and no marker inserts. Useful as a starting point for
+    * building fragments through combination or as a neutral element in fragment operations.
+    */
   def empty: HtmlFragment =
-    HtmlFragment.MarkUp(Batch.empty)
+    HtmlFragment(Batch.empty, emptyInserts)
 
+  /** Creates an HtmlFragment containing only top-level markup elements, with no marker inserts. The elements will be
+    * rendered directly as part of the fragment's markup when resolved by an HtmlRoot.
+    */
+  def apply(markup: Batch[Elem[GlobalMsg]]): HtmlFragment =
+    HtmlFragment(markup, emptyInserts)
+
+  /** Creates an HtmlFragment from a variable number of elements, converting them into a Batch internally. This is the
+    * most common way to create fragments when you have individual elements to include.
+    */
   def apply(markup: Elem[GlobalMsg]*): HtmlFragment =
-    HtmlFragment.MarkUp(Batch.fromSeq(markup))
+    HtmlFragment(Batch.fromSeq(markup))
 
-  object MarkUp:
+  /** Creates an HtmlFragment that contains only insert data for a specific marker, with no top-level markup. When
+    * resolved, these elements will replace any Marker with the matching MarkerId in the final DOM tree.
+    */
+  def insert(at: MarkerId, elements: Batch[Elem[GlobalMsg]]): HtmlFragment =
+    HtmlFragment(Batch.empty, Map(at -> elements))
 
-    def apply(markup: Elem[GlobalMsg]*): HtmlFragment.MarkUp =
-      HtmlFragment.MarkUp(Batch.fromSeq(markup))
-
-  object Insert:
-
-    def apply(id: MarkerId, markup: Elem[GlobalMsg]*): HtmlFragment.Insert =
-      HtmlFragment.Insert(id, Batch.fromSeq(markup))
+  /** Creates an HtmlFragment with insert data from individual elements. This allows components to contribute content to
+    * specific locations in the page structure without being part of the main markup flow.
+    */
+  def insert(at: MarkerId, elements: Elem[GlobalMsg]*): HtmlFragment =
+    insert(at, Batch.fromSeq(elements))
