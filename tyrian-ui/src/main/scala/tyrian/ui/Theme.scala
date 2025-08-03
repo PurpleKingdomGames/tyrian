@@ -1,5 +1,6 @@
 package tyrian.ui
 
+import tyrian.ui.button.*
 import tyrian.ui.text.*
 import tyrian.ui.theme.*
 

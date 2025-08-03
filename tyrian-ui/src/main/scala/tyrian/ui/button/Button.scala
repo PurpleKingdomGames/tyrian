@@ -1,8 +1,13 @@
-package tyrian.ui
+package tyrian.ui.button
 
-import tyrian.ui.theme.ButtonTheme
+import tyrian.ui.Theme
+import tyrian.ui.UIElement
 
-final case class Button[Msg](label: String, onClick: Msg, _modifyTheme: Option[Theme => Theme]) extends UIElement[Msg]:
+final case class Button[Msg](
+    label: String,
+    onClick: Msg,
+    _modifyTheme: Option[Theme => Theme]
+) extends UIElement[Msg]:
   type T = Button[Msg]
 
   def withLabel(value: String): Button[Msg] =

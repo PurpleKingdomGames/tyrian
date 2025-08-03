@@ -3,6 +3,7 @@ package example
 import cats.effect.IO
 import tyrian.*
 import tyrian.ui.*
+import tyrian.ui.button.Button
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.text.Text
 

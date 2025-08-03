@@ -10,5 +10,5 @@ enum TextDecoration derives CanEqual:
     case Overline      => "overline"
 
 object TextDecoration:
-  
+
   val default: TextDecoration = None

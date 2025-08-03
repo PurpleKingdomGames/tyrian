@@ -1,4 +1,4 @@
-package tyrian.ui.theme
+package tyrian.ui.button
 
 import tyrian.Style
 import tyrian.ui.Theme
