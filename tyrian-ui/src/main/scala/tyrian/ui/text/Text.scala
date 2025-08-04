@@ -1,5 +1,6 @@
 package tyrian.ui.text
 
+import tyrian.EmptyAttribute
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.FontSize
@@ -13,9 +14,9 @@ import tyrian.ui.datatypes.TextStyle
 final case class Text(
     value: String,
     variant: TextVariant,
+    classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Nothing]:
-  type T = Text
+) extends UIElement[Text, Nothing]:
 
   def withValue(value: String): Text =
     this.copy(value = value)
@@ -49,6 +50,9 @@ final case class Text(
   def alignCenter: Text  = modifyTextTheme(_.withAlignment(TextAlignment.Center))
   def alignRight: Text   = modifyTextTheme(_.withAlignment(TextAlignment.Right))
   def alignJustify: Text = modifyTextTheme(_.withAlignment(TextAlignment.Justify))
+
+  def withClassNames(classes: Set[String]): Text =
+    this.copy(classNames = classes)
 
   def modifyTheme(f: Theme => Theme): Text =
     this.copy(_modifyTheme = Some(f))
@@ -97,18 +101,18 @@ object Text:
   import tyrian.Html.*
 
   def apply(value: String): Text =
-    Text(value, TextVariant.Normal, None)
+    Text(value, TextVariant.Normal, Set(), None)
 
-  def body(value: String): Text     = Text(value, TextVariant.Normal, None)
-  def heading1(value: String): Text = Text(value, TextVariant.Heading1, None)
-  def heading2(value: String): Text = Text(value, TextVariant.Heading2, None)
-  def heading3(value: String): Text = Text(value, TextVariant.Heading3, None)
-  def heading4(value: String): Text = Text(value, TextVariant.Heading4, None)
-  def heading5(value: String): Text = Text(value, TextVariant.Heading5, None)
-  def heading6(value: String): Text = Text(value, TextVariant.Heading6, None)
-  def caption(value: String): Text  = Text(value, TextVariant.Caption, None)
-  def code(value: String): Text     = Text(value, TextVariant.Code, None)
-  def label(value: String): Text    = Text(value, TextVariant.Label, None)
+  def body(value: String): Text     = Text(value, TextVariant.Normal, Set(), None)
+  def heading1(value: String): Text = Text(value, TextVariant.Heading1, Set(), None)
+  def heading2(value: String): Text = Text(value, TextVariant.Heading2, Set(), None)
+  def heading3(value: String): Text = Text(value, TextVariant.Heading3, Set(), None)
+  def heading4(value: String): Text = Text(value, TextVariant.Heading4, Set(), None)
+  def heading5(value: String): Text = Text(value, TextVariant.Heading5, Set(), None)
+  def heading6(value: String): Text = Text(value, TextVariant.Heading6, Set(), None)
+  def caption(value: String): Text  = Text(value, TextVariant.Caption, Set(), None)
+  def code(value: String): Text     = Text(value, TextVariant.Code, Set(), None)
+  def label(value: String): Text    = Text(value, TextVariant.Label, Set(), None)
 
   def toHtml(element: Text)(using theme: Theme): Html[Nothing] =
     val t = element._modifyTheme match
@@ -118,18 +122,22 @@ object Text:
     val textTheme = getVariantTheme(element.variant, t)
     val styles    = textTheme.toStyles(t)
 
+    val classAttribute =
+      if element.classNames.isEmpty then EmptyAttribute
+      else cls := element.classNames.mkString(" ")
+
     element.variant match
-      case TextVariant.Normal    => span(style(styles))(element.value)
-      case TextVariant.Paragraph => p(style(styles))(element.value)
-      case TextVariant.Heading1  => h1(style(styles))(element.value)
-      case TextVariant.Heading2  => h2(style(styles))(element.value)
-      case TextVariant.Heading3  => h3(style(styles))(element.value)
-      case TextVariant.Heading4  => h4(style(styles))(element.value)
-      case TextVariant.Heading5  => h5(style(styles))(element.value)
-      case TextVariant.Heading6  => h6(style(styles))(element.value)
-      case TextVariant.Caption   => span(style(styles))(element.value)
-      case TextVariant.Code      => tyrian.Html.code(style(styles))(element.value)
-      case TextVariant.Label     => tyrian.Html.label(style(styles))(element.value)
+      case TextVariant.Normal    => span(style(styles), classAttribute)(element.value)
+      case TextVariant.Paragraph => p(style(styles), classAttribute)(element.value)
+      case TextVariant.Heading1  => h1(style(styles), classAttribute)(element.value)
+      case TextVariant.Heading2  => h2(style(styles), classAttribute)(element.value)
+      case TextVariant.Heading3  => h3(style(styles), classAttribute)(element.value)
+      case TextVariant.Heading4  => h4(style(styles), classAttribute)(element.value)
+      case TextVariant.Heading5  => h5(style(styles), classAttribute)(element.value)
+      case TextVariant.Heading6  => h6(style(styles), classAttribute)(element.value)
+      case TextVariant.Caption   => span(style(styles), classAttribute)(element.value)
+      case TextVariant.Code      => tyrian.Html.code(style(styles), classAttribute)(element.value)
+      case TextVariant.Label     => tyrian.Html.label(style(styles), classAttribute)(element.value)
 
   private def getVariantTheme(variant: TextVariant, theme: Theme): TextTheme =
     variant match

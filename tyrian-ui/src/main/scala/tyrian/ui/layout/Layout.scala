@@ -1,5 +1,6 @@
 package tyrian.ui.layout
 
+import tyrian.EmptyAttribute
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.FlexAlignment
@@ -10,14 +11,14 @@ import tyrian.ui.datatypes.Spacing
 /** A vertical layout container using flexbox. */
 final case class Layout[+Msg](
     direction: LayoutDirection,
-    children: List[UIElement[Msg]],
+    children: List[UIElement[?, Msg]],
     spacing: Spacing,
     justify: FlexAlignment,
     align: FlexAlignment,
     ratio: Ratio,
+    classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Msg]:
-  type T = Layout[Nothing]
+) extends UIElement[Layout[?], Msg]:
 
   def withDirection(value: LayoutDirection): Layout[Msg] =
     this.copy(direction = value)
@@ -81,15 +82,15 @@ final case class Layout[+Msg](
       case LayoutDirection.Column => withJustify(FlexAlignment.End)
       case LayoutDirection.Row    => withAlign(FlexAlignment.End)
 
-  // def centerX: Layout[Msg]      = withAlign(FlexAlignment.Center)
-  // def centerY: Layout[Msg]      = withJustify(FlexAlignment.Center)
-  // def center: Layout[Msg]       = centerX.centerY
   def spaceBetween: Layout[Msg] = withJustify(FlexAlignment.SpaceBetween)
   def spaceAround: Layout[Msg]  = withJustify(FlexAlignment.SpaceAround)
   def spaceEvenly: Layout[Msg]  = withJustify(FlexAlignment.SpaceEvenly)
 
-  def modifyTheme(f: Theme => Theme): T =
-    this.copy(_modifyTheme = Some(f)).asInstanceOf[T]
+  def withClassNames(classes: Set[String]): Layout[Msg] =
+    this.copy(classNames = classes)
+
+  def modifyTheme(f: Theme => Theme): Layout[Msg] =
+    this.copy(_modifyTheme = Some(f))
 
   def toHtml: Theme ?=> tyrian.Html[Msg] =
     Layout.toHtml(this)
@@ -100,10 +101,10 @@ object Layout:
   import tyrian.Html.*
   import tyrian.Style
 
-  def apply[Msg](children: UIElement[Msg]*): Layout[Msg] =
+  def apply[Msg](children: UIElement[?, Msg]*): Layout[Msg] =
     Layout(LayoutDirection.Row, children.toList)
 
-  def apply[Msg](direction: LayoutDirection, children: List[UIElement[Msg]]): Layout[Msg] =
+  def apply[Msg](direction: LayoutDirection, children: List[UIElement[?, Msg]]): Layout[Msg] =
     Layout(
       direction = direction,
       children = children,
@@ -111,16 +112,17 @@ object Layout:
       justify = FlexAlignment.Start,
       align = FlexAlignment.Start,
       ratio = Ratio.default,
+      classNames = Set(),
       _modifyTheme = None
     )
 
-  def apply[Msg](direction: LayoutDirection, children: UIElement[Msg]*): Layout[Msg] =
+  def apply[Msg](direction: LayoutDirection, children: UIElement[?, Msg]*): Layout[Msg] =
     Layout(direction, children.toList)
 
-  def row[Msg](children: UIElement[Msg]*): Layout[Msg] =
+  def row[Msg](children: UIElement[?, Msg]*): Layout[Msg] =
     Layout(LayoutDirection.Row, children.toList)
 
-  def column[Msg](children: UIElement[Msg]*): Layout[Msg] =
+  def column[Msg](children: UIElement[?, Msg]*): Layout[Msg] =
     Layout(LayoutDirection.Column, children.toList)
 
   def toHtml[Msg](layout: Layout[Msg])(using theme: Theme): Html[Msg] =
@@ -135,6 +137,10 @@ object Layout:
       "gap"             -> layout.spacing.toCSSValue
     ) |+| layout.direction.toStyle |+| layout.ratio.toStyle
 
+    val classAttribute =
+      if layout.classNames.isEmpty then EmptyAttribute
+      else cls := layout.classNames.mkString(" ")
+
     val childrenHtml = layout.children.map(child => child.toHtml(using t))
 
-    div(style(baseStyles))(childrenHtml*)
+    div(style(baseStyles), classAttribute)(childrenHtml*)
