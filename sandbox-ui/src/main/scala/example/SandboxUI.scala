@@ -5,6 +5,9 @@ import tyrian.*
 import tyrian.ui.*
 import tyrian.ui.button.Button
 import tyrian.ui.datatypes.RGBA
+import tyrian.ui.datatypes.Spacing
+import tyrian.ui.layout.Column
+import tyrian.ui.layout.Row
 import tyrian.ui.text.Text
 
 import scala.scalajs.js.annotation.*
@@ -25,14 +28,26 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
   given Theme = Theme.default
 
   def view(model: Model): Html[Msg] =
-    tyrian.Html.div()(
-      Text("Hello, Tyrian!")
-        .withColor(RGBA.Blue)
-        .toHtml,
-      Button(Msg.NoOp)
-        .withLabel("Click me!")
-        .toHtml
+    Row(
+      Column(
+        Text("Welcome to Tyrian UI!").toHeading1
+          .withColor(RGBA.fromHexString("#2563eb")),
+        Row(
+          Text("Hello, Tyrian!").withColor(RGBA.Blue),
+          Button(Msg.NoOp).withLabel("Click me!"),
+          Text("More text").withColor(RGBA.Red.mix(RGBA.Blue))
+        )
+          .withSpacing(Spacing.Medium)
+          .center,
+        Text("This is just some text")
+          .withColor(RGBA.fromHexString("#6b7280"))
+      ),
+      Column(Text("This is some more text"))
     )
+      .withSpacing(Spacing.Large)
+      .center
+      .middle
+      .toHtml
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     Sub.None
