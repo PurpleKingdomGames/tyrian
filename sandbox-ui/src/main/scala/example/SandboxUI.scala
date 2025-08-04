@@ -3,12 +3,6 @@ package example
 import cats.effect.IO
 import tyrian.*
 import tyrian.ui.*
-import tyrian.ui.button.Button
-import tyrian.ui.datatypes.RGBA
-import tyrian.ui.datatypes.Spacing
-import tyrian.ui.layout.Column
-import tyrian.ui.layout.Row
-import tyrian.ui.text.Text
 
 import scala.scalajs.js.annotation.*
 
@@ -30,19 +24,23 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
   def view(model: Model): Html[Msg] =
     Row(
       Column(
-        Text("Welcome to Tyrian UI!").toHeading1
+        TextBlock("Welcome to Tyrian UI!").toHeading1
           .withColor(RGBA.fromHexString("#2563eb")),
         Row(
-          Text("Hello, Tyrian!").withColor(RGBA.Blue),
+          TextBlock("Hello, Tyrian!").withColor(RGBA.Blue),
           Button(Msg.NoOp).withLabel("Click me!"),
-          Text("More text").withColor(RGBA.Red.mix(RGBA.Blue))
+          TextBlock("More text").withColor(RGBA.Red.mix(RGBA.Blue))
         )
           .withSpacing(Spacing.Medium)
           .center,
-        Text("This is just some text")
+        TextBlock("This is just some text")
           .withColor(RGBA.fromHexString("#6b7280"))
       ),
-      Column(Text("This is some more text"))
+      Column(
+        Container(
+          TextBlock("This is some more text")
+        )
+      )
     )
       .withSpacing(Spacing.Large)
       .center

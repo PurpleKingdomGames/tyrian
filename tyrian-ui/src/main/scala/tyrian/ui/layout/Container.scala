@@ -9,19 +9,24 @@ import tyrian.ui.datatypes.Spacing
 final case class Container[+Msg](
     child: UIElement[?, Msg],
     padding: Spacing,
-    margin: Spacing,
     backgroundColor: Option[RGBA],
+    // borderRadius: String,
+    // border: String,
+    // boxShadow: String,
     width: Option[String],
     height: Option[String],
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
 ) extends UIElement[Container[?], Msg]:
-
+  /* TODO: Styling options...
+	-	backgroundColor: Color
+	-	border: Border e.g., Border(width = 1, color = Color.Black, radius = 4)
+	-	shadow: BoxShadow
+	-	optional, for depth/elevation
+	-	opacity: Double
+   */
   def withPadding(padding: Spacing): Container[Msg] =
     this.copy(padding = padding)
-
-  def withMargin(margin: Spacing): Container[Msg] =
-    this.copy(margin = margin)
 
   def withBackgroundColor(color: RGBA): Container[Msg] =
     this.copy(backgroundColor = Some(color))
@@ -55,7 +60,6 @@ object Container:
     Container(
       child = child,
       padding = Spacing.None,
-      margin = Spacing.None,
       backgroundColor = None,
       width = None,
       height = None,
@@ -70,8 +74,7 @@ object Container:
 
     val stylesList = List(
       Some("padding" -> container.padding.toCSSValue),
-      Some("margin"  -> container.margin.toCSSValue),
-      container.backgroundColor.map(color => "background-color" -> color.toHexString("#")),
+      container.backgroundColor.map(color => "background-color" -> color.toCSSValue),
       container.width.map(w => "width" -> w),
       container.height.map(h => "height" -> h)
     ).flatten

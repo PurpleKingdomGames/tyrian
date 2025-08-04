@@ -54,7 +54,7 @@ final case class TextTheme(
       "font-family" -> theme.fonts.body,
       "font-size"   -> fontSize.toCSSValue,
       "font-weight" -> weight.toCSSValue,
-      "color"       -> color.toHexString("#"),
+      "color"       -> color.toCSSValue,
       "text-align"  -> alignment.toCSSValue,
       "line-height" -> lineHeight.toCSSValue,
       "white-space" -> (if wrap then "normal" else "nowrap")

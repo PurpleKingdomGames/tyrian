@@ -4,14 +4,15 @@ enum FontSize derives CanEqual:
   case XSmall, Small, Medium, Large, XLarge, XXLarge
   case Custom(value: String)
 
-  def toCSSValue: String = this match
-    case XSmall        => "0.75rem"  // 12px at 16px base
-    case Small         => "0.875rem" // 14px at 16px base
-    case Medium        => "1rem"     // 16px at 16px base
-    case Large         => "1.125rem" // 18px at 16px base
-    case XLarge        => "1.5rem"   // 24px at 16px base
-    case XXLarge       => "2rem"     // 32px at 16px base
-    case Custom(value) => value
+  def toCSSValue: String =
+    this match
+      case XSmall        => "0.75rem"  // 12px at 16px base
+      case Small         => "0.875rem" // 14px at 16px base
+      case Medium        => "1rem"     // 16px at 16px base
+      case Large         => "1.125rem" // 18px at 16px base
+      case XLarge        => "1.5rem"   // 24px at 16px base
+      case XXLarge       => "2rem"     // 32px at 16px base
+      case Custom(value) => value
 
 object FontSize:
   val default: FontSize = Medium
