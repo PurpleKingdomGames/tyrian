@@ -28,6 +28,19 @@ final case class RGB(r: Double, g: Double, b: Double) derives CanEqual {
   def mix(other: RGB): RGB =
     mix(other, 0.5)
 
+  def toHexString: String =
+    val convert: Double => String = d =>
+      val hex = Integer.toHexString((Math.min(1, Math.max(0, d)) * 255).toInt)
+      if hex.length == 1 then "0" + hex else hex
+
+    convert(r) + convert(g) + convert(b)
+
+  def toHexString(prefix: String): String =
+    prefix + toHexString
+
+  def toCSSValue: String =
+    s"rgba(${255 * r}, ${255 * g}, ${255 * b})"
+
 }
 
 object RGB {

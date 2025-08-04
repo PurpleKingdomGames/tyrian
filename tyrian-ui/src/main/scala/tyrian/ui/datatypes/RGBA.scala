@@ -50,6 +50,9 @@ final case class RGBA(r: Double, g: Double, b: Double, a: Double) derives CanEqu
   def toHexString(prefix: String): String =
     prefix + toHexString
 
+  def toCSSValue: String =
+    s"rgba(${255 * r}, ${255 * g}, ${255 * b}, ${255 * a})"
+
   def toArray: Array[Float] =
     Array(r.toFloat, g.toFloat, b.toFloat, a.toFloat)
 
