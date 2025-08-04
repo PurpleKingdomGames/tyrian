@@ -11,53 +11,53 @@ import tyrian.ui.datatypes.TextAlignment
 import tyrian.ui.datatypes.TextDecoration
 import tyrian.ui.datatypes.TextStyle
 
-final case class Text(
+final case class TextBlock(
     value: String,
     variant: TextVariant,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Text, Nothing]:
+) extends UIElement[TextBlock, Nothing]:
 
-  def withValue(value: String): Text =
+  def withValue(value: String): TextBlock =
     this.copy(value = value)
 
-  def toNormal: Text   = this.copy(variant = TextVariant.Normal)
-  def toHeading1: Text = this.copy(variant = TextVariant.Heading1)
-  def toHeading2: Text = this.copy(variant = TextVariant.Heading2)
-  def toHeading3: Text = this.copy(variant = TextVariant.Heading3)
-  def toHeading4: Text = this.copy(variant = TextVariant.Heading4)
-  def toHeading5: Text = this.copy(variant = TextVariant.Heading5)
-  def toHeading6: Text = this.copy(variant = TextVariant.Heading6)
-  def toCaption: Text  = this.copy(variant = TextVariant.Caption)
-  def toCode: Text     = this.copy(variant = TextVariant.Code)
-  def toLabel: Text    = this.copy(variant = TextVariant.Label)
+  def toNormal: TextBlock   = this.copy(variant = TextVariant.Normal)
+  def toHeading1: TextBlock = this.copy(variant = TextVariant.Heading1)
+  def toHeading2: TextBlock = this.copy(variant = TextVariant.Heading2)
+  def toHeading3: TextBlock = this.copy(variant = TextVariant.Heading3)
+  def toHeading4: TextBlock = this.copy(variant = TextVariant.Heading4)
+  def toHeading5: TextBlock = this.copy(variant = TextVariant.Heading5)
+  def toHeading6: TextBlock = this.copy(variant = TextVariant.Heading6)
+  def toCaption: TextBlock  = this.copy(variant = TextVariant.Caption)
+  def toCode: TextBlock     = this.copy(variant = TextVariant.Code)
+  def toLabel: TextBlock    = this.copy(variant = TextVariant.Label)
 
-  def bold: Text                               = modifyTextTheme(_.withWeight(FontWeight.Bold))
-  def italic: Text                             = modifyTextTheme(_.withStyle(TextStyle.Italic))
-  def underlined: Text                         = modifyTextTheme(_.withDecoration(TextDecoration.Underline))
-  def strikethrough: Text                      = modifyTextTheme(_.withDecoration(TextDecoration.Strikethrough))
-  def withColor(color: RGBA): Text             = modifyTextTheme(_.withColor(color))
-  def withSize(size: FontSize): Text           = modifyTextTheme(_.withFontSize(size))
-  def withLineHeight(height: LineHeight): Text = modifyTextTheme(_.withLineHeight(height))
-  def wrap: Text                               = modifyTextTheme(_.withWrap(true))
-  def noWrap: Text                             = modifyTextTheme(_.withWrap(false))
+  def bold: TextBlock                               = modifyTextTheme(_.withWeight(FontWeight.Bold))
+  def italic: TextBlock                             = modifyTextTheme(_.withStyle(TextStyle.Italic))
+  def underlined: TextBlock                         = modifyTextTheme(_.withDecoration(TextDecoration.Underline))
+  def strikethrough: TextBlock                      = modifyTextTheme(_.withDecoration(TextDecoration.Strikethrough))
+  def withColor(color: RGBA): TextBlock             = modifyTextTheme(_.withColor(color))
+  def withSize(size: FontSize): TextBlock           = modifyTextTheme(_.withFontSize(size))
+  def withLineHeight(height: LineHeight): TextBlock = modifyTextTheme(_.withLineHeight(height))
+  def wrap: TextBlock                               = modifyTextTheme(_.withWrap(true))
+  def noWrap: TextBlock                             = modifyTextTheme(_.withWrap(false))
 
-  def clearWeight: Text     = modifyTextTheme(_.withWeight(FontWeight.Normal))
-  def clearStyle: Text      = modifyTextTheme(_.withStyle(TextStyle.Normal))
-  def clearDecoration: Text = modifyTextTheme(_.withDecoration(TextDecoration.None))
+  def clearWeight: TextBlock     = modifyTextTheme(_.withWeight(FontWeight.Normal))
+  def clearStyle: TextBlock      = modifyTextTheme(_.withStyle(TextStyle.Normal))
+  def clearDecoration: TextBlock = modifyTextTheme(_.withDecoration(TextDecoration.None))
 
-  def alignLeft: Text    = modifyTextTheme(_.withAlignment(TextAlignment.Left))
-  def alignCenter: Text  = modifyTextTheme(_.withAlignment(TextAlignment.Center))
-  def alignRight: Text   = modifyTextTheme(_.withAlignment(TextAlignment.Right))
-  def alignJustify: Text = modifyTextTheme(_.withAlignment(TextAlignment.Justify))
+  def alignLeft: TextBlock    = modifyTextTheme(_.withAlignment(TextAlignment.Left))
+  def alignCenter: TextBlock  = modifyTextTheme(_.withAlignment(TextAlignment.Center))
+  def alignRight: TextBlock   = modifyTextTheme(_.withAlignment(TextAlignment.Right))
+  def alignJustify: TextBlock = modifyTextTheme(_.withAlignment(TextAlignment.Justify))
 
-  def withClassNames(classes: Set[String]): Text =
+  def withClassNames(classes: Set[String]): TextBlock =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Text =
+  def modifyTheme(f: Theme => Theme): TextBlock =
     this.copy(_modifyTheme = Some(f))
 
-  def modifyTextTheme(f: TextTheme => TextTheme): Text =
+  def modifyTextTheme(f: TextTheme => TextTheme): TextBlock =
     val g: Theme => Theme = theme =>
       val currentVariantTheme = getVariantTheme(variant, theme)
       val modifiedTheme       = f(currentVariantTheme)
@@ -93,28 +93,28 @@ final case class Text(
       case TextVariant.Label     => theme.text.label
 
   def toHtml: Theme ?=> tyrian.Html[Nothing] =
-    Text.toHtml(this)
+    TextBlock.toHtml(this)
 
-object Text:
+object TextBlock:
 
   import tyrian.Html
   import tyrian.Html.*
 
-  def apply(value: String): Text =
-    Text(value, TextVariant.Normal, Set(), None)
+  def apply(value: String): TextBlock =
+    TextBlock(value, TextVariant.Normal, Set(), None)
 
-  def body(value: String): Text     = Text(value, TextVariant.Normal, Set(), None)
-  def heading1(value: String): Text = Text(value, TextVariant.Heading1, Set(), None)
-  def heading2(value: String): Text = Text(value, TextVariant.Heading2, Set(), None)
-  def heading3(value: String): Text = Text(value, TextVariant.Heading3, Set(), None)
-  def heading4(value: String): Text = Text(value, TextVariant.Heading4, Set(), None)
-  def heading5(value: String): Text = Text(value, TextVariant.Heading5, Set(), None)
-  def heading6(value: String): Text = Text(value, TextVariant.Heading6, Set(), None)
-  def caption(value: String): Text  = Text(value, TextVariant.Caption, Set(), None)
-  def code(value: String): Text     = Text(value, TextVariant.Code, Set(), None)
-  def label(value: String): Text    = Text(value, TextVariant.Label, Set(), None)
+  def body(value: String): TextBlock     = TextBlock(value, TextVariant.Normal, Set(), None)
+  def heading1(value: String): TextBlock = TextBlock(value, TextVariant.Heading1, Set(), None)
+  def heading2(value: String): TextBlock = TextBlock(value, TextVariant.Heading2, Set(), None)
+  def heading3(value: String): TextBlock = TextBlock(value, TextVariant.Heading3, Set(), None)
+  def heading4(value: String): TextBlock = TextBlock(value, TextVariant.Heading4, Set(), None)
+  def heading5(value: String): TextBlock = TextBlock(value, TextVariant.Heading5, Set(), None)
+  def heading6(value: String): TextBlock = TextBlock(value, TextVariant.Heading6, Set(), None)
+  def caption(value: String): TextBlock  = TextBlock(value, TextVariant.Caption, Set(), None)
+  def code(value: String): TextBlock     = TextBlock(value, TextVariant.Code, Set(), None)
+  def label(value: String): TextBlock    = TextBlock(value, TextVariant.Label, Set(), None)
 
-  def toHtml(element: Text)(using theme: Theme): Html[Nothing] =
+  def toHtml(element: TextBlock)(using theme: Theme): Html[Nothing] =
     val t = element._modifyTheme match
       case Some(f) => f(theme)
       case None    => theme

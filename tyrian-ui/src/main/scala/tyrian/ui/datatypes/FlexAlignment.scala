@@ -5,14 +5,15 @@ package tyrian.ui.datatypes
 enum FlexAlignment derives CanEqual:
   case Start, Center, End, SpaceBetween, SpaceAround, SpaceEvenly, Stretch
 
-  def toCSSValue: String = this match
-    case Start        => "flex-start"
-    case Center       => "center"
-    case End          => "flex-end"
-    case SpaceBetween => "space-between"
-    case SpaceAround  => "space-around"
-    case SpaceEvenly  => "space-evenly"
-    case Stretch      => "stretch"
+  def toCSSValue: String =
+    this match
+      case Start        => "flex-start"
+      case Center       => "center"
+      case End          => "flex-end"
+      case SpaceBetween => "space-between"
+      case SpaceAround  => "space-around"
+      case SpaceEvenly  => "space-evenly"
+      case Stretch      => "stretch"
 
 object FlexAlignment:
 
