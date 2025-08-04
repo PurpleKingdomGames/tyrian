@@ -15,5 +15,5 @@ enum FontWeight derives CanEqual:
       case Black     => "900"
 
 object FontWeight:
-  
+
   val default: FontWeight = Normal
