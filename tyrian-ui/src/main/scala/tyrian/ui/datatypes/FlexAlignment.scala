@@ -15,5 +15,5 @@ enum FlexAlignment derives CanEqual:
     case Stretch      => "stretch"
 
 object FlexAlignment:
-  
+
   val default: FlexAlignment = Start
