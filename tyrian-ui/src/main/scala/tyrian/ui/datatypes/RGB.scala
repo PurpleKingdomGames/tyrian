@@ -28,7 +28,7 @@ final case class RGB(r: Double, g: Double, b: Double) derives CanEqual {
   def mix(other: RGB): RGB =
     mix(other, 0.5)
 
-  def toHexString: String =
+  def toHex: String =
     val convert: Double => String = d =>
       val hex = Integer.toHexString((Math.min(1, Math.max(0, d)) * 255).toInt)
       if hex.length == 1 then "0" + hex else hex
@@ -36,7 +36,7 @@ final case class RGB(r: Double, g: Double, b: Double) derives CanEqual {
     convert(r) + convert(g) + convert(b)
 
   def toHexString(prefix: String): String =
-    prefix + toHexString
+    prefix + toHex
 
   def toCSSValue: String =
     s"rgba(${255 * r}, ${255 * g}, ${255 * b})"
@@ -53,23 +53,23 @@ object RGB {
   val Cyan: RGB      = RGB(0, 1, 1)
   val White: RGB     = RGB(1, 1, 1)
   val Black: RGB     = RGB(0, 0, 0)
-  val Coral: RGB     = fromHexString("#FF7F50")
-  val Crimson: RGB   = fromHexString("#DC143C")
-  val DarkBlue: RGB  = fromHexString("#00008B")
-  val Indigo: RGB    = fromHexString("#4B0082")
-  val Olive: RGB     = fromHexString("#808000")
-  val Orange: RGB    = fromHexString("#FFA500")
-  val Pink: RGB      = fromHexString("#FFC0CB")
-  val Plum: RGB      = fromHexString("#DDA0DD")
-  val Purple: RGB    = fromHexString("#A020F0")
-  val Salmon: RGB    = fromHexString("#FA8072")
-  val SeaGreen: RGB  = fromHexString("#2E8B57")
-  val Silver: RGB    = fromHexString("#C0C0C0")
-  val SlateGray: RGB = fromHexString("#708090")
-  val SteelBlue: RGB = fromHexString("#4682B4")
-  val Teal: RGB      = fromHexString("#008080")
-  val Thistle: RGB   = fromHexString("#D8BFD8")
-  val Tomato: RGB    = fromHexString("#FF6347")
+  val Coral: RGB     = fromHex("#FF7F50")
+  val Crimson: RGB   = fromHex("#DC143C")
+  val DarkBlue: RGB  = fromHex("#00008B")
+  val Indigo: RGB    = fromHex("#4B0082")
+  val Olive: RGB     = fromHex("#808000")
+  val Orange: RGB    = fromHex("#FFA500")
+  val Pink: RGB      = fromHex("#FFC0CB")
+  val Plum: RGB      = fromHex("#DDA0DD")
+  val Purple: RGB    = fromHex("#A020F0")
+  val Salmon: RGB    = fromHex("#FA8072")
+  val SeaGreen: RGB  = fromHex("#2E8B57")
+  val Silver: RGB    = fromHex("#C0C0C0")
+  val SlateGray: RGB = fromHex("#708090")
+  val SteelBlue: RGB = fromHex("#4682B4")
+  val Teal: RGB      = fromHex("#008080")
+  val Thistle: RGB   = fromHex("#D8BFD8")
+  val Tomato: RGB    = fromHex("#FF6347")
 
   val Normal: RGB = White
   val Zero: RGB   = RGB(0, 0, 0)
@@ -84,7 +84,7 @@ object RGB {
         RGB(x.r + y.r, x.g + y.g, x.b + y.b)
     }
 
-  def fromHexString(hex: String): RGB =
+  def fromHex(hex: String): RGB =
     hex match {
       case h if h.startsWith("0x") && h.length == 8 =>
         fromColorInts(
