@@ -3,6 +3,8 @@ package tyrian.ui.layout
 import tyrian.EmptyAttribute
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
+import tyrian.ui.datatypes.Align
+import tyrian.ui.datatypes.Justify
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.Spacing
 
@@ -10,14 +12,15 @@ final case class Container[+Msg](
     child: UIElement[?, Msg],
     padding: Spacing,
     backgroundColor: Option[RGBA],
+    justify: Justify,
+    align: Align,
     // borderRadius: String,
     // border: String,
     // boxShadow: String,
-    width: Option[String],
-    height: Option[String],
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
 ) extends UIElement[Container[?], Msg]:
+
   /* TODO: Styling options...
 	-	backgroundColor: Color
 	-	border: Border e.g., Border(width = 1, color = Color.Black, radius = 4)
@@ -25,21 +28,36 @@ final case class Container[+Msg](
 	-	optional, for depth/elevation
 	-	opacity: Double
    */
+
   def withPadding(padding: Spacing): Container[Msg] =
     this.copy(padding = padding)
 
   def withBackgroundColor(color: RGBA): Container[Msg] =
     this.copy(backgroundColor = Some(color))
 
-  def withWidth(width: String): Container[Msg] =
-    this.copy(width = Some(width))
+  def withJustify(value: Justify): Container[Msg] =
+    this.copy(justify = value)
 
-  def withHeight(height: String): Container[Msg] =
-    this.copy(height = Some(height))
+  def withAlign(value: Align): Container[Msg] =
+    this.copy(align = value)
 
-  def fillWidth: Container[Msg]  = withWidth("100%")
-  def fillHeight: Container[Msg] = withHeight("100%")
-  def fill: Container[Msg]       = fillWidth.fillHeight
+  def left: Container[Msg] =
+    withJustify(Justify.Left)
+
+  def center: Container[Msg] =
+    withJustify(Justify.Center)
+
+  def right: Container[Msg] =
+    withJustify(Justify.Right)
+
+  def top: Container[Msg] =
+    withAlign(Align.Top)
+
+  def middle: Container[Msg] =
+    withAlign(Align.Middle)
+
+  def bottom: Container[Msg] =
+    withAlign(Align.Bottom)
 
   def withClassNames(classes: Set[String]): Container[Msg] =
     this.copy(classNames = classes)
@@ -61,8 +79,8 @@ object Container:
       child = child,
       padding = Spacing.None,
       backgroundColor = None,
-      width = None,
-      height = None,
+      justify = Justify.Left,
+      align = Align.Top,
       classNames = Set(),
       _modifyTheme = None
     )
@@ -72,18 +90,21 @@ object Container:
       case Some(f) => f(theme)
       case None    => theme
 
-    val stylesList = List(
-      Some("padding" -> container.padding.toCSSValue),
-      container.backgroundColor.map(color => "background-color" -> color.toCSSValue),
-      container.width.map(w => "width" -> w),
-      container.height.map(h => "height" -> h)
-    ).flatten
+    val bgColor =
+      container.backgroundColor.map(color => Style("background-color" -> color.toCSSValue)).getOrElse(Style.empty)
+
+    val baseStyles = Style(
+      "display"         -> "flex",
+      "flex"            -> "1",
+      "justify-content" -> container.justify.toCSSValue,
+      "align-items"     -> container.align.toCSSValue,
+      "padding"         -> container.padding.toCSSValue
+    ) |+| bgColor
 
     val classAttribute =
       if container.classNames.isEmpty then EmptyAttribute
       else cls := container.classNames.mkString(" ")
 
-    val baseStyles = Style(stylesList*)
-    val childHtml  = container.child.toHtml(using t)
+    val childHtml = container.child.toHtml(using t)
 
     div(style(baseStyles), classAttribute)(childHtml)

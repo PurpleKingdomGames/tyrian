@@ -3,18 +3,16 @@ package tyrian.ui.layout
 import tyrian.EmptyAttribute
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
-import tyrian.ui.datatypes.FlexAlignment
 import tyrian.ui.datatypes.LayoutDirection
 import tyrian.ui.datatypes.Ratio
+import tyrian.ui.datatypes.SpaceAlignment
 import tyrian.ui.datatypes.Spacing
 
-/** A vertical layout container using flexbox. */
 final case class Layout[+Msg](
     direction: LayoutDirection,
     children: List[UIElement[?, Msg]],
     spacing: Spacing,
-    justify: FlexAlignment,
-    align: FlexAlignment,
+    spaceAlignment: SpaceAlignment,
     ratio: Ratio,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
@@ -30,11 +28,8 @@ final case class Layout[+Msg](
   def withSpacing(value: Spacing): Layout[Msg] =
     this.copy(spacing = value)
 
-  def withJustify(value: FlexAlignment): Layout[Msg] =
-    this.copy(justify = value)
-
-  def withAlign(value: FlexAlignment): Layout[Msg] =
-    this.copy(align = value)
+  def withSpaceAlignment(value: SpaceAlignment): Layout[Msg] =
+    this.copy(spaceAlignment = value)
 
   def withRatio(value: Ratio): Layout[Msg] =
     this.copy(ratio = value)
@@ -50,41 +45,19 @@ final case class Layout[+Msg](
   def ratio9: Layout[Msg]  = withRatio(Ratio.one)
   def ratio10: Layout[Msg] = withRatio(Ratio.one)
 
-  // TODO: like left center right etc. spaceAround, spaceBetween, spaceEvenly, stretch (default)
+  // Aid to memory: "Justify the main axis, align the cross."
 
-  def left: Layout[Msg] =
-    direction match
-      case LayoutDirection.Row    => withJustify(FlexAlignment.Start)
-      case LayoutDirection.Column => withAlign(FlexAlignment.Start)
+  def spaceAround: Layout[Msg] =
+    withSpaceAlignment(SpaceAlignment.SpaceAround)
 
-  def center: Layout[Msg] =
-    direction match
-      case LayoutDirection.Row    => withJustify(FlexAlignment.Center)
-      case LayoutDirection.Column => withAlign(FlexAlignment.Center)
+  def spaceBetween: Layout[Msg] =
+    withSpaceAlignment(SpaceAlignment.SpaceBetween)
 
-  def right: Layout[Msg] =
-    direction match
-      case LayoutDirection.Row    => withJustify(FlexAlignment.End)
-      case LayoutDirection.Column => withAlign(FlexAlignment.End)
+  def spaceEvenly: Layout[Msg] =
+    withSpaceAlignment(SpaceAlignment.SpaceEvenly)
 
-  def top: Layout[Msg] =
-    direction match
-      case LayoutDirection.Column => withJustify(FlexAlignment.Start)
-      case LayoutDirection.Row    => withAlign(FlexAlignment.Start)
-
-  def middle: Layout[Msg] =
-    direction match
-      case LayoutDirection.Column => withJustify(FlexAlignment.Center)
-      case LayoutDirection.Row    => withAlign(FlexAlignment.Center)
-
-  def bottom: Layout[Msg] =
-    direction match
-      case LayoutDirection.Column => withJustify(FlexAlignment.End)
-      case LayoutDirection.Row    => withAlign(FlexAlignment.End)
-
-  def spaceBetween: Layout[Msg] = withJustify(FlexAlignment.SpaceBetween)
-  def spaceAround: Layout[Msg]  = withJustify(FlexAlignment.SpaceAround)
-  def spaceEvenly: Layout[Msg]  = withJustify(FlexAlignment.SpaceEvenly)
+  def stretch: Layout[Msg] =
+    withSpaceAlignment(SpaceAlignment.Stretch)
 
   def withClassNames(classes: Set[String]): Layout[Msg] =
     this.copy(classNames = classes)
@@ -109,8 +82,7 @@ object Layout:
       direction = direction,
       children = children,
       spacing = Spacing.None,
-      justify = FlexAlignment.Start,
-      align = FlexAlignment.Start,
+      spaceAlignment = SpaceAlignment.Stretch,
       ratio = Ratio.default,
       classNames = Set(),
       _modifyTheme = None
@@ -132,8 +104,8 @@ object Layout:
 
     val baseStyles = Style(
       "display"         -> "flex",
-      "justify-content" -> layout.justify.toCSSValue,
-      "align-items"     -> layout.align.toCSSValue,
+      "justify-content" -> layout.spaceAlignment.toCSSValue,
+      "align-items"     -> "stretch",
       "gap"             -> layout.spacing.toCSSValue
     ) |+| layout.direction.toStyle |+| layout.ratio.toStyle
 

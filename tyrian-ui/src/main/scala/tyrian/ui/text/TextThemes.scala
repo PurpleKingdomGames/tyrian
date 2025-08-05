@@ -28,7 +28,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.Medium,
       weight = FontWeight.Normal,
-      color = RGBA.fromHexString("#333333"),
+      color = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
       wrap = true,
@@ -40,7 +40,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.Medium,
       weight = FontWeight.Normal,
-      color = RGBA.fromHexString("#333333"),
+      color = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
       wrap = true,
@@ -52,7 +52,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.heading1,
       weight = FontWeight.SemiBold,
-      color = RGBA.fromHexString("#1a1a1a"),
+      color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
       wrap = true,
@@ -64,7 +64,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.heading2,
       weight = FontWeight.SemiBold,
-      color = RGBA.fromHexString("#1a1a1a"),
+      color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
       wrap = true,
@@ -76,7 +76,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.heading3,
       weight = FontWeight.SemiBold,
-      color = RGBA.fromHexString("#1a1a1a"),
+      color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Custom("1.3"),
       wrap = true,
@@ -88,7 +88,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.heading4,
       weight = FontWeight.SemiBold,
-      color = RGBA.fromHexString("#1a1a1a"),
+      color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Custom("1.3"),
       wrap = true,
@@ -100,7 +100,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.heading5,
       weight = FontWeight.SemiBold,
-      color = RGBA.fromHexString("#1a1a1a"),
+      color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = true,
@@ -112,7 +112,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.heading6,
       weight = FontWeight.SemiBold,
-      color = RGBA.fromHexString("#1a1a1a"),
+      color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = true,
@@ -124,7 +124,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.XSmall,
       weight = FontWeight.Normal,
-      color = RGBA.fromHexString("#666666"),
+      color = RGBA.fromHex("#666666"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = true,
@@ -136,7 +136,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.Small,
       weight = FontWeight.Normal,
-      color = RGBA.fromHexString("#d73a49"),
+      color = RGBA.fromHex("#d73a49"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = false,
@@ -148,7 +148,7 @@ object TextThemes:
     TextTheme(
       fontSize = FontSize.Small,
       weight = FontWeight.Medium,
-      color = RGBA.fromHexString("#333333"),
+      color = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = false,

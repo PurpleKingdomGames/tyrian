@@ -10,8 +10,14 @@ val ButtonTheme: button.ButtonTheme.type = button.ButtonTheme
 
 // Data Types
 
-type FlexAlignment = datatypes.FlexAlignment
-val FlexAlignment: datatypes.FlexAlignment.type = datatypes.FlexAlignment
+type SpaceAlignment = datatypes.SpaceAlignment
+val SpaceAlignment: datatypes.SpaceAlignment.type = datatypes.SpaceAlignment
+
+type Justify = datatypes.Justify
+val Justify: datatypes.Justify.type = datatypes.Justify
+
+type Align = datatypes.Align
+val Align: datatypes.Align.type = datatypes.Align
 
 type FontSize = datatypes.FontSize
 val FontSize: datatypes.FontSize.type = datatypes.FontSize
