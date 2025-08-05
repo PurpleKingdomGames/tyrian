@@ -40,7 +40,7 @@ final case class RGBA(r: Double, g: Double, b: Double, a: Double) derives CanEqu
   def toRGB: RGB =
     RGB(r, g, b)
 
-  def toHexString: String =
+  def toHex: String =
     val convert: Double => String = d =>
       val hex = Integer.toHexString((Math.min(1, Math.max(0, d)) * 255).toInt)
       if hex.length == 1 then "0" + hex else hex
@@ -48,7 +48,7 @@ final case class RGBA(r: Double, g: Double, b: Double, a: Double) derives CanEqu
     convert(r) + convert(g) + convert(b) + convert(a)
 
   def toHexString(prefix: String): String =
-    prefix + toHexString
+    prefix + toHex
 
   def toCSSValue: String =
     s"rgba(${255 * r}, ${255 * g}, ${255 * b}, ${255 * a})"
@@ -72,23 +72,23 @@ object RGBA:
   val Zero: RGBA   = RGBA(0, 0, 0, 0)
 
   // https://en.wikipedia.org/wiki/X11_color_names
-  val Coral: RGBA     = fromHexString("#FF7F50")
-  val Crimson: RGBA   = fromHexString("#DC143C")
-  val DarkBlue: RGBA  = fromHexString("#00008B")
-  val Indigo: RGBA    = fromHexString("#4B0082")
-  val Olive: RGBA     = fromHexString("#808000")
-  val Orange: RGBA    = fromHexString("#FFA500")
-  val Pink: RGBA      = fromHexString("#FFC0CB")
-  val Plum: RGBA      = fromHexString("#DDA0DD")
-  val Purple: RGBA    = fromHexString("#A020F0")
-  val Salmon: RGBA    = fromHexString("#FA8072")
-  val SeaGreen: RGBA  = fromHexString("#2E8B57")
-  val Silver: RGBA    = fromHexString("#C0C0C0")
-  val SlateGray: RGBA = fromHexString("#708090")
-  val SteelBlue: RGBA = fromHexString("#4682B4")
-  val Teal: RGBA      = fromHexString("#008080")
-  val Thistle: RGBA   = fromHexString("#D8BFD8")
-  val Tomato: RGBA    = fromHexString("#FF6347")
+  val Coral: RGBA     = fromHex("#FF7F50")
+  val Crimson: RGBA   = fromHex("#DC143C")
+  val DarkBlue: RGBA  = fromHex("#00008B")
+  val Indigo: RGBA    = fromHex("#4B0082")
+  val Olive: RGBA     = fromHex("#808000")
+  val Orange: RGBA    = fromHex("#FFA500")
+  val Pink: RGBA      = fromHex("#FFC0CB")
+  val Plum: RGBA      = fromHex("#DDA0DD")
+  val Purple: RGBA    = fromHex("#A020F0")
+  val Salmon: RGBA    = fromHex("#FA8072")
+  val SeaGreen: RGBA  = fromHex("#2E8B57")
+  val Silver: RGBA    = fromHex("#C0C0C0")
+  val SlateGray: RGBA = fromHex("#708090")
+  val SteelBlue: RGBA = fromHex("#4682B4")
+  val Teal: RGBA      = fromHex("#008080")
+  val Thistle: RGBA   = fromHex("#D8BFD8")
+  val Tomato: RGBA    = fromHex("#FF6347")
 
   def apply(r: Double, g: Double, b: Double): RGBA =
     RGBA(r, g, b, 1.0)
@@ -103,7 +103,7 @@ object RGBA:
         RGBA(x.r + y.r, x.g + y.g, x.b + y.b, x.a + y.a)
     }
 
-  def fromHexString(hex: String): RGBA =
+  def fromHex(hex: String): RGBA =
     hex match {
       case h if h.startsWith("0x") && h.length == 10 =>
         fromColorInts(
