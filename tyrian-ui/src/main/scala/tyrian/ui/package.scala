@@ -69,6 +69,25 @@ val Row: layout.Row.type = layout.Row
 type HtmlElement = html.HtmlElement
 val HtmlElement: html.HtmlElement.type = html.HtmlElement
 
+// Image
+
+type Image = image.Image
+val Image: image.Image.type = image.Image
+
+type ObjectFit = datatypes.ImageFit
+val ObjectFit: datatypes.ImageFit.type = datatypes.ImageFit
+
+type Border = datatypes.Border
+val Border: datatypes.Border.type = datatypes.Border
+
+type BorderRadius = datatypes.BorderRadius
+val BorderRadius: datatypes.BorderRadius.type = datatypes.BorderRadius
+
+type BorderStyle = datatypes.BorderStyle
+val BorderStyle: datatypes.BorderStyle.type = datatypes.BorderStyle
+
+type BorderWidth = datatypes.BorderWidth
+val BorderWidth: datatypes.BorderWidth.type = datatypes.BorderWidth
 
 // Text
 

@@ -14,6 +14,8 @@ final case class Container[+Msg](
     backgroundColor: Option[RGBA],
     justify: Justify,
     align: Align,
+    width: Option[String],  // TODO: Yuk. Strings for sizes!
+    height: Option[String], // TODO: Yuk. Strings for sizes!
     // borderRadius: String,
     // border: String,
     // boxShadow: String,
@@ -40,6 +42,18 @@ final case class Container[+Msg](
 
   def withAlign(value: Align): Container[Msg] =
     this.copy(align = value)
+
+  def withWidth(width: String): Container[Msg] =
+    this.copy(width = Some(width))
+  def fillWidth: Container[Msg] = withWidth("100%")
+
+  def withHeight(height: String): Container[Msg] =
+    this.copy(height = Some(height))
+  def fillHeight: Container[Msg] = withHeight("100%")
+
+  def withSize(width: String, height: String): Container[Msg] =
+    this.copy(width = Some(width), height = Some(height))
+  def fillContainer: Container[Msg] = withSize("100%", "100%")
 
   def left: Container[Msg] =
     withJustify(Justify.Left)
@@ -81,6 +95,8 @@ object Container:
       backgroundColor = None,
       justify = Justify.Left,
       align = Align.Top,
+      width = None,
+      height = None,
       classNames = Set(),
       _modifyTheme = None
     )
@@ -101,10 +117,15 @@ object Container:
       "padding"         -> container.padding.toCSSValue
     ) |+| bgColor
 
+    val sizeAttributes = List(
+      container.width.map(w => width := w).toList,
+      container.height.map(h => height := h).toList
+    ).flatten
+
     val classAttribute =
       if container.classNames.isEmpty then EmptyAttribute
       else cls := container.classNames.mkString(" ")
 
     val childHtml = container.child.toHtml(using t)
 
-    div(style(baseStyles), classAttribute)(childHtml)
+    div(style(baseStyles) :: classAttribute :: sizeAttributes)(childHtml)

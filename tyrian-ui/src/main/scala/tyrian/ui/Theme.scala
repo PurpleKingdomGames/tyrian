@@ -1,13 +1,15 @@
 package tyrian.ui
 
 import tyrian.ui.button.*
+import tyrian.ui.image.*
 import tyrian.ui.text.*
 import tyrian.ui.theme.*
 
 final case class Theme(
+    button: ButtonTheme,
     colors: ThemeColors,
     fonts: ThemeFonts,
-    button: ButtonTheme,
+    image: ImageTheme,
     text: TextThemes
 ):
 
@@ -30,8 +32,9 @@ object Theme:
 
   def default: Theme =
     Theme(
+      button = ButtonTheme.default,
       colors = ThemeColors.default,
       fonts = ThemeFonts.default,
-      button = ButtonTheme.default,
+      image = ImageTheme.default,
       text = TextThemes.default
     )
