@@ -61,8 +61,15 @@ final case class TextBlock(
     val g: Theme => Theme = theme =>
       val currentVariantTheme = getVariantTheme(variant, theme)
       val modifiedTheme       = f(currentVariantTheme)
+
       theme.copy(text = updateVariantTheme(theme.text, variant, modifiedTheme))
-    this.copy(_modifyTheme = Some(g))
+
+    _modifyTheme match
+      case Some(f) =>
+        this.copy(_modifyTheme = Some(f andThen g))
+
+      case None =>
+        this.copy(_modifyTheme = Some(g))
 
   private def updateVariantTheme(themes: TextThemes, variant: TextVariant, newTheme: TextTheme): TextThemes =
     variant match

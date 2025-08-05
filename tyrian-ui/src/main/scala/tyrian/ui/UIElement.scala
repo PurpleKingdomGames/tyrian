@@ -16,28 +16,17 @@ trait UIElement[T, +Msg]:
 /*
 
 Stateless Components
-	-	Text
+	-	Text - DONE
 	-	Image
 	-	Icon
-	-	Row
-	-	Column
-	-	El
+	-	Row - DONE
+	-	Column - DONE
+	-	El / Container - DONE
 	-	Spacer
-	-	Paragraph
+	-	Paragraph - DONE
 	-	WrappedRow
 	-	WrappedColumn
-	-	Padding
-	-	CenterX
-	-	CenterY
-	-	AlignRight
-	-	Width
-	-	Height
-	-	Background
-	-	Border
-	-	Font
-	-	Color
-	-	None
-	-	HtmlElement
+	-	HtmlElement - DONE
 	-	Divider
 	-	Label
 

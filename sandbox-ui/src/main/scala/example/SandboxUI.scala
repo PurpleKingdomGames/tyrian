@@ -48,7 +48,15 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
       Column(
         Container(
           TextBlock("This is some more text.")
-        ).middle.center
+        ).middle.center,
+        Image(
+          "https://raw.githubusercontent.com/PurpleKingdomGames/roguelike-starterkit/417f4e372b4792972ef62aea0c917088a9fc82fd/roguelike.gif",
+          "Roguelike"
+        )
+          .withSize("200px", "150px")
+          .cover
+          .rounded // TODO: This isn't working right. The rounded isn't being preseved when the solid border is applied.
+          .withSolidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
       )
     )
       .withSpacing(Spacing.Large)

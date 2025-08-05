@@ -1,5 +1,6 @@
 package tyrian.ui.theme
 
+// TODO: Strings?
 final case class ThemeFonts(
     body: String,
     heading: String,
