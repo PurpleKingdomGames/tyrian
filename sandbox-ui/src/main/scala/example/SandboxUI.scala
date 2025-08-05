@@ -33,7 +33,17 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
         )
           .withSpacing(Spacing.Medium),
         TextBlock("This is just some text")
-          .withColor(RGBA.fromHex("#6b7280"))
+          .withColor(RGBA.fromHex("#6b7280")),
+        tyrian.ui.html.HtmlElement(
+          tyrian.Html.div(
+            tyrian.Html.style := "border: 2px dashed #ccc; padding: 1rem; border-radius: 4px; margin: 1rem 0;"
+          )(
+            tyrian.Html.p("This is arbitrary HTML embedded within the UI component system!"),
+            tyrian.Html.strong("Bold text"),
+            tyrian.Html.text(" and "),
+            tyrian.Html.em("italic text")
+          )
+        )
       ),
       Column(
         Container(
