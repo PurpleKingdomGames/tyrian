@@ -64,6 +64,12 @@ val Layout: layout.Layout.type = layout.Layout
 
 val Row: layout.Row.type = layout.Row
 
+// HTML
+
+type HtmlElement = html.HtmlElement
+val HtmlElement: html.HtmlElement.type = html.HtmlElement
+
+
 // Text
 
 type TextBlock = text.TextBlock
