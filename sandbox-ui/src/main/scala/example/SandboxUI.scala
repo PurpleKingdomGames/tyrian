@@ -25,26 +25,23 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
     Row(
       Column(
         TextBlock("Welcome to Tyrian UI!").toHeading1
-          .withColor(RGBA.fromHexString("#2563eb")),
+          .withColor(RGBA.fromHex("#2563eb")),
         Row(
           TextBlock("Hello, Tyrian!").withColor(RGBA.Blue),
           Button(Msg.NoOp).withLabel("Click me!"),
           TextBlock("More text").withColor(RGBA.Red.mix(RGBA.Blue))
         )
-          .withSpacing(Spacing.Medium)
-          .center,
+          .withSpacing(Spacing.Medium),
         TextBlock("This is just some text")
-          .withColor(RGBA.fromHexString("#6b7280"))
+          .withColor(RGBA.fromHex("#6b7280"))
       ),
       Column(
         Container(
-          TextBlock("This is some more text")
-        )
+          TextBlock("This is some more text.")
+        ).middle.center
       )
     )
       .withSpacing(Spacing.Large)
-      .center
-      .middle
       .toHtml
 
   def subscriptions(model: Model): Sub[IO, Msg] =
