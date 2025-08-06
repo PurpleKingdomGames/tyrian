@@ -1,4 +1,4 @@
-package tyrian.ui.image
+package tyrian.ui.layout
 
 import tyrian.Style
 import tyrian.ui.datatypes.Border
@@ -8,61 +8,61 @@ import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.RGBA
 
-final case class ImageTheme(
+final case class ContainerTheme(
     border: Option[Border],
     boxShadow: Option[BoxShadow]
 ):
 
-  def withBorder(border: Border): ImageTheme =
+  def withBorder(border: Border): ContainerTheme =
     this.copy(border = Some(border))
 
-  def noBorder: ImageTheme =
+  def noBorder: ContainerTheme =
     this.copy(border = None)
 
-  def modifyBorder(f: Border => Border): ImageTheme =
+  def modifyBorder(f: Border => Border): ContainerTheme =
     withBorder(
       border match
         case Some(b) => f(b)
         case None    => f(Border.default)
     )
 
-  def solidBorder(width: BorderWidth, color: RGBA): ImageTheme =
+  def solidBorder(width: BorderWidth, color: RGBA): ContainerTheme =
     modifyBorder(_.withStyle(BorderStyle.Solid).withWidth(width).withColor(color))
-  def dashedBorder(width: BorderWidth, color: RGBA): ImageTheme =
+  def dashedBorder(width: BorderWidth, color: RGBA): ContainerTheme =
     modifyBorder(_.withStyle(BorderStyle.Dashed).withWidth(width).withColor(color))
 
-  def withBorderRadius(radius: BorderRadius): ImageTheme =
+  def withBorderRadius(radius: BorderRadius): ContainerTheme =
     withBorder(
       border match
         case Some(b) => b.withRadius(radius)
         case None    => Border.default.withRadius(radius)
     )
-  def square: ImageTheme       = withBorderRadius(BorderRadius.None)
-  def rounded: ImageTheme      = withBorderRadius(BorderRadius.Medium)
-  def roundedSmall: ImageTheme = withBorderRadius(BorderRadius.Small)
-  def roundedLarge: ImageTheme = withBorderRadius(BorderRadius.Large)
-  def circular: ImageTheme     = withBorderRadius(BorderRadius.Full)
+  def square: ContainerTheme       = withBorderRadius(BorderRadius.None)
+  def rounded: ContainerTheme      = withBorderRadius(BorderRadius.Medium)
+  def roundedSmall: ContainerTheme = withBorderRadius(BorderRadius.Small)
+  def roundedLarge: ContainerTheme = withBorderRadius(BorderRadius.Large)
+  def circular: ContainerTheme     = withBorderRadius(BorderRadius.Full)
 
-  def withBoxShadow(boxShadow: BoxShadow): ImageTheme =
+  def withBoxShadow(boxShadow: BoxShadow): ContainerTheme =
     this.copy(boxShadow = Some(boxShadow))
 
-  def noBoxShadow: ImageTheme =
+  def noBoxShadow: ContainerTheme =
     this.copy(boxShadow = None)
 
-  def modifyBoxShadow(f: BoxShadow => BoxShadow): ImageTheme =
+  def modifyBoxShadow(f: BoxShadow => BoxShadow): ContainerTheme =
     withBoxShadow(
       boxShadow match
         case Some(s) => f(s)
         case None    => f(BoxShadow.none)
     )
 
-  def shadowSmall(color: RGBA): ImageTheme =
+  def shadowSmall(color: RGBA): ContainerTheme =
     withBoxShadow(BoxShadow.small(color))
-  def shadowMedium(color: RGBA): ImageTheme =
+  def shadowMedium(color: RGBA): ContainerTheme =
     withBoxShadow(BoxShadow.medium(color))
-  def shadowLarge(color: RGBA): ImageTheme =
+  def shadowLarge(color: RGBA): ContainerTheme =
     withBoxShadow(BoxShadow.large(color))
-  def shadowExtraLarge(color: RGBA): ImageTheme =
+  def shadowExtraLarge(color: RGBA): ContainerTheme =
     withBoxShadow(BoxShadow.extraLarge(color))
 
   def toStyle: Style =
@@ -70,10 +70,10 @@ final case class ImageTheme(
     val shadowStyle = boxShadow.map(_.toStyle).getOrElse(Style.empty)
     borderStyle |+| shadowStyle
 
-object ImageTheme:
+object ContainerTheme:
 
-  val default: ImageTheme =
-    ImageTheme(
+  val default: ContainerTheme =
+    ContainerTheme(
       border = None,
       boxShadow = None
     )

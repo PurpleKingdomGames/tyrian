@@ -9,6 +9,7 @@ import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.Extent
 import tyrian.ui.datatypes.ImageFit
 import tyrian.ui.datatypes.RGBA
+import tyrian.ui.layout.ContainerTheme
 
 final case class Image[+Msg](
     src: String,
@@ -86,7 +87,7 @@ final case class Image[+Msg](
 
     this.copy(_modifyTheme = Some(h))
 
-  def modifyImageTheme(f: ImageTheme => ImageTheme): Image[Msg] =
+  def modifyImageTheme(f: ContainerTheme => ContainerTheme): Image[Msg] =
     val g: Theme => Theme = theme => theme.copy(image = f(theme.image))
     modifyTheme(g)
 

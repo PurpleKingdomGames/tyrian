@@ -59,6 +59,9 @@ val Column: layout.Column.type = layout.Column
 type Container = layout.Container
 val Container: layout.Container.type = layout.Container
 
+type ContainerTheme = layout.ContainerTheme
+val ContainerTheme: layout.ContainerTheme.type = layout.ContainerTheme
+
 type Layout = layout.Layout
 val Layout: layout.Layout.type = layout.Layout
 
