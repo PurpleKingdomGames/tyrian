@@ -48,7 +48,13 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
       Column(
         Container(
           TextBlock("This is some more text.")
-        ).middle.center,
+        ).middle.center
+          .withPadding(Spacing.Large)
+          .rounded
+          .solidBorder(BorderWidth.Medium, RGBA.fromHex("#10b981"))
+          .shadowMedium(RGBA.fromHex("#00000040"))
+          .withBackgroundColor(RGBA.fromHex("#ecfdf5"))
+          .withOpacity(Opacity.High),
         Image(
           "https://raw.githubusercontent.com/PurpleKingdomGames/roguelike-starterkit/417f4e372b4792972ef62aea0c917088a9fc82fd/roguelike.gif",
           "Roguelike"

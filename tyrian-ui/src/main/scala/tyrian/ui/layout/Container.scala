@@ -5,38 +5,28 @@ import tyrian.ui.Extent
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Align
+import tyrian.ui.datatypes.Border
+import tyrian.ui.datatypes.BorderRadius
+import tyrian.ui.datatypes.BorderWidth
+import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.Justify
+import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.Spacing
 
 final case class Container[+Msg](
     child: UIElement[?, Msg],
     padding: Spacing,
-    backgroundColor: Option[RGBA],
     justify: Justify,
     align: Align,
     width: Option[Extent],
     height: Option[Extent],
-    // borderRadius: String,
-    // border: String,
-    // boxShadow: String,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
 ) extends UIElement[Container[?], Msg]:
 
-  /* TODO: Styling options...
-	-	backgroundColor: Color
-	-	border: Border e.g., Border(width = 1, color = Color.Black, radius = 4)
-	-	shadow: BoxShadow
-	-	optional, for depth/elevation
-	-	opacity: Double
-   */
-
   def withPadding(padding: Spacing): Container[Msg] =
     this.copy(padding = padding)
-
-  def withBackgroundColor(color: RGBA): Container[Msg] =
-    this.copy(backgroundColor = Some(color))
 
   def withJustify(value: Justify): Container[Msg] =
     this.copy(justify = value)
@@ -78,7 +68,72 @@ final case class Container[+Msg](
     this.copy(classNames = classes)
 
   def modifyTheme(f: Theme => Theme): Container[Msg] =
-    this.copy(_modifyTheme = Some(f))
+    val h =
+      _modifyTheme match
+        case Some(g) => f andThen g
+        case None    => f
+
+    this.copy(_modifyTheme = Some(h))
+
+  def modifyContainerTheme(f: ContainerTheme => ContainerTheme): Container[Msg] =
+    val g: Theme => Theme = theme => theme.copy(container = f(theme.container))
+    modifyTheme(g)
+
+  def withBorder(border: Border): Container[Msg] =
+    modifyContainerTheme(_.withBorder(border))
+  def noBorder: Container[Msg] =
+    modifyContainerTheme(_.noBorder)
+  def modifyBorder(f: Border => Border): Container[Msg] =
+    modifyContainerTheme(_.modifyBorder(f))
+  def solidBorder(width: BorderWidth, color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.solidBorder(width, color))
+  def dashedBorder(width: BorderWidth, color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.dashedBorder(width, color))
+
+  def withBorderRadius(radius: BorderRadius): Container[Msg] =
+    modifyContainerTheme(_.withBorderRadius(radius))
+
+  def square: Container[Msg] =
+    modifyContainerTheme(_.square)
+  def rounded: Container[Msg] =
+    modifyContainerTheme(_.rounded)
+  def roundedSmall: Container[Msg] =
+    modifyContainerTheme(_.roundedSmall)
+  def roundedLarge: Container[Msg] =
+    modifyContainerTheme(_.roundedLarge)
+  def circular: Container[Msg] =
+    modifyContainerTheme(_.circular)
+
+  def withBoxShadow(boxShadow: BoxShadow): Container[Msg] =
+    modifyContainerTheme(_.withBoxShadow(boxShadow))
+  def noBoxShadow: Container[Msg] =
+    modifyContainerTheme(_.noBoxShadow)
+  def modifyBoxShadow(f: BoxShadow => BoxShadow): Container[Msg] =
+    modifyContainerTheme(_.modifyBoxShadow(f))
+  def shadowSmall(color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.shadowSmall(color))
+  def shadowMedium(color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.shadowMedium(color))
+  def shadowLarge(color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.shadowLarge(color))
+  def shadowExtraLarge(color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.shadowExtraLarge(color))
+
+  def withOpacity(opacity: Opacity): Container[Msg] =
+    modifyContainerTheme(_.withOpacity(opacity))
+  def noOpacity: Container[Msg] =
+    modifyContainerTheme(_.noOpacity)
+  def fullyOpaque: Container[Msg] =
+    modifyContainerTheme(_.fullyOpaque)
+  def semiTransparent: Container[Msg] =
+    modifyContainerTheme(_.semiTransparent)
+  def transparent: Container[Msg] =
+    modifyContainerTheme(_.transparent)
+
+  def withBackgroundColor(color: RGBA): Container[Msg] =
+    modifyContainerTheme(_.withBackgroundColor(color))
+  def noBackgroundColor: Container[Msg] =
+    modifyContainerTheme(_.noBackgroundColor)
 
   def toHtml: Theme ?=> tyrian.Html[Msg] =
     Container.toHtml(this)
@@ -93,7 +148,6 @@ object Container:
     Container(
       child = child,
       padding = Spacing.None,
-      backgroundColor = None,
       justify = Justify.Left,
       align = Align.Top,
       width = None,
@@ -107,16 +161,15 @@ object Container:
       case Some(f) => f(theme)
       case None    => theme
 
-    val bgColor =
-      container.backgroundColor.map(color => Style("background-color" -> color.toCSSValue)).getOrElse(Style.empty)
-
     val baseStyles = Style(
       "display"         -> "flex",
       "flex"            -> "1",
       "justify-content" -> container.justify.toCSSValue,
       "align-items"     -> container.align.toCSSValue,
       "padding"         -> container.padding.toCSSValue
-    ) |+| bgColor
+    )
+
+    val containerThemeStyles = t.container.toStyle
 
     val sizeAttributes = List(
       container.width.map(w => width := w.toCSSValue).toList,
@@ -129,4 +182,4 @@ object Container:
 
     val childHtml = container.child.toHtml(using t)
 
-    div(style(baseStyles) :: classAttribute :: sizeAttributes)(childHtml)
+    div(style(baseStyles |+| containerThemeStyles) :: classAttribute :: sizeAttributes)(childHtml)
