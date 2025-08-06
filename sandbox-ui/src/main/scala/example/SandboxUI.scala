@@ -55,8 +55,8 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
         )
           .withSize("200px", "150px")
           .cover
-          .rounded // TODO: This isn't working right. The rounded isn't being preseved when the solid border is applied.
-          .withSolidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
+          .rounded
+          .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
       )
     )
       .withSpacing(Spacing.Large)
