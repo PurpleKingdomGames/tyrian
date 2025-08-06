@@ -6,10 +6,10 @@ enum LineHeight derives CanEqual:
 
   def toCSSValue: String =
     this match
-      case Tight         => "1.2"
-      case Normal        => "1.4"
-      case Relaxed       => "1.5"
-      case Loose         => "1.7"
+      case Tight         => "1.2rem"
+      case Normal        => "1.4rem"
+      case Relaxed       => "1.5rem"
+      case Loose         => "1.7rem"
       case Custom(value) => value
 
 object LineHeight:
