@@ -4,7 +4,6 @@ import tyrian.EmptyAttribute
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Border
-import tyrian.ui.datatypes.BorderRadius
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.ImageFit
 import tyrian.ui.datatypes.RGBA
@@ -44,31 +43,35 @@ final case class Image[+Msg](
   def fill: Image[Msg]      = withFit(ImageFit.Fill)
   def scaleDown: Image[Msg] = withFit(ImageFit.ScaleDown)
 
-  def withSolidBorder(width: BorderWidth, color: RGBA): Image[Msg] =
-    modifyImageTheme(_.withBorder(Border.solid(width, color)))
-  def withDashedBorder(width: BorderWidth, color: RGBA): Image[Msg] =
-    modifyImageTheme(_.withBorder(Border.dashed(width, color)))
+  def withBorder(border: Border): Image[Msg] =
+    modifyImageTheme(_.withBorder(border))
+  def modifyBorder(f: Border => Border): Image[Msg] =
+    modifyImageTheme(_.modifyBorder(f))
+  def solidBorder(width: BorderWidth, color: RGBA): Image[Msg] =
+    modifyImageTheme(_.solidBorder(width, color))
+  def dashedBorder(width: BorderWidth, color: RGBA): Image[Msg] =
+    modifyImageTheme(_.dashedBorder(width, color))
 
-  def rounded: Image[Msg]      = modifyImageTheme(_.withBorderRadius(BorderRadius.Medium))
-  def roundedSmall: Image[Msg] = modifyImageTheme(_.withBorderRadius(BorderRadius.Small))
-  def roundedLarge: Image[Msg] = modifyImageTheme(_.withBorderRadius(BorderRadius.Large))
-  def circular: Image[Msg]     = modifyImageTheme(_.withBorderRadius(BorderRadius.Full))
+  def square: Image[Msg]       = modifyImageTheme(_.square)
+  def rounded: Image[Msg]      = modifyImageTheme(_.rounded)
+  def roundedSmall: Image[Msg] = modifyImageTheme(_.roundedSmall)
+  def roundedLarge: Image[Msg] = modifyImageTheme(_.roundedLarge)
+  def circular: Image[Msg]     = modifyImageTheme(_.circular)
 
   def withClassNames(classes: Set[String]): Image[Msg] =
     this.copy(classNames = classes)
 
   def modifyTheme(f: Theme => Theme): Image[Msg] =
-    this.copy(_modifyTheme = Some(f))
+    val h =
+      _modifyTheme match
+        case Some(g) => f andThen g
+        case None    => f
+
+    this.copy(_modifyTheme = Some(h))
 
   def modifyImageTheme(f: ImageTheme => ImageTheme): Image[Msg] =
     val g: Theme => Theme = theme => theme.copy(image = f(theme.image))
-
-    _modifyTheme match
-      case Some(f) =>
-        this.copy(_modifyTheme = Some(f andThen g))
-
-      case None =>
-        this.copy(_modifyTheme = Some(g))
+    modifyTheme(g)
 
   def toHtml: Theme ?=> tyrian.Html[Msg] =
     Image.toHtml(this)

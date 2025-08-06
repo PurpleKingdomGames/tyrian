@@ -20,7 +20,62 @@ final case class TextThemes(
     caption: TextTheme,
     code: TextTheme,
     label: TextTheme
-)
+):
+
+  def withNormal(value: TextTheme): TextThemes =
+    this.copy(normal = value)
+  def modifyNormal(f: TextTheme => TextTheme): TextThemes =
+    this.copy(normal = f(normal))
+
+  def withParagraph(value: TextTheme): TextThemes =
+    this.copy(paragraph = value)
+  def modifyParagraph(f: TextTheme => TextTheme): TextThemes =
+    this.copy(paragraph = f(paragraph))
+
+  def withHeading1(value: TextTheme): TextThemes =
+    this.copy(heading1 = value)
+  def modifyHeading1(f: TextTheme => TextTheme): TextThemes =
+    this.copy(heading1 = f(heading1))
+
+  def withHeading2(value: TextTheme): TextThemes =
+    this.copy(heading2 = value)
+  def modifyHeading2(f: TextTheme => TextTheme): TextThemes =
+    this.copy(heading2 = f(heading2))
+
+  def withHeading3(value: TextTheme): TextThemes =
+    this.copy(heading3 = value)
+  def modifyHeading3(f: TextTheme => TextTheme): TextThemes =
+    this.copy(heading3 = f(heading3))
+
+  def withHeading4(value: TextTheme): TextThemes =
+    this.copy(heading4 = value)
+  def modifyHeading4(f: TextTheme => TextTheme): TextThemes =
+    this.copy(heading4 = f(heading4))
+
+  def withHeading5(value: TextTheme): TextThemes =
+    this.copy(heading5 = value)
+  def modifyHeading5(f: TextTheme => TextTheme): TextThemes =
+    this.copy(heading5 = f(heading5))
+
+  def withHeading6(value: TextTheme): TextThemes =
+    this.copy(heading6 = value)
+  def modifyHeading6(f: TextTheme => TextTheme): TextThemes =
+    this.copy(heading6 = f(heading6))
+
+  def withCaption(value: TextTheme): TextThemes =
+    this.copy(caption = value)
+  def modifyCaption(f: TextTheme => TextTheme): TextThemes =
+    this.copy(caption = f(caption))
+
+  def withCode(value: TextTheme): TextThemes =
+    this.copy(code = value)
+  def modifyCode(f: TextTheme => TextTheme): TextThemes =
+    this.copy(code = f(code))
+
+  def withLabel(value: TextTheme): TextThemes =
+    this.copy(label = value)
+  def modifyLabel(f: TextTheme => TextTheme): TextThemes =
+    this.copy(label = f(label))
 
 object TextThemes:
 
