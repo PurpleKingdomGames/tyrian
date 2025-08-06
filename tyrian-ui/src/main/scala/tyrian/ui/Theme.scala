@@ -1,7 +1,7 @@
 package tyrian.ui
 
 import tyrian.ui.button.*
-import tyrian.ui.image.*
+import tyrian.ui.layout.*
 import tyrian.ui.text.*
 import tyrian.ui.theme.*
 
@@ -9,7 +9,7 @@ final case class Theme(
     button: ButtonTheme,
     colors: ThemeColors,
     fonts: ThemeFonts,
-    image: ImageTheme,
+    image: ContainerTheme,
     text: TextThemes
 ):
 
@@ -35,6 +35,6 @@ object Theme:
       button = ButtonTheme.default,
       colors = ThemeColors.default,
       fonts = ThemeFonts.default,
-      image = ImageTheme.default,
+      image = ContainerTheme.default,
       text = TextThemes.default
     )
