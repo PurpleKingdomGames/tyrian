@@ -5,14 +5,15 @@ import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Border
 import tyrian.ui.datatypes.BorderWidth
+import tyrian.ui.datatypes.Extent
 import tyrian.ui.datatypes.ImageFit
 import tyrian.ui.datatypes.RGBA
 
 final case class Image[+Msg](
     src: String,
     alt: String,
-    width: Option[String],  // TODO: Yuk. Strings for sizes!
-    height: Option[String], // TODO: Yuk. Strings for sizes!
+    width: Option[Extent],
+    height: Option[Extent],
     fit: ImageFit,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
@@ -24,17 +25,17 @@ final case class Image[+Msg](
   def withAlt(alt: String): Image[Msg] =
     this.copy(alt = alt)
 
-  def withWidth(width: String): Image[Msg] =
+  def withWidth(width: Extent): Image[Msg] =
     this.copy(width = Some(width))
-  def fillWidth: Image[Msg] = withWidth("100%")
+  def fillWidth: Image[Msg] = withWidth(Extent.Fill)
 
-  def withHeight(height: String): Image[Msg] =
+  def withHeight(height: Extent): Image[Msg] =
     this.copy(height = Some(height))
-  def fillHeight: Image[Msg] = withHeight("100%")
+  def fillHeight: Image[Msg] = withHeight(Extent.Fill)
 
-  def withSize(width: String, height: String): Image[Msg] =
+  def withSize(width: Extent, height: Extent): Image[Msg] =
     this.copy(width = Some(width), height = Some(height))
-  def fillContainer: Image[Msg] = withSize("100%", "100%")
+  def fillContainer: Image[Msg] = withSize(Extent.Fill, Extent.Fill)
 
   def withFit(fit: ImageFit): Image[Msg] =
     this.copy(fit = fit)
@@ -104,7 +105,7 @@ object Image:
       _modifyTheme = None
     )
 
-  def apply[Msg](src: String, alt: String, width: String, height: String): Image[Msg] =
+  def apply[Msg](src: String, alt: String, width: Extent, height: Extent): Image[Msg] =
     Image(
       src = src,
       alt = alt,
@@ -126,8 +127,8 @@ object Image:
     )
 
     val sizeAttributes = List(
-      image.width.map(w => width := w).toList,
-      image.height.map(h => height := h).toList
+      image.width.map(w => width := w.toCSSValue).toList,
+      image.height.map(h => height := h.toCSSValue).toList
     ).flatten
 
     val styles =

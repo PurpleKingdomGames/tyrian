@@ -133,7 +133,7 @@ object TextThemes:
       weight = FontWeight.SemiBold,
       color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
-      lineHeight = LineHeight.Custom("1.3"),
+      lineHeight = LineHeight.Relative(1.3),
       wrap = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
@@ -145,7 +145,7 @@ object TextThemes:
       weight = FontWeight.SemiBold,
       color = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
-      lineHeight = LineHeight.Custom("1.3"),
+      lineHeight = LineHeight.Relative(1.3),
       wrap = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
