@@ -8,6 +8,7 @@ import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.Extent
 import tyrian.ui.datatypes.ImageFit
+import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.layout.ContainerTheme
 
@@ -75,6 +76,22 @@ final case class Image[+Msg](
     modifyImageTheme(_.shadowLarge(color))
   def shadowExtraLarge(color: RGBA): Image[Msg] =
     modifyImageTheme(_.shadowExtraLarge(color))
+
+  def withOpacity(opacity: Opacity): Image[Msg] =
+    modifyImageTheme(_.withOpacity(opacity))
+  def noOpacity: Image[Msg] =
+    modifyImageTheme(_.noOpacity)
+  def fullyOpaque: Image[Msg] =
+    modifyImageTheme(_.fullyOpaque)
+  def semiTransparent: Image[Msg] =
+    modifyImageTheme(_.semiTransparent)
+  def transparent: Image[Msg] =
+    modifyImageTheme(_.transparent)
+
+  def withBackgroundColor(color: RGBA): Image[Msg] =
+    modifyImageTheme(_.withBackgroundColor(color))
+  def noBackgroundColor: Image[Msg] =
+    modifyImageTheme(_.noBackgroundColor)
 
   def withClassNames(classes: Set[String]): Image[Msg] =
     this.copy(classNames = classes)

@@ -98,6 +98,9 @@ val BoxShadow: datatypes.BoxShadow.type = datatypes.BoxShadow
 type Extent = datatypes.Extent
 val Extent: datatypes.Extent.type = datatypes.Extent
 
+type Opacity = datatypes.Opacity
+val Opacity: datatypes.Opacity.type = datatypes.Opacity
+
 // Text
 
 type TextBlock = text.TextBlock

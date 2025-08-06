@@ -6,11 +6,14 @@ import tyrian.ui.datatypes.BorderRadius
 import tyrian.ui.datatypes.BorderStyle
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
+import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.RGBA
 
 final case class ContainerTheme(
     border: Option[Border],
-    boxShadow: Option[BoxShadow]
+    boxShadow: Option[BoxShadow],
+    opacity: Option[Opacity],
+    backgroundColor: Option[RGBA]
 ):
 
   def withBorder(border: Border): ContainerTheme =
@@ -65,15 +68,35 @@ final case class ContainerTheme(
   def shadowExtraLarge(color: RGBA): ContainerTheme =
     withBoxShadow(BoxShadow.extraLarge(color))
 
+  def withOpacity(opacity: Opacity): ContainerTheme =
+    this.copy(opacity = Some(opacity))
+
+  def noOpacity: ContainerTheme =
+    this.copy(opacity = None)
+
+  def fullyOpaque: ContainerTheme     = withOpacity(Opacity.Full)
+  def semiTransparent: ContainerTheme = withOpacity(Opacity.Medium)
+  def transparent: ContainerTheme     = withOpacity(Opacity.None)
+
+  def withBackgroundColor(color: RGBA): ContainerTheme =
+    this.copy(backgroundColor = Some(color))
+
+  def noBackgroundColor: ContainerTheme =
+    this.copy(backgroundColor = None)
+
   def toStyle: Style =
-    val borderStyle = border.map(_.toStyle).getOrElse(Style.empty)
-    val shadowStyle = boxShadow.map(_.toStyle).getOrElse(Style.empty)
-    borderStyle |+| shadowStyle
+    val borderStyle     = border.map(_.toStyle).getOrElse(Style.empty)
+    val shadowStyle     = boxShadow.map(_.toStyle).getOrElse(Style.empty)
+    val opacityStyle    = opacity.map(o => Style("opacity", o.toCSSValue)).getOrElse(Style.empty)
+    val backgroundStyle = backgroundColor.map(c => Style("background-color", c.toCSSValue)).getOrElse(Style.empty)
+    borderStyle |+| shadowStyle |+| opacityStyle |+| backgroundStyle
 
 object ContainerTheme:
 
   val default: ContainerTheme =
     ContainerTheme(
       border = None,
-      boxShadow = None
+      boxShadow = None,
+      opacity = None,
+      backgroundColor = None
     )
