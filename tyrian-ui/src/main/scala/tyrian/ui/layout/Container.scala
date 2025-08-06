@@ -1,6 +1,7 @@
 package tyrian.ui.layout
 
 import tyrian.EmptyAttribute
+import tyrian.ui.Extent
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Align
@@ -14,8 +15,8 @@ final case class Container[+Msg](
     backgroundColor: Option[RGBA],
     justify: Justify,
     align: Align,
-    width: Option[String],  // TODO: Yuk. Strings for sizes!
-    height: Option[String], // TODO: Yuk. Strings for sizes!
+    width: Option[Extent],
+    height: Option[Extent],
     // borderRadius: String,
     // border: String,
     // boxShadow: String,
@@ -43,17 +44,17 @@ final case class Container[+Msg](
   def withAlign(value: Align): Container[Msg] =
     this.copy(align = value)
 
-  def withWidth(width: String): Container[Msg] =
+  def withWidth(width: Extent): Container[Msg] =
     this.copy(width = Some(width))
-  def fillWidth: Container[Msg] = withWidth("100%")
+  def fillWidth: Container[Msg] = withWidth(Extent.Fill)
 
-  def withHeight(height: String): Container[Msg] =
+  def withHeight(height: Extent): Container[Msg] =
     this.copy(height = Some(height))
-  def fillHeight: Container[Msg] = withHeight("100%")
+  def fillHeight: Container[Msg] = withHeight(Extent.Fill)
 
-  def withSize(width: String, height: String): Container[Msg] =
+  def withSize(width: Extent, height: Extent): Container[Msg] =
     this.copy(width = Some(width), height = Some(height))
-  def fillContainer: Container[Msg] = withSize("100%", "100%")
+  def fillContainer: Container[Msg] = withSize(Extent.Fill, Extent.Fill)
 
   def left: Container[Msg] =
     withJustify(Justify.Left)
@@ -118,8 +119,8 @@ object Container:
     ) |+| bgColor
 
     val sizeAttributes = List(
-      container.width.map(w => width := w).toList,
-      container.height.map(h => height := h).toList
+      container.width.map(w => width := w.toCSSValue).toList,
+      container.height.map(h => height := h.toCSSValue).toList
     ).flatten
 
     val classAttribute =
