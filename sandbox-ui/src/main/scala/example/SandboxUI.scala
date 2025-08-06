@@ -53,11 +53,13 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
           "https://raw.githubusercontent.com/PurpleKingdomGames/roguelike-starterkit/417f4e372b4792972ef62aea0c917088a9fc82fd/roguelike.gif",
           "Roguelike"
         )
-          .withSize(Extent.px(200), Extent.px(150))
-          .cover
+          .withSize(Extent.px(300), Extent.px(100))
+          .scaleDown
           .rounded
           .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
           .shadowLarge(RGBA.fromHex("#00000080"))
+          .withBackgroundColor(RGBA.fromHex("#fbbf24"))
+          .withOpacity(Opacity.Medium)
       )
     )
       .withSpacing(Spacing.Large)
