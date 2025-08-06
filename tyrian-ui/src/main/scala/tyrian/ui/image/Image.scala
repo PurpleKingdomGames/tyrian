@@ -5,6 +5,7 @@ import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Border
 import tyrian.ui.datatypes.BorderWidth
+import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.Extent
 import tyrian.ui.datatypes.ImageFit
 import tyrian.ui.datatypes.RGBA
@@ -58,6 +59,21 @@ final case class Image[+Msg](
   def roundedSmall: Image[Msg] = modifyImageTheme(_.roundedSmall)
   def roundedLarge: Image[Msg] = modifyImageTheme(_.roundedLarge)
   def circular: Image[Msg]     = modifyImageTheme(_.circular)
+
+  def withBoxShadow(boxShadow: BoxShadow): Image[Msg] =
+    modifyImageTheme(_.withBoxShadow(boxShadow))
+  def noBoxShadow: Image[Msg] =
+    modifyImageTheme(_.noBoxShadow)
+  def modifyBoxShadow(f: BoxShadow => BoxShadow): Image[Msg] =
+    modifyImageTheme(_.modifyBoxShadow(f))
+  def shadowSmall(color: RGBA): Image[Msg] =
+    modifyImageTheme(_.shadowSmall(color))
+  def shadowMedium(color: RGBA): Image[Msg] =
+    modifyImageTheme(_.shadowMedium(color))
+  def shadowLarge(color: RGBA): Image[Msg] =
+    modifyImageTheme(_.shadowLarge(color))
+  def shadowExtraLarge(color: RGBA): Image[Msg] =
+    modifyImageTheme(_.shadowExtraLarge(color))
 
   def withClassNames(classes: Set[String]): Image[Msg] =
     this.copy(classNames = classes)

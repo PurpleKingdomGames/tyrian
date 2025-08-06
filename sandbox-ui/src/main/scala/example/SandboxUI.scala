@@ -57,6 +57,7 @@ object SandboxUI extends TyrianIOApp[Msg, Model]:
           .cover
           .rounded
           .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
+          .shadowLarge(RGBA.fromHex("#00000080"))
       )
     )
       .withSpacing(Spacing.Large)
