@@ -89,6 +89,9 @@ val BorderStyle: datatypes.BorderStyle.type = datatypes.BorderStyle
 type BorderWidth = datatypes.BorderWidth
 val BorderWidth: datatypes.BorderWidth.type = datatypes.BorderWidth
 
+type Extent = datatypes.Extent
+val Extent: datatypes.Extent.type = datatypes.Extent
+
 // Text
 
 type TextBlock = text.TextBlock
