@@ -16,10 +16,6 @@ enum Extent derives CanEqual:
 
 object Extent:
 
-  val auto: Extent       = Extent.Auto
-  val fill: Extent       = Extent.Fill
-  val fitContent: Extent = Extent.FitContent
-
   def rem(value: Double): Extent =
     Extent.Relative(value)
 
