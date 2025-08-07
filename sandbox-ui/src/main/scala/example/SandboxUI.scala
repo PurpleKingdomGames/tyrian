@@ -26,4 +26,3 @@ object SandboxUI extends TyrianNext[Model]:
 
   def watchers(model: Model): Batch[Watcher] =
     Batch.empty
-
