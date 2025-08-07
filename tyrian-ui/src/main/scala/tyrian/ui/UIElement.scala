@@ -52,4 +52,5 @@ Stateful Components
   - Datepicker
   - Dropdown / chooser
   - Carousel
+  - inplace input
  */
