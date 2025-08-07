@@ -17,7 +17,7 @@ trait UIElement[T, +Msg]:
 
 Stateless Components
 	-	Text - DONE
-	-	Image
+	-	Image -DONE
 	-	Icon
 	-	Row - DONE
 	-	Column - DONE
@@ -29,7 +29,9 @@ Stateless Components
 	-	HtmlElement - DONE
 	-	Divider
 	-	Label
-  - Link?
+  - Link
+  - Tables
+
 
 ⸻
 
@@ -46,4 +48,8 @@ Stateful Components
 	-	Tooltip
 	-	ProgressBar
 	-	FileInput
+  - Notifications
+  - Datepicker
+  - Dropdown / chooser
+  - Carousel
  */
