@@ -101,6 +101,14 @@ val Extent: datatypes.Extent.type = datatypes.Extent
 type Opacity = datatypes.Opacity
 val Opacity: datatypes.Opacity.type = datatypes.Opacity
 
+// Link
+
+type Link = link.Link
+val Link: link.Link.type = link.Link
+
+type Target = datatypes.Target
+val Target: datatypes.Target.type = datatypes.Target
+
 // Text
 
 type TextBlock = text.TextBlock
