@@ -8,14 +8,12 @@ import tyrian.ui.datatypes.RGBA
 
 class ImageTests extends munit.FunSuite {
 
-  final case class NoOpMsg()
-
   given Theme =
     Theme.default
 
   test("Should be able to render an image") {
     val actual =
-      Image[NoOpMsg]("./an-image.png").toHtml.toString
+      Image("./an-image.png").toHtml.toString
 
     val expected =
       """<img src="./an-image.png" alt="" style="object-fit:fill;"></img>"""
@@ -25,7 +23,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to modify the image fit") {
     val actual =
-      Image[NoOpMsg]("./an-image.png").cover.toHtml.toString
+      Image("./an-image.png").cover.toHtml.toString
 
     val expected =
       """<img src="./an-image.png" alt="" style="object-fit:cover;"></img>"""
@@ -35,7 +33,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to modify the theme - rounded") {
     val actual =
-      Image[NoOpMsg]("./an-image.png").rounded.toHtml.toString
+      Image("./an-image.png").rounded.toHtml.toString
 
     val styles =
       Style(
@@ -52,7 +50,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to modify the theme - border") {
     val actual =
-      Image[NoOpMsg]("./an-image.png")
+      Image("./an-image.png")
         .withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
         .toHtml
         .toString
@@ -72,7 +70,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - rounded + border") {
     val actual =
-      Image[NoOpMsg]("./an-image.png").rounded
+      Image("./an-image.png").rounded
         .withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
         .toHtml
         .toString
@@ -92,7 +90,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - border + rounded (reversed)") {
     val actual =
-      Image[NoOpMsg]("./an-image.png")
+      Image("./an-image.png")
         .solidBorder(BorderWidth.Medium, RGBA.Purple)
         .rounded
         .toHtml
