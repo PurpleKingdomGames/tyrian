@@ -289,7 +289,6 @@ lazy val sandboxUI =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
     .withoutSuffixFor(JSPlatform)
-    .dependsOn(tyrianIO, tyrianUI)
     .in(file("sandbox-ui"))
     .settings(
       neverPublish,
@@ -298,6 +297,7 @@ lazy val sandboxUI =
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       scalacOptions -= "-language:strictEquality"
     )
+    .dependsOn(tyrianNext, tyrianUI)
 
 lazy val sandboxSSR =
   crossProject(JVMPlatform)
