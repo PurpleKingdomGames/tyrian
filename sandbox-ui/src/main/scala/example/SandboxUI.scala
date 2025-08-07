@@ -1,84 +1,29 @@
 package example
 
-import cats.effect.IO
 import tyrian.*
+import tyrian.next.*
 import tyrian.ui.*
 
 import scala.scalajs.js.annotation.*
 
 @JSExportTopLevel("TyrianApp")
-object SandboxUI extends TyrianIOApp[Msg, Model]:
-
-  def router: Location => Msg =
-    Routing.none(Msg.NoOp)
-
-  def init(flags: Map[String, String]): (Model, Cmd[IO, Msg]) =
-    (Model.init, Cmd.None)
-
-  def update(model: Model): Msg => (Model, Cmd[IO, Msg]) =
-    case Msg.NoOp =>
-      (model, Cmd.None)
+object SandboxUI extends TyrianNext[Model]:
 
   given Theme = Theme.default
 
-  def view(model: Model): Html[Msg] =
-    Row(
-      Column(
-        TextBlock("Welcome to Tyrian UI!").toHeading1
-          .withColor(RGBA.fromHex("#2563eb")),
-        Row(
-          TextBlock("Hello, Tyrian!").withColor(RGBA.Blue),
-          Button(Msg.NoOp).withLabel("Click me!"),
-          TextBlock("More text").withColor(RGBA.Red.mix(RGBA.Blue))
-        )
-          .withSpacing(Spacing.Medium),
-        TextBlock("This is just some text")
-          .withColor(RGBA.fromHex("#6b7280")),
-        tyrian.ui.html.HtmlElement(
-          tyrian.Html.div(
-            tyrian.Html.style := "border: 2px dashed #ccc; padding: 1rem; border-radius: 4px; margin: 1rem 0;"
-          )(
-            tyrian.Html.p("This is arbitrary HTML embedded within the UI component system!"),
-            tyrian.Html.strong("Bold text"),
-            tyrian.Html.text(" and "),
-            tyrian.Html.em("italic text")
-          )
-        )
-      ),
-      Column(
-        Container(
-          TextBlock("This is some more text.")
-        ).middle.center
-          .withPadding(Spacing.Large)
-          .rounded
-          .solidBorder(BorderWidth.Medium, RGBA.fromHex("#10b981"))
-          .shadowMedium(RGBA.fromHex("#00000040"))
-          .withBackgroundColor(RGBA.fromHex("#ecfdf5"))
-          .withOpacity(Opacity.High),
-        Image(
-          "https://raw.githubusercontent.com/PurpleKingdomGames/roguelike-starterkit/417f4e372b4792972ef62aea0c917088a9fc82fd/roguelike.gif",
-          "Roguelike"
-        )
-          .withSize(Extent.px(300), Extent.px(100))
-          .scaleDown
-          .rounded
-          .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
-          .shadowLarge(RGBA.fromHex("#00000080"))
-          .withBackgroundColor(RGBA.fromHex("#fbbf24"))
-          .withOpacity(Opacity.Medium)
-      )
-    )
-      .withSpacing(Spacing.Large)
-      .toHtml
+  def router: Location => GlobalMsg =
+    Routing.externalOnly(AppEvent.NoOp, AppEvent.FollowLink(_))
 
-  def subscriptions(model: Model): Sub[IO, Msg] =
-    Sub.None
+  def init(flags: Map[String, String]): Outcome[Model] =
+    Outcome(Model.init)
 
-enum Msg:
-  case NoOp
+  def update(model: Model): GlobalMsg => Outcome[Model] =
+    case e =>
+      model.update(e)
 
-final case class Model()
+  def view(model: Model): HtmlRoot =
+    HtmlRoot(model.view)
 
-object Model:
-  val init: Model =
-    Model()
+  def watchers(model: Model): Batch[Watcher] =
+    Batch.empty
+
