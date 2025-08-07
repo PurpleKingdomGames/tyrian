@@ -12,7 +12,7 @@ import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.layout.ContainerTheme
 
-final case class Image[+Msg](
+final case class Image(
     src: String,
     alt: String,
     width: Option[Extent],
@@ -20,83 +20,83 @@ final case class Image[+Msg](
     fit: ImageFit,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Image[?], Msg]:
+) extends UIElement[Image, Nothing]:
 
-  def withSrc(src: String): Image[Msg] =
+  def withSrc(src: String): Image =
     this.copy(src = src)
 
-  def withAlt(alt: String): Image[Msg] =
+  def withAlt(alt: String): Image =
     this.copy(alt = alt)
 
-  def withWidth(width: Extent): Image[Msg] =
+  def withWidth(width: Extent): Image =
     this.copy(width = Some(width))
-  def fillWidth: Image[Msg] = withWidth(Extent.Fill)
+  def fillWidth: Image = withWidth(Extent.Fill)
 
-  def withHeight(height: Extent): Image[Msg] =
+  def withHeight(height: Extent): Image =
     this.copy(height = Some(height))
-  def fillHeight: Image[Msg] = withHeight(Extent.Fill)
+  def fillHeight: Image = withHeight(Extent.Fill)
 
-  def withSize(width: Extent, height: Extent): Image[Msg] =
+  def withSize(width: Extent, height: Extent): Image =
     this.copy(width = Some(width), height = Some(height))
-  def fillContainer: Image[Msg] = withSize(Extent.Fill, Extent.Fill)
+  def fillContainer: Image = withSize(Extent.Fill, Extent.Fill)
 
-  def withFit(fit: ImageFit): Image[Msg] =
+  def withFit(fit: ImageFit): Image =
     this.copy(fit = fit)
-  def cover: Image[Msg]     = withFit(ImageFit.Cover)
-  def contain: Image[Msg]   = withFit(ImageFit.Contain)
-  def fill: Image[Msg]      = withFit(ImageFit.Fill)
-  def scaleDown: Image[Msg] = withFit(ImageFit.ScaleDown)
+  def cover: Image     = withFit(ImageFit.Cover)
+  def contain: Image   = withFit(ImageFit.Contain)
+  def fill: Image      = withFit(ImageFit.Fill)
+  def scaleDown: Image = withFit(ImageFit.ScaleDown)
 
-  def withBorder(border: Border): Image[Msg] =
+  def withBorder(border: Border): Image =
     modifyImageTheme(_.withBorder(border))
-  def modifyBorder(f: Border => Border): Image[Msg] =
+  def modifyBorder(f: Border => Border): Image =
     modifyImageTheme(_.modifyBorder(f))
-  def solidBorder(width: BorderWidth, color: RGBA): Image[Msg] =
+  def solidBorder(width: BorderWidth, color: RGBA): Image =
     modifyImageTheme(_.solidBorder(width, color))
-  def dashedBorder(width: BorderWidth, color: RGBA): Image[Msg] =
+  def dashedBorder(width: BorderWidth, color: RGBA): Image =
     modifyImageTheme(_.dashedBorder(width, color))
 
-  def square: Image[Msg]       = modifyImageTheme(_.square)
-  def rounded: Image[Msg]      = modifyImageTheme(_.rounded)
-  def roundedSmall: Image[Msg] = modifyImageTheme(_.roundedSmall)
-  def roundedLarge: Image[Msg] = modifyImageTheme(_.roundedLarge)
-  def circular: Image[Msg]     = modifyImageTheme(_.circular)
+  def square: Image       = modifyImageTheme(_.square)
+  def rounded: Image      = modifyImageTheme(_.rounded)
+  def roundedSmall: Image = modifyImageTheme(_.roundedSmall)
+  def roundedLarge: Image = modifyImageTheme(_.roundedLarge)
+  def circular: Image     = modifyImageTheme(_.circular)
 
-  def withBoxShadow(boxShadow: BoxShadow): Image[Msg] =
+  def withBoxShadow(boxShadow: BoxShadow): Image =
     modifyImageTheme(_.withBoxShadow(boxShadow))
-  def noBoxShadow: Image[Msg] =
+  def noBoxShadow: Image =
     modifyImageTheme(_.noBoxShadow)
-  def modifyBoxShadow(f: BoxShadow => BoxShadow): Image[Msg] =
+  def modifyBoxShadow(f: BoxShadow => BoxShadow): Image =
     modifyImageTheme(_.modifyBoxShadow(f))
-  def shadowSmall(color: RGBA): Image[Msg] =
+  def shadowSmall(color: RGBA): Image =
     modifyImageTheme(_.shadowSmall(color))
-  def shadowMedium(color: RGBA): Image[Msg] =
+  def shadowMedium(color: RGBA): Image =
     modifyImageTheme(_.shadowMedium(color))
-  def shadowLarge(color: RGBA): Image[Msg] =
+  def shadowLarge(color: RGBA): Image =
     modifyImageTheme(_.shadowLarge(color))
-  def shadowExtraLarge(color: RGBA): Image[Msg] =
+  def shadowExtraLarge(color: RGBA): Image =
     modifyImageTheme(_.shadowExtraLarge(color))
 
-  def withOpacity(opacity: Opacity): Image[Msg] =
+  def withOpacity(opacity: Opacity): Image =
     modifyImageTheme(_.withOpacity(opacity))
-  def noOpacity: Image[Msg] =
+  def noOpacity: Image =
     modifyImageTheme(_.noOpacity)
-  def fullyOpaque: Image[Msg] =
+  def fullyOpaque: Image =
     modifyImageTheme(_.fullyOpaque)
-  def semiTransparent: Image[Msg] =
+  def semiTransparent: Image =
     modifyImageTheme(_.semiTransparent)
-  def transparent: Image[Msg] =
+  def transparent: Image =
     modifyImageTheme(_.transparent)
 
-  def withBackgroundColor(color: RGBA): Image[Msg] =
+  def withBackgroundColor(color: RGBA): Image =
     modifyImageTheme(_.withBackgroundColor(color))
-  def noBackgroundColor: Image[Msg] =
+  def noBackgroundColor: Image =
     modifyImageTheme(_.noBackgroundColor)
 
-  def withClassNames(classes: Set[String]): Image[Msg] =
+  def withClassNames(classes: Set[String]): Image =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Image[Msg] =
+  def modifyTheme(f: Theme => Theme): Image =
     val h =
       _modifyTheme match
         case Some(g) => f andThen g
@@ -104,11 +104,11 @@ final case class Image[+Msg](
 
     this.copy(_modifyTheme = Some(h))
 
-  def modifyImageTheme(f: ContainerTheme => ContainerTheme): Image[Msg] =
+  def modifyImageTheme(f: ContainerTheme => ContainerTheme): Image =
     val g: Theme => Theme = theme => theme.copy(image = f(theme.image))
     modifyTheme(g)
 
-  def toHtml: Theme ?=> tyrian.Html[Msg] =
+  def toHtml: Theme ?=> tyrian.Html[Nothing] =
     Image.toHtml(this)
 
 object Image:
@@ -117,7 +117,7 @@ object Image:
   import tyrian.Html.*
   import tyrian.Style
 
-  def apply[Msg](src: String): Image[Msg] =
+  def apply(src: String): Image =
     Image(
       src = src,
       alt = "",
@@ -128,7 +128,7 @@ object Image:
       _modifyTheme = None
     )
 
-  def apply[Msg](src: String, alt: String): Image[Msg] =
+  def apply(src: String, alt: String): Image =
     Image(
       src = src,
       alt = alt,
@@ -139,7 +139,7 @@ object Image:
       _modifyTheme = None
     )
 
-  def apply[Msg](src: String, alt: String, width: Extent, height: Extent): Image[Msg] =
+  def apply(src: String, alt: String, width: Extent, height: Extent): Image =
     Image(
       src = src,
       alt = alt,
@@ -150,7 +150,7 @@ object Image:
       _modifyTheme = None
     )
 
-  def toHtml[Msg](image: Image[Msg])(using theme: Theme): Html[Msg] =
+  def toHtml[Msg](image: Image)(using theme: Theme): Html[Msg] =
     val t = image._modifyTheme match
       case Some(f) => f(theme)
       case None    => theme
