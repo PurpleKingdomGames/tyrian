@@ -1,6 +1,7 @@
 package tyrian.ui.layout
 
 import tyrian.EmptyAttribute
+import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.LayoutDirection
@@ -8,76 +9,75 @@ import tyrian.ui.datatypes.Ratio
 import tyrian.ui.datatypes.SpaceAlignment
 import tyrian.ui.datatypes.Spacing
 
-final case class Layout[+Msg](
+final case class Layout(
     direction: LayoutDirection,
-    children: List[UIElement[?, Msg]],
+    children: List[UIElement[?]],
     spacing: Spacing,
     spaceAlignment: SpaceAlignment,
     ratio: Ratio,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Layout[?], Msg]:
+) extends UIElement[Layout]:
 
-  def withDirection(value: LayoutDirection): Layout[Msg] =
+  def withDirection(value: LayoutDirection): Layout =
     this.copy(direction = value)
-  def toRow: Layout[Msg] =
+  def toRow: Layout =
     withDirection(LayoutDirection.Row)
-  def toColumn: Layout[Msg] =
+  def toColumn: Layout =
     withDirection(LayoutDirection.Column)
 
-  def withSpacing(value: Spacing): Layout[Msg] =
+  def withSpacing(value: Spacing): Layout =
     this.copy(spacing = value)
 
-  def withSpaceAlignment(value: SpaceAlignment): Layout[Msg] =
+  def withSpaceAlignment(value: SpaceAlignment): Layout =
     this.copy(spaceAlignment = value)
 
-  def withRatio(value: Ratio): Layout[Msg] =
+  def withRatio(value: Ratio): Layout =
     this.copy(ratio = value)
   // Is this the nicest way to express this?
-  def ratio1: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio2: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio3: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio4: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio5: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio6: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio7: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio8: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio9: Layout[Msg]  = withRatio(Ratio.one)
-  def ratio10: Layout[Msg] = withRatio(Ratio.one)
+  def ratio1: Layout  = withRatio(Ratio.one)
+  def ratio2: Layout  = withRatio(Ratio.one)
+  def ratio3: Layout  = withRatio(Ratio.one)
+  def ratio4: Layout  = withRatio(Ratio.one)
+  def ratio5: Layout  = withRatio(Ratio.one)
+  def ratio6: Layout  = withRatio(Ratio.one)
+  def ratio7: Layout  = withRatio(Ratio.one)
+  def ratio8: Layout  = withRatio(Ratio.one)
+  def ratio9: Layout  = withRatio(Ratio.one)
+  def ratio10: Layout = withRatio(Ratio.one)
 
   // Aid to memory: "Justify the main axis, align the cross."
 
-  def spaceAround: Layout[Msg] =
+  def spaceAround: Layout =
     withSpaceAlignment(SpaceAlignment.SpaceAround)
 
-  def spaceBetween: Layout[Msg] =
+  def spaceBetween: Layout =
     withSpaceAlignment(SpaceAlignment.SpaceBetween)
 
-  def spaceEvenly: Layout[Msg] =
+  def spaceEvenly: Layout =
     withSpaceAlignment(SpaceAlignment.SpaceEvenly)
 
-  def stretch: Layout[Msg] =
+  def stretch: Layout =
     withSpaceAlignment(SpaceAlignment.Stretch)
 
-  def withClassNames(classes: Set[String]): Layout[Msg] =
+  def withClassNames(classes: Set[String]): Layout =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Layout[Msg] =
+  def modifyTheme(f: Theme => Theme): Layout =
     this.copy(_modifyTheme = Some(f))
 
-  def toHtml: Theme ?=> tyrian.Html[Msg] =
+  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
     Layout.toHtml(this)
 
 object Layout:
 
-  import tyrian.Html
   import tyrian.Html.*
   import tyrian.Style
 
-  def apply[Msg](children: UIElement[?, Msg]*): Layout[Msg] =
+  def apply(children: UIElement[?]*): Layout =
     Layout(LayoutDirection.Row, children.toList)
 
-  def apply[Msg](direction: LayoutDirection, children: List[UIElement[?, Msg]]): Layout[Msg] =
+  def apply(direction: LayoutDirection, children: List[UIElement[?]]): Layout =
     Layout(
       direction = direction,
       children = children,
@@ -88,16 +88,16 @@ object Layout:
       _modifyTheme = None
     )
 
-  def apply[Msg](direction: LayoutDirection, children: UIElement[?, Msg]*): Layout[Msg] =
+  def apply(direction: LayoutDirection, children: UIElement[?]*): Layout =
     Layout(direction, children.toList)
 
-  def row[Msg](children: UIElement[?, Msg]*): Layout[Msg] =
+  def row(children: UIElement[?]*): Layout =
     Layout(LayoutDirection.Row, children.toList)
 
-  def column[Msg](children: UIElement[?, Msg]*): Layout[Msg] =
+  def column(children: UIElement[?]*): Layout =
     Layout(LayoutDirection.Column, children.toList)
 
-  def toHtml[Msg](layout: Layout[Msg])(using theme: Theme): Html[Msg] =
+  def toHtml(layout: Layout)(using theme: Theme): tyrian.Elem[GlobalMsg] =
     val t = layout._modifyTheme match
       case Some(f) => f(theme)
       case None    => theme

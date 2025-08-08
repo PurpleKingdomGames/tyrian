@@ -81,5 +81,4 @@ object Model:
         )
       )
         .withSpacing(Spacing.Large)
-        .toHtml
     )

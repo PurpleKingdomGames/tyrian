@@ -9,14 +9,12 @@ import tyrian.ui.datatypes.RGBA
 
 class ContainerTests extends munit.FunSuite {
 
-  final case class NoOpMsg()
-
   given Theme =
     Theme.default
 
   test("Should be able to render a container") {
     val actual =
-      Container[NoOpMsg](TextBlock("Hello")).toHtml.toString
+      Container(TextBlock("Hello")).toHtml.toString
 
     val expected =
       """<div style="display:flex;flex:1;justify-content:flex-start;align-items:flex-start;padding:0;"><span style="font-family:Arial, sans-serif;font-size:1rem;font-weight:400;color:rgba(51, 51, 51, 255);text-align:left;line-height:1.5rem;white-space:normal;">Hello</span></div>"""
@@ -26,7 +24,7 @@ class ContainerTests extends munit.FunSuite {
 
   test("should be able to modify the theme - rounded") {
     val actual =
-      Container[NoOpMsg](TextBlock("Hello")).rounded.toHtml.toString
+      Container(TextBlock("Hello")).rounded.toHtml.toString
 
     val containerStyles =
       Style(
@@ -53,7 +51,7 @@ class ContainerTests extends munit.FunSuite {
 
   test("should be able to modify the theme - border") {
     val actual =
-      Container[NoOpMsg](TextBlock("Hello"))
+      Container(TextBlock("Hello"))
         .withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
         .toHtml
         .toString
@@ -83,7 +81,7 @@ class ContainerTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - rounded + border") {
     val actual =
-      Container[NoOpMsg](TextBlock("Hello")).rounded
+      Container(TextBlock("Hello")).rounded
         .withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
         .toHtml
         .toString
@@ -113,7 +111,7 @@ class ContainerTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - border + rounded (reversed)") {
     val actual =
-      Container[NoOpMsg](TextBlock("Hello"))
+      Container(TextBlock("Hello"))
         .solidBorder(BorderWidth.Medium, RGBA.Purple)
         .rounded
         .toHtml

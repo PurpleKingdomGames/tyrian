@@ -1,6 +1,7 @@
 package tyrian.ui.image
 
 import tyrian.EmptyAttribute
+import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Border
@@ -20,7 +21,7 @@ final case class Image(
     fit: ImageFit,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Image, Nothing]:
+) extends UIElement[Image]:
 
   def withSrc(src: String): Image =
     this.copy(src = src)
@@ -108,12 +109,11 @@ final case class Image(
     val g: Theme => Theme = theme => theme.copy(image = f(theme.image))
     modifyTheme(g)
 
-  def toHtml: Theme ?=> tyrian.Html[Nothing] =
+  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
     Image.toHtml(this)
 
 object Image:
 
-  import tyrian.Html
   import tyrian.Html.*
   import tyrian.Style
 
@@ -150,7 +150,7 @@ object Image:
       _modifyTheme = None
     )
 
-  def toHtml[Msg](image: Image)(using theme: Theme): Html[Msg] =
+  def toHtml(image: Image)(using theme: Theme): tyrian.Elem[GlobalMsg] =
     val t = image._modifyTheme match
       case Some(f) => f(theme)
       case None    => theme

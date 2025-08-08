@@ -1,39 +1,40 @@
 package tyrian.ui.link
 
+import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Target
 
 // TODO: Styling options.
-final case class Link[+Msg](
-    contents: UIElement[?, Msg],
+final case class Link(
+    contents: UIElement[?],
     target: Option[Target],
     url: Option[String], // URL type? Location?
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[Link[?], Msg]:
+) extends UIElement[Link]:
 
-  def withContents[LubMsg >: Msg](newContents: UIElement[?, LubMsg]): Link[LubMsg] =
+  def withContents(newContents: UIElement[?]): Link =
     this.copy(contents = newContents)
 
-  def withTarget(newTarget: Target): Link[Msg] = // TODO: Does nothing - something about the routing I guess.
+  def withTarget(newTarget: Target): Link = // TODO: Does nothing - something about the routing I guess.
     this.copy(target = Some(newTarget))
 
-  def withUrl(newUrl: String): Link[Msg] =
+  def withUrl(newUrl: String): Link =
     this.copy(url = Some(newUrl))
 
-  def withClassNames(classes: Set[String]): Link[Msg] =
+  def withClassNames(classes: Set[String]): Link =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Link[Msg] =
+  def modifyTheme(f: Theme => Theme): Link =
     this.copy(_modifyTheme = Some(f))
 
-  def toHtml: Theme ?=> tyrian.Html[Msg] =
+  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
     Link.View.toHtml(this)
 
 object Link:
 
-  def apply[Msg](url: String)(contents: UIElement[?, Msg]): Link[Msg] =
+  def apply(url: String)(contents: UIElement[?]): Link =
     Link(contents, None, Some(url), Set(), None)
 
   object View:
@@ -41,7 +42,7 @@ object Link:
     import tyrian.Html.*
     import tyrian.EmptyAttribute
 
-    def toHtml[Msg](link: Link[Msg]): Theme ?=> tyrian.Html[Msg] =
+    def toHtml(link: Link): Theme ?=> tyrian.Elem[GlobalMsg] =
       val attributes =
         List(
           link.url.map(u => href := u).getOrElse(EmptyAttribute),

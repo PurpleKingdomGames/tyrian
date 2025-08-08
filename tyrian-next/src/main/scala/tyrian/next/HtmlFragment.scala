@@ -2,6 +2,8 @@ package tyrian.next
 
 import tyrian.Elem
 import tyrian.Html
+import tyrian.ui.Theme
+import tyrian.ui.UIElement
 
 /** An HtmlFragment represents a chunk of Html that will potentially make up part of the final DOM output. Though it
   * aids 'out-of-order' dom tree construction, it is not the same as a template (which in Tyrian Next is any function of
@@ -106,14 +108,40 @@ object HtmlFragment:
   def apply(markup: Elem[GlobalMsg]*): HtmlFragment =
     HtmlFragment(Batch.fromSeq(markup))
 
+  /** Creates an HtmlFragment containing only top-level ui elements, with no marker inserts. The elements will be
+    * rendered directly as part of the fragment's markup when resolved by an HtmlRoot.
+    */
+  def apply(markup: Batch[UIElement[?]])(using Theme): HtmlFragment =
+    HtmlFragment(markup.map(_.toHtml), emptyInserts)
+
+  /** Creates an HtmlFragment from a variable number of ui elements, converting them into a Batch internally. This is
+    * the most common way to create fragments when you have individual elements to include.
+    */
+  def apply(markup: UIElement[?]*)(using Theme): HtmlFragment =
+    HtmlFragment(Batch.fromSeq(markup).map(_.toHtml))
+
   /** Creates an HtmlFragment that contains only insert data for a specific marker, with no top-level markup. When
     * resolved, these elements will replace any Marker with the matching MarkerId in the final DOM tree.
     */
   def insert(at: MarkerId, elements: Batch[Elem[GlobalMsg]]): HtmlFragment =
     HtmlFragment(Batch.empty, Map(at -> elements))
 
-  /** Creates an HtmlFragment with insert data from individual elements. This allows components to contribute content to
-    * specific locations in the page structure without being part of the main markup flow.
+  /** Creates an HtmlFragment that contains only insert data for a specific marker, with no top-level markup. When
+    * resolved, these elements will replace any Marker with the matching MarkerId in the final DOM tree.
     */
   def insert(at: MarkerId, elements: Elem[GlobalMsg]*): HtmlFragment =
     insert(at, Batch.fromSeq(elements))
+
+  /** Creates an HtmlFragment that contains only insert data for a specific marker / placeholder, with no top-level
+    * markup. When resolved, these elements will replace any Marker (or Placeholder if using Tyrian-UI) with the
+    * matching MarkerId in the final DOM tree.
+    */
+  def insert(at: MarkerId, elements: Batch[UIElement[?]])(using Theme): HtmlFragment =
+    HtmlFragment(Batch.empty, Map(at -> elements.map(_.toHtml)))
+
+  /** Creates an HtmlFragment that contains only insert data for a specific marker / placeholder, with no top-level
+    * markup. When resolved, these elements will replace any Marker (or Placeholder if using Tyrian-UI) with the
+    * matching MarkerId in the final DOM tree.
+    */
+  def insert(at: MarkerId, elements: UIElement[?]*)(using Theme): HtmlFragment =
+    insert(at, Batch.fromSeq(elements).map(_.toHtml))
