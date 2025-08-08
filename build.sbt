@@ -120,7 +120,6 @@ lazy val tyrianProject =
       tyrianIO.js,
       tyrianNext.js,
       tyrianZIO.js,
-      tyrianUI.js,
       sandbox.js,
       sandboxNext.js,
       sandboxZIO.js,
@@ -223,24 +222,6 @@ lazy val tyrianZIO =
     )
     .dependsOn(tyrian)
 
-lazy val tyrianUI =
-  crossProject(JSPlatform)
-    .crossType(CrossType.Pure)
-    .withoutSuffixFor(JSPlatform)
-    .in(file("tyrian-ui"))
-    .settings(
-      name := "tyrian-ui",
-      commonSettings ++ publishSettings
-    )
-    .jsSettings(
-      commonJsSettings,
-      libraryDependencies ++= Seq(
-        "org.scala-js"  %%% "scalajs-dom" % Dependencies.scalajsDomVersion,
-        "org.typelevel" %%% "cats-effect" % Dependencies.catsEffect
-      )
-    )
-    .dependsOn(tyrian)
-
 lazy val sandbox =
   crossProject(JSPlatform)
     .crossType(CrossType.Pure)
@@ -297,7 +278,7 @@ lazy val sandboxUI =
       scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
       scalacOptions -= "-language:strictEquality"
     )
-    .dependsOn(tyrianNext, tyrianUI)
+    .dependsOn(tyrianNext)
 
 lazy val sandboxSSR =
   crossProject(JVMPlatform)
@@ -411,7 +392,6 @@ addCommandAlias(
     "tyrianIO/clean",
     "tyrianNext/clean",
     "tyrianZIO/clean",
-    "tyrianUI/clean",
     "sandbox/clean",
     "sandboxNext/clean",
     "sandboxZIO/clean",
@@ -430,7 +410,6 @@ addCommandAlias(
     "tyrianIO/compile",
     "tyrianNext/compile",
     "tyrianZIO/compile",
-    "tyrianUI/compile",
     "sandbox/compile",
     "sandboxNext/compile",
     "sandboxZIO/compile",
@@ -447,7 +426,6 @@ addCommandAlias(
     "tyrianIO/test",
     "tyrianNext/test",
     "tyrianZIO/test",
-    "tyrianUI/test",
     "sandbox/test",
     "sandboxNext/test",
     "sandboxZIO/test",
@@ -466,7 +444,6 @@ addCommandAlias(
     "tyrianIO/test",
     "tyrianNext/test",
     "tyrianZIO/test",
-    "tyrianUI/test",
     "sandbox/test",
     "sandboxNext/test",
     "sandboxZIO/test",
@@ -482,8 +459,7 @@ addCommandAlias(
     "tyrian/test",
     "tyrianIO/test",
     "tyrianNext/test",
-    "tyrianZIO/test",
-    "tyrianUI/test"
+    "tyrianZIO/test"
   ).mkString(";", ";", "")
 )
 
