@@ -39,3 +39,7 @@ object Marker:
   /** Creates a marker with child elements. */
   def apply(id: MarkerId, children: Elem[GlobalMsg]*): Marker =
     Marker(id, children.toList)
+
+  /** Creates a marker with child elements. */
+  def apply(id: MarkerId, children: List[Elem[GlobalMsg]]): Marker =
+    Marker(id, children.toList)

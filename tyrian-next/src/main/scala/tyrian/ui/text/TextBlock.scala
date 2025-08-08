@@ -1,6 +1,7 @@
 package tyrian.ui.text
 
 import tyrian.EmptyAttribute
+import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.FontSize
@@ -16,7 +17,7 @@ final case class TextBlock(
     variant: TextVariant,
     classNames: Set[String],
     _modifyTheme: Option[Theme => Theme]
-) extends UIElement[TextBlock, Nothing]:
+) extends UIElement[TextBlock]:
 
   def withValue(value: String): TextBlock =
     this.copy(value = value)
@@ -99,7 +100,7 @@ final case class TextBlock(
       case TextVariant.Code      => theme.text.code
       case TextVariant.Label     => theme.text.label
 
-  def toHtml: Theme ?=> tyrian.Html[Nothing] =
+  def toHtml: Theme ?=> tyrian.Html[GlobalMsg] =
     TextBlock.toHtml(this)
 
 object TextBlock:
@@ -121,7 +122,7 @@ object TextBlock:
   def code(value: String): TextBlock     = TextBlock(value, TextVariant.Code, Set(), None)
   def label(value: String): TextBlock    = TextBlock(value, TextVariant.Label, Set(), None)
 
-  def toHtml(element: TextBlock)(using theme: Theme): Html[Nothing] =
+  def toHtml(element: TextBlock)(using theme: Theme): Html[GlobalMsg] =
     val t = element._modifyTheme match
       case Some(f) => f(theme)
       case None    => theme

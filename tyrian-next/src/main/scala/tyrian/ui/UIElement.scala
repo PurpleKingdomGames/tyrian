@@ -1,6 +1,10 @@
 package tyrian.ui
 
-trait UIElement[T, +Msg]:
+import tyrian.next.GlobalMsg
+
+trait UIElement[T]:
+
+  // TODO: Bring back `map` over GlobalMsg's function
 
   def classNames: Set[String]
   def withClassNames(classes: Set[String]): T
@@ -11,7 +15,7 @@ trait UIElement[T, +Msg]:
   def _modifyTheme: Option[Theme => Theme]
   def modifyTheme(f: Theme => Theme): T
 
-  def toHtml: Theme ?=> tyrian.Html[Msg]
+  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg]
 
 /*
 

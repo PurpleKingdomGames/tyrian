@@ -1,5 +1,7 @@
 package tyrian.ui.datatypes
 
+import tyrian.next.GlobalMsg
+
 enum Target derives CanEqual:
   case Blank, Self, Parent, TOP
 
@@ -10,5 +12,5 @@ enum Target derives CanEqual:
       case Target.Parent => "_parent"
       case Target.TOP    => "_top"
 
-  def toAttribute: tyrian.Attr[Nothing] =
+  def toAttribute: tyrian.Attr[GlobalMsg] =
     tyrian.Html.target := toAttributeValue
