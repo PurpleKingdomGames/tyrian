@@ -4,8 +4,6 @@ import tyrian.next.GlobalMsg
 
 trait UIElement[T]:
 
-  // TODO: Bring back `map` over GlobalMsg's function
-
   def classNames: Set[String]
   def withClassNames(classes: Set[String]): T
   def withClassNames(classes: String*): T    = withClassNames(classes.toSet)
