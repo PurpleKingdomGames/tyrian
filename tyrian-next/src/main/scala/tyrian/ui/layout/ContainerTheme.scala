@@ -6,6 +6,7 @@ import tyrian.ui.datatypes.BorderRadius
 import tyrian.ui.datatypes.BorderStyle
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
+import tyrian.ui.datatypes.Fill
 import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.RGBA
 
@@ -13,7 +14,7 @@ final case class ContainerTheme(
     border: Option[Border],
     boxShadow: Option[BoxShadow],
     opacity: Option[Opacity],
-    backgroundColor: Option[RGBA]
+    backgroundFill: Option[Fill]
 ):
 
   def withBorder(border: Border): ContainerTheme =
@@ -79,16 +80,20 @@ final case class ContainerTheme(
   def transparent: ContainerTheme     = withOpacity(Opacity.None)
 
   def withBackgroundColor(color: RGBA): ContainerTheme =
-    this.copy(backgroundColor = Some(color))
+    this.copy(backgroundFill = Some(Fill.Color(color)))
 
-  def noBackgroundColor: ContainerTheme =
-    this.copy(backgroundColor = None)
+  def withBackgroundFill(fill: Fill): ContainerTheme =
+    this.copy(backgroundFill = Some(fill))
+
+  def noBackground: ContainerTheme =
+    this.copy(backgroundFill = None)
 
   def toStyle: Style =
     val borderStyle     = border.map(_.toStyle).getOrElse(Style.empty)
     val shadowStyle     = boxShadow.map(_.toStyle).getOrElse(Style.empty)
     val opacityStyle    = opacity.map(o => Style("opacity", o.toCSSValue)).getOrElse(Style.empty)
-    val backgroundStyle = backgroundColor.map(c => Style("background-color", c.toCSSValue)).getOrElse(Style.empty)
+    val backgroundStyle = backgroundFill.map(_.toStyle).getOrElse(Style.empty)
+
     borderStyle |+| shadowStyle |+| opacityStyle |+| backgroundStyle
 
 object ContainerTheme:
@@ -98,5 +103,5 @@ object ContainerTheme:
       border = None,
       boxShadow = None,
       opacity = None,
-      backgroundColor = None
+      backgroundFill = None
     )
