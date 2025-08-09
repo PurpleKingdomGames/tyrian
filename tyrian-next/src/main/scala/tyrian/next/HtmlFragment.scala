@@ -106,7 +106,7 @@ object HtmlFragment:
     * most common way to create fragments when you have individual elements to include.
     */
   def apply(markup: Elem[GlobalMsg]*): HtmlFragment =
-    HtmlFragment(Batch.fromSeq(markup))
+    HtmlFragment(Batch.fromSeq(markup), emptyInserts)
 
   /** Creates an HtmlFragment containing only top-level ui elements, with no marker inserts. The elements will be
     * rendered directly as part of the fragment's markup when resolved by an HtmlRoot.
@@ -118,7 +118,7 @@ object HtmlFragment:
     * the most common way to create fragments when you have individual elements to include.
     */
   def apply(markup: UIElement[?]*)(using Theme): HtmlFragment =
-    HtmlFragment(Batch.fromSeq(markup).map(_.toHtml))
+    HtmlFragment(Batch.fromSeq(markup).map(_.toHtml), emptyInserts)
 
   /** Creates an HtmlFragment that contains only insert data for a specific marker, with no top-level markup. When
     * resolved, these elements will replace any Marker with the matching MarkerId in the final DOM tree.
