@@ -4,12 +4,15 @@ import tyrian.EmptyAttribute
 import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
+import tyrian.ui.datatypes.BackgroundMode
 import tyrian.ui.datatypes.Border
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.Extent
+import tyrian.ui.datatypes.Fill
 import tyrian.ui.datatypes.ImageFit
 import tyrian.ui.datatypes.Opacity
+import tyrian.ui.datatypes.Position
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.layout.ContainerTheme
 
@@ -91,8 +94,28 @@ final case class Image(
 
   def withBackgroundColor(color: RGBA): Image =
     modifyImageTheme(_.withBackgroundColor(color))
-  def noBackgroundColor: Image =
-    modifyImageTheme(_.noBackgroundColor)
+  def noBackground: Image =
+    modifyImageTheme(_.noBackground)
+
+  def withBackgroundFill(fill: Fill): Image =
+    modifyImageTheme(_.withBackgroundFill(fill))
+
+  def withBackgroundImage(url: String): Image =
+    withBackgroundFill(Fill.Image(url))
+  def withBackgroundImageAt(url: String, position: Position): Image =
+    withBackgroundFill(Fill.Image(url).withPosition(position))
+  def withBackgroundImageCover(url: String): Image =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.coverNoRepeat))
+  def withBackgroundImageContain(url: String): Image =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.containNoRepeat))
+  def withBackgroundImageFill(url: String): Image =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.fillNoRepeat))
+  def withBackgroundImageTiled(url: String): Image =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeat))
+  def withBackgroundImageRepeatX(url: String): Image =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeatX))
+  def withBackgroundImageRepeatY(url: String): Image =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeatY))
 
   def withClassNames(classes: Set[String]): Image =
     this.copy(classNames = classes)

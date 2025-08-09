@@ -6,12 +6,15 @@ import tyrian.ui.Extent
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Align
+import tyrian.ui.datatypes.BackgroundMode
 import tyrian.ui.datatypes.Border
 import tyrian.ui.datatypes.BorderRadius
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
+import tyrian.ui.datatypes.Fill
 import tyrian.ui.datatypes.Justify
 import tyrian.ui.datatypes.Opacity
+import tyrian.ui.datatypes.Position
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.Spacing
 
@@ -133,8 +136,28 @@ final case class Container(
 
   def withBackgroundColor(color: RGBA): Container =
     modifyContainerTheme(_.withBackgroundColor(color))
-  def noBackgroundColor: Container =
-    modifyContainerTheme(_.noBackgroundColor)
+  def noBackground: Container =
+    modifyContainerTheme(_.noBackground)
+
+  def withBackgroundFill(fill: Fill): Container =
+    modifyContainerTheme(_.withBackgroundFill(fill))
+
+  def withBackgroundImage(url: String): Container =
+    withBackgroundFill(Fill.Image(url))
+  def withBackgroundImageAt(url: String, position: Position): Container =
+    withBackgroundFill(Fill.Image(url).withPosition(position))
+  def withBackgroundImageCover(url: String): Container =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.coverNoRepeat))
+  def withBackgroundImageContain(url: String): Container =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.containNoRepeat))
+  def withBackgroundImageFill(url: String): Container =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.fillNoRepeat))
+  def withBackgroundImageTiled(url: String): Container =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeat))
+  def withBackgroundImageRepeatX(url: String): Container =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeatX))
+  def withBackgroundImageRepeatY(url: String): Container =
+    withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeatY))
 
   def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
     Container.toHtml(this)
