@@ -23,7 +23,7 @@ final case class Image(
     height: Option[Extent],
     fit: ImageFit,
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[Image]:
 
   def withSrc(src: String): Image =
@@ -52,53 +52,53 @@ final case class Image(
   def scaleDown: Image = withFit(ImageFit.ScaleDown)
 
   def withBorder(border: Border): Image =
-    modifyImageTheme(_.withBorder(border))
+    overrideImageTheme(_.withBorder(border))
   def modifyBorder(f: Border => Border): Image =
-    modifyImageTheme(_.modifyBorder(f))
+    overrideImageTheme(_.modifyBorder(f))
   def solidBorder(width: BorderWidth, color: RGBA): Image =
-    modifyImageTheme(_.solidBorder(width, color))
+    overrideImageTheme(_.solidBorder(width, color))
   def dashedBorder(width: BorderWidth, color: RGBA): Image =
-    modifyImageTheme(_.dashedBorder(width, color))
+    overrideImageTheme(_.dashedBorder(width, color))
 
-  def square: Image       = modifyImageTheme(_.square)
-  def rounded: Image      = modifyImageTheme(_.rounded)
-  def roundedSmall: Image = modifyImageTheme(_.roundedSmall)
-  def roundedLarge: Image = modifyImageTheme(_.roundedLarge)
-  def circular: Image     = modifyImageTheme(_.circular)
+  def square: Image       = overrideImageTheme(_.square)
+  def rounded: Image      = overrideImageTheme(_.rounded)
+  def roundedSmall: Image = overrideImageTheme(_.roundedSmall)
+  def roundedLarge: Image = overrideImageTheme(_.roundedLarge)
+  def circular: Image     = overrideImageTheme(_.circular)
 
   def withBoxShadow(boxShadow: BoxShadow): Image =
-    modifyImageTheme(_.withBoxShadow(boxShadow))
+    overrideImageTheme(_.withBoxShadow(boxShadow))
   def noBoxShadow: Image =
-    modifyImageTheme(_.noBoxShadow)
+    overrideImageTheme(_.noBoxShadow)
   def modifyBoxShadow(f: BoxShadow => BoxShadow): Image =
-    modifyImageTheme(_.modifyBoxShadow(f))
+    overrideImageTheme(_.modifyBoxShadow(f))
   def shadowSmall(color: RGBA): Image =
-    modifyImageTheme(_.shadowSmall(color))
+    overrideImageTheme(_.shadowSmall(color))
   def shadowMedium(color: RGBA): Image =
-    modifyImageTheme(_.shadowMedium(color))
+    overrideImageTheme(_.shadowMedium(color))
   def shadowLarge(color: RGBA): Image =
-    modifyImageTheme(_.shadowLarge(color))
+    overrideImageTheme(_.shadowLarge(color))
   def shadowExtraLarge(color: RGBA): Image =
-    modifyImageTheme(_.shadowExtraLarge(color))
+    overrideImageTheme(_.shadowExtraLarge(color))
 
   def withOpacity(opacity: Opacity): Image =
-    modifyImageTheme(_.withOpacity(opacity))
+    overrideImageTheme(_.withOpacity(opacity))
   def noOpacity: Image =
-    modifyImageTheme(_.noOpacity)
+    overrideImageTheme(_.noOpacity)
   def fullyOpaque: Image =
-    modifyImageTheme(_.fullyOpaque)
+    overrideImageTheme(_.fullyOpaque)
   def semiTransparent: Image =
-    modifyImageTheme(_.semiTransparent)
+    overrideImageTheme(_.semiTransparent)
   def transparent: Image =
-    modifyImageTheme(_.transparent)
+    overrideImageTheme(_.transparent)
 
   def withBackgroundColor(color: RGBA): Image =
-    modifyImageTheme(_.withBackgroundColor(color))
+    overrideImageTheme(_.withBackgroundColor(color))
   def noBackground: Image =
-    modifyImageTheme(_.noBackground)
+    overrideImageTheme(_.noBackground)
 
   def withBackgroundFill(fill: Fill): Image =
-    modifyImageTheme(_.withBackgroundFill(fill))
+    overrideImageTheme(_.withBackgroundFill(fill))
 
   def withBackgroundImage(url: String): Image =
     withBackgroundFill(Fill.Image(url))
@@ -120,19 +120,19 @@ final case class Image(
   def withClassNames(classes: Set[String]): Image =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Image =
+  def withThemeOverride(f: Theme => Theme): Image =
     val h =
-      _modifyTheme match
+      overrideLocalTheme match
         case Some(g) => f andThen g
         case None    => f
 
-    this.copy(_modifyTheme = Some(h))
+    this.copy(overrideLocalTheme = Some(h))
 
-  def modifyImageTheme(f: ContainerTheme => ContainerTheme): Image =
+  def overrideImageTheme(f: ContainerTheme => ContainerTheme): Image =
     val g: Theme => Theme = theme => theme.copy(image = f(theme.image))
-    modifyTheme(g)
+    withThemeOverride(g)
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
+  def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Image.toHtml(this)
 
 object Image:
@@ -148,7 +148,7 @@ object Image:
       height = None,
       fit = ImageFit.default,
       classNames = Set.empty,
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def apply(src: String, alt: String): Image =
@@ -159,7 +159,7 @@ object Image:
       height = None,
       fit = ImageFit.default,
       classNames = Set.empty,
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def apply(src: String, alt: String, width: Extent, height: Extent): Image =
@@ -170,11 +170,11 @@ object Image:
       height = Some(height),
       fit = ImageFit.default,
       classNames = Set.empty,
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def toHtml(image: Image)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    val t = image._modifyTheme match
+    val t = image.overrideLocalTheme match
       case Some(f) => f(theme)
       case None    => theme
 

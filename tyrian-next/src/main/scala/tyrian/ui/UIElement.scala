@@ -1,6 +1,7 @@
 package tyrian.ui
 
 import tyrian.next.GlobalMsg
+import tyrian.next.Outcome
 
 trait UIElement[T]:
 
@@ -10,10 +11,28 @@ trait UIElement[T]:
   def addClassNames(classes: Set[String]): T = withClassNames(classNames ++ classes)
   def addClassNames(classes: String*): T     = addClassNames(classes.toSet)
 
-  def _modifyTheme: Option[Theme => Theme]
-  def modifyTheme(f: Theme => Theme): T
+  def overrideLocalTheme: Option[Theme => Theme]
+  def withThemeOverride(f: Theme => Theme): T
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg]
+  def view: Theme ?=> tyrian.Elem[GlobalMsg]
+
+object UIElement:
+
+  trait Stateful[T] extends UIElement[T]:
+
+    def id: UIElementId
+    def withId(value: UIElementId): T
+
+    def update: GlobalMsg => Outcome[T]
+
+opaque type UIElementId = String
+object UIElementId:
+
+  given CanEqual[UIElementId, UIElementId] = CanEqual.derived
+
+  def apply(value: String): UIElementId = value
+
+  extension (id: UIElementId) def value: String = id
 
 /*
 
