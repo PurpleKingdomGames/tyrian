@@ -124,6 +124,9 @@ val TextVariant: elements.stateless.text.TextVariant.type = elements.stateless.t
 type Input = elements.stateful.input.Input
 val Input: elements.stateful.input.Input.type = elements.stateful.input.Input
 
+type InputTheme = elements.stateful.input.InputTheme
+val InputTheme: elements.stateful.input.InputTheme.type = elements.stateful.input.InputTheme
+
 // ---- Themes ----
 
 type Theme = theme.Theme

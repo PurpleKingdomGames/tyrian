@@ -12,8 +12,8 @@ import tyrian.ui.theme.Theme
 
 final case class TextTheme(
     fontSize: FontSize,
-    weight: FontWeight,
-    color: RGBA,
+    fontWeight: FontWeight,
+    textColor: RGBA,
     alignment: TextAlignment,
     lineHeight: LineHeight,
     wrap: Boolean,
@@ -24,11 +24,11 @@ final case class TextTheme(
   def withFontSize(value: FontSize): TextTheme =
     this.copy(fontSize = value)
 
-  def withWeight(value: FontWeight): TextTheme =
-    this.copy(weight = value)
+  def withFontWeight(value: FontWeight): TextTheme =
+    this.copy(fontWeight = value)
 
-  def withColor(value: RGBA): TextTheme =
-    this.copy(color = value)
+  def withTextColor(value: RGBA): TextTheme =
+    this.copy(textColor = value)
 
   def withAlignment(value: TextAlignment): TextTheme =
     this.copy(alignment = value)
@@ -53,8 +53,8 @@ final case class TextTheme(
     val baseStyle = Style(
       "font-family" -> theme.fonts.body,
       "font-size"   -> fontSize.toCSSValue,
-      "font-weight" -> weight.toCSSValue,
-      "color"       -> color.toCSSValue,
+      "font-weight" -> fontWeight.toCSSValue,
+      "color"       -> textColor.toCSSValue,
       "text-align"  -> alignment.toCSSValue,
       "line-height" -> lineHeight.toCSSValue,
       "white-space" -> (if wrap then "normal" else "nowrap")

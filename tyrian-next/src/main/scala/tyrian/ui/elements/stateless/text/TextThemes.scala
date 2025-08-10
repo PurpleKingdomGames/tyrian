@@ -82,8 +82,8 @@ object TextThemes:
   val normal: TextTheme =
     TextTheme(
       fontSize = FontSize.Medium,
-      weight = FontWeight.Normal,
-      color = RGBA.fromHex("#333333"),
+      fontWeight = FontWeight.Normal,
+      textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
       wrap = true,
@@ -94,8 +94,8 @@ object TextThemes:
   val paragraph: TextTheme =
     TextTheme(
       fontSize = FontSize.Medium,
-      weight = FontWeight.Normal,
-      color = RGBA.fromHex("#333333"),
+      fontWeight = FontWeight.Normal,
+      textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
       wrap = true,
@@ -106,8 +106,8 @@ object TextThemes:
   val heading1: TextTheme =
     TextTheme(
       fontSize = FontSize.heading1,
-      weight = FontWeight.SemiBold,
-      color = RGBA.fromHex("#1a1a1a"),
+      fontWeight = FontWeight.SemiBold,
+      textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
       wrap = true,
@@ -118,8 +118,8 @@ object TextThemes:
   val heading2: TextTheme =
     TextTheme(
       fontSize = FontSize.heading2,
-      weight = FontWeight.SemiBold,
-      color = RGBA.fromHex("#1a1a1a"),
+      fontWeight = FontWeight.SemiBold,
+      textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
       wrap = true,
@@ -130,8 +130,8 @@ object TextThemes:
   val heading3: TextTheme =
     TextTheme(
       fontSize = FontSize.heading3,
-      weight = FontWeight.SemiBold,
-      color = RGBA.fromHex("#1a1a1a"),
+      fontWeight = FontWeight.SemiBold,
+      textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relative(1.3),
       wrap = true,
@@ -142,8 +142,8 @@ object TextThemes:
   val heading4: TextTheme =
     TextTheme(
       fontSize = FontSize.heading4,
-      weight = FontWeight.SemiBold,
-      color = RGBA.fromHex("#1a1a1a"),
+      fontWeight = FontWeight.SemiBold,
+      textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relative(1.3),
       wrap = true,
@@ -154,8 +154,8 @@ object TextThemes:
   val heading5: TextTheme =
     TextTheme(
       fontSize = FontSize.heading5,
-      weight = FontWeight.SemiBold,
-      color = RGBA.fromHex("#1a1a1a"),
+      fontWeight = FontWeight.SemiBold,
+      textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = true,
@@ -166,8 +166,8 @@ object TextThemes:
   val heading6: TextTheme =
     TextTheme(
       fontSize = FontSize.heading6,
-      weight = FontWeight.SemiBold,
-      color = RGBA.fromHex("#1a1a1a"),
+      fontWeight = FontWeight.SemiBold,
+      textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = true,
@@ -178,8 +178,8 @@ object TextThemes:
   val caption: TextTheme =
     TextTheme(
       fontSize = FontSize.XSmall,
-      weight = FontWeight.Normal,
-      color = RGBA.fromHex("#666666"),
+      fontWeight = FontWeight.Normal,
+      textColor = RGBA.fromHex("#666666"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = true,
@@ -190,8 +190,8 @@ object TextThemes:
   val code: TextTheme =
     TextTheme(
       fontSize = FontSize.Small,
-      weight = FontWeight.Normal,
-      color = RGBA.fromHex("#d73a49"),
+      fontWeight = FontWeight.Normal,
+      textColor = RGBA.fromHex("#d73a49"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = false,
@@ -202,8 +202,8 @@ object TextThemes:
   val label: TextTheme =
     TextTheme(
       fontSize = FontSize.Small,
-      weight = FontWeight.Medium,
-      color = RGBA.fromHex("#333333"),
+      fontWeight = FontWeight.Medium,
+      textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
       wrap = false,
