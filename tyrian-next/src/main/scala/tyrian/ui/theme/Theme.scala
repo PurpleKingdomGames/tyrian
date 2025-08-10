@@ -1,7 +1,7 @@
-package tyrian.ui
+package tyrian.ui.theme
 
+import tyrian.ui.elements.stateless.text.TextThemes
 import tyrian.ui.layout.*
-import tyrian.ui.text.*
 import tyrian.ui.theme.*
 
 final case class Theme(

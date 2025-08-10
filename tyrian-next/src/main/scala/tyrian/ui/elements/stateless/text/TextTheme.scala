@@ -1,7 +1,6 @@
-package tyrian.ui.text
+package tyrian.ui.elements.stateless.text
 
 import tyrian.Style
-import tyrian.ui.Theme
 import tyrian.ui.datatypes.FontSize
 import tyrian.ui.datatypes.FontWeight
 import tyrian.ui.datatypes.LineHeight
@@ -9,6 +8,7 @@ import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.TextAlignment
 import tyrian.ui.datatypes.TextDecoration
 import tyrian.ui.datatypes.TextStyle
+import tyrian.ui.theme.Theme
 
 final case class TextTheme(
     fontSize: FontSize,

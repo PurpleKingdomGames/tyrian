@@ -2,10 +2,10 @@ package tyrian.ui.layout
 
 import tyrian.Style
 import tyrian.ui.TextBlock
-import tyrian.ui.Theme
 import tyrian.ui.datatypes.Border
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.RGBA
+import tyrian.ui.theme.Theme
 
 class ContainerTests extends munit.FunSuite {
 

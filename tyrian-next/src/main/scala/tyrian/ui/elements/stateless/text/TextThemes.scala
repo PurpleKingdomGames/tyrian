@@ -1,4 +1,4 @@
-package tyrian.ui.text
+package tyrian.ui.elements.stateless.text
 
 import tyrian.ui.datatypes.FontSize
 import tyrian.ui.datatypes.FontWeight

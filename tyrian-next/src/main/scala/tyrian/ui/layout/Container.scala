@@ -3,7 +3,6 @@ package tyrian.ui.layout
 import tyrian.EmptyAttribute
 import tyrian.next.GlobalMsg
 import tyrian.ui.Extent
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Align
 import tyrian.ui.datatypes.BackgroundMode
@@ -17,6 +16,7 @@ import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.Position
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.Spacing
+import tyrian.ui.theme.Theme
 
 final case class Container(
     child: UIElement[?],

@@ -1,4 +1,4 @@
-package tyrian.ui.input
+package tyrian.ui.elements.stateful.input
 
 import tyrian.Elem
 import tyrian.EmptyAttribute
@@ -6,9 +6,9 @@ import tyrian.Html.*
 import tyrian.next.GlobalMsg
 import tyrian.next.Outcome
 import tyrian.ui
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.UIKey
+import tyrian.ui.theme.Theme
 
 final case class Input(
     key: UIKey,
