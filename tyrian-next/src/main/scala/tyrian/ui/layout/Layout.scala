@@ -8,16 +8,17 @@ import tyrian.ui.datatypes.Ratio
 import tyrian.ui.datatypes.SpaceAlignment
 import tyrian.ui.datatypes.Spacing
 import tyrian.ui.theme.Theme
+import tyrian.ui.utils.Lens
 
 final case class Layout(
     direction: LayoutDirection,
-    children: List[UIElement[?]],
+    children: List[UIElement[?, ?]],
     spacing: Spacing,
     spaceAlignment: SpaceAlignment,
     ratio: Ratio,
     classNames: Set[String],
-    overrideLocalTheme: Option[Theme => Theme]
-) extends UIElement[Layout]:
+    themeOverride: Option[Unit => Unit]
+) extends UIElement[Layout, Unit]:
 
   def withDirection(value: LayoutDirection): Layout =
     this.copy(direction = value)
@@ -63,8 +64,11 @@ final case class Layout(
   def withClassNames(classes: Set[String]): Layout =
     this.copy(classNames = classes)
 
-  def withThemeOverride(f: Theme => Theme): Layout =
-    this.copy(overrideLocalTheme = Some(f))
+  def themeLens: Lens[Theme, Unit] =
+    Lens.unit
+
+  def withThemeOverride(f: Unit => Unit): Layout =
+    this
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Layout.toHtml(this)
@@ -74,10 +78,10 @@ object Layout:
   import tyrian.Html.*
   import tyrian.Style
 
-  def apply(children: UIElement[?]*): Layout =
+  def apply(children: UIElement[?, ?]*): Layout =
     Layout(LayoutDirection.Row, children.toList)
 
-  def apply(direction: LayoutDirection, children: List[UIElement[?]]): Layout =
+  def apply(direction: LayoutDirection, children: List[UIElement[?, ?]]): Layout =
     Layout(
       direction = direction,
       children = children,
@@ -85,24 +89,19 @@ object Layout:
       spaceAlignment = SpaceAlignment.Stretch,
       ratio = Ratio.default,
       classNames = Set(),
-      overrideLocalTheme = None
+      themeOverride = None
     )
 
-  def apply(direction: LayoutDirection, children: UIElement[?]*): Layout =
+  def apply(direction: LayoutDirection, children: UIElement[?, ?]*): Layout =
     Layout(direction, children.toList)
 
-  def row(children: UIElement[?]*): Layout =
+  def row(children: UIElement[?, ?]*): Layout =
     Layout(LayoutDirection.Row, children.toList)
 
-  def column(children: UIElement[?]*): Layout =
+  def column(children: UIElement[?, ?]*): Layout =
     Layout(LayoutDirection.Column, children.toList)
 
   def toHtml(layout: Layout)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    // TODO: Bring back when / if Layouts have a theme - ContainerTheme?
-    // val t = layout.overrideLocalTheme match
-    //   case Some(f) => f(theme)
-    //   case None    => theme
-
     val baseStyles = Style(
       "display"         -> "flex",
       "justify-content" -> layout.spaceAlignment.toCSSValue,
@@ -114,6 +113,6 @@ object Layout:
       if layout.classNames.isEmpty then EmptyAttribute
       else cls := layout.classNames.mkString(" ")
 
-    val childrenHtml = layout.children.map(_.view)
+    val childrenHtml = layout.children.map(_.toElem)
 
     div(style(baseStyles), classAttribute)(childrenHtml*)

@@ -16,10 +16,24 @@ final case class TextTheme(
     textColor: RGBA,
     alignment: TextAlignment,
     lineHeight: LineHeight,
-    wrap: Boolean,
+    wrapping: Boolean,
     style: TextStyle,
     decoration: TextDecoration
 ):
+
+  def bold: TextTheme          = withFontWeight(FontWeight.Bold)
+  def italic: TextTheme        = withStyle(TextStyle.Italic)
+  def underlined: TextTheme    = withDecoration(TextDecoration.Underline)
+  def strikethrough: TextTheme = withDecoration(TextDecoration.Strikethrough)
+
+  def clearWeight: TextTheme     = withFontWeight(FontWeight.Normal)
+  def clearStyle: TextTheme      = withStyle(TextStyle.Normal)
+  def clearDecoration: TextTheme = withDecoration(TextDecoration.None)
+
+  def alignLeft: TextTheme    = withAlignment(TextAlignment.Left)
+  def alignCenter: TextTheme  = withAlignment(TextAlignment.Center)
+  def alignRight: TextTheme   = withAlignment(TextAlignment.Right)
+  def alignJustify: TextTheme = withAlignment(TextAlignment.Justify)
 
   def withFontSize(value: FontSize): TextTheme =
     this.copy(fontSize = value)
@@ -37,11 +51,11 @@ final case class TextTheme(
     this.copy(lineHeight = value)
 
   def withWrap(value: Boolean): TextTheme =
-    this.copy(wrap = value)
-  def wrapText: TextTheme =
-    this.copy(wrap = true)
+    this.copy(wrapping = value)
+  def wrap: TextTheme =
+    withWrap(true)
   def noWrap: TextTheme =
-    this.copy(wrap = false)
+    withWrap(false)
 
   def withStyle(value: TextStyle): TextTheme =
     this.copy(style = value)
@@ -57,7 +71,7 @@ final case class TextTheme(
       "color"       -> textColor.toCSSValue,
       "text-align"  -> alignment.toCSSValue,
       "line-height" -> lineHeight.toCSSValue,
-      "white-space" -> (if wrap then "normal" else "nowrap")
+      "white-space" -> (if wrapping then "normal" else "nowrap")
     )
 
     val styleModifiers = List(

@@ -4,18 +4,19 @@ import tyrian.next.GlobalMsg
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Target
 import tyrian.ui.theme.Theme
+import tyrian.ui.utils.Lens
 
 // TODO: Styling options via a theme.
 // TODO: Missing onClick behaviour?
 final case class Link(
-    contents: UIElement[?],
+    contents: UIElement[?, ?],
     target: Option[Target],
     url: Option[String], // TODO: URL type? Reuse Location type?
     classNames: Set[String],
-    overrideLocalTheme: Option[Theme => Theme]
-) extends UIElement[Link]:
+    themeOverride: Option[Unit => Unit]
+) extends UIElement[Link, Unit]:
 
-  def withContents(newContents: UIElement[?]): Link =
+  def withContents(newContents: UIElement[?, ?]): Link =
     this.copy(contents = newContents)
 
   // TODO: Does not work, target is ignored, something about the way routing works, I imagine.
@@ -28,20 +29,18 @@ final case class Link(
   def withClassNames(classes: Set[String]): Link =
     this.copy(classNames = classes)
 
-  def withThemeOverride(f: Theme => Theme): Link =
-    val h =
-      overrideLocalTheme match
-        case Some(g) => f andThen g
-        case None    => f
+  def themeLens: Lens[Theme, Unit] =
+    Lens.unit
 
-    this.copy(overrideLocalTheme = Some(h))
+  def withThemeOverride(f: Unit => Unit): Link =
+    this
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Link.View.toHtml(this)
 
 object Link:
 
-  def apply(url: String)(contents: UIElement[?]): Link =
+  def apply(url: String)(contents: UIElement[?, ?]): Link =
     Link(contents, None, Some(url), Set(), None)
 
   object View:
@@ -50,12 +49,6 @@ object Link:
     import tyrian.EmptyAttribute
 
     def toHtml(link: Link): Theme ?=> tyrian.Elem[GlobalMsg] =
-      // TODO: Bring back when Links have a theme.
-      // val current = summon[Theme]
-      // val t = link.overrideLocalTheme match
-      //   case Some(f) => f(current)
-      //   case None    => current
-
       val classAttribute =
         if link.classNames.isEmpty then EmptyAttribute
         else cls := link.classNames.mkString(" ")
@@ -68,5 +61,5 @@ object Link:
         )
 
       a(attributes)(
-        link.contents.view
+        link.contents.toElem
       )

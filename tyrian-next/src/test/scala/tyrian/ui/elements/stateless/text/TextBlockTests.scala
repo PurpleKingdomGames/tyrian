@@ -11,7 +11,7 @@ class TextBlockTests extends munit.FunSuite {
 
   test("Should be able to render a TextBlock") {
     val actual =
-      TextBlock("Hello").view.toString
+      TextBlock("Hello").toElem.toString
 
     val styles =
       Style(
@@ -32,7 +32,7 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to modify the variant (h1)") {
     val actual =
-      TextBlock("Hello").toHeading1.view.toString
+      TextBlock("Hello").toHeading1.toElem.toString
 
     val styles =
       Style(
@@ -53,7 +53,10 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to modify the theme - bold") {
     val actual =
-      TextBlock("Hello").bold.view.toString
+      TextBlock("Hello")
+        .withThemeOverride(_.bold)
+        .toElem
+        .toString
 
     val styles =
       Style(
@@ -74,7 +77,7 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to modify the theme - italic") {
     val actual =
-      TextBlock("Hello").italic.view.toString
+      TextBlock("Hello").withThemeOverride(_.italic).toElem.toString
 
     val styles =
       Style(
@@ -96,7 +99,7 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - bold + italic") {
     val actual =
-      TextBlock("Hello").bold.italic.view.toString
+      TextBlock("Hello").withThemeOverride(_.bold.italic).toElem.toString
 
     val styles =
       Style(
@@ -118,7 +121,7 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - italic + bold (reversed)") {
     val actual =
-      TextBlock("Hello").italic.bold.view.toString
+      TextBlock("Hello").withThemeOverride(_.italic.bold).toElem.toString
 
     val styles =
       Style(

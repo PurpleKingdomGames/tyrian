@@ -53,20 +53,23 @@ final case class InputTheme(
   def dashedBorder(width: BorderWidth, color: RGBA): InputTheme =
     modifyBorder(_.withStyle(BorderStyle.Dashed).withWidth(width).withColor(color))
 
-  def withBorderRadius(radius: BorderRadius): InputTheme =
-    withBorder(
-      border match
-        case Some(b) => b.withRadius(radius)
-        case None    => Border.default.withRadius(radius)
-    )
   def square: InputTheme       = withBorderRadius(BorderRadius.None)
   def rounded: InputTheme      = withBorderRadius(BorderRadius.Medium)
   def roundedSmall: InputTheme = withBorderRadius(BorderRadius.Small)
   def roundedLarge: InputTheme = withBorderRadius(BorderRadius.Large)
   def circular: InputTheme     = withBorderRadius(BorderRadius.Full)
 
+  def withBorderRadius(radius: BorderRadius): InputTheme =
+    modifyBorder(_.withRadius(radius))
+
   def withBorderColor(value: RGBA): InputTheme =
     modifyBorder(_.withColor(value))
+
+  def withBorderWidth(value: BorderWidth): InputTheme =
+    modifyBorder(_.withWidth(value))
+
+  def withBorderStyle(value: BorderStyle): InputTheme =
+    modifyBorder(_.withStyle(value))
 
   def withPadding(value: Spacing): InputTheme =
     this.copy(padding = value)

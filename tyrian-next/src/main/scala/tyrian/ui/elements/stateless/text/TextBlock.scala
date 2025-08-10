@@ -1,23 +1,16 @@
 package tyrian.ui.elements.stateless.text
 
-import tyrian.EmptyAttribute
 import tyrian.next.GlobalMsg
 import tyrian.ui.UIElement
-import tyrian.ui.datatypes.FontSize
-import tyrian.ui.datatypes.FontWeight
-import tyrian.ui.datatypes.LineHeight
-import tyrian.ui.datatypes.RGBA
-import tyrian.ui.datatypes.TextAlignment
-import tyrian.ui.datatypes.TextDecoration
-import tyrian.ui.datatypes.TextStyle
 import tyrian.ui.theme.Theme
+import tyrian.ui.utils.Lens
 
 final case class TextBlock(
     value: String,
     variant: TextVariant,
     classNames: Set[String],
-    overrideLocalTheme: Option[Theme => Theme]
-) extends UIElement[TextBlock]:
+    themeOverride: Option[TextTheme => TextTheme]
+) extends UIElement[TextBlock, TextTheme]:
 
   def withValue(value: String): TextBlock =
     this.copy(value = value)
@@ -33,80 +26,22 @@ final case class TextBlock(
   def toCode: TextBlock     = this.copy(variant = TextVariant.Code)
   def toLabel: TextBlock    = this.copy(variant = TextVariant.Label)
 
-  def bold: TextBlock                               = overrideTextTheme(_.withFontWeight(FontWeight.Bold))
-  def italic: TextBlock                             = overrideTextTheme(_.withStyle(TextStyle.Italic))
-  def underlined: TextBlock                         = overrideTextTheme(_.withDecoration(TextDecoration.Underline))
-  def strikethrough: TextBlock                      = overrideTextTheme(_.withDecoration(TextDecoration.Strikethrough))
-  def withColor(color: RGBA): TextBlock             = overrideTextTheme(_.withTextColor(color))
-  def withSize(size: FontSize): TextBlock           = overrideTextTheme(_.withFontSize(size))
-  def withLineHeight(height: LineHeight): TextBlock = overrideTextTheme(_.withLineHeight(height))
-  def wrap: TextBlock                               = overrideTextTheme(_.withWrap(true))
-  def noWrap: TextBlock                             = overrideTextTheme(_.withWrap(false))
-
-  def clearWeight: TextBlock     = overrideTextTheme(_.withFontWeight(FontWeight.Normal))
-  def clearStyle: TextBlock      = overrideTextTheme(_.withStyle(TextStyle.Normal))
-  def clearDecoration: TextBlock = overrideTextTheme(_.withDecoration(TextDecoration.None))
-
-  def alignLeft: TextBlock    = overrideTextTheme(_.withAlignment(TextAlignment.Left))
-  def alignCenter: TextBlock  = overrideTextTheme(_.withAlignment(TextAlignment.Center))
-  def alignRight: TextBlock   = overrideTextTheme(_.withAlignment(TextAlignment.Right))
-  def alignJustify: TextBlock = overrideTextTheme(_.withAlignment(TextAlignment.Justify))
-
   def withClassNames(classes: Set[String]): TextBlock =
     this.copy(classNames = classes)
 
-  def withThemeOverride(f: Theme => Theme): TextBlock =
-    this.copy(overrideLocalTheme = Some(f))
+  def themeLens: Lens[Theme, TextTheme] =
+    Lens(
+      _.text.getFromVariant(variant),
+      (t, txt) => t.copy(text = t.text.setFromVariant(variant, txt))
+    )
 
-  def overrideTextTheme(f: TextTheme => TextTheme): TextBlock =
-    val g: Theme => Theme = theme =>
-      val currentVariantTheme = getVariantTheme(variant, theme)
-      val modifiedTheme       = f(currentVariantTheme)
-
-      theme.copy(text = updateVariantTheme(theme.text, variant, modifiedTheme))
-
-    overrideLocalTheme match
-      case Some(f) =>
-        this.copy(overrideLocalTheme = Some(f andThen g))
-
-      case None =>
-        this.copy(overrideLocalTheme = Some(g))
-
-  private def updateVariantTheme(themes: TextThemes, variant: TextVariant, newTheme: TextTheme): TextThemes =
-    variant match
-      case TextVariant.Normal    => themes.copy(normal = newTheme)
-      case TextVariant.Paragraph => themes.copy(paragraph = newTheme)
-      case TextVariant.Heading1  => themes.copy(heading1 = newTheme)
-      case TextVariant.Heading2  => themes.copy(heading2 = newTheme)
-      case TextVariant.Heading3  => themes.copy(heading3 = newTheme)
-      case TextVariant.Heading4  => themes.copy(heading4 = newTheme)
-      case TextVariant.Heading5  => themes.copy(heading5 = newTheme)
-      case TextVariant.Heading6  => themes.copy(heading6 = newTheme)
-      case TextVariant.Caption   => themes.copy(caption = newTheme)
-      case TextVariant.Code      => themes.copy(code = newTheme)
-      case TextVariant.Label     => themes.copy(label = newTheme)
-
-  private def getVariantTheme(variant: TextVariant, theme: Theme): TextTheme =
-    variant match
-      case TextVariant.Normal    => theme.text.normal
-      case TextVariant.Paragraph => theme.text.paragraph
-      case TextVariant.Heading1  => theme.text.heading1
-      case TextVariant.Heading2  => theme.text.heading2
-      case TextVariant.Heading3  => theme.text.heading3
-      case TextVariant.Heading4  => theme.text.heading4
-      case TextVariant.Heading5  => theme.text.heading5
-      case TextVariant.Heading6  => theme.text.heading6
-      case TextVariant.Caption   => theme.text.caption
-      case TextVariant.Code      => theme.text.code
-      case TextVariant.Label     => theme.text.label
+  def withThemeOverride(f: TextTheme => TextTheme): TextBlock =
+    this.copy(themeOverride = Some(f))
 
   def view: Theme ?=> tyrian.Html[GlobalMsg] =
     TextBlock.toHtml(this)
 
 object TextBlock:
-
-  import tyrian.Html
-  import tyrian.Html.*
 
   def apply(value: String): TextBlock =
     TextBlock(value, TextVariant.Normal, Set(), None)
@@ -122,41 +57,5 @@ object TextBlock:
   def code(value: String): TextBlock     = TextBlock(value, TextVariant.Code, Set(), None)
   def label(value: String): TextBlock    = TextBlock(value, TextVariant.Label, Set(), None)
 
-  def toHtml(element: TextBlock)(using theme: Theme): Html[GlobalMsg] =
-    val t = element.overrideLocalTheme match
-      case Some(f) => f(theme)
-      case None    => theme
-
-    val textTheme = getVariantTheme(element.variant, t)
-    val styles    = textTheme.toStyles(t)
-
-    val classAttribute =
-      if element.classNames.isEmpty then EmptyAttribute
-      else cls := element.classNames.mkString(" ")
-
-    element.variant match
-      case TextVariant.Normal    => span(style(styles), classAttribute)(element.value)
-      case TextVariant.Paragraph => p(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading1  => h1(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading2  => h2(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading3  => h3(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading4  => h4(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading5  => h5(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading6  => h6(style(styles), classAttribute)(element.value)
-      case TextVariant.Caption   => span(style(styles), classAttribute)(element.value)
-      case TextVariant.Code      => tyrian.Html.code(style(styles), classAttribute)(element.value)
-      case TextVariant.Label     => tyrian.Html.label(style(styles), classAttribute)(element.value)
-
-  private def getVariantTheme(variant: TextVariant, theme: Theme): TextTheme =
-    variant match
-      case TextVariant.Normal    => theme.text.normal
-      case TextVariant.Paragraph => theme.text.paragraph
-      case TextVariant.Heading1  => theme.text.heading1
-      case TextVariant.Heading2  => theme.text.heading2
-      case TextVariant.Heading3  => theme.text.heading3
-      case TextVariant.Heading4  => theme.text.heading4
-      case TextVariant.Heading5  => theme.text.heading5
-      case TextVariant.Heading6  => theme.text.heading6
-      case TextVariant.Caption   => theme.text.caption
-      case TextVariant.Code      => theme.text.code
-      case TextVariant.Label     => theme.text.label
+  def toHtml(element: TextBlock)(using theme: Theme): tyrian.Html[GlobalMsg] =
+    element.variant.toHtml(element)

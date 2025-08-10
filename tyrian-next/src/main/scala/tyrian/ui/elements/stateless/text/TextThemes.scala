@@ -22,6 +22,22 @@ final case class TextThemes(
     label: TextTheme
 ):
 
+  def getFromVariant(variant: TextVariant): TextTheme =
+    variant.giveTextThemeVariant(this)
+  def setFromVariant(variant: TextVariant, replacement: TextTheme): TextThemes =
+    variant match
+      case TextVariant.Normal    => withNormal(replacement)
+      case TextVariant.Paragraph => withParagraph(replacement)
+      case TextVariant.Heading1  => withHeading1(replacement)
+      case TextVariant.Heading2  => withHeading2(replacement)
+      case TextVariant.Heading3  => withHeading3(replacement)
+      case TextVariant.Heading4  => withHeading4(replacement)
+      case TextVariant.Heading5  => withHeading5(replacement)
+      case TextVariant.Heading6  => withHeading6(replacement)
+      case TextVariant.Caption   => withCaption(replacement)
+      case TextVariant.Code      => withCode(replacement)
+      case TextVariant.Label     => withLabel(replacement)
+
   def withNormal(value: TextTheme): TextThemes =
     this.copy(normal = value)
   def modifyNormal(f: TextTheme => TextTheme): TextThemes =
@@ -86,7 +102,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -98,7 +114,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -110,7 +126,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -122,7 +138,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -134,7 +150,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relative(1.3),
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -146,7 +162,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relative(1.3),
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -158,7 +174,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -170,7 +186,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -182,7 +198,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#666666"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrap = true,
+      wrapping = true,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -194,7 +210,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#d73a49"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrap = false,
+      wrapping = false,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -206,7 +222,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrap = false,
+      wrapping = false,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
