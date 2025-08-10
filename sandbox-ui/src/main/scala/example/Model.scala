@@ -4,9 +4,11 @@ import cats.effect.IO
 import tyrian.*
 import tyrian.next.*
 import tyrian.ui.*
+import tyrian.ui.input.TextInput
 
 final case class Model(
-    topNav: TopNav
+    topNav: TopNav,
+    nameInput: TextInput.State
 ):
 
   def update: GlobalMsg => Outcome[Model] =
@@ -20,24 +22,35 @@ final case class Model(
     case e =>
       for {
         tn <- topNav.update(e)
+        ni <- nameInput.update(e)
       } yield this.copy(
-        topNav = tn
+        topNav = tn,
+        nameInput = ni
       )
 
   def view(using Theme): HtmlFragment =
     topNav.view |+|
-      Model.tmpView
+      Model.tmpView(this)
 
 object Model:
   val init: Model =
-    Model(TopNav.initial)
+    Model(TopNav.initial, TextInput.State("name-input"))
 
-  def tmpView(using Theme): HtmlFragment =
+  def tmpView(m: Model)(using Theme): HtmlFragment =
     HtmlFragment(
       Row(
         Column(
           TextBlock("Welcome to Tyrian UI!").toHeading1
             .withColor(RGBA.fromHex("#2563eb")),
+          Row(
+            Column(
+              TextBlock("Your name:"),
+              TextInput(
+                m.nameInput.withPlaceholder("Type here...")
+              ),
+              TextBlock("Reversed: " + m.nameInput.value.reverse)
+            )
+          ).withSpacing(Spacing.Small),
           Row(
             TextBlock("Hello, Tyrian!").withColor(RGBA.Blue),
             TextBlock("More text").withColor(RGBA.Red.mix(RGBA.Blue))
