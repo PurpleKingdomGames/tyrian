@@ -98,9 +98,10 @@ object Layout:
     Layout(LayoutDirection.Column, children.toList)
 
   def toHtml(layout: Layout)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    val t = layout.overrideLocalTheme match
-      case Some(f) => f(theme)
-      case None    => theme
+    // TODO: Bring back when / if Layouts have a theme - ContainerTheme?
+    // val t = layout.overrideLocalTheme match
+    //   case Some(f) => f(theme)
+    //   case None    => theme
 
     val baseStyles = Style(
       "display"         -> "flex",
@@ -113,6 +114,6 @@ object Layout:
       if layout.classNames.isEmpty then EmptyAttribute
       else cls := layout.classNames.mkString(" ")
 
-    val childrenHtml = layout.children.map(child => child.view(using t))
+    val childrenHtml = layout.children.map(_.view)
 
     div(style(baseStyles), classAttribute)(childrenHtml*)

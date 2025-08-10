@@ -180,19 +180,22 @@ object Container:
     )
 
   def toHtml(container: Container)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    val t = container.overrideLocalTheme match
-      case Some(f) => f(theme)
-      case None    => theme
+    val t =
+      container.overrideLocalTheme match
+        case Some(f) => f(theme)
+        case None    => theme
 
-    val baseStyles = Style(
-      "display"         -> "flex",
-      "flex"            -> "1",
-      "justify-content" -> container.justify.toCSSValue,
-      "align-items"     -> container.align.toCSSValue,
-      "padding"         -> container.padding.toCSSValue
-    )
+    val baseStyles =
+      Style(
+        "display"         -> "flex",
+        "flex"            -> "1",
+        "justify-content" -> container.justify.toCSSValue,
+        "align-items"     -> container.align.toCSSValue,
+        "padding"         -> container.padding.toCSSValue
+      )
 
-    val containerThemeStyles = t.container.toStyle
+    val containerThemeStyles =
+      t.container.toStyle
 
     val sizeAttributes = List(
       container.width.map(w => width := w.toCSSValue).toList,
@@ -203,6 +206,6 @@ object Container:
       if container.classNames.isEmpty then EmptyAttribute
       else cls := container.classNames.mkString(" ")
 
-    val childHtml = container.child.view(using t)
-
-    div(style(baseStyles |+| containerThemeStyles) :: classAttribute :: sizeAttributes)(childHtml)
+    div(style(baseStyles |+| containerThemeStyles) :: classAttribute :: sizeAttributes)(
+      container.child.view
+    )
