@@ -20,21 +20,18 @@ object UIElement:
 
   trait Stateful[T] extends UIElement[T]:
 
-    def id: UIElementId
-    def withId(value: UIElementId): T
+    def key: UIKey
+    def withKey(value: UIKey): T
 
     def update: GlobalMsg => Outcome[T]
 
-opaque type UIElementId = String
-object UIElementId:
-
-  given CanEqual[UIElementId, UIElementId] = CanEqual.derived
-
-  def apply(value: String): UIElementId = value
-
-  extension (id: UIElementId) def value: String = id
-
 /*
+
+Theme
+
+  - NoStyles
+
+---
 
 Stateless Components
 	-	Text - DONE
