@@ -40,7 +40,6 @@ object Model:
             .withColor(RGBA.fromHex("#2563eb")),
           Row(
             TextBlock("Hello, Tyrian!").withColor(RGBA.Blue),
-            Button(AppEvent.NoOp).withLabel("Click me!"),
             TextBlock("More text").withColor(RGBA.Red.mix(RGBA.Blue))
           )
             .withSpacing(Spacing.Medium),
