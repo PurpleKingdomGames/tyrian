@@ -1,13 +1,5 @@
 package tyrian.ui
 
-// Button
-
-type Button = button.Button
-val Button: button.Button.type = button.Button
-
-type ButtonTheme = button.ButtonTheme
-val ButtonTheme: button.ButtonTheme.type = button.ButtonTheme
-
 // Data Types
 
 type SpaceAlignment = datatypes.SpaceAlignment
