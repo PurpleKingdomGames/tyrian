@@ -1,6 +1,6 @@
 package tyrian.ui
 
-// Data Types
+// ---- Data Types ----
 
 type SpaceAlignment = datatypes.SpaceAlignment
 val SpaceAlignment: datatypes.SpaceAlignment.type = datatypes.SpaceAlignment
@@ -44,7 +44,7 @@ val TextDecoration: datatypes.TextDecoration.type = datatypes.TextDecoration
 type TextStyle = datatypes.TextStyle
 val TextStyle: datatypes.TextStyle.type = datatypes.TextStyle
 
-// Layout
+// ---- Layout ----
 
 val Column: layout.Column.type = layout.Column
 
@@ -59,15 +59,17 @@ val Layout: layout.Layout.type = layout.Layout
 
 val Row: layout.Row.type = layout.Row
 
+// ---- Stateless elements ----
+
 // HTML
 
-type HtmlElement = html.HtmlElement
-val HtmlElement: html.HtmlElement.type = html.HtmlElement
+type HtmlElement = elements.stateless.html.HtmlElement
+val HtmlElement: elements.stateless.html.HtmlElement.type = elements.stateless.html.HtmlElement
 
 // Image
 
-type Image = image.Image
-val Image: image.Image.type = image.Image
+type Image = elements.stateless.image.Image
+val Image: elements.stateless.image.Image.type = elements.stateless.image.Image
 
 type ObjectFit = datatypes.ImageFit
 val ObjectFit: datatypes.ImageFit.type = datatypes.ImageFit
@@ -95,27 +97,37 @@ val Opacity: datatypes.Opacity.type = datatypes.Opacity
 
 // Link
 
-type Link = link.Link
-val Link: link.Link.type = link.Link
+type Link = elements.stateless.link.Link
+val Link: elements.stateless.link.Link.type = elements.stateless.link.Link
 
 type Target = datatypes.Target
 val Target: datatypes.Target.type = datatypes.Target
 
 // Text
 
-type TextBlock = text.TextBlock
-val TextBlock: text.TextBlock.type = text.TextBlock
+type TextBlock = elements.stateless.text.TextBlock
+val TextBlock: elements.stateless.text.TextBlock.type = elements.stateless.text.TextBlock
 
-type TextTheme = text.TextTheme
-val TextTheme: text.TextTheme.type = text.TextTheme
+type TextTheme = elements.stateless.text.TextTheme
+val TextTheme: elements.stateless.text.TextTheme.type = elements.stateless.text.TextTheme
 
-type TextThemes = text.TextThemes
-val TextThemes: text.TextThemes.type = text.TextThemes
+type TextThemes = elements.stateless.text.TextThemes
+val TextThemes: elements.stateless.text.TextThemes.type = elements.stateless.text.TextThemes
 
-type TextVariant = text.TextVariant
-val TextVariant: text.TextVariant.type = text.TextVariant
+type TextVariant = elements.stateless.text.TextVariant
+val TextVariant: elements.stateless.text.TextVariant.type = elements.stateless.text.TextVariant
 
-// Themes
+// ---- Stateful elements ----
+
+// Input
+
+type Input = elements.stateful.input.Input
+val Input: elements.stateful.input.Input.type = elements.stateful.input.Input
+
+// ---- Themes ----
+
+type Theme = theme.Theme
+val Theme: theme.Theme.type = theme.Theme
 
 type ThemeColors = theme.ThemeColors
 val ThemeColors: theme.ThemeColors.type = theme.ThemeColors

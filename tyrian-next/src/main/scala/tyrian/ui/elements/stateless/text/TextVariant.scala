@@ -1,4 +1,4 @@
-package tyrian.ui.text
+package tyrian.ui.elements.stateless.text
 
 /** Semantic text variants that determine both styling and HTML element output */
 enum TextVariant derives CanEqual:

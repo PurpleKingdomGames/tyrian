@@ -1,8 +1,7 @@
-package tyrian.ui.text
+package tyrian.ui.elements.stateless.text
 
 import tyrian.EmptyAttribute
 import tyrian.next.GlobalMsg
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.FontSize
 import tyrian.ui.datatypes.FontWeight
@@ -11,6 +10,7 @@ import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.TextAlignment
 import tyrian.ui.datatypes.TextDecoration
 import tyrian.ui.datatypes.TextStyle
+import tyrian.ui.theme.Theme
 
 final case class TextBlock(
     value: String,

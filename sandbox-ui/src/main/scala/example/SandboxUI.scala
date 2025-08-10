@@ -2,7 +2,7 @@ package example
 
 import tyrian.*
 import tyrian.next.*
-import tyrian.ui.*
+import tyrian.ui.theme.Theme
 
 import scala.scalajs.js.annotation.*
 

@@ -2,12 +2,12 @@ package tyrian.ui.layout
 
 import tyrian.EmptyAttribute
 import tyrian.next.GlobalMsg
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.LayoutDirection
 import tyrian.ui.datatypes.Ratio
 import tyrian.ui.datatypes.SpaceAlignment
 import tyrian.ui.datatypes.Spacing
+import tyrian.ui.theme.Theme
 
 final case class Layout(
     direction: LayoutDirection,

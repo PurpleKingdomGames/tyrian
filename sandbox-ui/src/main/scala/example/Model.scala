@@ -4,7 +4,6 @@ import cats.effect.IO
 import tyrian.*
 import tyrian.next.*
 import tyrian.ui.*
-import tyrian.ui.input.Input
 
 final case class Model(
     topNav: TopNav,
@@ -60,7 +59,7 @@ object Model:
             .withSpacing(Spacing.Medium),
           TextBlock("This is just some text")
             .withColor(RGBA.fromHex("#6b7280")),
-          tyrian.ui.html.HtmlElement(
+          HtmlElement(
             tyrian.Html.div(
               tyrian.Html.style := "border: 2px dashed #ccc; padding: 1rem; border-radius: 4px; margin: 1rem 0;"
             )(

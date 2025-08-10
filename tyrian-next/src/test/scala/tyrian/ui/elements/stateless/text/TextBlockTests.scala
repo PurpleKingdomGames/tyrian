@@ -1,8 +1,8 @@
-package tyrian.ui.text
+package tyrian.ui.elements.stateless.text
 
 import tyrian.Style
 import tyrian.ui.TextBlock
-import tyrian.ui.Theme
+import tyrian.ui.theme.Theme
 
 class TextBlockTests extends munit.FunSuite {
 

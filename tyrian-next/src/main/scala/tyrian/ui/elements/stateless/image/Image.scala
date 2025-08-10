@@ -1,8 +1,7 @@
-package tyrian.ui.image
+package tyrian.ui.elements.stateless.image
 
 import tyrian.EmptyAttribute
 import tyrian.next.GlobalMsg
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.BackgroundMode
 import tyrian.ui.datatypes.Border
@@ -15,6 +14,7 @@ import tyrian.ui.datatypes.Opacity
 import tyrian.ui.datatypes.Position
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.layout.ContainerTheme
+import tyrian.ui.theme.Theme
 
 final case class Image(
     src: String,

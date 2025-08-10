@@ -1,8 +1,8 @@
-package tyrian.ui.html
+package tyrian.ui.elements.stateless.html
 
 import tyrian.next.GlobalMsg
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
+import tyrian.ui.theme.Theme
 
 final case class HtmlElement(
     html: tyrian.Elem[GlobalMsg],

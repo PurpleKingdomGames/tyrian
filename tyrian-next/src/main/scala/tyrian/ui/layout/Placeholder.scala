@@ -3,8 +3,8 @@ package tyrian.ui.layout
 import tyrian.next.GlobalMsg
 import tyrian.next.Marker
 import tyrian.next.MarkerId
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
+import tyrian.ui.theme.Theme
 
 final case class Placeholder(
     id: MarkerId,

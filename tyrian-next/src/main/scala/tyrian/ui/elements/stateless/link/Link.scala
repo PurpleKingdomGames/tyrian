@@ -1,9 +1,9 @@
-package tyrian.ui.link
+package tyrian.ui.elements.stateless.link
 
 import tyrian.next.GlobalMsg
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Target
+import tyrian.ui.theme.Theme
 
 // TODO: Styling options.
 final case class Link(

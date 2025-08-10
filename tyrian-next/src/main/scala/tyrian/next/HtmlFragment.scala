@@ -2,8 +2,8 @@ package tyrian.next
 
 import tyrian.Elem
 import tyrian.Html
-import tyrian.ui.Theme
 import tyrian.ui.UIElement
+import tyrian.ui.theme.Theme
 
 /** An HtmlFragment represents a chunk of Html that will potentially make up part of the final DOM output. Though it
   * aids 'out-of-order' dom tree construction, it is not the same as a template (which in Tyrian Next is any function of
