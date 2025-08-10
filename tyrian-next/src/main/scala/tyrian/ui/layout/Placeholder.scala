@@ -10,7 +10,7 @@ final case class Placeholder(
     id: MarkerId,
     children: List[UIElement[?]],
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[Placeholder]:
 
   def withChildren(children: UIElement[?]*): Placeholder =
@@ -22,10 +22,10 @@ final case class Placeholder(
   def withClassNames(classes: Set[String]): Placeholder =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Placeholder =
-    this.copy(_modifyTheme = Some(f))
+  def withThemeOverride(f: Theme => Theme): Placeholder =
+    this.copy(overrideLocalTheme = Some(f))
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
+  def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Placeholder.toHtml(this)
 
 object Placeholder:
@@ -41,10 +41,10 @@ object Placeholder:
 
   def toHtml(element: Placeholder)(using theme: Theme): tyrian.Elem[GlobalMsg] =
     val t =
-      element._modifyTheme match
+      element.overrideLocalTheme match
         case Some(f) => f(theme)
         case None    => theme
 
-    val htmlChildren = element.children.map(_.toHtml(using t))
+    val htmlChildren = element.children.map(_.view(using t))
 
     Marker(element.id, htmlChildren)

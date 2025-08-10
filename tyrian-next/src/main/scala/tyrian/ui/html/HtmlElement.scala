@@ -7,7 +7,7 @@ import tyrian.ui.UIElement
 final case class HtmlElement(
     html: tyrian.Elem[GlobalMsg],
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[HtmlElement]:
 
   def withHtml(html: tyrian.Elem[GlobalMsg]): HtmlElement =
@@ -16,10 +16,10 @@ final case class HtmlElement(
   def withClassNames(classes: Set[String]): HtmlElement =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): HtmlElement =
-    this.copy(_modifyTheme = Some(f))
+  def withThemeOverride(f: Theme => Theme): HtmlElement =
+    this.copy(overrideLocalTheme = Some(f))
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
+  def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     HtmlElement.toHtml(this)
 
 object HtmlElement:
@@ -31,21 +31,21 @@ object HtmlElement:
     HtmlElement(
       html = html,
       classNames = Set.empty,
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def raw(htmlString: String): HtmlElement =
     HtmlElement(
       html = div().innerHtml(htmlString),
       classNames = Set.empty,
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def text(content: String): HtmlElement =
     HtmlElement(
       html = span(content),
       classNames = Set.empty,
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def toHtml(element: HtmlElement): tyrian.Elem[GlobalMsg] =

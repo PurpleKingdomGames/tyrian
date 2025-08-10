@@ -11,7 +11,7 @@ final case class Link(
     target: Option[Target],
     url: Option[String], // URL type? Location?
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[Link]:
 
   def withContents(newContents: UIElement[?]): Link =
@@ -26,10 +26,10 @@ final case class Link(
   def withClassNames(classes: Set[String]): Link =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Link =
-    this.copy(_modifyTheme = Some(f))
+  def withThemeOverride(f: Theme => Theme): Link =
+    this.copy(overrideLocalTheme = Some(f))
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
+  def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Link.View.toHtml(this)
 
 object Link:
@@ -50,5 +50,5 @@ object Link:
         )
 
       a(attributes)(
-        link.contents.toHtml
+        link.contents.view
       )

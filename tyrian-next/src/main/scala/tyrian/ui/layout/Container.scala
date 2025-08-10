@@ -26,7 +26,7 @@ final case class Container(
     width: Option[Extent],
     height: Option[Extent],
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[Container]:
 
   def withPadding(padding: Spacing): Container =
@@ -71,76 +71,76 @@ final case class Container(
   def withClassNames(classes: Set[String]): Container =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Container =
+  def withThemeOverride(f: Theme => Theme): Container =
     val h =
-      _modifyTheme match
+      overrideLocalTheme match
         case Some(g) => f andThen g
         case None    => f
 
-    this.copy(_modifyTheme = Some(h))
+    this.copy(overrideLocalTheme = Some(h))
 
-  def modifyContainerTheme(f: ContainerTheme => ContainerTheme): Container =
+  def overrideContainerTheme(f: ContainerTheme => ContainerTheme): Container =
     val g: Theme => Theme = theme => theme.copy(container = f(theme.container))
-    modifyTheme(g)
+    withThemeOverride(g)
 
   def withBorder(border: Border): Container =
-    modifyContainerTheme(_.withBorder(border))
+    overrideContainerTheme(_.withBorder(border))
   def noBorder: Container =
-    modifyContainerTheme(_.noBorder)
+    overrideContainerTheme(_.noBorder)
   def modifyBorder(f: Border => Border): Container =
-    modifyContainerTheme(_.modifyBorder(f))
+    overrideContainerTheme(_.modifyBorder(f))
   def solidBorder(width: BorderWidth, color: RGBA): Container =
-    modifyContainerTheme(_.solidBorder(width, color))
+    overrideContainerTheme(_.solidBorder(width, color))
   def dashedBorder(width: BorderWidth, color: RGBA): Container =
-    modifyContainerTheme(_.dashedBorder(width, color))
+    overrideContainerTheme(_.dashedBorder(width, color))
 
   def withBorderRadius(radius: BorderRadius): Container =
-    modifyContainerTheme(_.withBorderRadius(radius))
+    overrideContainerTheme(_.withBorderRadius(radius))
 
   def square: Container =
-    modifyContainerTheme(_.square)
+    overrideContainerTheme(_.square)
   def rounded: Container =
-    modifyContainerTheme(_.rounded)
+    overrideContainerTheme(_.rounded)
   def roundedSmall: Container =
-    modifyContainerTheme(_.roundedSmall)
+    overrideContainerTheme(_.roundedSmall)
   def roundedLarge: Container =
-    modifyContainerTheme(_.roundedLarge)
+    overrideContainerTheme(_.roundedLarge)
   def circular: Container =
-    modifyContainerTheme(_.circular)
+    overrideContainerTheme(_.circular)
 
   def withBoxShadow(boxShadow: BoxShadow): Container =
-    modifyContainerTheme(_.withBoxShadow(boxShadow))
+    overrideContainerTheme(_.withBoxShadow(boxShadow))
   def noBoxShadow: Container =
-    modifyContainerTheme(_.noBoxShadow)
+    overrideContainerTheme(_.noBoxShadow)
   def modifyBoxShadow(f: BoxShadow => BoxShadow): Container =
-    modifyContainerTheme(_.modifyBoxShadow(f))
+    overrideContainerTheme(_.modifyBoxShadow(f))
   def shadowSmall(color: RGBA): Container =
-    modifyContainerTheme(_.shadowSmall(color))
+    overrideContainerTheme(_.shadowSmall(color))
   def shadowMedium(color: RGBA): Container =
-    modifyContainerTheme(_.shadowMedium(color))
+    overrideContainerTheme(_.shadowMedium(color))
   def shadowLarge(color: RGBA): Container =
-    modifyContainerTheme(_.shadowLarge(color))
+    overrideContainerTheme(_.shadowLarge(color))
   def shadowExtraLarge(color: RGBA): Container =
-    modifyContainerTheme(_.shadowExtraLarge(color))
+    overrideContainerTheme(_.shadowExtraLarge(color))
 
   def withOpacity(opacity: Opacity): Container =
-    modifyContainerTheme(_.withOpacity(opacity))
+    overrideContainerTheme(_.withOpacity(opacity))
   def noOpacity: Container =
-    modifyContainerTheme(_.noOpacity)
+    overrideContainerTheme(_.noOpacity)
   def fullyOpaque: Container =
-    modifyContainerTheme(_.fullyOpaque)
+    overrideContainerTheme(_.fullyOpaque)
   def semiTransparent: Container =
-    modifyContainerTheme(_.semiTransparent)
+    overrideContainerTheme(_.semiTransparent)
   def transparent: Container =
-    modifyContainerTheme(_.transparent)
+    overrideContainerTheme(_.transparent)
 
   def withBackgroundColor(color: RGBA): Container =
-    modifyContainerTheme(_.withBackgroundColor(color))
+    overrideContainerTheme(_.withBackgroundColor(color))
   def noBackground: Container =
-    modifyContainerTheme(_.noBackground)
+    overrideContainerTheme(_.noBackground)
 
   def withBackgroundFill(fill: Fill): Container =
-    modifyContainerTheme(_.withBackgroundFill(fill))
+    overrideContainerTheme(_.withBackgroundFill(fill))
 
   def withBackgroundImage(url: String): Container =
     withBackgroundFill(Fill.Image(url))
@@ -159,7 +159,7 @@ final case class Container(
   def withBackgroundImageRepeatY(url: String): Container =
     withBackgroundFill(Fill.Image(url).withMode(BackgroundMode.autoRepeatY))
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
+  def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Container.toHtml(this)
 
 object Container:
@@ -176,11 +176,11 @@ object Container:
       width = None,
       height = None,
       classNames = Set(),
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def toHtml(container: Container)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    val t = container._modifyTheme match
+    val t = container.overrideLocalTheme match
       case Some(f) => f(theme)
       case None    => theme
 
@@ -203,6 +203,6 @@ object Container:
       if container.classNames.isEmpty then EmptyAttribute
       else cls := container.classNames.mkString(" ")
 
-    val childHtml = container.child.toHtml(using t)
+    val childHtml = container.child.view(using t)
 
     div(style(baseStyles |+| containerThemeStyles) :: classAttribute :: sizeAttributes)(childHtml)

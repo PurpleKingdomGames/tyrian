@@ -8,7 +8,7 @@ import tyrian.ui.input.TextInput
 
 final case class Model(
     topNav: TopNav,
-    nameInput: TextInput.State
+    nameInput: TextInput
 ):
 
   def update: GlobalMsg => Outcome[Model] =
@@ -34,7 +34,7 @@ final case class Model(
 
 object Model:
   val init: Model =
-    Model(TopNav.initial, TextInput.State("name-input"))
+    Model(TopNav.initial, TextInput(UIElementId("name-input")).withPlaceholder("Type here..."))
 
   def tmpView(m: Model)(using Theme): HtmlFragment =
     HtmlFragment(
@@ -45,9 +45,7 @@ object Model:
           Row(
             Column(
               TextBlock("Your name:"),
-              TextInput(
-                m.nameInput.withPlaceholder("Type here...")
-              ),
+              m.nameInput,
               TextBlock("Reversed: " + m.nameInput.value.reverse)
             )
           ).withSpacing(Spacing.Small),

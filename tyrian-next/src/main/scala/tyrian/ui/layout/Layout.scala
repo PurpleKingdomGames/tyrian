@@ -16,7 +16,7 @@ final case class Layout(
     spaceAlignment: SpaceAlignment,
     ratio: Ratio,
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[Layout]:
 
   def withDirection(value: LayoutDirection): Layout =
@@ -63,10 +63,10 @@ final case class Layout(
   def withClassNames(classes: Set[String]): Layout =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): Layout =
-    this.copy(_modifyTheme = Some(f))
+  def withThemeOverride(f: Theme => Theme): Layout =
+    this.copy(overrideLocalTheme = Some(f))
 
-  def toHtml: Theme ?=> tyrian.Elem[GlobalMsg] =
+  def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Layout.toHtml(this)
 
 object Layout:
@@ -85,7 +85,7 @@ object Layout:
       spaceAlignment = SpaceAlignment.Stretch,
       ratio = Ratio.default,
       classNames = Set(),
-      _modifyTheme = None
+      overrideLocalTheme = None
     )
 
   def apply(direction: LayoutDirection, children: UIElement[?]*): Layout =
@@ -98,7 +98,7 @@ object Layout:
     Layout(LayoutDirection.Column, children.toList)
 
   def toHtml(layout: Layout)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    val t = layout._modifyTheme match
+    val t = layout.overrideLocalTheme match
       case Some(f) => f(theme)
       case None    => theme
 
@@ -113,6 +113,6 @@ object Layout:
       if layout.classNames.isEmpty then EmptyAttribute
       else cls := layout.classNames.mkString(" ")
 
-    val childrenHtml = layout.children.map(child => child.toHtml(using t))
+    val childrenHtml = layout.children.map(child => child.view(using t))
 
     div(style(baseStyles), classAttribute)(childrenHtml*)

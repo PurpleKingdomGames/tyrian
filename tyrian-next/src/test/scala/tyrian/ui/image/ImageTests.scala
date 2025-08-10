@@ -13,7 +13,7 @@ class ImageTests extends munit.FunSuite {
 
   test("Should be able to render an image") {
     val actual =
-      Image("./an-image.png").toHtml.toString
+      Image("./an-image.png").view.toString
 
     val expected =
       """<img src="./an-image.png" alt="" style="object-fit:fill;"></img>"""
@@ -23,7 +23,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to modify the image fit") {
     val actual =
-      Image("./an-image.png").cover.toHtml.toString
+      Image("./an-image.png").cover.view.toString
 
     val expected =
       """<img src="./an-image.png" alt="" style="object-fit:cover;"></img>"""
@@ -33,7 +33,7 @@ class ImageTests extends munit.FunSuite {
 
   test("should be able to modify the theme - rounded") {
     val actual =
-      Image("./an-image.png").rounded.toHtml.toString
+      Image("./an-image.png").rounded.view.toString
 
     val styles =
       Style(
@@ -52,7 +52,7 @@ class ImageTests extends munit.FunSuite {
     val actual =
       Image("./an-image.png")
         .withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
-        .toHtml
+        .view
         .toString
 
     val styles =
@@ -72,7 +72,7 @@ class ImageTests extends munit.FunSuite {
     val actual =
       Image("./an-image.png").rounded
         .withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
-        .toHtml
+        .view
         .toString
 
     val styles =
@@ -93,7 +93,7 @@ class ImageTests extends munit.FunSuite {
       Image("./an-image.png")
         .solidBorder(BorderWidth.Medium, RGBA.Purple)
         .rounded
-        .toHtml
+        .view
         .toString
 
     val styles =

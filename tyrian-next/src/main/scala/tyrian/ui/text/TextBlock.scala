@@ -16,7 +16,7 @@ final case class TextBlock(
     value: String,
     variant: TextVariant,
     classNames: Set[String],
-    _modifyTheme: Option[Theme => Theme]
+    overrideLocalTheme: Option[Theme => Theme]
 ) extends UIElement[TextBlock]:
 
   def withValue(value: String): TextBlock =
@@ -33,44 +33,44 @@ final case class TextBlock(
   def toCode: TextBlock     = this.copy(variant = TextVariant.Code)
   def toLabel: TextBlock    = this.copy(variant = TextVariant.Label)
 
-  def bold: TextBlock                               = modifyTextTheme(_.withWeight(FontWeight.Bold))
-  def italic: TextBlock                             = modifyTextTheme(_.withStyle(TextStyle.Italic))
-  def underlined: TextBlock                         = modifyTextTheme(_.withDecoration(TextDecoration.Underline))
-  def strikethrough: TextBlock                      = modifyTextTheme(_.withDecoration(TextDecoration.Strikethrough))
-  def withColor(color: RGBA): TextBlock             = modifyTextTheme(_.withColor(color))
-  def withSize(size: FontSize): TextBlock           = modifyTextTheme(_.withFontSize(size))
-  def withLineHeight(height: LineHeight): TextBlock = modifyTextTheme(_.withLineHeight(height))
-  def wrap: TextBlock                               = modifyTextTheme(_.withWrap(true))
-  def noWrap: TextBlock                             = modifyTextTheme(_.withWrap(false))
+  def bold: TextBlock                               = overrideTextTheme(_.withWeight(FontWeight.Bold))
+  def italic: TextBlock                             = overrideTextTheme(_.withStyle(TextStyle.Italic))
+  def underlined: TextBlock                         = overrideTextTheme(_.withDecoration(TextDecoration.Underline))
+  def strikethrough: TextBlock                      = overrideTextTheme(_.withDecoration(TextDecoration.Strikethrough))
+  def withColor(color: RGBA): TextBlock             = overrideTextTheme(_.withColor(color))
+  def withSize(size: FontSize): TextBlock           = overrideTextTheme(_.withFontSize(size))
+  def withLineHeight(height: LineHeight): TextBlock = overrideTextTheme(_.withLineHeight(height))
+  def wrap: TextBlock                               = overrideTextTheme(_.withWrap(true))
+  def noWrap: TextBlock                             = overrideTextTheme(_.withWrap(false))
 
-  def clearWeight: TextBlock     = modifyTextTheme(_.withWeight(FontWeight.Normal))
-  def clearStyle: TextBlock      = modifyTextTheme(_.withStyle(TextStyle.Normal))
-  def clearDecoration: TextBlock = modifyTextTheme(_.withDecoration(TextDecoration.None))
+  def clearWeight: TextBlock     = overrideTextTheme(_.withWeight(FontWeight.Normal))
+  def clearStyle: TextBlock      = overrideTextTheme(_.withStyle(TextStyle.Normal))
+  def clearDecoration: TextBlock = overrideTextTheme(_.withDecoration(TextDecoration.None))
 
-  def alignLeft: TextBlock    = modifyTextTheme(_.withAlignment(TextAlignment.Left))
-  def alignCenter: TextBlock  = modifyTextTheme(_.withAlignment(TextAlignment.Center))
-  def alignRight: TextBlock   = modifyTextTheme(_.withAlignment(TextAlignment.Right))
-  def alignJustify: TextBlock = modifyTextTheme(_.withAlignment(TextAlignment.Justify))
+  def alignLeft: TextBlock    = overrideTextTheme(_.withAlignment(TextAlignment.Left))
+  def alignCenter: TextBlock  = overrideTextTheme(_.withAlignment(TextAlignment.Center))
+  def alignRight: TextBlock   = overrideTextTheme(_.withAlignment(TextAlignment.Right))
+  def alignJustify: TextBlock = overrideTextTheme(_.withAlignment(TextAlignment.Justify))
 
   def withClassNames(classes: Set[String]): TextBlock =
     this.copy(classNames = classes)
 
-  def modifyTheme(f: Theme => Theme): TextBlock =
-    this.copy(_modifyTheme = Some(f))
+  def withThemeOverride(f: Theme => Theme): TextBlock =
+    this.copy(overrideLocalTheme = Some(f))
 
-  def modifyTextTheme(f: TextTheme => TextTheme): TextBlock =
+  def overrideTextTheme(f: TextTheme => TextTheme): TextBlock =
     val g: Theme => Theme = theme =>
       val currentVariantTheme = getVariantTheme(variant, theme)
       val modifiedTheme       = f(currentVariantTheme)
 
       theme.copy(text = updateVariantTheme(theme.text, variant, modifiedTheme))
 
-    _modifyTheme match
+    overrideLocalTheme match
       case Some(f) =>
-        this.copy(_modifyTheme = Some(f andThen g))
+        this.copy(overrideLocalTheme = Some(f andThen g))
 
       case None =>
-        this.copy(_modifyTheme = Some(g))
+        this.copy(overrideLocalTheme = Some(g))
 
   private def updateVariantTheme(themes: TextThemes, variant: TextVariant, newTheme: TextTheme): TextThemes =
     variant match
@@ -100,7 +100,7 @@ final case class TextBlock(
       case TextVariant.Code      => theme.text.code
       case TextVariant.Label     => theme.text.label
 
-  def toHtml: Theme ?=> tyrian.Html[GlobalMsg] =
+  def view: Theme ?=> tyrian.Html[GlobalMsg] =
     TextBlock.toHtml(this)
 
 object TextBlock:
@@ -123,7 +123,7 @@ object TextBlock:
   def label(value: String): TextBlock    = TextBlock(value, TextVariant.Label, Set(), None)
 
   def toHtml(element: TextBlock)(using theme: Theme): Html[GlobalMsg] =
-    val t = element._modifyTheme match
+    val t = element.overrideLocalTheme match
       case Some(f) => f(theme)
       case None    => theme
 
