@@ -40,11 +40,4 @@ object Placeholder:
     Placeholder(id, children.toList, Set(), None)
 
   def toHtml(element: Placeholder)(using theme: Theme): tyrian.Elem[GlobalMsg] =
-    val t =
-      element.overrideLocalTheme match
-        case Some(f) => f(theme)
-        case None    => theme
-
-    val htmlChildren = element.children.map(_.view(using t))
-
-    Marker(element.id, htmlChildren)
+    Marker(element.id, element.children.map(_.view))
