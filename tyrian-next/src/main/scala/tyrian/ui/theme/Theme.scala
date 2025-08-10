@@ -1,5 +1,6 @@
 package tyrian.ui.theme
 
+import tyrian.ui.elements.stateful.input.InputTheme
 import tyrian.ui.elements.stateless.text.TextThemes
 import tyrian.ui.layout.*
 import tyrian.ui.theme.*
@@ -9,6 +10,7 @@ final case class Theme(
     container: ContainerTheme,
     fonts: ThemeFonts,
     image: ContainerTheme,
+    input: InputTheme,
     text: TextThemes
 ):
 
@@ -20,6 +22,9 @@ final case class Theme(
 
   def withContainerTheme(container: ContainerTheme): Theme =
     this.copy(container = container)
+
+  def withInputTheme(input: InputTheme): Theme =
+    this.copy(input = input)
 
   def withTextTheme(text: TextThemes): Theme =
     this.copy(text = text)
@@ -35,5 +40,6 @@ object Theme:
       container = ContainerTheme.default,
       fonts = ThemeFonts.default,
       image = ContainerTheme.default,
+      input = InputTheme.default,
       text = TextThemes.default
     )

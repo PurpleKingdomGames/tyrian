@@ -37,6 +37,11 @@ object Model:
       TopNav.initial,
       Input(UIKey("name-input"))
         .withPlaceholder("Type here...")
+        .withTextColor(RGBA.fromHex("#1f2937"))
+        .withBackgroundColor(RGBA.fromHex("#f9fafb"))
+        .solidBorder(BorderWidth.Thin, RGBA.fromHex("#d1d5db"))
+        .rounded
+        .withPadding(Spacing.Small)
     )
 
   def tmpView(m: Model)(using Theme): HtmlFragment =

@@ -33,17 +33,17 @@ final case class TextBlock(
   def toCode: TextBlock     = this.copy(variant = TextVariant.Code)
   def toLabel: TextBlock    = this.copy(variant = TextVariant.Label)
 
-  def bold: TextBlock                               = overrideTextTheme(_.withWeight(FontWeight.Bold))
+  def bold: TextBlock                               = overrideTextTheme(_.withFontWeight(FontWeight.Bold))
   def italic: TextBlock                             = overrideTextTheme(_.withStyle(TextStyle.Italic))
   def underlined: TextBlock                         = overrideTextTheme(_.withDecoration(TextDecoration.Underline))
   def strikethrough: TextBlock                      = overrideTextTheme(_.withDecoration(TextDecoration.Strikethrough))
-  def withColor(color: RGBA): TextBlock             = overrideTextTheme(_.withColor(color))
+  def withColor(color: RGBA): TextBlock             = overrideTextTheme(_.withTextColor(color))
   def withSize(size: FontSize): TextBlock           = overrideTextTheme(_.withFontSize(size))
   def withLineHeight(height: LineHeight): TextBlock = overrideTextTheme(_.withLineHeight(height))
   def wrap: TextBlock                               = overrideTextTheme(_.withWrap(true))
   def noWrap: TextBlock                             = overrideTextTheme(_.withWrap(false))
 
-  def clearWeight: TextBlock     = overrideTextTheme(_.withWeight(FontWeight.Normal))
+  def clearWeight: TextBlock     = overrideTextTheme(_.withFontWeight(FontWeight.Normal))
   def clearStyle: TextBlock      = overrideTextTheme(_.withStyle(TextStyle.Normal))
   def clearDecoration: TextBlock = overrideTextTheme(_.withDecoration(TextDecoration.None))
 
