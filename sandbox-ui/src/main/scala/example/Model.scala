@@ -37,11 +37,13 @@ object Model:
       TopNav.initial,
       Input(UIKey("name-input"))
         .withPlaceholder("Type here...")
-        .withTextColor(RGBA.fromHex("#1f2937"))
-        .withBackgroundColor(RGBA.fromHex("#f9fafb"))
-        .solidBorder(BorderWidth.Thin, RGBA.fromHex("#d1d5db"))
-        .rounded
-        .withPadding(Spacing.Small)
+        .withThemeOverride(
+          _.withTextColor(RGBA.fromHex("#1f2937"))
+            .withBackgroundColor(RGBA.fromHex("#f9fafb"))
+            .solidBorder(BorderWidth.Thin, RGBA.fromHex("#d1d5db"))
+            .rounded
+            .withPadding(Spacing.Small)
+        )
     )
 
   def tmpView(m: Model)(using Theme): HtmlFragment =
@@ -49,7 +51,7 @@ object Model:
       Row(
         Column(
           TextBlock("Welcome to Tyrian UI!").toHeading1
-            .withColor(RGBA.fromHex("#2563eb")),
+            .withThemeOverride(_.withTextColor(RGBA.fromHex("#2563eb"))),
           Row(
             Column(
               TextBlock("Your name:"),
@@ -58,12 +60,12 @@ object Model:
             )
           ).withSpacing(Spacing.Small),
           Row(
-            TextBlock("Hello, Tyrian!").withColor(RGBA.Blue),
-            TextBlock("More text").withColor(RGBA.Red.mix(RGBA.Blue))
+            TextBlock("Hello, Tyrian!").withThemeOverride(_.withTextColor(RGBA.Blue)),
+            TextBlock("More text").withThemeOverride(_.withTextColor(RGBA.Red.mix(RGBA.Blue)))
           )
             .withSpacing(Spacing.Medium),
           TextBlock("This is just some text")
-            .withColor(RGBA.fromHex("#6b7280")),
+            .withThemeOverride(_.withTextColor(RGBA.fromHex("#6b7280"))),
           HtmlElement(
             tyrian.Html.div(
               tyrian.Html.style := "border: 2px dashed #ccc; padding: 1rem; border-radius: 4px; margin: 1rem 0;"
@@ -80,22 +82,25 @@ object Model:
             TextBlock("This is some more text.")
           ).middle.center
             .withPadding(Spacing.Large)
-            .rounded
-            .solidBorder(BorderWidth.Medium, RGBA.fromHex("#10b981"))
-            .shadowMedium(RGBA.fromHex("#00000040"))
-            .withBackgroundColor(RGBA.fromHex("#ecfdf5"))
-            .withOpacity(Opacity.High),
+            .withThemeOverride(
+              _.rounded
+                .solidBorder(BorderWidth.Medium, RGBA.fromHex("#10b981"))
+                .shadowMedium(RGBA.fromHex("#00000040"))
+                .withBackgroundColor(RGBA.fromHex("#ecfdf5"))
+                .withOpacity(Opacity.High)
+            ),
           Image(
             "https://raw.githubusercontent.com/PurpleKingdomGames/roguelike-starterkit/417f4e372b4792972ef62aea0c917088a9fc82fd/roguelike.gif",
             "Roguelike"
-          )
-            .withSize(Extent.px(300), Extent.px(100))
+          ).withSize(Extent.px(300), Extent.px(100))
             .scaleDown
-            .rounded
-            .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
-            .shadowLarge(RGBA.fromHex("#00000080"))
-            .withBackgroundColor(RGBA.fromHex("#fbbf24"))
-            .withOpacity(Opacity.Medium)
+            .withThemeOverride(
+              _.rounded
+                .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
+                .shadowLarge(RGBA.fromHex("#00000080"))
+                .withBackgroundColor(RGBA.fromHex("#fbbf24"))
+                .withOpacity(Opacity.Medium)
+            )
         )
       )
         .withSpacing(Spacing.Large)

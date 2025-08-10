@@ -36,11 +36,17 @@ final case class ContainerTheme(
     modifyBorder(_.withStyle(BorderStyle.Dashed).withWidth(width).withColor(color))
 
   def withBorderRadius(radius: BorderRadius): ContainerTheme =
-    withBorder(
-      border match
-        case Some(b) => b.withRadius(radius)
-        case None    => Border.default.withRadius(radius)
-    )
+    modifyBorder(_.withRadius(radius))
+
+  def withBorderColor(value: RGBA): ContainerTheme =
+    modifyBorder(_.withColor(value))
+
+  def withBorderWidth(value: BorderWidth): ContainerTheme =
+    modifyBorder(_.withWidth(value))
+
+  def withBorderStyle(value: BorderStyle): ContainerTheme =
+    modifyBorder(_.withStyle(value))
+
   def square: ContainerTheme       = withBorderRadius(BorderRadius.None)
   def rounded: ContainerTheme      = withBorderRadius(BorderRadius.Medium)
   def roundedSmall: ContainerTheme = withBorderRadius(BorderRadius.Small)

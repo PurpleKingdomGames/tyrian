@@ -137,3 +137,8 @@ val ThemeColors: theme.ThemeColors.type = theme.ThemeColors
 
 type ThemeFonts = theme.ThemeFonts
 val ThemeFonts: theme.ThemeFonts.type = theme.ThemeFonts
+
+// ---- Utils ----
+
+type Lens = utils.Lens
+val Lens: utils.Lens.type = utils.Lens
