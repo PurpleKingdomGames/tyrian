@@ -4,11 +4,11 @@ import cats.effect.IO
 import tyrian.*
 import tyrian.next.*
 import tyrian.ui.*
-import tyrian.ui.input.TextInput
+import tyrian.ui.input.Input
 
 final case class Model(
     topNav: TopNav,
-    nameInput: TextInput
+    nameInput: Input
 ):
 
   def update: GlobalMsg => Outcome[Model] =
@@ -34,7 +34,11 @@ final case class Model(
 
 object Model:
   val init: Model =
-    Model(TopNav.initial, TextInput(UIElementId("name-input")).withPlaceholder("Type here..."))
+    Model(
+      TopNav.initial,
+      Input(UIKey("name-input"))
+        .withPlaceholder("Type here...")
+    )
 
   def tmpView(m: Model)(using Theme): HtmlFragment =
     HtmlFragment(
