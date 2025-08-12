@@ -100,6 +100,9 @@ val Opacity: datatypes.Opacity.type = datatypes.Opacity
 type Link = elements.stateless.link.Link
 val Link: elements.stateless.link.Link.type = elements.stateless.link.Link
 
+type LinkTheme = elements.stateless.link.LinkTheme
+val LinkTheme: elements.stateless.link.LinkTheme.type = elements.stateless.link.LinkTheme
+
 type Target = datatypes.Target
 val Target: datatypes.Target.type = datatypes.Target
 

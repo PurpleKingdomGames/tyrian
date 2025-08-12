@@ -1,6 +1,7 @@
 package tyrian.ui.theme
 
 import tyrian.ui.elements.stateful.input.InputTheme
+import tyrian.ui.elements.stateless.link.LinkTheme
 import tyrian.ui.elements.stateless.text.TextThemes
 import tyrian.ui.layout.*
 import tyrian.ui.theme.*
@@ -13,6 +14,7 @@ enum Theme derives CanEqual:
       fonts: ThemeFonts,
       image: ContainerTheme,
       input: InputTheme,
+      link: LinkTheme,
       text: TextThemes
   )
 
@@ -30,6 +32,7 @@ object Theme:
         fonts = ThemeFonts.default,
         image = ContainerTheme.default,
         input = InputTheme.default,
+        link = LinkTheme.default,
         text = TextThemes.default
       )
 
@@ -53,6 +56,11 @@ object Theme:
       t match
         case NoStyles   => t
         case tt: Styles => tt.copy(input = input)
+
+    def withLinkTheme(link: LinkTheme): Theme =
+      t match
+        case NoStyles   => t
+        case tt: Styles => tt.copy(link = link)
 
     def withTextTheme(text: TextThemes): Theme =
       t match
