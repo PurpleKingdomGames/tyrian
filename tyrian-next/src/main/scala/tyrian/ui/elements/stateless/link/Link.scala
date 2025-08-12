@@ -1,20 +1,19 @@
 package tyrian.ui.elements.stateless.link
 
 import tyrian.next.GlobalMsg
+import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Target
-import tyrian.ui.theme.Theme
 import tyrian.ui.utils.Lens
 
-// TODO: Styling options via a theme.
 final case class Link(
     contents: UIElement[?, ?],
     target: Option[Target],
-    url: Option[String], // TODO: URL type? Reuse Location type?
+    url: Option[String],
     click: Option[GlobalMsg],
     classNames: Set[String],
-    themeOverride: Option[Unit => Unit]
-) extends UIElement[Link, Unit]:
+    themeOverride: Option[LinkTheme => LinkTheme]
+) extends UIElement[Link, LinkTheme]:
 
   def withContents(newContents: UIElement[?, ?]): Link =
     this.copy(contents = newContents)
@@ -38,11 +37,14 @@ final case class Link(
   def withClassNames(classes: Set[String]): Link =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, Unit] =
-    Lens.unit
+  def themeLens: Lens[Theme.Styles, LinkTheme] =
+    Lens(
+      _.link,
+      (t, link) => t.copy(link = link)
+    )
 
-  def withThemeOverride(f: Unit => Unit): Link =
-    this
+  def withThemeOverride(f: LinkTheme => LinkTheme): Link =
+    this.copy(themeOverride = Some(f))
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Link.View.toHtml(this)
@@ -75,18 +77,32 @@ object Link:
     import tyrian.EmptyAttribute
 
     def toHtml(link: Link): Theme ?=> tyrian.Elem[GlobalMsg] =
+      val theme = summon[Theme]
+
+      val linkTheme =
+        theme match
+          case Theme.NoStyles => LinkTheme.default
+          case t: Theme.Styles =>
+            link.themeOverride.fold(t.link)(f => f(t.link))
+
       val classAttribute =
         if link.classNames.isEmpty then EmptyAttribute
         else cls := link.classNames.mkString(" ")
+
+      val styleAttribute =
+        theme match
+          case Theme.NoStyles  => EmptyAttribute
+          case t: Theme.Styles => style(linkTheme.toStyles(theme))
 
       val attributes =
         List(
           link.url.map(u => href := u).getOrElse(EmptyAttribute),
           link.target.map(_.toAttribute).getOrElse(EmptyAttribute),
           link.click.map(msg => onClick(msg)).getOrElse(EmptyAttribute),
+          styleAttribute,
           classAttribute
         )
 
-      a(attributes)(
+      a(attributes*)(
         link.contents.toElem
       )
