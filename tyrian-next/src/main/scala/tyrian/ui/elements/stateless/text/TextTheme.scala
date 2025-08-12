@@ -64,19 +64,26 @@ final case class TextTheme(
     this.copy(decoration = value)
 
   def toStyles(theme: Theme): Style =
-    val baseStyle = Style(
-      "font-family" -> theme.fonts.body,
-      "font-size"   -> fontSize.toCSSValue,
-      "font-weight" -> fontWeight.toCSSValue,
-      "color"       -> textColor.toCSSValue,
-      "text-align"  -> alignment.toCSSValue,
-      "line-height" -> lineHeight.toCSSValue,
-      "white-space" -> (if wrapping then "normal" else "nowrap")
-    )
+    theme match
+      case Theme.NoStyles =>
+        Style.empty
 
-    val styleModifiers = List(
-      if style != TextStyle.Normal then Some("font-style" -> style.toCSSValue) else None,
-      if decoration != TextDecoration.None then Some("text-decoration" -> decoration.toCSSValue) else None
-    ).flatten
+      case t: Theme.Styles =>
+        val baseStyle = Style(
+          "font-family" -> t.fonts.body,
+          "font-size"   -> fontSize.toCSSValue,
+          "font-weight" -> fontWeight.toCSSValue,
+          "color"       -> textColor.toCSSValue,
+          "text-align"  -> alignment.toCSSValue,
+          "line-height" -> lineHeight.toCSSValue,
+          "white-space" -> (if wrapping then "normal" else "nowrap")
+        )
 
-    styleModifiers.foldLeft(baseStyle)((style, prop) => style |+| Style(prop))
+        // TODO: Maybe all style options in the theme should be Optional? Some are, some aren't currently.
+        //       It would clean up this logic and remove the need for the foldLeft.
+        val styleModifiers = List(
+          if style != TextStyle.Normal then Some("font-style" -> style.toCSSValue) else None,
+          if decoration != TextDecoration.None then Some("text-decoration" -> decoration.toCSSValue) else None
+        ).flatten
+
+        styleModifiers.foldLeft(baseStyle)((style, prop) => style |+| Style(prop))

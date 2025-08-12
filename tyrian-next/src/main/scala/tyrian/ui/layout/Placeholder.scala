@@ -23,7 +23,7 @@ final case class Placeholder(
   def withClassNames(classes: Set[String]): Placeholder =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, Unit] =
+  def themeLens: Lens[Theme.Styles, Unit] =
     Lens.unit
 
   def withThemeOverride(f: Unit => Unit): Placeholder =

@@ -3,6 +3,7 @@ package tyrian.ui.elements.stateful.input
 import tyrian.Elem
 import tyrian.EmptyAttribute
 import tyrian.Html.*
+import tyrian.Style
 import tyrian.next.GlobalMsg
 import tyrian.next.Outcome
 import tyrian.ui
@@ -47,7 +48,7 @@ final case class Input(
   def withClassNames(classes: Set[String]): Input =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, InputTheme] =
+  def themeLens: Lens[Theme.Styles, InputTheme] =
     Lens(
       _.input,
       (t, i) => t.copy(input = i)
@@ -67,8 +68,7 @@ final case class Input(
       Outcome(this)
 
   def view: Theme ?=> Elem[GlobalMsg] =
-    val theme      = summon[Theme]
-    val inputTheme = theme.input
+    val theme = summon[Theme]
 
     val disabledAttr =
       if isDisabled then attribute("disabled", "true")
@@ -79,8 +79,13 @@ final case class Input(
       else EmptyAttribute
 
     val styles =
-      if isDisabled then inputTheme.toDisabledStyles(theme)
-      else inputTheme.toStyles(theme)
+      theme match
+        case Theme.NoStyles =>
+          Style.empty
+
+        case tt: Theme.Styles =>
+          if isDisabled then tt.input.toDisabledStyles(theme)
+          else tt.input.toStyles(theme)
 
     val classAttribute =
       if classNames.isEmpty then EmptyAttribute

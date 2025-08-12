@@ -29,7 +29,7 @@ final case class TextBlock(
   def withClassNames(classes: Set[String]): TextBlock =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, TextTheme] =
+  def themeLens: Lens[Theme.Styles, TextTheme] =
     Lens(
       _.text.getFromVariant(variant),
       (t, txt) => t.copy(text = t.text.setFromVariant(variant, txt))
