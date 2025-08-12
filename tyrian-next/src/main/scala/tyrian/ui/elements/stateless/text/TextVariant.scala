@@ -1,5 +1,6 @@
 package tyrian.ui.elements.stateless.text
 
+import tyrian.Style
 import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 
@@ -31,8 +32,13 @@ enum TextVariant derives CanEqual:
       case TextVariant.Code      => textTheme.code
       case TextVariant.Label     => textTheme.label
 
-  def giveThemeVariant(theme: Theme): TextTheme =
-    giveTextThemeVariant(theme.text)
+  def giveThemeVariant(theme: Theme): Option[TextTheme] =
+    theme match
+      case Theme.NoStyles =>
+        None
+
+      case t: Theme.Styles =>
+        Some(giveTextThemeVariant(t.text))
 
   def toHtml(element: TextBlock)(using theme: Theme): tyrian.Html[GlobalMsg] =
     TextVariant.toHtml(element)
@@ -45,7 +51,7 @@ object TextVariant:
 
   def toHtml(element: TextBlock)(using theme: Theme): Html[GlobalMsg] =
     val textTheme = element.variant.giveThemeVariant(theme)
-    val styles    = textTheme.toStyles(theme)
+    val styles    = textTheme.map(_.toStyles(theme)).getOrElse(Style.empty)
 
     val classAttribute =
       if element.classNames.isEmpty then EmptyAttribute

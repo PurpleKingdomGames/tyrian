@@ -13,7 +13,7 @@ trait UIElement[Component, ComponentTheme]:
   def addClassNames(classes: String*): Component     = addClassNames(classes.toSet)
 
   def themeOverride: Option[ComponentTheme => ComponentTheme]
-  def themeLens: Lens[Theme, ComponentTheme]
+  def themeLens: Lens[Theme.Styles, ComponentTheme]
   def withThemeOverride(f: ComponentTheme => ComponentTheme): Component
 
   /** *Should not be called directly.* User provided implementation of a function to render the UIElement into a Tyrian
@@ -26,14 +26,19 @@ trait UIElement[Component, ComponentTheme]:
     */
   def toElem: Theme ?=> tyrian.Elem[GlobalMsg] =
     val overriddenTheme =
-      applyThemeOverrides(summon[Theme])
+      summon[Theme] match
+        case t @ Theme.NoStyles =>
+          t
+
+        case t: Theme.Styles =>
+          applyThemeOverrides(t)
 
     view(using overriddenTheme)
 
   /** An implementation detail, left open for testing purposes. Allows you to see how a given Theme will be modified by
     * the UIElement
     */
-  def applyThemeOverrides(theme: Theme): Theme =
+  def applyThemeOverrides(theme: Theme.Styles): Theme.Styles =
     themeOverride match
       case Some(g) =>
         themeLens.set(theme, g(themeLens.get(theme)))

@@ -63,7 +63,7 @@ final case class Container(
   def withClassNames(classes: Set[String]): Container =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, ContainerTheme] =
+  def themeLens: Lens[Theme.Styles, ContainerTheme] =
     Lens(
       _.container,
       (t, c) => t.copy(container = c)
@@ -103,7 +103,12 @@ object Container:
       )
 
     val containerThemeStyles =
-      theme.container.toStyle
+      theme match
+        case Theme.NoStyles =>
+          Style.empty
+
+        case tt: Theme.Styles =>
+          tt.container.toStyle
 
     val sizeAttributes = List(
       container.width.map(w => width := w.toCSSValue).toList,

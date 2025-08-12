@@ -64,7 +64,7 @@ final case class Layout(
   def withClassNames(classes: Set[String]): Layout =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, Unit] =
+  def themeLens: Lens[Theme.Styles, Unit] =
     Lens.unit
 
   def withThemeOverride(f: Unit => Unit): Layout =

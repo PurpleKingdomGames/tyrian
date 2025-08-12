@@ -17,7 +17,7 @@ final case class HtmlElement(
   def withClassNames(classes: Set[String]): HtmlElement =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, Unit] =
+  def themeLens: Lens[Theme.Styles, Unit] =
     Lens.unit
 
   def withThemeOverride(f: Unit => Unit): HtmlElement =

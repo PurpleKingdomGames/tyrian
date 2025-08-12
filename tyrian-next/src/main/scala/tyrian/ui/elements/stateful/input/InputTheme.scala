@@ -84,18 +84,23 @@ final case class InputTheme(
     this.copy(disabledBorderColor = value)
 
   def toStyles(theme: Theme): Style =
-    val borderStyle = border.map(_.toStyle).getOrElse(Style.empty)
+    theme match
+      case Theme.NoStyles =>
+        Style.empty
 
-    Style(
-      "font-family"      -> theme.fonts.body,
-      "font-size"        -> fontSize.toCSSValue,
-      "font-weight"      -> fontWeight.toCSSValue,
-      "color"            -> textColor.toCSSValue,
-      "background-color" -> backgroundColor.toCSSValue,
-      "padding"          -> padding.toCSSValue,
-      "box-sizing"       -> "border-box",
-      "outline"          -> "none"
-    ) |+| borderStyle
+      case t: Theme.Styles =>
+        val borderStyle = border.map(_.toStyle).getOrElse(Style.empty)
+
+        Style(
+          "font-family"      -> t.fonts.body,
+          "font-size"        -> fontSize.toCSSValue,
+          "font-weight"      -> fontWeight.toCSSValue,
+          "color"            -> textColor.toCSSValue,
+          "background-color" -> backgroundColor.toCSSValue,
+          "padding"          -> padding.toCSSValue,
+          "box-sizing"       -> "border-box",
+          "outline"          -> "none"
+        ) |+| borderStyle
 
   def toDisabledStyles(theme: Theme): Style =
     toStyles(theme) |+| Style(

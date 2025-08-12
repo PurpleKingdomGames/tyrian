@@ -47,7 +47,7 @@ final case class Image(
   def withClassNames(classes: Set[String]): Image =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme, ContainerTheme] =
+  def themeLens: Lens[Theme.Styles, ContainerTheme] =
     Lens(
       _.image,
       (t, i) => t.copy(image = i)
@@ -108,8 +108,16 @@ object Image:
       image.height.map(h => height := h.toCSSValue).toList
     ).flatten
 
+    val imageStyles =
+      theme match
+        case Theme.NoStyles =>
+          Style.empty
+
+        case tt: Theme.Styles =>
+          tt.image.toStyle
+
     val styles =
-      image.fit.toStyle |+| theme.image.toStyle
+      image.fit.toStyle |+| imageStyles
 
     val classAttribute =
       if image.classNames.isEmpty then EmptyAttribute
