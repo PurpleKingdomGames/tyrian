@@ -19,7 +19,6 @@ final case class Link(
   def withContents(newContents: UIElement[?, ?]): Link =
     this.copy(contents = newContents)
 
-  // TODO: Does not work, target is ignored, something about the way routing works, I imagine.
   def withTarget(newTarget: Target): Link =
     this.copy(target = Some(newTarget))
   def removeTarget: Link =

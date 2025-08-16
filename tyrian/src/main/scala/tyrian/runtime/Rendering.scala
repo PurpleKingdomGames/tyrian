@@ -48,10 +48,24 @@ object Rendering:
       key = key
     )
 
+  /** Intercept `a` tags with an href, no onClick, and no target attribute to stop the browser following links by
+    * default.
+    *
+    * If a link has an href, it will be passed to the frontend router.
+    *
+    * If a link has an href and a target, the default browser behaviour will occur.
+    *
+    * If the link has an onClick, the onClick supersedes the href, and that message is delivered to update instead.
+    */
   private def interceptHref[Msg](attrs: List[Attr[Msg]]): Boolean =
     val href = attrs.exists {
-      case Attribute("href", _) => true
+      case Attribute("href", v) => true
       case _                    => false
+    }
+
+    val targetExists = attrs.exists {
+      case Attribute("target", _) => true
+      case _                      => false
     }
 
     val onClick = attrs.exists {
@@ -59,7 +73,7 @@ object Rendering:
       case _                          => false
     }
 
-    href && !onClick
+    href && !targetExists && !onClick
 
   private def onClickPreventDefault[Msg](
       attrs: List[Attr[Msg]],
@@ -106,8 +120,6 @@ object Rendering:
           case e: snabbdom.PatchedVNode.Element => e.copy(data = data).toVNode
           case other                            => other.toVNode
 
-      // Intercept a tags with an href and no onClick attribute to stop the
-      // browser following links by default.
       case Tag("a", attrs, children, key) if interceptHref(attrs) =>
         val data = buildNodeData(attrs, onMsg, key)
         val childrenElem: List[VNode] =
