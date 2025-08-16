@@ -16,7 +16,7 @@ final case class TopNav():
         ),
         Link("http://tyrian.indigoengine.io/")(
           TextBlock("Tyrian website")
-        ).withTarget(Target.Blank) // TODO: Target does nothing - something about the routing I guess.
+        ).withTarget(Target.Blank)
       ).spaceAround
     )
 
