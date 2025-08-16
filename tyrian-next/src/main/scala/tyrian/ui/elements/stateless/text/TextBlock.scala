@@ -3,13 +3,14 @@ package tyrian.ui.elements.stateless.text
 import tyrian.next.GlobalMsg
 import tyrian.ui.UIElement
 import tyrian.ui.theme.Theme
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class TextBlock(
     value: String,
     variant: TextVariant,
     classNames: Set[String],
-    themeOverride: Option[TextTheme => TextTheme]
+    themeOverride: ThemeOverride[TextTheme]
 ) extends UIElement[TextBlock, TextTheme]:
 
   def withValue(value: String): TextBlock =
@@ -29,14 +30,14 @@ final case class TextBlock(
   def withClassNames(classes: Set[String]): TextBlock =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, TextTheme] =
+  def themeLens: Lens[Theme.Default, TextTheme] =
     Lens(
       _.text.getFromVariant(variant),
       (t, txt) => t.copy(text = t.text.setFromVariant(variant, txt))
     )
 
-  def withThemeOverride(f: TextTheme => TextTheme): TextBlock =
-    this.copy(themeOverride = Some(f))
+  def withThemeOverride(value: ThemeOverride[TextTheme]): TextBlock =
+    this.copy(themeOverride = value)
 
   def view: Theme ?=> tyrian.Html[GlobalMsg] =
     TextBlock.toHtml(this)
@@ -44,18 +45,21 @@ final case class TextBlock(
 object TextBlock:
 
   def apply(value: String): TextBlock =
-    TextBlock(value, TextVariant.Normal, Set(), None)
+    TextBlock(value, TextVariant.Normal, Set(), ThemeOverride.NoOverride)
 
-  def body(value: String): TextBlock     = TextBlock(value, TextVariant.Normal, Set(), None)
-  def heading1(value: String): TextBlock = TextBlock(value, TextVariant.Heading1, Set(), None)
-  def heading2(value: String): TextBlock = TextBlock(value, TextVariant.Heading2, Set(), None)
-  def heading3(value: String): TextBlock = TextBlock(value, TextVariant.Heading3, Set(), None)
-  def heading4(value: String): TextBlock = TextBlock(value, TextVariant.Heading4, Set(), None)
-  def heading5(value: String): TextBlock = TextBlock(value, TextVariant.Heading5, Set(), None)
-  def heading6(value: String): TextBlock = TextBlock(value, TextVariant.Heading6, Set(), None)
-  def caption(value: String): TextBlock  = TextBlock(value, TextVariant.Caption, Set(), None)
-  def code(value: String): TextBlock     = TextBlock(value, TextVariant.Code, Set(), None)
-  def label(value: String): TextBlock    = TextBlock(value, TextVariant.Label, Set(), None)
+  def apply(value: String, variant: TextVariant): TextBlock =
+    TextBlock(value, variant, Set(), ThemeOverride.NoOverride)
+
+  def body(value: String): TextBlock     = TextBlock(value, TextVariant.Normal)
+  def heading1(value: String): TextBlock = TextBlock(value, TextVariant.Heading1)
+  def heading2(value: String): TextBlock = TextBlock(value, TextVariant.Heading2)
+  def heading3(value: String): TextBlock = TextBlock(value, TextVariant.Heading3)
+  def heading4(value: String): TextBlock = TextBlock(value, TextVariant.Heading4)
+  def heading5(value: String): TextBlock = TextBlock(value, TextVariant.Heading5)
+  def heading6(value: String): TextBlock = TextBlock(value, TextVariant.Heading6)
+  def caption(value: String): TextBlock  = TextBlock(value, TextVariant.Caption)
+  def code(value: String): TextBlock     = TextBlock(value, TextVariant.Code)
+  def label(value: String): TextBlock    = TextBlock(value, TextVariant.Label)
 
   def toHtml(element: TextBlock)(using theme: Theme): tyrian.Html[GlobalMsg] =
     element.variant.toHtml(element)

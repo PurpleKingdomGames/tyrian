@@ -8,6 +8,7 @@ import tyrian.ui.datatypes.Ratio
 import tyrian.ui.datatypes.SpaceAlignment
 import tyrian.ui.datatypes.Spacing
 import tyrian.ui.theme.Theme
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Layout(
@@ -17,7 +18,7 @@ final case class Layout(
     spaceAlignment: SpaceAlignment,
     ratio: Ratio,
     classNames: Set[String],
-    themeOverride: Option[Unit => Unit]
+    themeOverride: ThemeOverride[Unit]
 ) extends UIElement[Layout, Unit]:
 
   def withDirection(value: LayoutDirection): Layout =
@@ -64,10 +65,10 @@ final case class Layout(
   def withClassNames(classes: Set[String]): Layout =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, Unit] =
+  def themeLens: Lens[Theme.Default, Unit] =
     Lens.unit
 
-  def withThemeOverride(f: Unit => Unit): Layout =
+  def withThemeOverride(value: ThemeOverride[Unit]): Layout =
     this
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
@@ -89,7 +90,7 @@ object Layout:
       spaceAlignment = SpaceAlignment.Stretch,
       ratio = Ratio.default,
       classNames = Set(),
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   def apply(direction: LayoutDirection, children: UIElement[?, ?]*): Layout =

@@ -37,7 +37,7 @@ object Model:
       TopNav.initial,
       Input(UIKey("name-input"))
         .withPlaceholder("Type here...")
-        .withThemeOverride(
+        .overrideTheme(
           _.withTextColor(RGBA.fromHex("#1f2937"))
             .withBackgroundColor(RGBA.fromHex("#f9fafb"))
             .solidBorder(BorderWidth.Thin, RGBA.fromHex("#d1d5db"))
@@ -51,7 +51,7 @@ object Model:
       Row(
         Column(
           TextBlock("Welcome to Tyrian UI!").toHeading1
-            .withThemeOverride(_.withTextColor(RGBA.fromHex("#2563eb"))),
+            .overrideTheme(_.withTextColor(RGBA.fromHex("#2563eb"))),
           Row(
             Column(
               TextBlock("Your name:"),
@@ -60,12 +60,12 @@ object Model:
             )
           ).withSpacing(Spacing.Small),
           Row(
-            TextBlock("Hello, Tyrian!").withThemeOverride(_.withTextColor(RGBA.Blue)),
-            TextBlock("More text").withThemeOverride(_.withTextColor(RGBA.Red.mix(RGBA.Blue)))
+            TextBlock("Hello, Tyrian!").overrideTheme(_.withTextColor(RGBA.Blue)),
+            TextBlock("More text").overrideTheme(_.withTextColor(RGBA.Red.mix(RGBA.Blue)))
           )
             .withSpacing(Spacing.Medium),
           TextBlock("This is just some text")
-            .withThemeOverride(_.withTextColor(RGBA.fromHex("#6b7280"))),
+            .overrideTheme(_.withTextColor(RGBA.fromHex("#6b7280"))),
           HtmlElement(
             tyrian.Html.div(
               tyrian.Html.style := "border: 2px dashed #ccc; padding: 1rem; border-radius: 4px; margin: 1rem 0;"
@@ -82,7 +82,7 @@ object Model:
             TextBlock("This is some more text.")
           ).middle.center
             .withPadding(Spacing.Large)
-            .withThemeOverride(
+            .overrideTheme(
               _.rounded
                 .solidBorder(BorderWidth.Medium, RGBA.fromHex("#10b981"))
                 .shadowMedium(RGBA.fromHex("#00000040"))
@@ -94,7 +94,7 @@ object Model:
             "Roguelike"
           ).withSize(Extent.px(300), Extent.px(100))
             .scaleDown
-            .withThemeOverride(
+            .overrideTheme(
               _.rounded
                 .solidBorder(BorderWidth.Medium, RGBA.fromHex("#2563eb"))
                 .shadowLarge(RGBA.fromHex("#00000080"))

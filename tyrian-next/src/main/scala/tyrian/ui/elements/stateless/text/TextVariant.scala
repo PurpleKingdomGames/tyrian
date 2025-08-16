@@ -34,10 +34,10 @@ enum TextVariant derives CanEqual:
 
   def giveThemeVariant(theme: Theme): Option[TextTheme] =
     theme match
-      case Theme.NoStyles =>
+      case Theme.None =>
         None
 
-      case t: Theme.Styles =>
+      case t: Theme.Default =>
         Some(giveTextThemeVariant(t.text))
 
   def toHtml(element: TextBlock)(using theme: Theme): tyrian.Html[GlobalMsg] =
@@ -57,15 +57,21 @@ object TextVariant:
       if element.classNames.isEmpty then EmptyAttribute
       else cls := element.classNames.mkString(" ")
 
+    val attributes =
+      List(
+        if styles.isEmpty then EmptyAttribute else style(styles),
+        classAttribute
+      )
+
     element.variant match
-      case TextVariant.Normal    => span(style(styles), classAttribute)(element.value)
-      case TextVariant.Paragraph => p(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading1  => h1(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading2  => h2(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading3  => h3(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading4  => h4(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading5  => h5(style(styles), classAttribute)(element.value)
-      case TextVariant.Heading6  => h6(style(styles), classAttribute)(element.value)
-      case TextVariant.Caption   => span(style(styles), classAttribute)(element.value)
-      case TextVariant.Code      => tyrian.Html.code(style(styles), classAttribute)(element.value)
-      case TextVariant.Label     => tyrian.Html.label(style(styles), classAttribute)(element.value)
+      case TextVariant.Normal    => span(attributes)(element.value)
+      case TextVariant.Paragraph => p(attributes)(element.value)
+      case TextVariant.Heading1  => h1(attributes)(element.value)
+      case TextVariant.Heading2  => h2(attributes)(element.value)
+      case TextVariant.Heading3  => h3(attributes)(element.value)
+      case TextVariant.Heading4  => h4(attributes)(element.value)
+      case TextVariant.Heading5  => h5(attributes)(element.value)
+      case TextVariant.Heading6  => h6(attributes)(element.value)
+      case TextVariant.Caption   => span(attributes)(element.value)
+      case TextVariant.Code      => tyrian.Html.code(attributes)(element.value)
+      case TextVariant.Label     => tyrian.Html.label(attributes)(element.value)

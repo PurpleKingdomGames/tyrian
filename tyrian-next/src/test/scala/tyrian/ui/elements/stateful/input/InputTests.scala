@@ -58,116 +58,116 @@ class InputTests extends munit.FunSuite {
 
   test("Should apply custom text color") {
     val input = Input(testKey)
-      .withThemeOverride(
+      .overrideTheme(
         _.withTextColor(RGBA.Red)
       )
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
   }
 
   test("Should apply custom background color") {
     val input =
       Input(testKey)
-        .withThemeOverride(_.withBackgroundColor(RGBA.Blue))
+        .overrideTheme(_.withBackgroundColor(RGBA.Blue))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
   }
 
   test("Should apply custom border color") {
     val input =
       Input(testKey)
-        .withThemeOverride(_.withBorderColor(RGBA.Green))
+        .overrideTheme(_.withBorderColor(RGBA.Green))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border.map(_.color).get, RGBA.Green)
   }
 
   test("Should apply custom border width") {
     val input =
       Input(testKey)
-        .withThemeOverride(_.withBorderWidth(BorderWidth.Medium))
+        .overrideTheme(_.withBorderWidth(BorderWidth.Medium))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border.map(_.width).get, BorderWidth.Medium)
   }
 
   test("Should apply custom border style") {
     val input =
       Input(testKey)
-        .withThemeOverride(_.withBorderStyle(BorderStyle.Dashed))
+        .overrideTheme(_.withBorderStyle(BorderStyle.Dashed))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border.map(_.style).get, BorderStyle.Dashed)
   }
 
   test("Should apply custom border radius") {
     val input =
       Input(testKey)
-        .withThemeOverride(_.withBorderRadius(BorderRadius.Large))
+        .overrideTheme(_.withBorderRadius(BorderRadius.Large))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Large)
   }
 
   test("Should apply rounded modifier") {
-    val input = Input(testKey).withThemeOverride(_.rounded)
+    val input = Input(testKey).overrideTheme(_.rounded)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
   }
 
   test("Should apply square modifier") {
-    val input = Input(testKey).withThemeOverride(_.square)
+    val input = Input(testKey).overrideTheme(_.square)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.None)
   }
 
   test("Should apply no border modifier") {
-    val input = Input(testKey).withThemeOverride(_.noBorder)
+    val input = Input(testKey).overrideTheme(_.noBorder)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.border, None)
   }
 
   test("Should apply custom padding") {
     val input = Input(testKey)
-      .withThemeOverride(_.withPadding(Spacing.Large))
+      .overrideTheme(_.withPadding(Spacing.Large))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.padding, Spacing.Large)
   }
 
   test("Should apply custom font size") {
     val input = Input(testKey)
-      .withThemeOverride(_.withFontSize(FontSize.Large))
+      .overrideTheme(_.withFontSize(FontSize.Large))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.fontSize, FontSize.Large)
   }
 
   test("Should apply custom font weight") {
     val input =
       Input(testKey)
-        .withThemeOverride(_.withFontWeight(FontWeight.Bold))
+        .overrideTheme(_.withFontWeight(FontWeight.Bold))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.fontWeight, FontWeight.Bold)
   }
 
   test("Should stack multiple theme modifications") {
     val input =
       Input(testKey)
-        .withThemeOverride(
+        .overrideTheme(
           _.withTextColor(RGBA.Red)
             .withBackgroundColor(RGBA.Blue)
             .rounded
             .withPadding(Spacing.Large)
         )
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
@@ -177,14 +177,14 @@ class InputTests extends munit.FunSuite {
   test("Should apply theme modifications in different order") {
     val input =
       Input(testKey)
-        .withThemeOverride(
+        .overrideTheme(
           _.rounded
             .withTextColor(RGBA.Red)
             .withBackgroundColor(RGBA.Blue)
             .withPadding(Spacing.Large)
         )
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
@@ -197,14 +197,14 @@ class InputTests extends munit.FunSuite {
         .withPlaceholder("Test placeholder")
         .withValue("Test value")
         .disabled
-        .withThemeOverride(_.withTextColor(RGBA.Red))
+        .overrideTheme(_.withTextColor(RGBA.Red))
 
     assertEquals(input.placeholder, "Test placeholder")
     assertEquals(input.value, "Test value")
     assertEquals(input.isDisabled, true)
     assertEquals(input.key, testKey)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Styles.default).input
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
   }
 
@@ -212,7 +212,7 @@ class InputTests extends munit.FunSuite {
     val input =
       Input(testKey)
         .withClassNames("custom-class", "another-class")
-        .withThemeOverride(_.withTextColor(RGBA.Blue))
+        .overrideTheme(_.withTextColor(RGBA.Blue))
 
     assertEquals(input.classNames, Set("custom-class", "another-class"))
 
@@ -230,7 +230,7 @@ class InputTests extends munit.FunSuite {
       .withBackgroundColor(RGBA.Blue)
       .solidBorder(BorderWidth.Thin, RGBA.Green)
 
-    val styles = inputTheme.toStyles(Theme.Styles.default)
+    val styles = inputTheme.toStyles(Theme.Default.default)
 
     assert(clue(styles.asString).contains("color:rgba(255, 0, 0, 255)"), "Should contain red text color")
     assert(clue(styles.asString).contains("background-color:rgba(0, 0, 255, 255)"), "Should contain blue background")
@@ -243,7 +243,7 @@ class InputTests extends munit.FunSuite {
         .withDisabledTextColor(RGBA.fromHex("#808080"))
         .withDisabledBackgroundColor(RGBA.fromHex("#d3d3d3"))
 
-    val styles = inputTheme.toDisabledStyles(Theme.Styles.default)
+    val styles = inputTheme.toDisabledStyles(Theme.Default.default)
 
     assert(styles.asString.contains("color:rgba(128, 128, 128, 255)"), "Should contain gray text color")
     assert(

@@ -27,6 +27,11 @@ object Style:
     styles.foldLeft(Style.empty)(combine)
 
   extension (style: Style)
-    def asString: String = style
+    def asString: String =
+      style
+
     def |+|(other: Style) =
       combine(style, other)
+
+    def isEmpty: Boolean =
+      style.isEmpty

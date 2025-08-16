@@ -7,6 +7,7 @@ import tyrian.ui.datatypes.Extent
 import tyrian.ui.datatypes.ImageFit
 import tyrian.ui.layout.ContainerTheme
 import tyrian.ui.theme.Theme
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Image(
@@ -16,7 +17,7 @@ final case class Image(
     height: Option[Extent],
     fit: ImageFit,
     classNames: Set[String],
-    themeOverride: Option[ContainerTheme => ContainerTheme]
+    themeOverride: ThemeOverride[ContainerTheme]
 ) extends UIElement[Image, ContainerTheme]:
 
   def withSrc(src: String): Image =
@@ -47,14 +48,14 @@ final case class Image(
   def withClassNames(classes: Set[String]): Image =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, ContainerTheme] =
+  def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
       _.image,
       (t, i) => t.copy(image = i)
     )
 
-  def withThemeOverride(f: ContainerTheme => ContainerTheme): Image =
-    this.copy(themeOverride = Some(f))
+  def withThemeOverride(value: ThemeOverride[ContainerTheme]): Image =
+    this.copy(themeOverride = value)
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Image.toHtml(this)
@@ -72,7 +73,7 @@ object Image:
       height = None,
       fit = ImageFit.default,
       classNames = Set.empty,
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   def apply(src: String, alt: String): Image =
@@ -83,7 +84,7 @@ object Image:
       height = None,
       fit = ImageFit.default,
       classNames = Set.empty,
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   def apply(src: String, alt: String, width: Extent, height: Extent): Image =
@@ -94,7 +95,7 @@ object Image:
       height = Some(height),
       fit = ImageFit.default,
       classNames = Set.empty,
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   def toHtml(image: Image)(using theme: Theme): tyrian.Elem[GlobalMsg] =
@@ -110,10 +111,10 @@ object Image:
 
     val imageStyles =
       theme match
-        case Theme.NoStyles =>
+        case Theme.None =>
           Style.empty
 
-        case tt: Theme.Styles =>
+        case tt: Theme.Default =>
           tt.image.toStyle
 
     val styles =
