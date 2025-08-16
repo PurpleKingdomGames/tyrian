@@ -8,6 +8,7 @@ import tyrian.ui.datatypes.Align
 import tyrian.ui.datatypes.Justify
 import tyrian.ui.datatypes.Spacing
 import tyrian.ui.theme.Theme
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Container(
@@ -18,7 +19,7 @@ final case class Container(
     width: Option[Extent],
     height: Option[Extent],
     classNames: Set[String],
-    themeOverride: Option[ContainerTheme => ContainerTheme]
+    themeOverride: ThemeOverride[ContainerTheme]
 ) extends UIElement[Container, ContainerTheme]:
 
   def withPadding(padding: Spacing): Container =
@@ -63,14 +64,14 @@ final case class Container(
   def withClassNames(classes: Set[String]): Container =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, ContainerTheme] =
+  def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
       _.container,
       (t, c) => t.copy(container = c)
     )
 
-  def withThemeOverride(f: ContainerTheme => ContainerTheme): Container =
-    this.copy(themeOverride = Some(f))
+  def withThemeOverride(value: ThemeOverride[ContainerTheme]): Container =
+    this.copy(themeOverride = value)
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Container.toHtml(this)
@@ -89,7 +90,7 @@ object Container:
       width = None,
       height = None,
       classNames = Set(),
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   def toHtml(container: Container)(using theme: Theme): tyrian.Elem[GlobalMsg] =
@@ -104,10 +105,10 @@ object Container:
 
     val containerThemeStyles =
       theme match
-        case Theme.NoStyles =>
+        case Theme.None =>
           Style.empty
 
-        case tt: Theme.Styles =>
+        case tt: Theme.Default =>
           tt.container.toStyle
 
     val sizeAttributes = List(

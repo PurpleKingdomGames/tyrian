@@ -15,7 +15,7 @@ class TextBlockTests extends munit.FunSuite {
 
     val styles =
       Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "1rem",
         "font-weight" -> "400",
         "color"       -> "rgba(51, 51, 51, 255)",
@@ -36,7 +36,7 @@ class TextBlockTests extends munit.FunSuite {
 
     val styles =
       Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "2rem",
         "font-weight" -> "600",
         "color"       -> "rgba(26, 26, 26, 255)",
@@ -54,13 +54,13 @@ class TextBlockTests extends munit.FunSuite {
   test("should be able to modify the theme - bold") {
     val actual =
       TextBlock("Hello")
-        .withThemeOverride(_.bold)
+        .overrideTheme(_.bold)
         .toElem
         .toString
 
     val styles =
       Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "1rem",
         "font-weight" -> "700",
         "color"       -> "rgba(51, 51, 51, 255)",
@@ -77,11 +77,11 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to modify the theme - italic") {
     val actual =
-      TextBlock("Hello").withThemeOverride(_.italic).toElem.toString
+      TextBlock("Hello").overrideTheme(_.italic).toElem.toString
 
     val styles =
       Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "1rem",
         "font-weight" -> "400",
         "color"       -> "rgba(51, 51, 51, 255)",
@@ -99,11 +99,11 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - bold + italic") {
     val actual =
-      TextBlock("Hello").withThemeOverride(_.bold.italic).toElem.toString
+      TextBlock("Hello").overrideTheme(_.bold.italic).toElem.toString
 
     val styles =
       Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "1rem",
         "font-weight" -> "700",
         "color"       -> "rgba(51, 51, 51, 255)",
@@ -121,11 +121,11 @@ class TextBlockTests extends munit.FunSuite {
 
   test("should be able to stack theme modifications - italic + bold (reversed)") {
     val actual =
-      TextBlock("Hello").withThemeOverride(_.italic.bold).toElem.toString
+      TextBlock("Hello").overrideTheme(_.italic.bold).toElem.toString
 
     val styles =
       Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "1rem",
         "font-weight" -> "700",
         "color"       -> "rgba(51, 51, 51, 255)",

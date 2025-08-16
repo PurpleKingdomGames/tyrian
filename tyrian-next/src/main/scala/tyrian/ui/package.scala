@@ -11,6 +11,15 @@ val Justify: datatypes.Justify.type = datatypes.Justify
 type Align = datatypes.Align
 val Align: datatypes.Align.type = datatypes.Align
 
+type FontFamily = datatypes.FontFamily
+val FontFamily: datatypes.FontFamily.type = datatypes.FontFamily
+
+type FontName = datatypes.FontName
+val FontName: datatypes.FontName.type = datatypes.FontName
+
+type FontStack = datatypes.FontStack
+val FontStack: datatypes.FontStack.type = datatypes.FontStack
+
 type FontSize = datatypes.FontSize
 val FontSize: datatypes.FontSize.type = datatypes.FontSize
 
@@ -140,6 +149,9 @@ val ThemeColors: theme.ThemeColors.type = theme.ThemeColors
 
 type ThemeFonts = theme.ThemeFonts
 val ThemeFonts: theme.ThemeFonts.type = theme.ThemeFonts
+
+type ThemeOverride = theme.ThemeOverride
+val ThemeOverride: theme.ThemeOverride.type = theme.ThemeOverride
 
 // ---- Utils ----
 

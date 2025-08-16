@@ -7,12 +7,12 @@ import tyrian.ui.theme.Theme
 class ThemeTests extends munit.FunSuite {
 
   test("Should render TextBlock with no styles when using Theme.NoStyles") {
-    given Theme = Theme.NoStyles
+    given Theme = Theme.None
 
     val actual = TextBlock("Hello World").toElem.toString
 
     // When Theme.NoStyles is used, an empty style attribute is present
-    val expected = """<span style="">Hello World</span>"""
+    val expected = """<span>Hello World</span>"""
 
     assertEquals(actual, expected)
   }
@@ -23,7 +23,7 @@ class ThemeTests extends munit.FunSuite {
     val actual = TextBlock("Hello World").toElem.toString
 
     val expectedStyles = Style(
-      "font-family" -> "Arial, sans-serif",
+      "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
       "font-size"   -> "1rem",
       "font-weight" -> "400",
       "color"       -> "rgba(51, 51, 51, 255)",
@@ -38,12 +38,12 @@ class ThemeTests extends munit.FunSuite {
   }
 
   test("Should render heading with no styles when using Theme.NoStyles") {
-    given Theme = Theme.NoStyles
+    given Theme = Theme.None
 
     val actual = TextBlock("Title").toHeading1.toElem.toString
 
     // Even headings get empty style attribute with NoStyles theme
-    val expected = """<h1 style="">Title</h1>"""
+    val expected = """<h1>Title</h1>"""
 
     assertEquals(actual, expected)
   }
@@ -54,7 +54,7 @@ class ThemeTests extends munit.FunSuite {
     val actual = TextBlock("Title").toHeading1.toElem.toString
 
     val expectedStyles = Style(
-      "font-family" -> "Arial, sans-serif",
+      "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
       "font-size"   -> "2rem",
       "font-weight" -> "600",
       "color"       -> "rgba(26, 26, 26, 255)",
@@ -73,9 +73,9 @@ class ThemeTests extends munit.FunSuite {
 
     // Test with NoStyles
     {
-      given Theme          = Theme.NoStyles
+      given Theme          = Theme.None
       val actualNoStyles   = textBlock.toElem.toString
-      val expectedNoStyles = """<span style="" class="custom-class another-class">Test</span>"""
+      val expectedNoStyles = """<span class="custom-class another-class">Test</span>"""
       assertEquals(actualNoStyles, expectedNoStyles)
     }
 
@@ -84,7 +84,7 @@ class ThemeTests extends munit.FunSuite {
       given Theme          = Theme.default
       val actualWithStyles = textBlock.toElem.toString
       val expectedStyles = Style(
-        "font-family" -> "Arial, sans-serif",
+        "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
         "font-size"   -> "1rem",
         "font-weight" -> "400",
         "color"       -> "rgba(51, 51, 51, 255)",
@@ -99,15 +99,15 @@ class ThemeTests extends munit.FunSuite {
   }
 
   test("Theme modifications should be ignored with NoStyles") {
-    given Theme = Theme.NoStyles
+    given Theme = Theme.None
 
     val actual = TextBlock("Test")
-      .withThemeOverride(_.withFontSize(tyrian.ui.datatypes.FontSize.Large))
+      .overrideTheme(_.withFontSize(tyrian.ui.datatypes.FontSize.Large))
       .toElem
       .toString
 
     // Theme override should have no effect with NoStyles (empty style attribute)
-    val expected = """<span style="">Test</span>"""
+    val expected = """<span>Test</span>"""
 
     assertEquals(actual, expected)
   }
@@ -116,12 +116,12 @@ class ThemeTests extends munit.FunSuite {
     given Theme = Theme.default
 
     val actual = TextBlock("Test")
-      .withThemeOverride(_.withFontSize(tyrian.ui.datatypes.FontSize.Large))
+      .overrideTheme(_.withFontSize(tyrian.ui.datatypes.FontSize.Large))
       .toElem
       .toString
 
     val expectedStyles = Style(
-      "font-family" -> "Arial, sans-serif",
+      "font-family" -> "system-ui, ui-sans-serif, -apple-system, 'Segoe UI Variable', 'Segoe UI', Roboto, Ubuntu, Cantarell, 'Noto Sans', 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
       "font-size"   -> "1.125rem", // Large font size
       "font-weight" -> "400",
       "color"       -> "rgba(51, 51, 51, 255)",
@@ -136,7 +136,7 @@ class ThemeTests extends munit.FunSuite {
   }
 
   test("Different text variants should all respect NoStyles") {
-    given Theme = Theme.NoStyles
+    given Theme = Theme.None
 
     val variants = List(
       (TextBlock("Normal").toNormal, "span", "Normal"),
@@ -147,7 +147,7 @@ class ThemeTests extends munit.FunSuite {
 
     variants.foreach { case (textBlock, expectedTag, content) =>
       val actual   = textBlock.toElem.toString
-      val expected = s"""<$expectedTag style="">$content</$expectedTag>"""
+      val expected = s"""<$expectedTag>$content</$expectedTag>"""
       assertEquals(actual, expected, s"Failed for variant with tag $expectedTag")
     }
   }

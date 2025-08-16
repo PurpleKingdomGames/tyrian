@@ -34,7 +34,7 @@ class ImageTests extends munit.FunSuite {
   test("should be able to modify the theme - rounded") {
     val actual =
       Image("./an-image.png")
-        .withThemeOverride(_.rounded)
+        .overrideTheme(_.rounded)
         .toElem
         .toString
 
@@ -54,7 +54,7 @@ class ImageTests extends munit.FunSuite {
   test("should be able to modify the theme - border") {
     val actual =
       Image("./an-image.png")
-        .withThemeOverride(
+        .overrideTheme(
           _.withBorder(Border.solid(BorderWidth.Medium, RGBA.Purple))
         )
         .toElem
@@ -76,7 +76,7 @@ class ImageTests extends munit.FunSuite {
   test("should be able to stack theme modifications - rounded + border") {
     val actual =
       Image("./an-image.png")
-        .withThemeOverride(
+        .overrideTheme(
           _.rounded
             .solidBorder(BorderWidth.Medium, RGBA.Purple)
         )
@@ -99,7 +99,7 @@ class ImageTests extends munit.FunSuite {
   test("should be able to stack theme modifications - border + rounded (reversed)") {
     val actual =
       Image("./an-image.png")
-        .withThemeOverride(
+        .overrideTheme(
           _.solidBorder(BorderWidth.Medium, RGBA.Purple).rounded
         )
         .toElem

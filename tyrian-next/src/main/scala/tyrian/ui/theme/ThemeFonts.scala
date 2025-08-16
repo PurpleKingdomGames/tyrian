@@ -1,17 +1,18 @@
 package tyrian.ui.theme
 
-// TODO: Strings?
+import tyrian.ui.datatypes.FontFamily
+
 final case class ThemeFonts(
-    body: String,
-    heading: String,
-    monospace: String
+    body: FontFamily,
+    heading: FontFamily,
+    monospace: FontFamily
 )
 
 object ThemeFonts:
 
   def default: ThemeFonts =
     ThemeFonts(
-      body = "Arial, sans-serif",
-      heading = "Georgia, serif",
-      monospace = "Courier New, monospace"
+      body = FontFamily.sansSerif,
+      heading = FontFamily.serif,
+      monospace = FontFamily.monospace
     )

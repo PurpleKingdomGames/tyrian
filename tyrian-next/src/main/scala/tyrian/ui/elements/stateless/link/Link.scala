@@ -4,6 +4,7 @@ import tyrian.next.GlobalMsg
 import tyrian.ui.Theme
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Target
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Link(
@@ -12,7 +13,7 @@ final case class Link(
     url: Option[String],
     click: Option[GlobalMsg],
     classNames: Set[String],
-    themeOverride: Option[LinkTheme => LinkTheme]
+    themeOverride: ThemeOverride[LinkTheme]
 ) extends UIElement[Link, LinkTheme]:
 
   def withContents(newContents: UIElement[?, ?]): Link =
@@ -37,14 +38,14 @@ final case class Link(
   def withClassNames(classes: Set[String]): Link =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, LinkTheme] =
+  def themeLens: Lens[Theme.Default, LinkTheme] =
     Lens(
       _.link,
       (t, link) => t.copy(link = link)
     )
 
-  def withThemeOverride(f: LinkTheme => LinkTheme): Link =
-    this.copy(themeOverride = Some(f))
+  def withThemeOverride(value: ThemeOverride[LinkTheme]): Link =
+    this.copy(themeOverride = value)
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
     Link.View.toHtml(this)
@@ -58,7 +59,7 @@ object Link:
       url = Some(url),
       click = None,
       classNames = Set(),
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   def apply(onClick: GlobalMsg)(contents: UIElement[?, ?]): Link =
@@ -68,7 +69,7 @@ object Link:
       url = None,
       click = Some(onClick),
       classNames = Set(),
-      themeOverride = None
+      themeOverride = ThemeOverride.NoOverride
     )
 
   object View:
@@ -81,9 +82,11 @@ object Link:
 
       val linkTheme =
         theme match
-          case Theme.NoStyles => LinkTheme.default
-          case t: Theme.Styles =>
-            link.themeOverride.fold(t.link)(f => f(t.link))
+          case Theme.None =>
+            LinkTheme.default
+
+          case t: Theme.Default =>
+            t.link
 
       val classAttribute =
         if link.classNames.isEmpty then EmptyAttribute
@@ -91,8 +94,8 @@ object Link:
 
       val styleAttribute =
         theme match
-          case Theme.NoStyles  => EmptyAttribute
-          case t: Theme.Styles => style(linkTheme.toStyles(theme))
+          case Theme.None       => EmptyAttribute
+          case t: Theme.Default => style(linkTheme.toStyles(theme))
 
       val attributes =
         List(

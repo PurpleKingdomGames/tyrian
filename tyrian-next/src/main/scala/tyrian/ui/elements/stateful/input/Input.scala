@@ -10,6 +10,7 @@ import tyrian.ui
 import tyrian.ui.UIElement
 import tyrian.ui.UIKey
 import tyrian.ui.theme.Theme
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Input(
@@ -19,7 +20,7 @@ final case class Input(
     isReadOnly: Boolean,
     value: String,
     classNames: Set[String],
-    themeOverride: Option[InputTheme => InputTheme]
+    themeOverride: ThemeOverride[InputTheme]
 ) extends UIElement.Stateful[Input, InputTheme]:
 
   def withPlaceholder(placeholder: String): Input =
@@ -48,14 +49,14 @@ final case class Input(
   def withClassNames(classes: Set[String]): Input =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, InputTheme] =
+  def themeLens: Lens[Theme.Default, InputTheme] =
     Lens(
       _.input,
       (t, i) => t.copy(input = i)
     )
 
-  def withThemeOverride(f: InputTheme => InputTheme): Input =
-    this.copy(themeOverride = Some(f))
+  def withThemeOverride(value: ThemeOverride[InputTheme]): Input =
+    this.copy(themeOverride = value)
 
   def update: GlobalMsg => Outcome[Input] =
     case TextInputMsg.Changed(_key, v) if _key == key =>
@@ -80,10 +81,10 @@ final case class Input(
 
     val styles =
       theme match
-        case Theme.NoStyles =>
+        case Theme.None =>
           Style.empty
 
-        case tt: Theme.Styles =>
+        case tt: Theme.Default =>
           if isDisabled then tt.input.toDisabledStyles(theme)
           else tt.input.toStyles(theme)
 
@@ -114,7 +115,7 @@ object Input:
       isReadOnly = false,
       value = "",
       Set.empty,
-      None
+      ThemeOverride.NoOverride
     )
 
 enum TextInputMsg extends GlobalMsg:

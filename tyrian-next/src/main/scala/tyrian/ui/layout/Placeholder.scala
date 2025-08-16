@@ -5,13 +5,14 @@ import tyrian.next.Marker
 import tyrian.next.MarkerId
 import tyrian.ui.UIElement
 import tyrian.ui.theme.Theme
+import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Placeholder(
     id: MarkerId,
     children: List[UIElement[?, ?]],
     classNames: Set[String],
-    themeOverride: Option[Unit => Unit]
+    themeOverride: ThemeOverride[Unit]
 ) extends UIElement[Placeholder, Unit]:
 
   def withChildren(children: UIElement[?, ?]*): Placeholder =
@@ -23,10 +24,10 @@ final case class Placeholder(
   def withClassNames(classes: Set[String]): Placeholder =
     this.copy(classNames = classes)
 
-  def themeLens: Lens[Theme.Styles, Unit] =
+  def themeLens: Lens[Theme.Default, Unit] =
     Lens.unit
 
-  def withThemeOverride(f: Unit => Unit): Placeholder =
+  def withThemeOverride(value: ThemeOverride[Unit]): Placeholder =
     this
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
@@ -35,10 +36,10 @@ final case class Placeholder(
 object Placeholder:
 
   def apply(id: MarkerId): Placeholder =
-    Placeholder(id, Nil, Set(), None)
+    Placeholder(id, Nil, Set(), ThemeOverride.NoOverride)
 
   def apply(id: MarkerId, children: UIElement[?, ?]*): Placeholder =
-    Placeholder(id, children.toList, Set(), None)
+    Placeholder(id, children.toList, Set(), ThemeOverride.NoOverride)
 
   def apply(id: MarkerId, children: List[UIElement[?, ?]]): Placeholder =
-    Placeholder(id, children.toList, Set(), None)
+    Placeholder(id, children.toList, Set(), ThemeOverride.NoOverride)

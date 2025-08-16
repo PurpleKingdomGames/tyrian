@@ -7,8 +7,8 @@ import tyrian.ui.layout.*
 import tyrian.ui.theme.*
 
 enum Theme derives CanEqual:
-  case NoStyles
-  case Styles(
+  case None
+  case Default(
       colors: ThemeColors,
       container: ContainerTheme,
       fonts: ThemeFonts,
@@ -21,12 +21,12 @@ enum Theme derives CanEqual:
 object Theme:
 
   val default: Theme =
-    Theme.Styles.default
+    Theme.Default.default
 
-  object Styles:
+  object Default:
 
-    val default: Theme.Styles =
-      Theme.Styles(
+    val default: Theme.Default =
+      Theme.Default(
         colors = ThemeColors.default,
         container = ContainerTheme.default,
         fonts = ThemeFonts.default,
@@ -37,37 +37,42 @@ object Theme:
       )
 
   extension (t: Theme)
+    def toOption: Option[Theme.Default] =
+      t match
+        case Theme.None       => scala.None
+        case d: Theme.Default => Some(d)
+
     def withColors(colors: ThemeColors): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(colors = colors)
+        case None        => t
+        case tt: Default => tt.copy(colors = colors)
 
     def withFonts(fonts: ThemeFonts): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(fonts = fonts)
+        case None        => t
+        case tt: Default => tt.copy(fonts = fonts)
 
     def withContainerTheme(container: ContainerTheme): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(container = container)
+        case None        => t
+        case tt: Default => tt.copy(container = container)
 
     def withInputTheme(input: InputTheme): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(input = input)
+        case None        => t
+        case tt: Default => tt.copy(input = input)
 
     def withLinkTheme(link: LinkTheme): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(link = link)
+        case None        => t
+        case tt: Default => tt.copy(link = link)
 
     def withTextTheme(text: TextThemes): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(text = text)
+        case None        => t
+        case tt: Default => tt.copy(text = text)
 
     def withTextThemes(text: TextThemes): Theme =
       t match
-        case NoStyles   => t
-        case tt: Styles => tt.copy(text = text)
+        case None        => t
+        case tt: Default => tt.copy(text = text)

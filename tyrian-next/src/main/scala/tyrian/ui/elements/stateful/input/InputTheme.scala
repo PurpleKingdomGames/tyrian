@@ -85,14 +85,14 @@ final case class InputTheme(
 
   def toStyles(theme: Theme): Style =
     theme match
-      case Theme.NoStyles =>
+      case Theme.None =>
         Style.empty
 
-      case t: Theme.Styles =>
+      case t: Theme.Default =>
         val borderStyle = border.map(_.toStyle).getOrElse(Style.empty)
 
         Style(
-          "font-family"      -> t.fonts.body,
+          "font-family"      -> t.fonts.body.toCSSValue,
           "font-size"        -> fontSize.toCSSValue,
           "font-weight"      -> fontWeight.toCSSValue,
           "color"            -> textColor.toCSSValue,
