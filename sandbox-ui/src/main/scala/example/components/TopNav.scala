@@ -1,4 +1,4 @@
-package example
+package example.components
 
 import tyrian.next.*
 import tyrian.ui.*
