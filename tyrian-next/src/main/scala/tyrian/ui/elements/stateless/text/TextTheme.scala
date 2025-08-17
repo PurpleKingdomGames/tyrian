@@ -8,6 +8,7 @@ import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.TextAlignment
 import tyrian.ui.datatypes.TextDecoration
 import tyrian.ui.datatypes.TextStyle
+import tyrian.ui.datatypes.Wrapping
 import tyrian.ui.theme.Theme
 
 final case class TextTheme(
@@ -16,7 +17,7 @@ final case class TextTheme(
     textColor: RGBA,
     alignment: TextAlignment,
     lineHeight: LineHeight,
-    wrapping: Boolean,
+    wrapping: Wrapping,
     style: TextStyle,
     decoration: TextDecoration
 ):
@@ -50,12 +51,12 @@ final case class TextTheme(
   def withLineHeight(value: LineHeight): TextTheme =
     this.copy(lineHeight = value)
 
-  def withWrap(value: Boolean): TextTheme =
+  def withWrap(value: Wrapping): TextTheme =
     this.copy(wrapping = value)
   def wrap: TextTheme =
-    withWrap(true)
+    withWrap(Wrapping.Wrap)
   def noWrap: TextTheme =
-    withWrap(false)
+    withWrap(Wrapping.NoWrap)
 
   def withStyle(value: TextStyle): TextTheme =
     this.copy(style = value)
@@ -76,7 +77,7 @@ final case class TextTheme(
           "color"       -> textColor.toCSSValue,
           "text-align"  -> alignment.toCSSValue,
           "line-height" -> lineHeight.toCSSValue,
-          "white-space" -> (if wrapping then "normal" else "nowrap")
+          "white-space" -> wrapping.toTextCSSValue
         )
 
         // TODO: Maybe all style options in the theme should be Optional? Some are, some aren't currently.
