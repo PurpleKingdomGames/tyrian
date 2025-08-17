@@ -7,6 +7,7 @@ import tyrian.ui.datatypes.LayoutDirection
 import tyrian.ui.datatypes.Ratio
 import tyrian.ui.datatypes.SpaceAlignment
 import tyrian.ui.datatypes.Spacing
+import tyrian.ui.datatypes.Wrapping
 import tyrian.ui.theme.Theme
 import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
@@ -17,6 +18,7 @@ final case class Layout(
     spacing: Spacing,
     spaceAlignment: SpaceAlignment,
     ratio: Ratio,
+    wrapping: Wrapping,
     classNames: Set[String],
     themeOverride: ThemeOverride[Unit]
 ) extends UIElement[Layout, Unit]:
@@ -48,7 +50,14 @@ final case class Layout(
   def ratio9: Layout  = withRatio(Ratio.one)
   def ratio10: Layout = withRatio(Ratio.one)
 
-  // Aid to memory: "Justify the main axis, align the cross."
+  def withWrapping(value: Wrapping): Layout =
+    this.copy(wrapping = value)
+  def wrap: Layout =
+    withWrapping(Wrapping.Wrap)
+  def noWrap: Layout =
+    withWrapping(Wrapping.NoWrap)
+
+  // Aid to memory: "'Justify' the main axis, 'Align' the cross."
 
   def spaceAround: Layout =
     withSpaceAlignment(SpaceAlignment.SpaceAround)
@@ -89,6 +98,7 @@ object Layout:
       spacing = Spacing.None,
       spaceAlignment = SpaceAlignment.Stretch,
       ratio = Ratio.default,
+      wrapping = Wrapping.NoWrap,
       classNames = Set(),
       themeOverride = ThemeOverride.NoOverride
     )
@@ -107,7 +117,8 @@ object Layout:
       "display"         -> "flex",
       "justify-content" -> layout.spaceAlignment.toCSSValue,
       "align-items"     -> "stretch",
-      "gap"             -> layout.spacing.toCSSValue
+      "gap"             -> layout.spacing.toCSSValue,
+      "flex-wrap"       -> layout.wrapping.toFlexCSSValue
     ) |+| layout.direction.toStyle |+| layout.ratio.toStyle
 
     val classAttribute =
