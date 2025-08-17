@@ -66,10 +66,6 @@ object UIElement:
 
 TODOs
 
-Theme
-
-  - NoStyles
-
 Theme / Style Performance
 
   - Font styles inherit, and they're very chunky. So what we could do is track
@@ -77,6 +73,7 @@ Theme / Style Performance
   tag for the changes. Might mean setting font details on Containers?
 
   - The themes are a bit mixed at the moment. Review which fields should and shouldn't be optional to avoid needlessly writing out default styles. Also some styles might be set, but if they're the default, don't render.
+
 ---
 
 Stateless Components
