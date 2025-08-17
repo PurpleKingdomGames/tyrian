@@ -7,6 +7,7 @@ import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.TextAlignment
 import tyrian.ui.datatypes.TextDecoration
 import tyrian.ui.datatypes.TextStyle
+import tyrian.ui.datatypes.Wrapping
 
 final case class TextThemes(
     normal: TextTheme,
@@ -102,7 +103,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -114,7 +115,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relaxed,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -126,7 +127,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -138,7 +139,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Tight,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -150,7 +151,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relative(1.3),
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -162,7 +163,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Relative(1.3),
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -174,7 +175,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -186,7 +187,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#1a1a1a"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -198,7 +199,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#666666"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrapping = true,
+      wrapping = Wrapping.Wrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -210,7 +211,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#d73a49"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrapping = false,
+      wrapping = Wrapping.NoWrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )
@@ -222,7 +223,7 @@ object TextThemes:
       textColor = RGBA.fromHex("#333333"),
       alignment = TextAlignment.Left,
       lineHeight = LineHeight.Normal,
-      wrapping = false,
+      wrapping = Wrapping.NoWrap,
       style = TextStyle.Normal,
       decoration = TextDecoration.None
     )

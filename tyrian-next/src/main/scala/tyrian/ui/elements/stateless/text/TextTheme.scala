@@ -51,12 +51,12 @@ final case class TextTheme(
   def withLineHeight(value: LineHeight): TextTheme =
     this.copy(lineHeight = value)
 
-  def withWrap(value: Wrapping): TextTheme =
+  def withWrapping(value: Wrapping): TextTheme =
     this.copy(wrapping = value)
   def wrap: TextTheme =
-    withWrap(Wrapping.Wrap)
+    withWrapping(Wrapping.Wrap)
   def noWrap: TextTheme =
-    withWrap(Wrapping.NoWrap)
+    withWrapping(Wrapping.NoWrap)
 
   def withStyle(value: TextStyle): TextTheme =
     this.copy(style = value)
