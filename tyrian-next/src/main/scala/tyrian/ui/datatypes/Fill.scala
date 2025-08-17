@@ -16,47 +16,64 @@ object Fill:
     val default: Color =
       Color(RGBA.Zero)
 
+    def apply(color: RGB): Color =
+      Color(color.toRGBA)
+
   final case class LinearGradient(
-      angle: Radians,
-      fromColor: RGBA,
-      toColor: RGBA
+      angle: Degrees,
+      color: RGBA,
+      colors: List[RGBA]
   ) extends Fill derives CanEqual:
 
-    def withAngle(a: Radians): LinearGradient =
-      this.copy(angle = a)
+    def withAngle(degrees: Degrees): LinearGradient =
+      this.copy(angle = degrees)
 
-    def withFromColor(c: RGBA): LinearGradient =
-      this.copy(fromColor = c)
+    def withColors(color: RGBA, colors: RGBA*): LinearGradient =
+      this.copy(color = color, colors = colors.toList)
 
-    def withToColor(c: RGBA): LinearGradient =
-      this.copy(toColor = c)
+    def addColors(additional: RGBA*): LinearGradient =
+      this.copy(colors = colors ++ additional.toList)
 
   object LinearGradient:
     val default: LinearGradient =
-      LinearGradient(Radians(0), RGBA.Black, RGBA.White)
+      LinearGradient(Degrees.zero, RGBA.Black, List(RGBA.White))
+
+    def apply(angle: Degrees): LinearGradient =
+      LinearGradient(angle, RGBA.Black, List(RGBA.White))
+
+    def apply(color: RGBA, colors: RGBA*): LinearGradient =
+      LinearGradient(Degrees.zero, color, colors.toList)
+
+    def apply(angle: Degrees, color: RGBA, colors: RGBA*): LinearGradient =
+      LinearGradient(angle, color, colors.toList)
 
   final case class RadialGradient(
       center: Position,
-      radius: Int,
-      fromColor: RGBA,
-      toColor: RGBA
+      color: RGBA,
+      colors: List[RGBA]
   ) extends Fill derives CanEqual:
 
     def withCenter(p: Position): RadialGradient =
       this.copy(center = p)
 
-    def withRadius(r: Int): RadialGradient =
-      this.copy(radius = r)
+    def withColors(color: RGBA, colors: RGBA*): RadialGradient =
+      this.copy(color = color, colors = colors.toList)
 
-    def withFromColor(c: RGBA): RadialGradient =
-      this.copy(fromColor = c)
-
-    def withToColor(c: RGBA): RadialGradient =
-      this.copy(toColor = c)
+    def addColors(additional: RGBA*): RadialGradient =
+      this.copy(colors = colors ++ additional.toList)
 
   object RadialGradient:
     val default: RadialGradient =
-      RadialGradient(Position.Center, 100, RGBA.Black, RGBA.White)
+      RadialGradient(Position.Center, RGBA.Black, List(RGBA.White))
+
+    def apply(center: Position): RadialGradient =
+      RadialGradient(center, RGBA.Black, List(RGBA.White))
+
+    def apply(color: RGBA, colors: RGBA*): RadialGradient =
+      RadialGradient(Position.Center, color, colors.toList)
+
+    def apply(center: Position, color: RGBA, colors: RGBA*): RadialGradient =
+      RadialGradient(center, color, colors.toList)
 
   final case class Image(url: String, position: Position, mode: BackgroundMode) extends Fill derives CanEqual:
     def withUrl(u: String): Image =
@@ -77,13 +94,19 @@ object Fill:
         case Color(c) =>
           Style("background-color", c.toCSSValue)
 
-        case LinearGradient(angle, from, to) =>
-          Style("background-image", s"linear-gradient(${angle.toDegrees}deg, ${from.toCSSValue}, ${to.toCSSValue})")
+        case LinearGradient(angle, color, colors) =>
+          val colorStops =
+            (color :: colors).map(_.toCSSValue).mkString(", ")
 
-        case RadialGradient(center, _, from, to) =>
+          Style("background-image", s"linear-gradient(${angle.toCSSValue}, ${colorStops})")
+
+        case RadialGradient(position, color, colors) =>
+          val colorStops =
+            (color :: colors).map(_.toCSSValue).mkString(", ")
+
           Style(
             "background-image",
-            s"radial-gradient(circle at ${center.toCSSValue}, ${from.toCSSValue}, ${to.toCSSValue})"
+            s"radial-gradient(circle at ${position.toCSSValue}, ${colorStops})"
           )
 
         case Image(url, position, mode) =>
