@@ -77,6 +77,8 @@ object BoxShadow:
       color,
       false
     )
+  val small: BoxShadow =
+    small(RGBA.Black)
 
   def medium(color: RGBA): BoxShadow =
     BoxShadow(
@@ -87,6 +89,8 @@ object BoxShadow:
       color,
       false
     )
+  val medium: BoxShadow =
+    medium(RGBA.Black)
 
   def large(color: RGBA): BoxShadow =
     BoxShadow(
@@ -97,6 +101,8 @@ object BoxShadow:
       color,
       false
     )
+  val large: BoxShadow =
+    large(RGBA.Black)
 
   def extraLarge(color: RGBA): BoxShadow =
     BoxShadow(
@@ -107,3 +113,5 @@ object BoxShadow:
       color,
       false
     )
+  val extraLarge: BoxShadow =
+    extraLarge(RGBA.Black)
