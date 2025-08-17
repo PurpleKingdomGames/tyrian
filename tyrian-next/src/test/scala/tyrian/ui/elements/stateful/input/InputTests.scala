@@ -7,8 +7,8 @@ import tyrian.ui.datatypes.BorderStyle
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.FontSize
 import tyrian.ui.datatypes.FontWeight
+import tyrian.ui.datatypes.Padding
 import tyrian.ui.datatypes.RGBA
-import tyrian.ui.datatypes.Spacing
 import tyrian.ui.theme.Theme
 
 class InputTests extends munit.FunSuite {
@@ -134,10 +134,10 @@ class InputTests extends munit.FunSuite {
 
   test("Should apply custom padding") {
     val input = Input(testKey)
-      .overrideTheme(_.withPadding(Spacing.Large))
+      .overrideTheme(_.withPadding(Padding.Large))
 
     val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
-    assertEquals(inputTheme.padding, Spacing.Large)
+    assertEquals(inputTheme.padding, Padding.Large)
   }
 
   test("Should apply custom font size") {
@@ -164,14 +164,14 @@ class InputTests extends munit.FunSuite {
           _.withTextColor(RGBA.Red)
             .withBackgroundColor(RGBA.Blue)
             .rounded
-            .withPadding(Spacing.Large)
+            .withPadding(Padding.Large)
         )
 
     val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
-    assertEquals(inputTheme.padding, Spacing.Large)
+    assertEquals(inputTheme.padding, Padding.Large)
   }
 
   test("Should apply theme modifications in different order") {
@@ -181,14 +181,14 @@ class InputTests extends munit.FunSuite {
           _.rounded
             .withTextColor(RGBA.Red)
             .withBackgroundColor(RGBA.Blue)
-            .withPadding(Spacing.Large)
+            .withPadding(Padding.Large)
         )
 
     val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
-    assertEquals(inputTheme.padding, Spacing.Large)
+    assertEquals(inputTheme.padding, Padding.Large)
   }
 
   test("Should preserve all input properties when applying theme modifications") {

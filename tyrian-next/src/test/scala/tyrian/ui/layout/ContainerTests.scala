@@ -17,7 +17,7 @@ class ContainerTests extends munit.FunSuite {
       Container(TextBlock("Hello").noTheme).toElem.toString
 
     val expected =
-      """<div style="display:flex;flex:1;justify-content:flex-start;align-items:flex-start;padding:0;"><span>Hello</span></div>"""
+      """<div style="display:flex;flex:1;justify-content:flex-start;align-items:flex-start;padding:0 0 0 0;"><span>Hello</span></div>"""
 
     assertEquals(actual, expected)
   }
@@ -41,7 +41,7 @@ class ContainerTests extends munit.FunSuite {
         "flex"            -> "1",
         "justify-content" -> "flex-start",
         "align-items"     -> "flex-start",
-        "padding"         -> "0"
+        "padding"         -> "0 0 0 0"
       )
 
     val combinedStyles = baseStyles |+| containerStyles
@@ -73,7 +73,7 @@ class ContainerTests extends munit.FunSuite {
         "flex"            -> "1",
         "justify-content" -> "flex-start",
         "align-items"     -> "flex-start",
-        "padding"         -> "0"
+        "padding"         -> "0 0 0 0"
       )
 
     val combinedStyles = baseStyles |+| containerStyles
@@ -106,7 +106,7 @@ class ContainerTests extends munit.FunSuite {
         "flex"            -> "1",
         "justify-content" -> "flex-start",
         "align-items"     -> "flex-start",
-        "padding"         -> "0"
+        "padding"         -> "0 0 0 0"
       )
 
     val combinedStyles = baseStyles |+| containerStyles
@@ -138,7 +138,7 @@ class ContainerTests extends munit.FunSuite {
         "flex"            -> "1",
         "justify-content" -> "flex-start",
         "align-items"     -> "flex-start",
-        "padding"         -> "0"
+        "padding"         -> "0 0 0 0"
       )
 
     val combinedStyles = baseStyles |+| containerStyles

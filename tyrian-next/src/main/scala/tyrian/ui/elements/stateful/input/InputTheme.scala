@@ -7,6 +7,7 @@ import tyrian.ui.datatypes.BorderStyle
 import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.FontSize
 import tyrian.ui.datatypes.FontWeight
+import tyrian.ui.datatypes.Padding
 import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.Spacing
 import tyrian.ui.theme.Theme
@@ -17,7 +18,7 @@ final case class InputTheme(
     textColor: RGBA,
     backgroundColor: RGBA,
     border: Option[Border],
-    padding: Spacing,
+    padding: Padding,
     disabledBackgroundColor: RGBA,
     disabledTextColor: RGBA,
     disabledBorderColor: RGBA
@@ -71,7 +72,7 @@ final case class InputTheme(
   def withBorderStyle(value: BorderStyle): InputTheme =
     modifyBorder(_.withStyle(value))
 
-  def withPadding(value: Spacing): InputTheme =
+  def withPadding(value: Padding): InputTheme =
     this.copy(padding = value)
 
   def withDisabledBackgroundColor(value: RGBA): InputTheme =
@@ -97,10 +98,9 @@ final case class InputTheme(
           "font-weight"      -> fontWeight.toCSSValue,
           "color"            -> textColor.toCSSValue,
           "background-color" -> backgroundColor.toCSSValue,
-          "padding"          -> padding.toCSSValue,
           "box-sizing"       -> "border-box",
           "outline"          -> "none"
-        ) |+| borderStyle
+        ) |+| borderStyle |+| padding.toStyle
 
   def toDisabledStyles(theme: Theme): Style =
     toStyles(theme) |+| Style(
@@ -119,7 +119,7 @@ object InputTheme:
       textColor = RGBA.fromHex("#374151"),
       backgroundColor = RGBA.White,
       border = None,
-      padding = Spacing.px(8),
+      padding = Padding(Spacing.px(8)),
       disabledBackgroundColor = RGBA.fromHex("#f9fafb"),
       disabledTextColor = RGBA.fromHex("#9ca3af"),
       disabledBorderColor = RGBA.fromHex("#e5e7eb")

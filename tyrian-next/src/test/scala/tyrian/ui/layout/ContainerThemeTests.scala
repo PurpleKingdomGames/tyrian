@@ -2,10 +2,10 @@ package tyrian.ui.layout
 
 import tyrian.Style
 import tyrian.ui.datatypes.BackgroundMode
+import tyrian.ui.datatypes.Degrees
 import tyrian.ui.datatypes.Fill
 import tyrian.ui.datatypes.Position
 import tyrian.ui.datatypes.RGBA
-import tyrian.ui.datatypes.Radians
 
 class ContainerThemeTests extends munit.FunSuite {
 
@@ -25,9 +25,9 @@ class ContainerThemeTests extends munit.FunSuite {
   test("linear gradient style") {
     val grad =
       Fill.LinearGradient(
-        angle = Radians.fromDegrees(90),
-        fromColor = RGBA.Black,
-        toColor = RGBA.White
+        Degrees.`90`,
+        RGBA.Black,
+        RGBA.White
       )
     val theme =
       ContainerTheme.default.withBackgroundFill(grad)
@@ -38,7 +38,7 @@ class ContainerThemeTests extends munit.FunSuite {
     val expected =
       Style(
         "background-image",
-        s"linear-gradient(${Radians.fromDegrees(90).toDegrees}deg, ${RGBA.Black.toCSSValue}, ${RGBA.White.toCSSValue})"
+        s"linear-gradient(${Degrees(90).toCSSValue}, ${RGBA.Black.toCSSValue}, ${RGBA.White.toCSSValue})"
       )
 
     assertEquals(actual.asString, expected.asString)
@@ -47,10 +47,9 @@ class ContainerThemeTests extends munit.FunSuite {
   test("radial gradient style") {
     val grad =
       Fill.RadialGradient(
-        center = Position.Center,
-        radius = 100,
-        fromColor = RGBA.Black,
-        toColor = RGBA.White
+        Position.Center,
+        RGBA.Black,
+        RGBA.White
       )
     val theme =
       ContainerTheme.default.withBackgroundFill(grad)
