@@ -19,10 +19,10 @@ enum Spacing derives CanEqual:
 
 object Spacing:
 
-  val default: Spacing = Medium
-
-  val tight: Spacing       = Small
-  val comfortable: Spacing = Large
+  val zero: Spacing        = Spacing.None
+  val default: Spacing     = Spacing.Medium
+  val tight: Spacing       = Spacing.Small
+  val comfortable: Spacing = Spacing.Large
 
   def px(value: Int): Spacing =
     Spacing.CSS(s"${value}px")
