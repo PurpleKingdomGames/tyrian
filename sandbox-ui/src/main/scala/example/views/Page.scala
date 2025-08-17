@@ -1,7 +1,9 @@
 package example.views
 
 import tyrian.next.HtmlFragment
+import tyrian.next.MarkerId
 import tyrian.ui.*
+import tyrian.ui.layout.Placeholder
 
 object Page:
 
@@ -42,10 +44,8 @@ object Page:
         ),
         Row(
           Container(
-            TextBlock("Content goes here")
-          ).overrideTheme(
-            _.withBackgroundColor(RGBA.White)
-          )
+            Placeholder(MarkerId("page-content"))
+          ).withPadding(Padding.Medium)
         )
       ).withSpacing(Spacing.Large)
     )
