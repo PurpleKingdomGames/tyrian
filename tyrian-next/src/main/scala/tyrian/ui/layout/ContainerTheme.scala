@@ -8,6 +8,7 @@ import tyrian.ui.datatypes.BorderWidth
 import tyrian.ui.datatypes.BoxShadow
 import tyrian.ui.datatypes.Fill
 import tyrian.ui.datatypes.Opacity
+import tyrian.ui.datatypes.RGB
 import tyrian.ui.datatypes.RGBA
 
 final case class ContainerTheme(
@@ -85,6 +86,8 @@ final case class ContainerTheme(
   def semiTransparent: ContainerTheme = withOpacity(Opacity.Medium)
   def transparent: ContainerTheme     = withOpacity(Opacity.None)
 
+  def withBackgroundColor(color: RGB): ContainerTheme =
+    this.copy(backgroundFill = Some(Fill.Color(color)))
   def withBackgroundColor(color: RGBA): ContainerTheme =
     this.copy(backgroundFill = Some(Fill.Color(color)))
 

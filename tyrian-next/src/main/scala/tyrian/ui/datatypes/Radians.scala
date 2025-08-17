@@ -5,6 +5,7 @@ import scala.math
 import annotation.targetName
 
 opaque type Radians = Double
+
 object Radians:
 
   inline private val pi      = Math.PI
@@ -23,8 +24,8 @@ object Radians:
 
   /** Converts degrees to radians, allowing negative angles if input is negative.
     */
-  inline def fromDegrees(degrees: Double): Radians =
-    degrees % 360d * piBy180
+  inline def fromDegrees(degrees: Degrees): Radians =
+    degrees.toDouble % 360d * piBy180
 
   def mod(dividend: Radians, divisor: Radians): Radians =
     Radians((dividend % divisor + divisor) % divisor)
@@ -74,20 +75,23 @@ object Radians:
     def invert: Radians =
       negative
 
-    def `unary_-`: Radians = negative
+    def `unary_-`: Radians =
+      negative
 
     def ~==(other: Radians): Boolean =
       Math.abs(r.toDouble - other.toDouble) < 0.001
 
-    def toDouble: Double =
-      r
+    def max(other: Radians): Radians =
+      math.max(r, other)
 
-    def max(other: Radians): Radians = math.max(r, other)
-
-    def min(other: Radians): Radians = math.min(r, other)
+    def min(other: Radians): Radians =
+      math.min(r, other)
 
     def toFloat: Float =
       r.toFloat
 
-    def toDegrees: Double =
-      (360 / pi2) * r.toDouble
+    def toDouble: Double =
+      r
+
+    def toDegrees: Degrees =
+      Degrees((360 / pi2) * r.toDouble)

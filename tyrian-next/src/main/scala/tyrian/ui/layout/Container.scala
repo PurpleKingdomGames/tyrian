@@ -6,14 +6,14 @@ import tyrian.ui.Extent
 import tyrian.ui.UIElement
 import tyrian.ui.datatypes.Align
 import tyrian.ui.datatypes.Justify
-import tyrian.ui.datatypes.Spacing
+import tyrian.ui.datatypes.Padding
 import tyrian.ui.theme.Theme
 import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Container(
     child: UIElement[?, ?],
-    padding: Spacing,
+    padding: Padding,
     justify: Justify,
     align: Align,
     width: Option[Extent],
@@ -22,7 +22,7 @@ final case class Container(
     themeOverride: ThemeOverride[ContainerTheme]
 ) extends UIElement[Container, ContainerTheme]:
 
-  def withPadding(padding: Spacing): Container =
+  def withPadding(padding: Padding): Container =
     this.copy(padding = padding)
 
   def withJustify(value: Justify): Container =
@@ -84,7 +84,7 @@ object Container:
   def apply(child: UIElement[?, ?]): Container =
     Container(
       child = child,
-      padding = Spacing.None,
+      padding = Padding.zero,
       justify = Justify.Left,
       align = Align.Top,
       width = None,
@@ -99,9 +99,8 @@ object Container:
         "display"         -> "flex",
         "flex"            -> "1",
         "justify-content" -> container.justify.toCSSValue,
-        "align-items"     -> container.align.toCSSValue,
-        "padding"         -> container.padding.toCSSValue
-      )
+        "align-items"     -> container.align.toCSSValue
+      ) |+| container.padding.toStyle
 
     val containerThemeStyles =
       theme match
