@@ -82,39 +82,49 @@ Theme / Style Performance
 Stateless Components
 	-	Text - DONE
 	-	Image -DONE
-	-	Icon
 	-	Row - DONE
 	-	Column - DONE
 	-	El / Container - DONE
-	-	Spacer
 	-	Paragraph - DONE
-	-	WrappedRow
-	-	WrappedColumn
 	-	HtmlElement - DONE
-	-	Divider
-	-	Label
-  - Link
+  - Link - DONE
   - Tables
-
 
 ⸻
 
 Stateful Components
+	-	Input - DONE
 	-	Button
-	-	Input
 	-	TextArea
-	-	Checkbox
-	-	Radio
-	-	Slider
-	-	Switch
-	-	Focusable
-	-	Hoverable
+	-	Checkbox /  Switch (type of checkbox...?)
+	-	Radio buttons
+	-	Slider / Range
 	-	Tooltip
-	-	ProgressBar
-	-	FileInput
-  - Notifications
-  - Datepicker
   - Dropdown / chooser
+
+Compound Components?
+
   - Carousel
   - inplace input
+  - Notifications
+  - Datepicker
+  - Color picker
+	-	FileInput / FileManager
+
+---
+
+Transitions
+
+I think generally these should just either be tastefully built in, no choice, or applied by the user adding custom styles.
+
+---
+
+Drawing API
+
+  - Compiles to SVG?
+
+---
+
+Animations
+
  */
