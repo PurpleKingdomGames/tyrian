@@ -8,6 +8,7 @@ import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.TextAlignment
 import tyrian.ui.datatypes.TextDecoration
 import tyrian.ui.datatypes.TextStyle
+import tyrian.ui.datatypes.Wrapping
 import tyrian.ui.elements.stateless.text.TextTheme
 import tyrian.ui.theme.Theme
 
@@ -34,8 +35,12 @@ final case class LinkTheme(
   def withLineHeight(value: LineHeight): LinkTheme =
     this.copy(base = base.withLineHeight(value))
 
-  def withWrap(value: Boolean): LinkTheme =
-    this.copy(base = base.withWrap(value))
+  def withWrapping(value: Wrapping): LinkTheme =
+    this.copy(base = base.withWrapping(value))
+  def noWrap: LinkTheme =
+    withWrapping(Wrapping.NoWrap)
+  def wrap: LinkTheme =
+    withWrapping(Wrapping.Wrap)
 
   def withStyle(value: TextStyle): LinkTheme =
     this.copy(base = base.withStyle(value))
@@ -77,9 +82,6 @@ final case class LinkTheme(
   def alignRight: LinkTheme   = this.copy(base = base.alignRight)
   def alignJustify: LinkTheme = this.copy(base = base.alignJustify)
 
-  def wrap: LinkTheme   = this.copy(base = base.wrap)
-  def noWrap: LinkTheme = this.copy(base = base.noWrap)
-
   def toStyles(theme: Theme): Style =
     base.toStyles(theme)
 
@@ -102,7 +104,7 @@ object LinkTheme:
         textColor = RGBA.fromHex("#0066cc"), // Classic link blue..
         alignment = TextAlignment.Left,
         lineHeight = LineHeight.Normal,
-        wrapping = true,
+        wrapping = Wrapping.Wrap,
         style = TextStyle.Normal,
         decoration = TextDecoration.Underline // Links are underlined
       ),
