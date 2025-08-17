@@ -35,6 +35,9 @@ final case class RGB(r: Double, g: Double, b: Double) derives CanEqual {
 
     convert(r) + convert(g) + convert(b)
 
+  def toRGBA: RGBA =
+    RGBA(r, g, b, 1.0)
+
   def toHexString(prefix: String): String =
     prefix + toHex
 
