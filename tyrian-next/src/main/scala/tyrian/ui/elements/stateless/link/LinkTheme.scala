@@ -13,7 +13,7 @@ import tyrian.ui.elements.stateless.text.TextTheme
 import tyrian.ui.theme.Theme
 
 final case class LinkTheme(
-    base: TextTheme,
+    base: TextTheme, // TODO: Should this by optional and inherit from the main text theme? How about the default blue for a link?
     hoverColor: Option[RGBA],
     visitedColor: Option[RGBA],
     focusColor: Option[RGBA]

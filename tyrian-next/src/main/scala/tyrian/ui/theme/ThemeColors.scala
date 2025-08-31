@@ -1,5 +1,6 @@
 package tyrian.ui.theme
 
+// TODO: Should all use the RGBA type.
 final case class ThemeColors(
     primary: String,
     secondary: String,

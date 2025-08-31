@@ -2,6 +2,7 @@ package tyrian.ui.theme
 
 import tyrian.ui.elements.stateful.input.InputTheme
 import tyrian.ui.elements.stateless.link.LinkTheme
+import tyrian.ui.elements.stateless.table.TableTheme
 import tyrian.ui.elements.stateless.text.TextThemes
 import tyrian.ui.layout.*
 import tyrian.ui.theme.*
@@ -15,6 +16,7 @@ enum Theme derives CanEqual:
       image: ContainerTheme,
       input: InputTheme,
       link: LinkTheme,
+      table: TableTheme,
       text: TextThemes
   )
 
@@ -33,6 +35,7 @@ object Theme:
         image = ContainerTheme.default,
         input = InputTheme.default,
         link = LinkTheme.default,
+        table = TableTheme.default,
         text = TextThemes.default
       )
 

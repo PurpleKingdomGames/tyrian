@@ -18,6 +18,9 @@ object Style:
   def apply(styles: (String, String)*): Style =
     combineAll(styles.toList.map(fromTuple))
 
+  def fromList(styles: List[(String, String)]): Style =
+    combineAll(styles.map(fromTuple))
+
   val empty: Style = Style("", "")
 
   def combine(a: Style, b: Style): Style =
@@ -34,4 +37,7 @@ object Style:
       combine(style, other)
 
     def isEmpty: Boolean =
-      style.isEmpty
+      style.asString.isEmpty
+
+    def nonEmpty: Boolean =
+      !style.asString.isEmpty

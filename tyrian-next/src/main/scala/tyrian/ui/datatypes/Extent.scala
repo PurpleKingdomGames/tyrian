@@ -25,8 +25,8 @@ object Extent:
   def percent(value: Int): Extent =
     Extent.Percent(value)
 
-  val xs: Extent = Extent.Relative(4)  // 64px at 16px base
-  val sm: Extent = Extent.Relative(8)  // 128px at 16px base
-  val md: Extent = Extent.Relative(16) // 256px at 16px base
-  val lg: Extent = Extent.Relative(24) // 384px at 16px base
-  val xl: Extent = Extent.Relative(32) // 512px at 16px base
+  val xSmall: Extent = Extent.Relative(4)  // 64px at 16px base
+  val small: Extent  = Extent.Relative(8)  // 128px at 16px base
+  val medium: Extent = Extent.Relative(16) // 256px at 16px base
+  val large: Extent  = Extent.Relative(24) // 384px at 16px base
+  val xLarge: Extent = Extent.Relative(32) // 512px at 16px base

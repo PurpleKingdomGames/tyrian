@@ -79,22 +79,17 @@ object Link:
     def toHtml(link: Link): Theme ?=> tyrian.Elem[GlobalMsg] =
       val theme = summon[Theme]
 
-      val linkTheme =
-        theme match
-          case Theme.None =>
-            LinkTheme.default
-
-          case t: Theme.Default =>
-            t.link
-
       val classAttribute =
         if link.classNames.isEmpty then EmptyAttribute
         else cls := link.classNames.mkString(" ")
 
       val styleAttribute =
         theme match
-          case Theme.None       => EmptyAttribute
-          case t: Theme.Default => style(linkTheme.toStyles(theme))
+          case Theme.None =>
+            EmptyAttribute
+
+          case t: Theme.Default =>
+            style(t.link.toStyles(theme))
 
       val attributes =
         List(
@@ -105,6 +100,6 @@ object Link:
           classAttribute
         )
 
-      a(attributes*)(
+      a(attributes)(
         link.contents.toElem
       )
