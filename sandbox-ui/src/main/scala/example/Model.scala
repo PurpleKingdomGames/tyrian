@@ -103,8 +103,32 @@ object Model:
                 .shadowLarge(RGBA.fromHex("#00000080"))
                 .withBackgroundColor(RGBA.fromHex("#fbbf24"))
                 .withOpacity(Opacity.Medium)
-            )
+            ),
+          Spacer.vertical(Extent.small),
+          Table(
+            DataSet
+              .empty[Person]
+              .addColumn[String]("Name")
+              .addColumn[Int]("Age")
+              .addColumn[String]("City")
+              .withData(
+                Batch(
+                  Person("Alice", 30, "New York"),
+                  Person("Bob", 25, "Los Angeles"),
+                  Person("Charlie", 35, "Chicago"),
+                  Person("Diana", 28, "Houston")
+                )
+              )
+          )
         )
       )
         .withSpacing(Spacing.Large)
     )
+
+final case class Person(name: String, age: Int, city: String)
+object Person:
+  given DataSet.ColumnOps[Person, String] with
+    def read(data: Person): String = data.name
+
+  given DataSet.ColumnOps[Person, Int] with
+    def read(data: Person): Int = data.age

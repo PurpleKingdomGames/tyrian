@@ -29,6 +29,9 @@ val BorderWidth: datatypes.BorderWidth.type = datatypes.BorderWidth
 type BoxShadow = datatypes.BoxShadow
 val BoxShadow: datatypes.BoxShadow.type = datatypes.BoxShadow
 
+type Dataset[DataType] = datatypes.DataSet[DataType]
+val DataSet: datatypes.DataSet.type = datatypes.DataSet
+
 type Degrees = datatypes.Degrees
 val Degrees: datatypes.Degrees.type = datatypes.Degrees
 
@@ -149,6 +152,20 @@ val LinkTheme: elements.stateless.link.LinkTheme.type = elements.stateless.link.
 
 type Spacer = elements.stateless.spacer.Spacer
 val Spacer: elements.stateless.spacer.Spacer.type = elements.stateless.spacer.Spacer
+
+// Table
+
+type Table = elements.stateless.table.Table
+val Table: elements.stateless.table.Table.type = elements.stateless.table.Table
+
+type TableTheme = elements.stateless.table.TableTheme
+val TableTheme: elements.stateless.table.TableTheme.type = elements.stateless.table.TableTheme
+
+type CellTheme = elements.stateless.table.CellTheme
+val CellTheme: elements.stateless.table.CellTheme.type = elements.stateless.table.CellTheme
+
+type RowTheme = elements.stateless.table.RowTheme
+val RowTheme: elements.stateless.table.RowTheme.type = elements.stateless.table.RowTheme
 
 // Text
 

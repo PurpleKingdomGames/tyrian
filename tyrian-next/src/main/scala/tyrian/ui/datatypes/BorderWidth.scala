@@ -18,3 +18,9 @@ object BorderWidth:
 
   def apply(value: Double): BorderWidth =
     BorderWidth.Relative(value)
+
+  def px(value: Int): BorderWidth =
+    BorderWidth.CSS(s"${value}px")
+
+  def rem(value: Double): BorderWidth =
+    BorderWidth.CSS(s"${value}rem")

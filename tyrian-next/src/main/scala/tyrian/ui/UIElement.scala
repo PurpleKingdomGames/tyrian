@@ -66,6 +66,12 @@ object UIElement:
 
 TODOs
 
+---
+
+Cross compilation - we're going to want this for Scala JVM use.
+
+---
+
 Theme / Style Performance
 
   - Font styles inherit, and they're very chunky. So what we could do is track
@@ -86,6 +92,7 @@ Stateless Components
 	-	HtmlElement - DONE
   - Link - DONE
   - Tables
+  - Canvas
 
 ⸻
 
