@@ -9,10 +9,11 @@ private val spacer = (str: String) => if str.isEmpty then str else " " + str
 extension [Msg](elem: Elem[Msg])
   def render: String =
     elem match
-      case _: Empty.type    => ""
-      case t: Text          => t.value
-      case h: Html[?]       => h.render
-      case c: CustomElem[?] => c.toElems.mkString
+      case _: Empty.type     => ""
+      case t: Text           => t.value
+      case h: Html[?]        => h.render
+      case c: CustomElem[?]  => c.toElems.mkString
+      case HtmlEntity(value) => value
 
 extension [Msg](html: Html[Msg])
   def render: String =
@@ -27,10 +28,11 @@ extension [Msg](html: Html[Msg])
           spacer(tag.attributes.map(_.render).filterNot(_.isEmpty).mkString(" "))
 
         val children = tag.children.map {
-          case _: Empty.type    => ""
-          case t: Text          => t.value
-          case h: Html[?]       => h.render
-          case c: CustomElem[?] => c.render
+          case _: Empty.type     => ""
+          case t: Text           => t.value
+          case h: Html[?]        => h.render
+          case c: CustomElem[?]  => c.render
+          case HtmlEntity(value) => value
         }.mkString
 
         s"""<${tag.name}$attributes>$children</${tag.name}>"""

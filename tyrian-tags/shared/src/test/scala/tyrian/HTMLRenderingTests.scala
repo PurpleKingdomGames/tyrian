@@ -145,4 +145,17 @@ class HTMLRenderingTests extends munit.FunSuite {
     assertEquals(actual, expected)
   }
 
+  test("Can render an nbsp html entity") {
+    val view: Model => Html[Msg] =
+      _ => span(p("Hello,"), _nbsp_, text("world!"))
+
+    val actual =
+      view(model).render
+
+    val expected =
+      "<span><p>Hello,</p>&nbsp;world!</span>"
+
+    assertEquals(actual, expected)
+  }
+
 }

@@ -49,7 +49,7 @@ sealed trait Html[+M] extends Elem[M]:
 
 /** Object used to provide Html syntax `import tyrian.Html.*`
   */
-object Html extends HtmlTags with HtmlAttributes with AttributeSyntax:
+object Html extends HtmlTags with HtmlAttributes with AttributeSyntax with HtmlEntities:
 
   def tag[M](name: String)(attributes: Attr[M]*)(children: Elem[M]*): Html[M] =
     Tag(name, attributes.toList, children.toList)
@@ -164,3 +164,6 @@ object RawTag:
 
 trait CustomHtml[+M] extends Html[M]:
   def toHtml: Html[M]
+
+final case class HtmlEntity(value: String) extends Elem[Nothing]:
+  def map[N](f: Nothing => N): HtmlEntity = this

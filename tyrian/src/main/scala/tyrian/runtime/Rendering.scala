@@ -147,6 +147,7 @@ object Rendering:
       case t: Text            => List(VNode.text(t.value))
       case subHtml: Html[Msg] => List(toVNode(subHtml, onMsg, router))
       case c: CustomElem[Msg] => c.toElems.flatMap(cc => elemToVNodes(cc, onMsg, router))
+      case HtmlEntity(value)  => List(VNode.text(value))
 
   private lazy val patch: Patch =
     snabbdom.init(
