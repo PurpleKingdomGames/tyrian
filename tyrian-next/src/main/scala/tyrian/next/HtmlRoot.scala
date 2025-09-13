@@ -5,6 +5,7 @@ import tyrian.CustomHtml
 import tyrian.Elem
 import tyrian.Empty
 import tyrian.Html
+import tyrian.HtmlEntity
 import tyrian.RawTag
 import tyrian.Tag
 import tyrian.Text
@@ -101,5 +102,8 @@ object HtmlRoot:
 
         case c: CustomHtml[GlobalMsg] =>
           List(c)
+
+        case e: HtmlEntity =>
+          List(e)
 
     Batch.fromList(rec(target))

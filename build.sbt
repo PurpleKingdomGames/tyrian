@@ -139,6 +139,7 @@ lazy val tyrianTags =
       commonSettings ++ publishSettings,
       Compile / sourceGenerators += codeGen("tyrian", TagGen.gen).taskValue,
       Compile / sourceGenerators += codeGen("tyrian", AttributeGen.gen).taskValue,
+      Compile / sourceGenerators += codeGen("tyrian", HtmlEntityGen.gen).taskValue,
       Compile / sourceGenerators += codeGen("CSS", "tyrian", CSSGen.gen).taskValue
     )
     .jsSettings(
