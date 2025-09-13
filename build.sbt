@@ -123,6 +123,7 @@ lazy val tyrianProject =
       sandbox.js,
       sandboxNext.js,
       sandboxZIO.js,
+      sandboxUI.js,
       firefoxTests.js,
       chromeTests.js,
       tyrianHtmx.js,
@@ -265,6 +266,20 @@ lazy val sandboxZIO =
       scalacOptions -= "-language:strictEquality"
     )
 
+lazy val sandboxUI =
+  crossProject(JSPlatform)
+    .crossType(CrossType.Pure)
+    .withoutSuffixFor(JSPlatform)
+    .in(file("sandbox-ui"))
+    .settings(
+      neverPublish,
+      commonSettings,
+      name := "sandbox-ui",
+      scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+      scalacOptions -= "-language:strictEquality"
+    )
+    .dependsOn(tyrianNext)
+
 lazy val sandboxSSR =
   crossProject(JVMPlatform)
     .crossType(CrossType.Pure)
@@ -349,6 +364,12 @@ addCommandAlias(
   ).mkString("", ";", ";")
 )
 addCommandAlias(
+  "sandboxUIBuild",
+  List(
+    "sandboxUI/fastLinkJS"
+  ).mkString("", ";", ";")
+)
+addCommandAlias(
   "sandboxSSRBuild",
   List(
     "sandboxSSRJVM/compile"
@@ -374,6 +395,7 @@ addCommandAlias(
     "sandbox/clean",
     "sandboxNext/clean",
     "sandboxZIO/clean",
+    "sandboxUI/clean",
     "firefoxTests/clean",
     "chromeTests/clean"
   ).mkString(";", ";", "")
@@ -390,7 +412,8 @@ addCommandAlias(
     "tyrianZIO/compile",
     "sandbox/compile",
     "sandboxNext/compile",
-    "sandboxZIO/compile"
+    "sandboxZIO/compile",
+    "sandboxUI/compile"
   ).mkString(";", ";", "")
 )
 
@@ -406,6 +429,7 @@ addCommandAlias(
     "sandbox/test",
     "sandboxNext/test",
     "sandboxZIO/test",
+    "sandboxUI/test",
     "firefoxTests/test",
     "chromeTests/test"
   ).mkString(";", ";", "")
@@ -422,7 +446,8 @@ addCommandAlias(
     "tyrianZIO/test",
     "sandbox/test",
     "sandboxNext/test",
-    "sandboxZIO/test"
+    "sandboxZIO/test",
+    "sandboxUI/test"
   ).mkString(";", ";", "")
 )
 
