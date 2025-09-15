@@ -72,6 +72,77 @@ object SandboxZIO extends TyrianZIOApp[Msg, Model]:
         input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
         div(myStyle)(text(model.field.reverse))
       ),
+      div(
+        p("Html Entities"),
+        table(
+          tr(
+            td(_lt_),
+            td("<"),
+            td("(less than)")
+          ),
+          tr(
+            td(_gt_),
+            td(">"),
+            td("(greater than)")
+          ),
+          tr(
+            td(_amp_),
+            td("&"),
+            td("(ampersand)")
+          ),
+          tr(
+            td(_quot_),
+            td("\""),
+            td("(double quote)")
+          ),
+          tr(
+            td(_apos_),
+            td("'"),
+            td("(apostrophe / single quote)")
+          ),
+          tr(
+            td(_nbsp_),
+            td("␣"),
+            td("(non-breaking space)")
+          ),
+          tr(
+            td(_copy_),
+            td("©"),
+            td("(copyright)")
+          ),
+          tr(
+            td(_reg_),
+            td("®"),
+            td("(registered trademark)")
+          ),
+          tr(
+            td(_trade_),
+            td("™"),
+            td("(trademark)")
+          ),
+          tr(
+            td(_cent_),
+            td("¢"),
+            td("(cent)")
+          ),
+          tr(
+            td(_pound_),
+            td("£"),
+            td("(pound)")
+          ),
+          tr(
+            td(_yen_),
+            td("¥"),
+            td("(yen)")
+          ),
+          tr(
+            td(_euro_),
+            td("€"),
+            td("(euro)")
+          )
+        )
+      ),
+      br,
       div(elems)
     )
 
