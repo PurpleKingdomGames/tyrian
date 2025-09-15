@@ -14,7 +14,7 @@ class LocationTests extends munit.FunSuite:
             pathName = "/",
             port = None,
             protocol = None,
-            search = None,
+            search = LocationDetails.SearchParams.empty,
             url = "/"
           )
         )
@@ -28,7 +28,7 @@ class LocationTests extends munit.FunSuite:
           pathName = "/page4",
           port = None,
           protocol = None,
-          search = None,
+          search = LocationDetails.SearchParams.empty,
           url = "/page4"
         )
       )
@@ -53,7 +53,7 @@ class LocationTests extends munit.FunSuite:
           pathName = "/page4",
           port = Some("8080"),
           protocol = Some("https:"),
-          search = None,
+          search = LocationDetails.SearchParams.empty,
           url = "https://localhost:8080/page4"
         )
       )
@@ -78,7 +78,7 @@ class LocationTests extends munit.FunSuite:
           pathName = "/docs",
           port = None,
           protocol = Some("https:"),
-          search = None,
+          search = LocationDetails.SearchParams.empty,
           url = "https://indigoengine.io/docs"
         )
       )
