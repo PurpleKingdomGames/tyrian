@@ -12,7 +12,17 @@ import scala.scalajs.js.annotation.*
 @JSExportTopLevel("TyrianApp")
 object SandboxZIO extends TyrianZIOApp[Msg, Model]:
 
-  def router: Location => Msg = Routing.externalOnly(Msg.NoOp, Msg.FollowLink(_))
+  def router: Location => Msg =
+    Routing.externalOnly(
+      Msg.NoOp,
+      _ match {
+        case url if url.contains("ultra") =>
+          Msg.FollowLink(url, true)
+
+        case url =>
+          Msg.FollowLink(url, false)
+      }
+    )
 
   def init(flags: Map[String, String]): (Model, Cmd[Task, Msg]) =
     (Model.init, Cmd.None)
@@ -21,7 +31,10 @@ object SandboxZIO extends TyrianZIOApp[Msg, Model]:
     case Msg.NoOp =>
       (model, Cmd.None)
 
-    case Msg.FollowLink(href) =>
+    case Msg.FollowLink(href, openInNewTab) if openInNewTab =>
+      (model, Nav.openUrl(href))
+
+    case Msg.FollowLink(href, openInNewTab) =>
       (model, Nav.loadUrl(href))
 
     case Msg.NewRandomInt(i) =>
@@ -64,9 +77,11 @@ object SandboxZIO extends TyrianZIOApp[Msg, Model]:
     div(
       div(hidden(false))("Random number: " + model.randomNumber.toString),
       div(
-        a(href := "/another-page")("Internal link (will be ignored)"),
+        a(href := "/another-page")(s"Internal${_nbsp_}link (will be ignored)"),
         br,
-        a(href := "http://tyrian.indigoengine.io/")("Tyrian website")
+        a(href := "http://tyrian.indigoengine.io/")("Tyrian website (opens in current window)"),
+        br,
+        a(href := "http://ultraviolet.indigoengine.io/")(text("Tyrian website"), _nbsp_, text("(opens in new tab)"))
       ),
       div(
         input(placeholder := "Text to reverse", onInput(s => Msg.NewContent(s)), myStyle),
@@ -164,7 +179,7 @@ enum Msg:
   case Remove
   case Modify(i: Int, msg: Counter.Msg)
   case NewRandomInt(i: Int)
-  case FollowLink(href: String)
+  case FollowLink(href: String, newTab: Boolean)
   case NoOp
 
 object Counter:

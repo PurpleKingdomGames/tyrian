@@ -30,6 +30,13 @@ object Nav:
       window.location.href = href
     }
 
+  /** Open's the link in a new tab / window, using the `_blank` target.
+    */
+  def openUrl[F[_]: Async](href: String): Cmd[F, Nothing] =
+    Cmd.SideEffect {
+      window.open(href, "_blank")
+    }
+
   /** Update the address bar location with a new url. Should be used in conjunction with Tyrian's frontend routing so
     * that when your model decides to change pages, you can update the browser accordingly.
     */
