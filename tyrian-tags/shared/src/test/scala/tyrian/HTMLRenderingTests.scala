@@ -153,7 +153,7 @@ class HTMLRenderingTests extends munit.FunSuite {
       view(model).render
 
     val expected =
-      "<span><p>Hello,</p>&nbsp;world!</span>"
+      "<span><p>Hello,</p>\u00A0world!</span>"
 
     assertEquals(actual, expected)
   }
@@ -166,7 +166,7 @@ class HTMLRenderingTests extends munit.FunSuite {
       view(model).render
 
     val expected =
-      "<p>Hello,&nbsp;world!</p>"
+      "<p>Hello,\u00A0world!</p>"
 
     assertEquals(actual, expected)
   }
