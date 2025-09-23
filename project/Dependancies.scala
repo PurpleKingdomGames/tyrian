@@ -13,6 +13,6 @@ object Dependencies {
   val catsLaws          = "2.13.0"
   val http4sCirce       = "0.23.30"
   val http4sDom         = "0.2.11"
-  val http4sServer      = "0.23.30"
+  val http4sServer      = "0.23.31"
 
 }
