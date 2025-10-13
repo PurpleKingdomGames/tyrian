@@ -51,8 +51,8 @@ final case class Input(
 
   def themeLens: Lens[Theme.Default, InputTheme] =
     Lens(
-      _.elements.input,
-      (t, i) => t.modifyElementThemes(_.withInputTheme(i))
+      _.input,
+      (t, i) => t.copy(input = i)
     )
 
   def withThemeOverride(value: ThemeOverride[InputTheme]): Input =
@@ -85,8 +85,8 @@ final case class Input(
           Style.empty
 
         case tt: Theme.Default =>
-          if isDisabled then tt.elements.input.toDisabledStyles(theme)
-          else tt.elements.input.toStyles(theme)
+          if isDisabled then tt.input.toDisabledStyles(theme)
+          else tt.input.toStyles(theme)
 
     val classAttribute =
       if classNames.isEmpty then EmptyAttribute

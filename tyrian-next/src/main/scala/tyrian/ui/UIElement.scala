@@ -69,18 +69,6 @@ TODOs
 ---
 
 Cross compilation - we're going to want this for Scala JVM use.
-Look at Theme's carefully. Link should use the same theme as Text, for example.
-
-New library of shared types (Tyrian / Indigo):
-
-  - Batch
-  - Lens
-  - Signal
-  - SignalFunction
-  - Timeline Animations?
-  - RGBA?
-  - RGB?
-  - (Look at the other data type classes)
 
 ---
 
@@ -103,8 +91,8 @@ Stateless Components
 	-	Paragraph - DONE
 	-	HtmlElement - DONE
   - Link - DONE
-  - Tables - DONE(ish)
-  - Canvas (2D, WebGL 1/2, WebGPU)
+  - Tables
+  - Canvas
 
 ⸻
 
@@ -141,6 +129,6 @@ Drawing API
 
 ---
 
-Animations?
+Animations
 
  */
