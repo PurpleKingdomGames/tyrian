@@ -13,6 +13,9 @@ trait UIElement[Component, ComponentTheme]:
   def addClassNames(classes: Set[String]): Component = withClassNames(classNames ++ classes)
   def addClassNames(classes: String*): Component     = addClassNames(classes.toSet)
 
+  def id: Option[String]
+  def withId(id: String): Component
+
   def themeOverride: ThemeOverride[ComponentTheme]
   def themeLens: Lens[Theme.Default, ComponentTheme]
   def withThemeOverride(value: ThemeOverride[ComponentTheme]): Component

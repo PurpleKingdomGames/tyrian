@@ -9,11 +9,13 @@ import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Placeholder(
-    id: MarkerId,
-    children: List[UIElement[?, ?]],
-    classNames: Set[String],
-    themeOverride: ThemeOverride[Unit]
+    marker: MarkerId,
+    children: List[UIElement[?, ?]]
 ) extends UIElement[Placeholder, Unit]:
+
+  val classNames: Set[String]            = Set()
+  val id: Option[String]                 = None
+  val themeOverride: ThemeOverride[Unit] = ThemeOverride.NoOverride
 
   def withChildren(children: UIElement[?, ?]*): Placeholder =
     this.copy(children = children.toList)
@@ -22,7 +24,10 @@ final case class Placeholder(
     this.copy(children = children :+ child)
 
   def withClassNames(classes: Set[String]): Placeholder =
-    this.copy(classNames = classes)
+    this
+
+  def withId(id: String): Placeholder =
+    this
 
   def themeLens: Lens[Theme.Default, Unit] =
     Lens.unit
@@ -31,15 +36,15 @@ final case class Placeholder(
     this
 
   def view: Theme ?=> tyrian.Elem[GlobalMsg] =
-    Marker(id, children.map(_.toElem))
+    Marker(marker, children.map(_.toElem))
 
 object Placeholder:
 
-  def apply(id: MarkerId): Placeholder =
-    Placeholder(id, Nil, Set(), ThemeOverride.NoOverride)
+  def apply(marker: MarkerId): Placeholder =
+    Placeholder(marker, Nil)
 
-  def apply(id: MarkerId, children: UIElement[?, ?]*): Placeholder =
-    Placeholder(id, children.toList, Set(), ThemeOverride.NoOverride)
+  def apply(marker: MarkerId, children: UIElement[?, ?]*): Placeholder =
+    Placeholder(marker, children.toList)
 
-  def apply(id: MarkerId, children: List[UIElement[?, ?]]): Placeholder =
-    Placeholder(id, children.toList, Set(), ThemeOverride.NoOverride)
+  def apply(marker: MarkerId, children: List[UIElement[?, ?]]): Placeholder =
+    Placeholder(marker, children.toList)

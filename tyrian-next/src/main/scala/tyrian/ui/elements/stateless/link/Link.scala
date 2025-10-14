@@ -13,6 +13,7 @@ final case class Link(
     url: Option[String],
     click: Option[GlobalMsg],
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[LinkTheme]
 ) extends UIElement[Link, LinkTheme]:
 
@@ -37,6 +38,9 @@ final case class Link(
   def withClassNames(classes: Set[String]): Link =
     this.copy(classNames = classes)
 
+  def withId(id: String): Link =
+    this.copy(id = Some(id))
+
   def themeLens: Lens[Theme.Default, LinkTheme] =
     Lens(
       _.link,
@@ -58,6 +62,7 @@ object Link:
       url = Some(url),
       click = None,
       classNames = Set(),
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -68,6 +73,7 @@ object Link:
       url = None,
       click = Some(onClick),
       classNames = Set(),
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -83,6 +89,9 @@ object Link:
         if link.classNames.isEmpty then EmptyAttribute
         else cls := link.classNames.mkString(" ")
 
+      val idAttribute =
+        link.id.fold(EmptyAttribute)(id.:=.apply)
+
       val styleAttribute =
         theme match
           case Theme.None =>
@@ -97,7 +106,8 @@ object Link:
           link.target.map(_.toAttribute).getOrElse(EmptyAttribute),
           link.click.map(msg => onClick(msg)).getOrElse(EmptyAttribute),
           styleAttribute,
-          classAttribute
+          classAttribute,
+          idAttribute
         )
 
       a(attributes)(

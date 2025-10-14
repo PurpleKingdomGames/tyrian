@@ -57,10 +57,14 @@ object TextVariant:
       if element.classNames.isEmpty then EmptyAttribute
       else cls := element.classNames.mkString(" ")
 
+    val idAttribute =
+      element.id.fold(EmptyAttribute)(id.:=.apply)
+
     val attributes =
       List(
         if styles.isEmpty then EmptyAttribute else style(styles),
-        classAttribute
+        classAttribute,
+        idAttribute
       )
 
     element.variant match

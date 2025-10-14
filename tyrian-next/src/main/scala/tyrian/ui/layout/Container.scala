@@ -19,6 +19,7 @@ final case class Container(
     width: Option[Extent],
     height: Option[Extent],
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[ContainerTheme]
 ) extends UIElement[Container, ContainerTheme]:
 
@@ -64,6 +65,9 @@ final case class Container(
   def withClassNames(classes: Set[String]): Container =
     this.copy(classNames = classes)
 
+  def withId(id: String): Container =
+    this.copy(id = Some(id))
+
   def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
       _.container,
@@ -90,6 +94,7 @@ object Container:
       width = None,
       height = None,
       classNames = Set(),
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -119,6 +124,9 @@ object Container:
       if container.classNames.isEmpty then EmptyAttribute
       else cls := container.classNames.mkString(" ")
 
-    div(style(baseStyles |+| containerThemeStyles) :: classAttribute :: sizeAttributes)(
+    val idAttribute =
+      container.id.fold(EmptyAttribute)(id.:=.apply)
+
+    div(style(baseStyles |+| containerThemeStyles) :: classAttribute :: idAttribute :: sizeAttributes)(
       container.child.toElem
     )

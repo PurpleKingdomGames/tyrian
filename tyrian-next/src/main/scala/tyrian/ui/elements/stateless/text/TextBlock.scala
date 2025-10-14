@@ -10,6 +10,7 @@ final case class TextBlock(
     value: String,
     variant: TextVariant,
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[TextTheme]
 ) extends UIElement[TextBlock, TextTheme]:
 
@@ -30,6 +31,9 @@ final case class TextBlock(
   def withClassNames(classes: Set[String]): TextBlock =
     this.copy(classNames = classes)
 
+  def withId(id: String): TextBlock =
+    this.copy(id = Some(id))
+
   def themeLens: Lens[Theme.Default, TextTheme] =
     Lens(
       _.text.getFromVariant(variant),
@@ -45,10 +49,10 @@ final case class TextBlock(
 object TextBlock:
 
   def apply(value: String): TextBlock =
-    TextBlock(value, TextVariant.Normal, Set(), ThemeOverride.NoOverride)
+    TextBlock(value, TextVariant.Normal, Set(), None, ThemeOverride.NoOverride)
 
   def apply(value: String, variant: TextVariant): TextBlock =
-    TextBlock(value, variant, Set(), ThemeOverride.NoOverride)
+    TextBlock(value, variant, Set(), None, ThemeOverride.NoOverride)
 
   def body(value: String): TextBlock     = TextBlock(value, TextVariant.Normal)
   def heading1(value: String): TextBlock = TextBlock(value, TextVariant.Heading1)

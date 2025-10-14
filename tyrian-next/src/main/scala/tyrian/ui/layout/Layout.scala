@@ -20,6 +20,7 @@ final case class Layout(
     ratio: Ratio,
     wrapping: Wrapping,
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[Unit]
 ) extends UIElement[Layout, Unit]:
 
@@ -74,6 +75,9 @@ final case class Layout(
   def withClassNames(classes: Set[String]): Layout =
     this.copy(classNames = classes)
 
+  def withId(id: String): Layout =
+    this.copy(id = Some(id))
+
   def themeLens: Lens[Theme.Default, Unit] =
     Lens.unit
 
@@ -100,6 +104,7 @@ object Layout:
       ratio = Ratio.default,
       wrapping = Wrapping.NoWrap,
       classNames = Set(),
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -125,6 +130,9 @@ object Layout:
       if layout.classNames.isEmpty then EmptyAttribute
       else cls := layout.classNames.mkString(" ")
 
+    val idAttribute =
+      layout.id.fold(EmptyAttribute)(id.:=.apply)
+
     val childrenHtml = layout.children.map(_.toElem)
 
-    div(style(baseStyles), classAttribute)(childrenHtml*)
+    div(style(baseStyles), classAttribute, idAttribute)(childrenHtml*)

@@ -10,6 +10,7 @@ import tyrian.ui.theme.*
 enum Theme derives CanEqual:
   case None
   case Default(
+      canvas: ContainerTheme,
       colors: ThemeColors,
       container: ContainerTheme,
       fonts: ThemeFonts,
@@ -29,6 +30,7 @@ object Theme:
 
     val default: Theme.Default =
       Theme.Default(
+        canvas = ContainerTheme.default,
         colors = ThemeColors.default,
         container = ContainerTheme.default,
         fonts = ThemeFonts.default,
@@ -45,6 +47,11 @@ object Theme:
         case Theme.None       => scala.None
         case d: Theme.Default => Some(d)
 
+    def withCanvasTheme(canvas: ContainerTheme): Theme =
+      t match
+        case None        => t
+        case tt: Default => tt.copy(canvas = canvas)
+
     def withColors(colors: ThemeColors): Theme =
       t match
         case None        => t
@@ -59,6 +66,11 @@ object Theme:
       t match
         case None        => t
         case tt: Default => tt.copy(container = container)
+
+    def withImageTheme(image: ContainerTheme): Theme =
+      t match
+        case None        => t
+        case tt: Default => tt.copy(image = image)
 
     def withInputTheme(input: InputTheme): Theme =
       t match

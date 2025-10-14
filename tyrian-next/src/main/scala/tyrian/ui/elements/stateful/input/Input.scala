@@ -2,8 +2,6 @@ package tyrian.ui.elements.stateful.input
 
 import tyrian.Elem
 import tyrian.EmptyAttribute
-import tyrian.Html.*
-import tyrian.Style
 import tyrian.next.GlobalMsg
 import tyrian.next.Outcome
 import tyrian.ui
@@ -20,6 +18,7 @@ final case class Input(
     isReadOnly: Boolean,
     value: String,
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[InputTheme]
 ) extends UIElement.Stateful[Input, InputTheme]:
 
@@ -49,6 +48,9 @@ final case class Input(
   def withClassNames(classes: Set[String]): Input =
     this.copy(classNames = classes)
 
+  def withId(id: String): Input =
+    this.copy(id = Some(id))
+
   def themeLens: Lens[Theme.Default, InputTheme] =
     Lens(
       _.input,
@@ -69,43 +71,12 @@ final case class Input(
       Outcome(this)
 
   def view: Theme ?=> Elem[GlobalMsg] =
-    val theme = summon[Theme]
-
-    val disabledAttr =
-      if isDisabled then attribute("disabled", "true")
-      else EmptyAttribute
-
-    val readonlyAttr =
-      if isReadOnly then attribute("readonly", "true")
-      else EmptyAttribute
-
-    val styles =
-      theme match
-        case Theme.None =>
-          Style.empty
-
-        case tt: Theme.Default =>
-          if isDisabled then tt.input.toDisabledStyles(theme)
-          else tt.input.toStyles(theme)
-
-    val classAttribute =
-      if classNames.isEmpty then EmptyAttribute
-      else cls := classNames.mkString(" ")
-
-    val inputAttrs = List(
-      tyrian.Html.placeholder := placeholder,
-      tyrian.Html.value       := value,
-      typ                     := "text",
-      onInput((s: String) => TextInputMsg.Changed(key, s)),
-      disabledAttr,
-      readonlyAttr,
-      style(styles),
-      classAttribute
-    )
-
-    input(inputAttrs*)
+    Input.toHtml(this)
 
 object Input:
+
+  import tyrian.Html.*
+  import tyrian.Style
 
   def apply(key: UIKey): Input =
     Input(
@@ -115,8 +86,48 @@ object Input:
       isReadOnly = false,
       value = "",
       Set.empty,
+      id = None,
       ThemeOverride.NoOverride
     )
+
+  def toHtml(i: Input)(using theme: Theme): tyrian.Elem[GlobalMsg] =
+    val disabledAttr =
+      if i.isDisabled then attribute("disabled", "true")
+      else EmptyAttribute
+
+    val readonlyAttr =
+      if i.isReadOnly then attribute("readonly", "true")
+      else EmptyAttribute
+
+    val styles =
+      theme match
+        case Theme.None =>
+          Style.empty
+
+        case tt: Theme.Default =>
+          if i.isDisabled then tt.input.toDisabledStyles(theme)
+          else tt.input.toStyles(theme)
+
+    val classAttribute =
+      if i.classNames.isEmpty then EmptyAttribute
+      else cls := i.classNames.mkString(" ")
+
+    val idAttribute =
+      i.id.fold(EmptyAttribute)(id.:=.apply)
+
+    val inputAttrs = List(
+      tyrian.Html.placeholder := i.placeholder,
+      tyrian.Html.value       := i.value,
+      typ                     := "text",
+      onInput((s: String) => TextInputMsg.Changed(i.key, s)),
+      disabledAttr,
+      readonlyAttr,
+      style(styles),
+      classAttribute,
+      idAttribute
+    )
+
+    input(inputAttrs*)
 
 enum TextInputMsg extends GlobalMsg:
   case Changed(id: UIKey, value: String)

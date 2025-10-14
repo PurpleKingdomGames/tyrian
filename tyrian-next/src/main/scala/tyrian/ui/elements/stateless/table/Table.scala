@@ -10,6 +10,7 @@ import tyrian.ui.utils.Lens
 final case class Table(
     dataset: DataSet[?],
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[TableTheme]
 ) extends UIElement[Table, TableTheme]:
 
@@ -18,6 +19,9 @@ final case class Table(
 
   def withClassNames(classes: Set[String]): Table =
     this.copy(classNames = classes)
+
+  def withId(id: String): Table =
+    this.copy(id = Some(id))
 
   def themeLens: Lens[Theme.Default, TableTheme] =
     Lens(
@@ -34,7 +38,12 @@ final case class Table(
 object Table:
 
   def apply(dataset: DataSet[?]): Table =
-    Table(dataset, Set(), ThemeOverride.NoOverride)
+    Table(
+      dataset,
+      Set(),
+      id = None,
+      ThemeOverride.NoOverride
+    )
 
   object View:
 
@@ -49,6 +58,9 @@ object Table:
       val classAttribute =
         if table.classNames.isEmpty then EmptyAttribute
         else cls := table.classNames.mkString(" ")
+
+      val idAttribute =
+        table.id.fold(EmptyAttribute)(id.:=.apply)
 
       val tableStyleAttribute =
         theme match
@@ -106,7 +118,8 @@ object Table:
 
       tyrian.Html.table(
         tableStyleAttribute,
-        classAttribute
+        classAttribute,
+        idAttribute
       )(
         headerRow,
         bodyRows

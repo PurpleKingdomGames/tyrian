@@ -17,6 +17,7 @@ final case class Image(
     height: Option[Extent],
     fit: ImageFit,
     classNames: Set[String],
+    id: Option[String],
     themeOverride: ThemeOverride[ContainerTheme]
 ) extends UIElement[Image, ContainerTheme]:
 
@@ -48,6 +49,9 @@ final case class Image(
   def withClassNames(classes: Set[String]): Image =
     this.copy(classNames = classes)
 
+  def withId(id: String): Image =
+    this.copy(id = Some(id))
+
   def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
       _.image,
@@ -73,6 +77,7 @@ object Image:
       height = None,
       fit = ImageFit.default,
       classNames = Set.empty,
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -84,6 +89,7 @@ object Image:
       height = None,
       fit = ImageFit.default,
       classNames = Set.empty,
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -95,6 +101,7 @@ object Image:
       height = Some(height),
       fit = ImageFit.default,
       classNames = Set.empty,
+      id = None,
       themeOverride = ThemeOverride.NoOverride
     )
 
@@ -124,6 +131,9 @@ object Image:
       if image.classNames.isEmpty then EmptyAttribute
       else cls := image.classNames.mkString(" ")
 
-    val allAttributes = baseAttributes ++ sizeAttributes ++ List(style(styles), classAttribute)
+    val idAttribute =
+      image.id.fold(EmptyAttribute)(id.:=.apply)
+
+    val allAttributes = baseAttributes ++ sizeAttributes ++ List(style(styles), classAttribute, idAttribute)
 
     img(allAttributes*)

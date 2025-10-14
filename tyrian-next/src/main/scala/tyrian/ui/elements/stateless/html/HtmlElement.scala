@@ -7,16 +7,21 @@ import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class HtmlElement(
-    html: tyrian.Elem[GlobalMsg],
-    classNames: Set[String],
-    themeOverride: ThemeOverride[Unit]
+    html: tyrian.Elem[GlobalMsg]
 ) extends UIElement[HtmlElement, Unit]:
+
+  val classNames: Set[String]            = Set()
+  val id: Option[String]                 = None
+  val themeOverride: ThemeOverride[Unit] = ThemeOverride.NoOverride
 
   def withHtml(html: tyrian.Elem[GlobalMsg]): HtmlElement =
     this.copy(html = html)
 
   def withClassNames(classes: Set[String]): HtmlElement =
-    this.copy(classNames = classes)
+    this
+
+  def withId(id: String): HtmlElement =
+    this
 
   def themeLens: Lens[Theme.Default, Unit] =
     Lens.unit
@@ -29,29 +34,13 @@ final case class HtmlElement(
 
 object HtmlElement:
 
-  import tyrian.Html
   import tyrian.Html.*
 
-  def apply(html: Html[GlobalMsg]): HtmlElement =
-    HtmlElement(
-      html = html,
-      classNames = Set.empty,
-      themeOverride = ThemeOverride.NoOverride
-    )
-
   def raw(htmlString: String): HtmlElement =
-    HtmlElement(
-      html = div().innerHtml(htmlString),
-      classNames = Set.empty,
-      themeOverride = ThemeOverride.NoOverride
-    )
+    HtmlElement(html = div().innerHtml(htmlString))
 
   def text(content: String): HtmlElement =
-    HtmlElement(
-      html = span(content),
-      classNames = Set.empty,
-      themeOverride = ThemeOverride.NoOverride
-    )
+    HtmlElement(html = span(content))
 
   def toHtml(element: HtmlElement): tyrian.Elem[GlobalMsg] =
     element.html

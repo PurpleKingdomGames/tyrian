@@ -53,7 +53,7 @@ class LinkTests extends munit.FunSuite {
     assertEquals(actual.toString, expected)
 
     actual match
-      case Tag(_, List(_, _, e: tyrian.Event[?, ?], _, _), _, _) =>
+      case Tag(_, List(_, _, e: tyrian.Event[?, ?], _, _, _), _, _) =>
         assertEquals(e.name, "click")
 
       case _ =>
@@ -75,7 +75,7 @@ class LinkTests extends munit.FunSuite {
     assertEquals(actual.toString, expected)
 
     actual match
-      case Tag(_, List(_, _, e: tyrian.Event[?, ?], _, _), _, _) =>
+      case Tag(_, List(_, _, e: tyrian.Event[?, ?], _, _, _), _, _) =>
         assertEquals(e.name, "click")
 
       case _ =>
