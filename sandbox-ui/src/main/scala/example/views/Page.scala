@@ -1,9 +1,7 @@
 package example.views
 
-import tyrian.next.HtmlFragment
-import tyrian.next.MarkerId
+import tyrian.next.*
 import tyrian.ui.*
-import tyrian.ui.layout.Placeholder
 
 object Page:
 

@@ -125,6 +125,9 @@ val Layout: layout.Layout.type = layout.Layout
 
 val Row: layout.Row.type = layout.Row
 
+type Placeholder = layout.Placeholder
+val Placeholder: layout.Placeholder.type = layout.Placeholder
+
 // ---- Stateless elements ----
 
 // HTML

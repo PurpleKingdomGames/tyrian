@@ -45,6 +45,3 @@ object Placeholder:
 
   def apply(marker: MarkerId, children: UIElement[?, ?]*): Placeholder =
     Placeholder(marker, children.toList)
-
-  def apply(marker: MarkerId, children: List[UIElement[?, ?]]): Placeholder =
-    Placeholder(marker, children.toList)

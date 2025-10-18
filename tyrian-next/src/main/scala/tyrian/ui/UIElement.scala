@@ -108,7 +108,7 @@ Stateless Components
 	-	HtmlElement - DONE
   - Link - DONE
   - Tables - DONE(ish)
-  - Canvas (2D, WebGL 1/2, WebGPU)
+  - Canvas (2D, WebGL 1/2, WebGPU) - DONE (basic)
 
 ⸻
 
