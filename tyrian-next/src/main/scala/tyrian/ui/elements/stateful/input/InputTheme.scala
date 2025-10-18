@@ -12,6 +12,7 @@ import tyrian.ui.datatypes.RGBA
 import tyrian.ui.datatypes.Spacing
 import tyrian.ui.theme.Theme
 
+// TODO: Which fields should be optional? Inherit from main styles.
 final case class InputTheme(
     fontSize: FontSize,
     fontWeight: FontWeight,
@@ -93,7 +94,7 @@ final case class InputTheme(
         val borderStyle = border.map(_.toStyle).getOrElse(Style.empty)
 
         Style(
-          "font-family"      -> t.fonts.body.toCSSValue,
+          "font-family"      -> t.config.fonts.body.toCSSValue,
           "font-size"        -> fontSize.toCSSValue,
           "font-weight"      -> fontWeight.toCSSValue,
           "color"            -> textColor.toCSSValue,

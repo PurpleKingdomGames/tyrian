@@ -25,8 +25,8 @@ final case class Table(
 
   def themeLens: Lens[Theme.Default, TableTheme] =
     Lens(
-      _.table,
-      (t, table) => t.copy(table = table)
+      _.elements.table,
+      (t, table) => t.withTableTheme(table)
     )
 
   def withThemeOverride(value: ThemeOverride[TableTheme]): Table =
@@ -68,7 +68,7 @@ object Table:
             EmptyAttribute
 
           case t: Theme.Default =>
-            style(t.table.toTableStyles)
+            style(t.elements.table.toTableStyles)
 
       val headerStyleAttribute =
         theme match
@@ -76,7 +76,7 @@ object Table:
             EmptyAttribute
 
           case t: Theme.Default =>
-            t.table.toHeaderStyles match
+            t.elements.table.toHeaderStyles match
               case Some(s) => style(s)
               case None    => EmptyAttribute
 
@@ -86,7 +86,7 @@ object Table:
             EmptyAttribute
 
           case t: Theme.Default =>
-            t.table.toCellStyles match
+            t.elements.table.toCellStyles match
               case Some(s) => style(s)
               case None    => EmptyAttribute
 
@@ -106,7 +106,7 @@ object Table:
                   EmptyAttribute
 
                 case t: Theme.Default =>
-                  style(t.table.toRowStyles(index % 2 == 1))
+                  style(t.elements.table.toRowStyles(index % 2 == 1))
 
             tr(rowStyles)(
               row.map { cellData =>

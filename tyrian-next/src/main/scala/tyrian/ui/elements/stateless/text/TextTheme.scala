@@ -71,7 +71,7 @@ final case class TextTheme(
 
       case t: Theme.Default =>
         val baseStyle = Style(
-          "font-family" -> t.fonts.body.toCSSValue,
+          "font-family" -> t.config.fonts.body.toCSSValue,
           "font-size"   -> fontSize.toCSSValue,
           "font-weight" -> fontWeight.toCSSValue,
           "color"       -> textColor.toCSSValue,
@@ -80,8 +80,6 @@ final case class TextTheme(
           "white-space" -> wrapping.toTextCSSValue
         )
 
-        // TODO: Maybe all style options in the theme should be Optional? Some are, some aren't currently.
-        //       It would clean up this logic and remove the need for the foldLeft.
         val styleModifiers = List(
           if style != TextStyle.Normal then Some("font-style" -> style.toCSSValue) else None,
           if decoration != TextDecoration.None then Some("text-decoration" -> decoration.toCSSValue) else None

@@ -54,8 +54,8 @@ final case class Image(
 
   def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
-      _.image,
-      (t, i) => t.copy(image = i)
+      _.elements.image,
+      (t, i) => t.withImageTheme(i)
     )
 
   def withThemeOverride(value: ThemeOverride[ContainerTheme]): Image =
@@ -122,7 +122,7 @@ object Image:
           Style.empty
 
         case tt: Theme.Default =>
-          tt.image.toStyle
+          tt.elements.image.toStyle
 
     val styles =
       image.fit.toStyle |+| imageStyles

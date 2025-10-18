@@ -38,7 +38,7 @@ enum TextVariant derives CanEqual:
         None
 
       case t: Theme.Default =>
-        Some(giveTextThemeVariant(t.text))
+        Some(giveTextThemeVariant(t.elements.text))
 
   def toHtml(element: TextBlock)(using theme: Theme): tyrian.Html[GlobalMsg] =
     TextVariant.toHtml(element)

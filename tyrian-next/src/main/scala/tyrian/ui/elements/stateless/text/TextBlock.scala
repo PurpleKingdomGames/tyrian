@@ -36,8 +36,8 @@ final case class TextBlock(
 
   def themeLens: Lens[Theme.Default, TextTheme] =
     Lens(
-      _.text.getFromVariant(variant),
-      (t, txt) => t.copy(text = t.text.setFromVariant(variant, txt))
+      _.elements.text.getFromVariant(variant),
+      (t, txt) => t.withTextThemes(t.elements.text.setFromVariant(variant, txt))
     )
 
   def withThemeOverride(value: ThemeOverride[TextTheme]): TextBlock =

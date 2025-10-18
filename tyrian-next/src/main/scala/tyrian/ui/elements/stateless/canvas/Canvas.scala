@@ -37,8 +37,8 @@ final case class Canvas(
 
   def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
-      _.image,
-      (t, c) => t.copy(canvas = c)
+      _.elements.canvas,
+      (t, c) => t.withCanvasTheme(c)
     )
 
   def withThemeOverride(value: ThemeOverride[ContainerTheme]): Canvas =
@@ -82,7 +82,7 @@ object Canvas:
           Style.empty
 
         case tt: Theme.Default =>
-          tt.canvas.toStyle
+          tt.elements.canvas.toStyle
 
     val styles =
       if canvasStyles.isEmpty then Nil else List(style(canvasStyles))

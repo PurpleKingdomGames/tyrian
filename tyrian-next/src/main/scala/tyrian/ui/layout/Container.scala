@@ -70,8 +70,8 @@ final case class Container(
 
   def themeLens: Lens[Theme.Default, ContainerTheme] =
     Lens(
-      _.container,
-      (t, c) => t.copy(container = c)
+      _.elements.container,
+      (t, c) => t.withContainerTheme(c)
     )
 
   def withThemeOverride(value: ThemeOverride[ContainerTheme]): Container =
@@ -113,7 +113,7 @@ object Container:
           Style.empty
 
         case tt: Theme.Default =>
-          tt.container.toStyle
+          tt.elements.container.toStyle
 
     val sizeAttributes = List(
       container.width.map(w => width := w.toCSSValue).toList,

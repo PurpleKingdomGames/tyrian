@@ -62,7 +62,7 @@ class InputTests extends munit.FunSuite {
         _.withTextColor(RGBA.Red)
       )
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
   }
 
@@ -71,7 +71,7 @@ class InputTests extends munit.FunSuite {
       Input(testKey)
         .overrideTheme(_.withBackgroundColor(RGBA.Blue))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
   }
 
@@ -80,7 +80,7 @@ class InputTests extends munit.FunSuite {
       Input(testKey)
         .overrideTheme(_.withBorderColor(RGBA.Green))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border.map(_.color).get, RGBA.Green)
   }
 
@@ -89,7 +89,7 @@ class InputTests extends munit.FunSuite {
       Input(testKey)
         .overrideTheme(_.withBorderWidth(BorderWidth.Medium))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border.map(_.width).get, BorderWidth.Medium)
   }
 
@@ -98,7 +98,7 @@ class InputTests extends munit.FunSuite {
       Input(testKey)
         .overrideTheme(_.withBorderStyle(BorderStyle.Dashed))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border.map(_.style).get, BorderStyle.Dashed)
   }
 
@@ -107,28 +107,28 @@ class InputTests extends munit.FunSuite {
       Input(testKey)
         .overrideTheme(_.withBorderRadius(BorderRadius.Large))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Large)
   }
 
   test("Should apply rounded modifier") {
     val input = Input(testKey).overrideTheme(_.rounded)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
   }
 
   test("Should apply square modifier") {
     val input = Input(testKey).overrideTheme(_.square)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.None)
   }
 
   test("Should apply no border modifier") {
     val input = Input(testKey).overrideTheme(_.noBorder)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.border, None)
   }
 
@@ -136,7 +136,7 @@ class InputTests extends munit.FunSuite {
     val input = Input(testKey)
       .overrideTheme(_.withPadding(Padding.Large))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.padding, Padding.Large)
   }
 
@@ -144,7 +144,7 @@ class InputTests extends munit.FunSuite {
     val input = Input(testKey)
       .overrideTheme(_.withFontSize(FontSize.Large))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.fontSize, FontSize.Large)
   }
 
@@ -153,7 +153,7 @@ class InputTests extends munit.FunSuite {
       Input(testKey)
         .overrideTheme(_.withFontWeight(FontWeight.Bold))
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.fontWeight, FontWeight.Bold)
   }
 
@@ -167,7 +167,7 @@ class InputTests extends munit.FunSuite {
             .withPadding(Padding.Large)
         )
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
@@ -184,7 +184,7 @@ class InputTests extends munit.FunSuite {
             .withPadding(Padding.Large)
         )
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
     assertEquals(inputTheme.backgroundColor, RGBA.Blue)
     assertEquals(inputTheme.border.map(_.radius).get, BorderRadius.Medium)
@@ -204,7 +204,7 @@ class InputTests extends munit.FunSuite {
     assertEquals(input.isDisabled, true)
     assertEquals(input.key, testKey)
 
-    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.input).get
+    val inputTheme = input.applyThemeOverrides(Theme.Default.default).toOption.map(_.elements.input).get
     assertEquals(inputTheme.textColor, RGBA.Red)
   }
 

@@ -43,8 +43,8 @@ final case class Link(
 
   def themeLens: Lens[Theme.Default, LinkTheme] =
     Lens(
-      _.link,
-      (t, link) => t.copy(link = link)
+      _.elements.link,
+      (t, link) => t.withLinkTheme(link)
     )
 
   def withThemeOverride(value: ThemeOverride[LinkTheme]): Link =
@@ -98,7 +98,7 @@ object Link:
             EmptyAttribute
 
           case t: Theme.Default =>
-            style(t.link.toStyles(theme))
+            t.elements.link.toStyles.fold(EmptyAttribute)(style(_))
 
       val attributes =
         List(

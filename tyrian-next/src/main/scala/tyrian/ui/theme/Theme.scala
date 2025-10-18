@@ -10,15 +10,8 @@ import tyrian.ui.theme.*
 enum Theme derives CanEqual:
   case None
   case Default(
-      canvas: ContainerTheme,
-      colors: ThemeColors,
-      container: ContainerTheme,
-      fonts: ThemeFonts,
-      image: ContainerTheme,
-      input: InputTheme,
-      link: LinkTheme,
-      table: TableTheme,
-      text: TextThemes
+      config: ThemeConfig,
+      elements: ElementThemes
   )
 
 object Theme:
@@ -30,64 +23,50 @@ object Theme:
 
     val default: Theme.Default =
       Theme.Default(
-        canvas = ContainerTheme.default,
-        colors = ThemeColors.default,
-        container = ContainerTheme.default,
-        fonts = ThemeFonts.default,
-        image = ContainerTheme.default,
-        input = InputTheme.default,
-        link = LinkTheme.default,
-        table = TableTheme.default,
-        text = TextThemes.default
+        ThemeConfig.default,
+        ElementThemes.default
       )
 
+    extension (t: Theme.Default)
+      // Config
+
+      def withColors(colors: ThemeColors): Theme.Default =
+        t.copy(config = t.config.withColors(colors))
+
+      def withFonts(fonts: ThemeFonts): Theme.Default =
+        t.copy(config = t.config.withFonts(fonts))
+
+      // Elements
+
+      def withCanvasTheme(canvas: ContainerTheme): Theme.Default =
+        t.copy(elements = t.elements.withCanvasTheme(canvas))
+
+      def withContainerTheme(container: ContainerTheme): Theme.Default =
+        t.copy(elements = t.elements.withContainerTheme(container))
+
+      def withImageTheme(image: ContainerTheme): Theme.Default =
+        t.copy(elements = t.elements.withImageTheme(image))
+
+      def withInputTheme(input: InputTheme): Theme.Default =
+        t.copy(elements = t.elements.withInputTheme(input))
+
+      def withLinkTheme(link: LinkTheme): Theme.Default =
+        t.copy(elements = t.elements.withLinkTheme(link))
+
+      def withTableTheme(table: TableTheme): Theme.Default =
+        t.copy(elements = t.elements.withTableTheme(table))
+
+      def withTextTheme(text: TextThemes): Theme.Default =
+        t.copy(elements = t.elements.withTextTheme(text))
+
+      def withTextThemes(text: TextThemes): Theme.Default =
+        t.copy(elements = t.elements.withTextThemes(text))
+
   extension (t: Theme)
+
+    // General
+
     def toOption: Option[Theme.Default] =
       t match
         case Theme.None       => scala.None
         case d: Theme.Default => Some(d)
-
-    def withCanvasTheme(canvas: ContainerTheme): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(canvas = canvas)
-
-    def withColors(colors: ThemeColors): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(colors = colors)
-
-    def withFonts(fonts: ThemeFonts): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(fonts = fonts)
-
-    def withContainerTheme(container: ContainerTheme): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(container = container)
-
-    def withImageTheme(image: ContainerTheme): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(image = image)
-
-    def withInputTheme(input: InputTheme): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(input = input)
-
-    def withLinkTheme(link: LinkTheme): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(link = link)
-
-    def withTextTheme(text: TextThemes): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(text = text)
-
-    def withTextThemes(text: TextThemes): Theme =
-      t match
-        case None        => t
-        case tt: Default => tt.copy(text = text)

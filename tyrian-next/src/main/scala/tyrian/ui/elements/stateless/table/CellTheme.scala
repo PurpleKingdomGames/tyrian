@@ -42,8 +42,8 @@ final case class CellTheme(
   def toStyle: Option[Style] =
     val baseStyles =
       for {
-        fw <- fontWeight
-        fs <- fontSize
+        fw <- fontWeight // TODO: Inherit from main styles!
+        fs <- fontSize   // TODO: Inherit from main styles!
       } yield Style(
         "font-weight" -> fw.toCSSValue,
         "font-size"   -> fs.toCSSValue
@@ -51,7 +51,7 @@ final case class CellTheme(
 
     for {
       backgroundStyle <- background.map("background-color" -> _.toCSSValue)
-      textColorStyle  <- textColor.map("color" -> _.toCSSValue)
+      textColorStyle  <- textColor.map("color" -> _.toCSSValue) // TODO: Inherit from main styles!
       base            <- baseStyles
       p               <- padding.map(_.toStyle)
     } yield base |+| p |+| Style(backgroundStyle, textColorStyle)

@@ -1,19 +1,21 @@
 package tyrian.ui.theme
 
-// TODO: Should all use the RGBA type.
+import tyrian.ui.datatypes.RGBA
+
+// TODO: I think these are unused currently.
 final case class ThemeColors(
-    primary: String,
-    secondary: String,
-    background: String,
-    text: String
+    primary: RGBA,
+    secondary: RGBA,
+    background: RGBA,
+    text: RGBA
 )
 
 object ThemeColors:
 
   def default: ThemeColors =
     ThemeColors(
-      primary = "#3366ff",
-      secondary = "#ff3366",
-      background = "#ffffff",
-      text = "#000000"
+      primary = RGBA.fromHex("#3366ff"),
+      secondary = RGBA.fromHex("#ff3366"),
+      background = RGBA.fromHex("#ffffff"),
+      text = RGBA.fromHex("#000000")
     )
