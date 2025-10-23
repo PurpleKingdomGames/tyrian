@@ -8,4 +8,4 @@ set -e
 ./mill -j1 __.checkFormat
 ./mill -j1 __.fix --check
 ./mill -j1 __.fastLinkJS
-./mill -j1 __.publshLocal
+./mill -j1 __.publishLocal
