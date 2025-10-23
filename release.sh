@@ -8,4 +8,10 @@ export GPG_TTY=$(tty)
 
 source credentials.sh
 
-sbt clean update compile testRelease +publishSigned sonatypeBundleRelease 
+./mill clean
+./mill __.compile
+./mill __.test
+./mill __.checkFormat
+./mill __.fix --check
+./mill -j2 __.fastLinkJS
+./mill __.publishSonatypeCentral

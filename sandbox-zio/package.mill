@@ -1,0 +1,22 @@
+package build.`sandbox-zio`
+
+import mill.*
+import mill.scalalib.*
+import mill.scalajslib.*
+import mill.scalajslib.api.*
+
+import build.SharedJS
+import build.Dependencies
+
+object `package` extends Module:
+
+  object js extends SharedJS, PlatformScalaModule:
+
+    def moduleDeps = Seq(build.`tyrian-zio`.js)
+
+    def mvnDeps = Seq(
+      mvn"dev.zio::zio-interop-cats::${Dependencies.zioInteropCats}"
+    )
+
+    override def moduleKind = ModuleKind.CommonJSModule
+

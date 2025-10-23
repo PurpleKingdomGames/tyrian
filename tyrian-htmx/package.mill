@@ -1,0 +1,52 @@
+package build.`tyrian-htmx`
+
+import mill.*
+import mill.scalalib.*
+import mill.scalalib.publish.*
+import mill.scalalib.scalafmt.*
+import mill.scalajslib.*
+
+import build.SharedJVM
+import build.SharedJS
+import build.SharedPublish
+import build.Dependencies
+
+object `package` extends Module:
+
+  // TODO: Only re-run if not already generated.
+  private def _customHtmxGeneratedSources = Task {
+    HtmxAttributes.gen("tyrian.htmx", Task.dest)(HtmxAttributes.htmxAttrsList)
+
+    Seq(PathRef(Task.dest))
+  }
+
+  private def moveGeneratedSources(sources: Seq[PathRef], dest: os.Path): Seq[PathRef] =
+    sources.flatMap: p =>
+      os.list(p.path)
+        .map: from =>
+          os.copy(from, dest / from.last)
+          PathRef(dest / from.last)
+
+  object jvm extends SharedJVM, PlatformScalaModule, SharedPublish:
+
+    def moduleDeps = Seq(build.`tyrian-tags`.jvm)
+
+    override def generatedSources =
+      Task {
+        super.generatedSources() ++
+          moveGeneratedSources(_customHtmxGeneratedSources(), Task.dest)
+      }
+
+  object js extends SharedJS, PlatformScalaModule, SharedPublish:
+
+    def moduleDeps = Seq(build.`tyrian-tags`.js)
+
+    def mvnDeps = Seq(
+      mvn"org.scala-js::scalajs-dom::${Dependencies.scalajsDomVersion}"
+    )
+
+    override def generatedSources =
+      Task {
+        super.generatedSources() ++
+          moveGeneratedSources(_customHtmxGeneratedSources(), Task.dest)
+      }

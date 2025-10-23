@@ -1,0 +1,17 @@
+package build.sandbox
+
+import mill.*
+import mill.scalalib.*
+import mill.scalajslib.*
+import mill.scalajslib.api.*
+
+import build.SharedJS
+import build.Dependencies
+
+object `package` extends Module:
+
+  object js extends SharedJS, PlatformScalaModule:
+
+    def moduleDeps = Seq(build.`tyrian-io`.js)
+
+    override def moduleKind = ModuleKind.CommonJSModule

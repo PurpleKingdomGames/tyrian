@@ -1,0 +1,23 @@
+package build.`sandbox-ssr`
+
+import mill.*
+import mill.scalalib.*
+import mill.scalajslib.*
+
+import build.SharedJVM
+import build.Dependencies
+
+object `package` extends Module:
+
+  object jvm extends SharedJVM, PlatformScalaModule:
+
+    def moduleDeps = Seq(
+      build.`tyrian-tags`.jvm,
+      build.`tyrian-htmx`.jvm
+    )
+
+    def mvnDeps = Seq(
+      mvn"org.http4s::http4s-ember-server::${Dependencies.http4sServer}",
+      mvn"org.http4s::http4s-dsl::${Dependencies.http4sServer}"
+    )
+

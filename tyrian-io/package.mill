@@ -1,0 +1,21 @@
+package build.`tyrian-io`
+
+import mill.*
+import mill.scalalib.*
+import mill.scalalib.publish.*
+import mill.scalalib.scalafmt.*
+import mill.scalajslib.*
+
+import build.SharedJS
+import build.SharedPublish
+import build.Dependencies
+
+object `package` extends Module:
+
+  object js extends SharedJS, PlatformScalaModule, SharedPublish:
+
+    def moduleDeps = Seq(build.tyrian.js)
+
+    def mvnDeps = Seq(
+      mvn"org.typelevel::cats-effect::${Dependencies.catsEffect}"
+    )

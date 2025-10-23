@@ -1,0 +1,50 @@
+package build.`tyrian-tags`
+
+import mill.*
+import mill.scalalib.*
+import mill.scalalib.publish.*
+import mill.scalalib.scalafmt.*
+import mill.scalajslib.*
+
+import build.SharedJVM
+import build.SharedJS
+import build.SharedPublish
+import build.Dependencies
+
+object `package` extends Module:
+
+  // TODO: Only re-run if not already generated.
+  private def _customGeneratedSources = Task {
+    AttributeGen.gen("tyrian", Task.dest)
+    HtmlEntityGen.gen("tyrian", Task.dest)
+    CSSGen.gen("CSS", "tyrian", Task.dest)
+    TagGen.gen("tyrian", Task.dest)
+
+    Seq(PathRef(Task.dest))
+  }
+
+  private def moveGeneratedSources(sources: Seq[PathRef], dest: os.Path): Seq[PathRef] =
+    sources.flatMap: p =>
+      os.list(p.path)
+        .map: from =>
+          os.copy(from, dest / from.last)
+          PathRef(dest / from.last)
+
+  object jvm extends SharedJVM, PlatformScalaModule, SharedPublish:
+
+    override def generatedSources =
+      Task {
+        super.generatedSources() ++
+          moveGeneratedSources(_customGeneratedSources(), Task.dest)
+      }
+
+  object js extends SharedJS, PlatformScalaModule, SharedPublish:
+    def mvnDeps = Seq(
+      mvn"org.scala-js::scalajs-dom::${Dependencies.scalajsDomVersion}"
+    )
+
+    override def generatedSources =
+      Task {
+        super.generatedSources() ++
+          moveGeneratedSources(_customGeneratedSources(), Task.dest)
+      }
