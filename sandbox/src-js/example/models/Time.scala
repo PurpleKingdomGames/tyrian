@@ -1,4 +1,4 @@
-package example
+package example.models
 
 final case class Time(running: Double, delta: Double):
   def next(t: Double): Time =

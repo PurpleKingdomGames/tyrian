@@ -15,6 +15,10 @@ import scala.concurrent.duration.*
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 import scala.util.Random
+import example.models.Fruit
+import example.models.Vector2
+import example.models.WSStatus
+import example.models.Page
 
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianIOApp[Msg, Model]:

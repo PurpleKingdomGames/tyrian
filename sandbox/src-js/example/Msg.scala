@@ -5,6 +5,8 @@ import tyrian.cmds.ImageLoader
 import tyrian.http.Response
 
 import scala.scalajs.js
+import example.models.WSStatus
+import example.models.Page
 
 enum Msg:
   case NewContent(content: String)

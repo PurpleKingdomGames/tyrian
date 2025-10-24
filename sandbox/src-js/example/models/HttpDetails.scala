@@ -1,4 +1,4 @@
-package example
+package example.models
 
 import tyrian.http.*
 

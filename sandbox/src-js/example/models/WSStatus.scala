@@ -1,7 +1,8 @@
-package example
+package example.models
 
 import cats.effect.IO
 import tyrian.websocket.WebSocket
+import example.Msg
 
 enum WSStatus:
   case Connecting
