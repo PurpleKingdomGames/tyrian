@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      JAVA_OPTS: -Xmx4G -XX:+UseG1GC
     steps:
     - uses: actions/checkout@v4
     - uses: coursier/cache-action@v6
