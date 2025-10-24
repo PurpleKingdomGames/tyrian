@@ -4,6 +4,8 @@ set -e
 
 ./mill clean
 ./mill __.compile
-./mill -j2 __.test
 ./mill -j2 __.fastLinkJS
+./mill -j2 __.test
+./mill -j2 __.checkFormat
+./mill -j1 __.fix --check
 ./mill __.publishLocal

@@ -253,15 +253,15 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
 
       (model.copy(components = cs), Cmd.None)
 
-    case Msg.WebSocketStatus(Status.ConnectionError(err)) =>
+    case Msg.WebSocketStatus(WSStatus.ConnectionError(err)) =>
       val log = IO.println(s"Failed to open WebSocket connection: $err").toCmd
       (model.copy(error = Some(err)), log)
 
-    case Msg.WebSocketStatus(Status.Connected(ws)) =>
+    case Msg.WebSocketStatus(WSStatus.Connected(ws)) =>
       val log = IO.println("WS connected").toCmd
       (model.copy(echoSocket = Some(ws)), log)
 
-    case Msg.WebSocketStatus(Status.Connecting) =>
+    case Msg.WebSocketStatus(WSStatus.Connecting) =>
       val log = IO.println("Establishing WS connection").toCmd
       (
         model,
@@ -272,13 +272,13 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
             onOpenMessage = "Connect me!",
             keepAliveSettings = KeepAliveSettings.default
           ) {
-            case WebSocketConnect.Error(err) => Status.ConnectionError(err).asMsg
-            case WebSocketConnect.Socket(ws) => Status.Connected(ws).asMsg
+            case WebSocketConnect.Error(err) => WSStatus.ConnectionError(err).asMsg
+            case WebSocketConnect.Socket(ws) => WSStatus.Connected(ws).asMsg
           }
         )
       )
 
-    case Msg.WebSocketStatus(Status.Disconnecting) =>
+    case Msg.WebSocketStatus(WSStatus.Disconnecting) =>
       val log = IO.println("Graceful shutdown of WS connection").toCmd
       (
         model.copy(echoSocket = None),
@@ -288,7 +288,7 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
         )
       )
 
-    case Msg.WebSocketStatus(Status.Disconnected) =>
+    case Msg.WebSocketStatus(WSStatus.Disconnected) =>
       val log = IO.println("WebSocket not connected yet").toCmd
       (model, log)
 
@@ -420,8 +420,8 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
     ) ++ counters
 
     val connect =
-      if model.echoSocket.isEmpty then div(myStyle)(button(onClick(Status.Connecting.asMsg))(text("Connect")))
-      else div(myStyle)(button(onClick(Status.Disconnecting.asMsg))(text("Disconnect")))
+      if model.echoSocket.isEmpty then div(myStyle)(button(onClick(WSStatus.Connecting.asMsg))(text("Connect")))
+      else div(myStyle)(button(onClick(WSStatus.Disconnecting.asMsg))(text("Disconnect")))
 
     val contents =
       model.page match
@@ -687,7 +687,7 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
 
   def subscriptions(model: Model): Sub[IO, Msg] =
     val webSocketSubs =
-      model.echoSocket.fold(Sub.emit[IO, Msg](Status.Disconnected.asMsg)) {
+      model.echoSocket.fold(Sub.emit[IO, Msg](WSStatus.Disconnected.asMsg)) {
         _.subscribe {
           case WebSocketEvent.Error(errorMesage) =>
             Msg.FromSocket(errorMesage)
@@ -726,204 +726,3 @@ object Sandbox extends TyrianIOApp[Msg, Model]:
         Msg.FrameTick(t)
       }
     )
-
-enum Msg:
-  case NewContent(content: String)
-  case Insert
-  case Remove
-  case Modify(i: Int, msg: Counter.Msg)
-  case FromSocket(message: String)
-  case ToSocket(message: String)
-  case FocusOnInputField
-  case Log(msg: String)
-  case WebSocketStatus(status: Status)
-  case Clear
-  case StageSaveData(content: String)
-  case Save(key: String, value: String)
-  case Load(key: String)
-  case ClearStorage(key: String)
-  case DataLoaded(data: String)
-  case NavigateTo(page: Page)
-  case NavigateToUrl(href: String)
-  case JumpToHomePage
-  case OverwriteModel(model: Model)
-  case TakeSnapshot
-  case NewTime(time: js.Date)
-  case MakeHttpRequest
-  case GotHttpResult(response: Response)
-  case GotHttpError(message: String)
-  case UpdateHttpDetails(newUrl: String)
-  case UpdateHttpBody(body: String)
-  case UpdateHttpMethod(method: String)
-  case UpdateHttpCredentials(credentials: String)
-  case UpdateHttpTimeout(timeout: String)
-  case UpdateHeaderKey(headerIndex: Int, key: String)
-  case UpdateHeaderValue(headerIndex: Int, value: String)
-  case UpdateHeaderAdd
-  case UpdateHeaderRemove(headerIndex: Int)
-  case UpdateHttpCache(cache: String)
-  case FrameTick(runningTime: Double)
-  case MouseMove(to: (Int, Int))
-  case NewFlavour(name: String)
-  case AddFruit
-  case UpdateFruitInput(input: String)
-  case ToggleFruitAvailability(name: String)
-  case SelectImageFile
-  case ReadImageFile(file: dom.File)
-  case FileImageRead(fileData: String)
-  case SelectTextFile
-  case ReadTextFile(file: dom.File)
-  case FileTextRead(fileData: String)
-  case SelectBytesFile
-  case ReadBytesFile(file: dom.File)
-  case FileBytesRead(fileData: IArray[Byte])
-  case LoadImage
-  case UpdateImageUrl(url: String)
-  case ImageLoaded(result: ImageLoader.Result)
-  case NoOp
-
-enum Status:
-  case Connecting
-  case Connected(ws: WebSocket[IO])
-  case ConnectionError(msg: String)
-  case Disconnecting
-  case Disconnected
-
-  def asMsg: Msg = Msg.WebSocketStatus(this)
-
-object Counter:
-
-  opaque type Model = Int
-
-  def init: Model = 0
-
-  enum Msg:
-    case Increment, Decrement
-
-  def view(model: Model): Html[Msg] =
-    div(
-      button(onClick(Msg.Decrement))(text("-")),
-      div(text(model.toString)),
-      button(onClick(Msg.Increment))(text("+"))
-    )
-
-  def update(msg: Msg, model: Model): Model =
-    msg match
-      case Msg.Increment => model + 1
-      case Msg.Decrement => model - 1
-
-final case class Model(
-    page: Page,
-    echoSocket: Option[WebSocket[IO]],
-    socketUrl: String,
-    field: String,
-    components: List[Counter.Model],
-    log: List[String],
-    error: Option[String],
-    tmpSaveData: String,
-    saveData: Option[String],
-    currentTime: js.Date,
-    http: HttpDetails,
-    time: Time,
-    mousePosition: (Int, Int),
-    flavour: Option[String],
-    fruit: List[Fruit],
-    fruitInput: String,
-    loadedImage: Option[String],
-    loadedText: Option[String],
-    loadedBytes: Option[IArray[Byte]],
-    imageLoadingUrl: String,
-    imageLoadingError: Option[String]
-)
-
-final case class Fruit(name: String, available: Boolean)
-
-final case class Time(running: Double, delta: Double):
-  def next(t: Double): Time =
-    this.copy(running = t, delta = t - running)
-
-enum Page:
-  case Page1, Page2, Page3, Page4, Page5, Page6, Page7
-
-  def toNavLabel: String =
-    this match
-      case Page1 => "Input fields"
-      case Page2 => "Counters"
-      case Page3 => "WebSockets"
-      case Page4 => "Clock"
-      case Page5 => "Http"
-      case Page6 => "Form"
-      case Page7 => "File Select"
-
-  def toUrlPath: String =
-    this match
-      case Page1 => "/page1"
-      case Page2 => "/page2"
-      case Page3 => "/page3"
-      case Page4 => "/page4"
-      case Page5 => "/page5"
-      case Page6 => "/page6"
-      case Page7 => "/page7"
-
-object Model:
-  // val echoServer = "ws://ws.ifelse.io" // public echo server
-  val echoServer = "ws://localhost:8080/wsecho"
-
-  val init: Model =
-    Model(
-      Page.Page1,
-      None,
-      echoServer,
-      "",
-      Nil,
-      Nil,
-      None,
-      "",
-      None,
-      new js.Date(),
-      HttpDetails.initial,
-      Time(0.0d, 0.0d),
-      (0, 0),
-      None,
-      Nil,
-      "",
-      None,
-      None,
-      None,
-      "https://openmoji.org/php/download_asset.php?type=emoji&emoji_hexcode=1F9A6&emoji_variant=color",
-      None
-    )
-
-  // We're only saving/loading the input field contents as an example
-  def encode(model: Model): String = model.field
-  def decode: Option[String] => Either[String, Model] =
-    case None => Left("No snapshot found")
-    case Some(data) =>
-      Right(Model.init.copy(field = data))
-
-final case class HttpDetails(
-    method: Method,
-    url: Option[String],
-    body: String,
-    response: Option[Response],
-    error: Option[String],
-    timeout: Double,
-    credentials: RequestCredentials,
-    headers: List[(String, String)],
-    cache: RequestCache
-)
-object HttpDetails:
-  val initial: HttpDetails =
-    HttpDetails(
-      Method.Get,
-      Option("http://httpbin.org/get"),
-      "",
-      None,
-      None,
-      10000,
-      RequestCredentials.SameOrigin,
-      List(),
-      RequestCache.Default
-    )
-
-final case class Vector2(x: Double, y: Double)
