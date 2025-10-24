@@ -1,6 +1,10 @@
 package example
 
 import cats.effect.IO
+import example.models.Fruit
+import example.models.Page
+import example.models.Vector2
+import example.models.WSStatus
 import org.scalajs.dom
 import org.scalajs.dom.document
 import tyrian.*
@@ -15,10 +19,6 @@ import scala.concurrent.duration.*
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 import scala.util.Random
-import example.models.Fruit
-import example.models.Vector2
-import example.models.WSStatus
-import example.models.Page
 
 @JSExportTopLevel("TyrianApp")
 object Sandbox extends TyrianIOApp[Msg, Model]:

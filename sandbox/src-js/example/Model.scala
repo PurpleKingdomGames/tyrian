@@ -1,11 +1,11 @@
 package example
 
 import cats.effect.IO
-import tyrian.websocket.*
 import example.models.Fruit
-import example.models.Time
 import example.models.HttpDetails
 import example.models.Page
+import example.models.Time
+import tyrian.websocket.*
 
 import scala.scalajs.js
 
