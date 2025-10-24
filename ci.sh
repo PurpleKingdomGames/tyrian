@@ -3,9 +3,8 @@
 set -e
 
 ./mill clean
-./mill -j1 __.compile
-./mill -j1 __.test
-./mill -j1 __.checkFormat
-./mill -j1 __.fix --check
+./mill -j2 __.compile
 ./mill -j1 __.fastLinkJS
-./mill -j1 __.publishLocal
+./mill -j2 __.test
+./mill -j2 __.checkFormat
+./mill -j1 __.fix --check
