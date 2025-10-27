@@ -14,22 +14,15 @@
           overlays = [
             (f: p: {
               mill = p.mill.override { jre = p.jdk17_headless; };
-              sbt = p.sbt.override { jre = p.jdk17_headless; };
             })
           ];
         };
         jdk = pkgs.jdk17_headless;
 
-        commonInputs = with pkgs; [
-          chromedriver
-          geckodriver
-        ];
-
         jvmInputs = with pkgs; [
           jdk
           coursier
           mill
-          sbt
         ];
         jvmHook = ''
           JAVA_HOME="${jdk}"
@@ -47,7 +40,7 @@
       {
         devShells.default = pkgs.mkShell {
           name = "tyrian-dev-shell";
-          buildInputs = commonInputs ++ jvmInputs ++ jsInputs;
+          buildInputs = jvmInputs ++ jsInputs;
           shellHook = jvmHook + jsHook;
         };
       }

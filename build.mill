@@ -1,0 +1,118 @@
+//| mill-version: 1.0.6
+//| mvnDeps: [
+//|  "com.goyeau::mill-scalafix::0.6.0",
+//|  "org.typelevel::scalac-options:0.1.8"
+//| ]
+
+package build
+
+import mill.*
+import mill.scalalib.*
+import mill.scalalib.publish.*
+import mill.scalalib.scalafmt.*
+import mill.scalajslib.*
+import mill.api.BuildCtx
+import org.typelevel.scalacoptions.*
+import com.goyeau.mill.scalafix.ScalafixModule
+
+trait Shared extends ScalafmtModule, ScalafixModule:
+  def scalaVersion = "3.7.3"
+
+  override def scalacOptions = Task {
+    super.scalacOptions() ++
+      ScalacOptions.tokensForVersion(
+        ScalaVersion.unsafeFromString(scalaVersion()),
+        ScalacOptions.default ++ ScalacOptions.fatalWarningOptions
+      )
+  }
+
+trait SharedJVM extends Shared, ScalaModule:
+  object test extends ScalaTests:
+    def mvnDeps = Seq(
+      mvn"org.scalameta::munit::1.2.0",
+      mvn"org.typelevel::munit-cats-effect::${Dependencies.munitCatsEffect3}",
+      mvn"org.typelevel::discipline-munit::${Dependencies.disciplineMUnit}",
+      mvn"org.typelevel::cats-laws::${Dependencies.catsLaws}"
+    )
+
+    def testFramework = Task("munit.Framework")
+
+trait SharedJS extends Shared, ScalaJSModule:
+  def scalaJSVersion = Task("1.20.1")
+
+  object test extends ScalaJSTests:
+    def mvnDeps = Seq(
+      mvn"org.scalameta::munit::1.2.0",
+      mvn"org.typelevel::munit-cats-effect::${Dependencies.munitCatsEffect3}",
+      mvn"org.typelevel::discipline-munit::${Dependencies.disciplineMUnit}",
+      mvn"org.typelevel::cats-laws::${Dependencies.catsLaws}"
+    )
+
+    override def moduleKind = Task(mill.scalajslib.api.ModuleKind.CommonJSModule)
+
+    def testFramework = Task("munit.Framework")
+
+trait SharedPublish extends PublishModule:
+
+  def tyrianVersion = Task.Input(TyrianVersion.getVersion(BuildCtx.workspaceRoot))
+
+  def publishVersion = tyrianVersion()
+
+  def pomSettings =
+    PomSettings(
+      description = "tyrian",
+      organization = "io.indigoengine",
+      url = "https://github.com/PurpleKingdomGames/tyrian",
+      licenses = Seq(License.MIT),
+      versionControl = VersionControl.github("PurpleKingdomGames", "tyrian"),
+      developers = Seq(
+        Developer("davesmith00000", "David Smith", "https://github.com/davesmith00000")
+      )
+    )
+
+// --- Utils ---
+
+object TyrianVersion:
+
+  def getVersion(workspaceDir: os.Path): String = {
+    def rec(wd: os.Path, file: String, levels: Int, version: Option[String]): String = {
+      val msg = "ERROR: Couldn't find tyrian version."
+      version match {
+        case Some(v) =>
+          println(s"""Tyrian version set to '$v'""")
+          v
+
+        case None if levels < 3 =>
+          try {
+            val v = os.read.lines(wd / file).head
+            rec(wd, file, levels, Some(v))
+          } catch {
+            case _: Throwable =>
+              rec(wd / os.RelPath.up, file, levels + 1, None)
+          }
+
+        case None =>
+          println(msg)
+          throw new Exception(msg)
+      }
+    }
+
+    rec(workspaceDir, ".tyrian-version", 0, None)
+  }
+
+object Dependencies:
+
+  val catsEffect        = "3.6.3"
+  val circe             = "0.14.15"
+  val fs2               = "3.12.2"
+  val scalajsDomVersion = "2.8.1"
+  val munitCatsEffect3  = "2.1.0"
+  val disciplineMUnit   = "2.0.0"
+  val scalajsSnabbdom   = "0.2.0-M3"
+  val zio               = "2.1.21"
+  val zioInteropCats    = "23.1.0.5"
+  val scalaJavaTime     = "2.6.0"
+  val catsLaws          = "2.13.0"
+  val http4sCirce       = "0.23.30"
+  val http4sDom         = "0.2.11"
+  val http4sServer      = "0.23.32"
