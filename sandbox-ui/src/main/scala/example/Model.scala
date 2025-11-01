@@ -5,10 +5,10 @@ import example.views.Page
 import tyrian.*
 import tyrian.next.*
 import tyrian.ui.*
-// import components.TopNav
+import components.TopNav
 
 final case class Model(
-    // topNav: TopNav,
+    topNav: TopNav,
     nameInput: Input
 ):
 
@@ -22,21 +22,22 @@ final case class Model(
 
     case e =>
       for {
-        // tn <- topNav.update(e)
+        tn <- topNav.update(e)
         ni <- nameInput.update(e)
       } yield this.copy(
-        // topNav = tn,
+        topNav = tn,
         nameInput = ni
       )
 
   def view(using Theme): HtmlFragment =
     Page.page |+|
+      topNav.view |+|
       Model.tmpView(this)
 
 object Model:
   val init: Model =
     Model(
-      // components.TopNav.initial,
+      components.TopNav.initial,
       Input(UIKey("name-input"))
         .withPlaceholder("Type here...")
         .overrideTheme(

@@ -9,7 +9,8 @@ final case class TopNav():
     case _ => Outcome(this)
 
   def view(using Theme): HtmlFragment =
-    HtmlFragment(
+    HtmlFragment.insert(
+      MarkerId("top-nav"),
       Row(
         Link("/another-page")(
           TextBlock("Internal link (will be ignored)")
