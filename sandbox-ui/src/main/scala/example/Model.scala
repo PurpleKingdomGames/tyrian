@@ -1,11 +1,11 @@
 package example
 
 import cats.effect.IO
+import example.components.TopNav
 import example.views.Page
 import tyrian.*
 import tyrian.next.*
 import tyrian.ui.*
-import components.TopNav
 
 final case class Model(
     topNav: TopNav,
