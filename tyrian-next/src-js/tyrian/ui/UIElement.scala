@@ -73,8 +73,6 @@ TODOs
 
 Cross compilation - we're going to want this for Scala JVM use.
 
-Look at Theme's carefully. Link should use the same theme as Text, for example.
-
 New library of shared types (Tyrian / Indigo):
 
   - Batch
@@ -90,19 +88,20 @@ New library of shared types (Tyrian / Indigo):
 
 Theme / Style Performance
 
-  1. Font styles inherit, and they're very chunky. So what we could do is track
+  1.1. Hash styles, render them in a style block, and use a class name based on the hash. This avoids huge styles, and makes point (1.1) redundant.
+  OR
+  1.2. Font styles inherit, and they're very chunky. So what we could do is track
   what's been set so far down any given rendering branch, and only set the style
   tag for the changes. Might mean setting font details on Containers?
 
   2. The themes are a bit mixed at the moment. Review which fields should and shouldn't be optional to avoid needlessly writing out default styles. Also some styles might be set, but if they're the default, don't render.
 
-  3. Hash styles, render them in a style block, and use a class name based on the hash. This avoids huge styles, and makes point (1) redundant.
 
 ---
 
 Stateless Components
 
-	-	Button
+	-	Button - DONE
 	-	Text - DONE
 	-	Image -DONE
 	-	Row - DONE
@@ -123,23 +122,7 @@ Stateful Components
 	-	Checkbox /  Switch (type of checkbox...?)
 	-	Radio buttons
 	-	Slider / Range
-	-	Tooltip
   - Dropdown / chooser
-
-Compound Components?
-
-  - Carousel
-  - inplace input
-  - Notifications
-  - Datepicker
-  - Color picker
-	-	FileInput / FileManager
-
----
-
-Transitions
-
-I think generally these should just either be tastefully built in, no choice, or applied by the user adding custom styles.
 
 ---
 
@@ -149,12 +132,23 @@ Drawing API
 
 ---
 
-Animations?
-
----
-
-Future enhancements:
+Future enhancements (make tickets):
 
   - Buttons are stateless, make stateful for mouse over / down effects.
+
+Handy Compound Components?
+
+  - Carousel
+  - inplace input
+  - Notifications
+  - Datepicker
+  - Color picker
+	-	FileInput / FileManager
+
+Animations?
+
+Transitions
+
+I think generally these should just either be tastefully built in, no choice, or applied by the user adding custom styles.
 
  */
