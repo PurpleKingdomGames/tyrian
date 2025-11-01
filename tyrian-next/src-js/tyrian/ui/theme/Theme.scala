@@ -1,6 +1,7 @@
 package tyrian.ui.theme
 
 import tyrian.ui.elements.stateful.input.InputTheme
+import tyrian.ui.elements.stateless.button.ButtonTheme
 import tyrian.ui.elements.stateless.link.LinkTheme
 import tyrian.ui.elements.stateless.table.TableTheme
 import tyrian.ui.elements.stateless.text.TextThemes
@@ -37,6 +38,9 @@ object Theme:
         t.copy(config = t.config.withFonts(fonts))
 
       // Elements
+
+      def withButtonTheme(button: ButtonTheme): Theme.Default =
+        t.copy(elements = t.elements.withButtonTheme(button))
 
       def withCanvasTheme(canvas: ContainerTheme): Theme.Default =
         t.copy(elements = t.elements.withCanvasTheme(canvas))

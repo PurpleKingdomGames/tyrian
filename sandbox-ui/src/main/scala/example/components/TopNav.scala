@@ -1,5 +1,6 @@
 package example.components
 
+import example.AppEvent
 import tyrian.next.*
 import tyrian.ui.*
 
@@ -17,7 +18,8 @@ final case class TopNav():
         ),
         Link("http://tyrian.indigoengine.io/")(
           TextBlock("Tyrian website")
-        ).withTarget(Target.Blank)
+        ).withTarget(Target.Blank),
+        Button("Shadertoy", AppEvent.FollowLink("https://shadertoy.com/"))
       ).spaceAround
     )
 

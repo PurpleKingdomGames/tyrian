@@ -12,11 +12,11 @@ import tyrian.ui.theme.ThemeOverride
 import tyrian.ui.utils.Lens
 
 final case class Input(
-    key: UIKey,
     placeholder: String,
     isDisabled: Boolean,
     isReadOnly: Boolean,
     value: String,
+    key: UIKey,
     classNames: Set[String],
     id: Option[String],
     themeOverride: ThemeOverride[InputTheme]
@@ -80,11 +80,11 @@ object Input:
 
   def apply(key: UIKey): Input =
     Input(
-      key,
       placeholder = "",
       isDisabled = false,
       isReadOnly = false,
       value = "",
+      key,
       Set.empty,
       id = None,
       ThemeOverride.NoOverride

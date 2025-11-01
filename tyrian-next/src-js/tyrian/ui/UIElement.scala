@@ -26,9 +26,9 @@ trait UIElement[Component, ComponentTheme]:
   def overrideTheme(modify: ComponentTheme => ComponentTheme): Component =
     withThemeOverride(ThemeOverride.Override(modify))
 
-  /** *Should not be called directly.* User provided implementation of a function to render the UIElement into a Tyrian
-    * Elem[GlobalMsg] with the given theme, however, the correct way to render a UIElement is to call `toElem`, which
-    * applies any theme overrides.
+  /** Warning: Should not be called directly. User provided implementation of a function to render the UIElement into a
+    * Tyrian Elem[GlobalMsg] with the given theme, however, the correct way to render a UIElement is to call `toElem`,
+    * which applies any theme overrides.
     */
   def view: Theme ?=> tyrian.Elem[GlobalMsg]
 
@@ -90,15 +90,19 @@ New library of shared types (Tyrian / Indigo):
 
 Theme / Style Performance
 
-  - Font styles inherit, and they're very chunky. So what we could do is track
+  1. Font styles inherit, and they're very chunky. So what we could do is track
   what's been set so far down any given rendering branch, and only set the style
   tag for the changes. Might mean setting font details on Containers?
 
-  - The themes are a bit mixed at the moment. Review which fields should and shouldn't be optional to avoid needlessly writing out default styles. Also some styles might be set, but if they're the default, don't render.
+  2. The themes are a bit mixed at the moment. Review which fields should and shouldn't be optional to avoid needlessly writing out default styles. Also some styles might be set, but if they're the default, don't render.
+
+  3. Hash styles, render them in a style block, and use a class name based on the hash. This avoids huge styles, and makes point (1) redundant.
 
 ---
 
 Stateless Components
+
+	-	Button
 	-	Text - DONE
 	-	Image -DONE
 	-	Row - DONE
@@ -113,8 +117,8 @@ Stateless Components
 ⸻
 
 Stateful Components
+
 	-	Input - DONE
-	-	Button
 	-	TextArea
 	-	Checkbox /  Switch (type of checkbox...?)
 	-	Radio buttons
@@ -146,5 +150,11 @@ Drawing API
 ---
 
 Animations?
+
+---
+
+Future enhancements:
+
+  - Buttons are stateless, make stateful for mouse over / down effects.
 
  */

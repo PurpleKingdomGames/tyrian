@@ -130,6 +130,17 @@ val Placeholder: layout.Placeholder.type = layout.Placeholder
 
 // ---- Stateless elements ----
 
+// Button
+
+type Button = elements.stateless.button.Button
+val Button: elements.stateless.button.Button.type = elements.stateless.button.Button
+
+type ButtonKind = elements.stateless.button.ButtonKind
+val ButtonKind: elements.stateless.button.ButtonKind.type = elements.stateless.button.ButtonKind
+
+type ButtonTheme = elements.stateless.button.ButtonTheme
+val ButtonTheme: elements.stateless.button.ButtonTheme.type = elements.stateless.button.ButtonTheme
+
 // HTML
 
 type HtmlElement = elements.stateless.html.HtmlElement
