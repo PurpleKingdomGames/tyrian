@@ -3,6 +3,10 @@
 [![Discord Chat](https://img.shields.io/discord/716435281208672356?color=blue&label=discord)](https://discord.gg/b5CD47g)
 [![CI](https://github.com/PurpleKingdomGames/tyrian/actions/workflows/ci.yml/badge.svg)](https://github.com/PurpleKingdomGames/tyrian/actions/workflows/ci.yml)
 
+***TYRIAN HAS MOVED HOME!!!***
+
+Please head over to https://github.com/PurpleKingdomGames/indigoengine for the up to date source code.
+
 # Tyrian
 
 An Elm-inspired Scala UI library for Scala 3.
